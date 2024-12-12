@@ -1,6 +1,7 @@
 #include <cstdio>
 
 printf("Hi");
-printf("Hellod");
+printf("Hello World");
+printf("XD");
 
 return 0;
