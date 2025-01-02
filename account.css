@@ -1,0 +1,12 @@
+/* personnal css rule
+1. aestethic section
+2. positions
+3. functionallity  */
+
+body {
+  background-color: #282c34;
+  color: lightgray;
+  font-family: "poppins";
+  padding: 0;
+  margin: 0;
+}
