@@ -15,6 +15,10 @@ body {
   min-height: 100vh;
 }
 
+form {
+  justify-items: center;
+}
+
 .scroll-hidden {
   opacity: 0;
   transition: all 1s;
@@ -25,9 +29,32 @@ body {
 }
 
 .login-box {
+  display: flex;
   border: white solid;
   border-radius: 20px;
   width: 90vw;
   height: 80vh;
   margin: 0 auto;
+}
+
+.login-form {
+  background-color: gray;
+  border-radius: 17px;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.mew-fit-logo img {
+  scale: 80%;
+  transform: translateY(10%);
+}
+
+.login-header {
+  color: #ff946e;
+  font-family: "Mogra";
+  font-size: 1.5rem;
 }
