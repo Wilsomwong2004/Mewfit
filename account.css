@@ -9,4 +9,25 @@ body {
   font-family: "poppins";
   padding: 0;
   margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.scroll-hidden {
+  opacity: 0;
+  transition: all 1s;
+}
+
+.scroll-shown {
+  opacity: 1;
+}
+
+.login-box {
+  border: white solid;
+  border-radius: 20px;
+  width: 90vw;
+  height: 80vh;
+  margin: 0 auto;
 }
