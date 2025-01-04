@@ -85,7 +85,7 @@ form {
   border: none;
   outline: none;
   border: 2px solid #ffad84;
-  border-radius: 5px;
+  border-radius: 10px;
   font-family: "Inter";
   font-size: 16px;
   font-weight: bold;
@@ -114,6 +114,20 @@ form {
 
 .login-form .btn:hover {
   background-color: #ff6c37;
+}
+
+.forget-password a {
+  text-decoration: none;
+  color: #4a9adb;
+  font-family: "Inter";
+  font-weight: bold;
+}
+
+.sign_up a {
+  text-decoration: none;
+  color: #ffbca5;
+  font-family: "Inter";
+  font-weight: bold;
 }
 
 @media only screen and (max-width: 768px) {
