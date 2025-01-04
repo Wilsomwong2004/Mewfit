@@ -48,9 +48,8 @@ form {
   align-items: center;
 }
 
-.mew-fit-logo img {
-  scale: 80%;
-  transform: translateY(10%);
+.login-form img {
+  scale: 5%;
 }
 
 .login-header {
