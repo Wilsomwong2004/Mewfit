@@ -37,7 +37,7 @@ form {
   border: white solid;
   border-radius: 20px;
   width: 90vw;
-  height: 80vh;
+  height: 90vh;
   margin: 0 auto;
 }
 
@@ -63,16 +63,19 @@ form {
   color: #ff946e;
   font-family: "Mogra";
   font-size: 1.5rem;
+  font-weight: normal;
   transition: all 1s;
 }
 
 .input-box {
   width: 100%;
   max-width: 400px;
+  height: 40px;
   display: flex;
   align-items: center;
+  margin: 30px 0px;
   position: relative;
-  transform: translateY(-20%);
+  transform: translateY(-10%);
 }
 
 .input-box input {
@@ -97,13 +100,14 @@ form {
 
 .login-form .btn {
   width: 250px;
+  height: 50px;
   color: #fff;
   background-color: #ff946e;
   border: none;
   border-radius: 30px;
   font-family: "Inter";
   font-weight: bold;
-  margin: 5px 0px;
+  margin: 10px 0px;
   padding: 10px 5px;
   transition: all 0.5s;
 }
