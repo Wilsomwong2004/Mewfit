@@ -99,7 +99,13 @@ form {
   border: none;
   border-radius: 30px;
   font-family: "Inter";
-  padding: 20px 5px;
+  font-weight: bold;
+  padding: 10px 5px;
+  transition: all 0.5s;
+}
+
+.login-form .btn:hover {
+  background-color: #ff6c37;
 }
 
 @media only screen and (max-width: 768px) {
