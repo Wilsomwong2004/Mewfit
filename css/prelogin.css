@@ -1,0 +1,14 @@
+body {
+    font-family: Inter;
+}
+
+.login_btn{
+    color:white;
+    background-color: #FFAD84;
+    border-radius: 68px;
+    margin-left:20px;
+    width:80px;
+    font-size:16px;
+    text-align:center;
+    padding:10px;
+}
