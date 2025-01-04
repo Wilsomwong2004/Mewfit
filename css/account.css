@@ -4,7 +4,9 @@
 3. functionallity  */
 
 body {
-  background-color: #282c34;
+  background: url("../Image/login_screen.png") no-repeat;
+  background-position: center;
+  background-size: cover;
   color: lightgray;
   font-family: "poppins";
   padding: 0;
@@ -16,6 +18,8 @@ body {
 }
 
 form {
+  width: 100%;
+  padding: 2%;
   justify-items: center;
 }
 
@@ -38,7 +42,7 @@ form {
 }
 
 .login-form {
-  background-color: gray;
+  background-color: #fff;
   border-radius: 17px;
   width: 50%;
   height: 100%;
@@ -46,16 +50,20 @@ form {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  transition: all 1s;
 }
 
-.login-form img {
-  scale: 5%;
+.logo-icon img {
+  width: 150px;
+  height: 150px;
 }
 
 .login-header {
+  text-align: center;
   color: #ff946e;
   font-family: "Mogra";
   font-size: 1.5rem;
+  transition: all 1s;
 }
 
 .input-box input {
@@ -68,6 +76,8 @@ form {
   border-radius: 5px;
   font-size: 16px;
   color: #fff;
+  margin: 5px 0px;
+  padding: 2px 3px;
 }
 
 .input-box input::placeholder {
@@ -80,4 +90,36 @@ form {
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
+}
+
+.login-form .btn {
+  width: 300%;
+  color: #fff;
+  background-color: #ff946e;
+  border: none;
+  border-radius: 30px;
+  font-family: "Inter";
+  font-weight: bold;
+  padding: 10px 5px;
+  transition: all 0.5s;
+}
+
+.login-form .btn:hover {
+  background-color: #ff6c37;
+}
+
+@media only screen and (max-width: 768px) {
+  .login-form {
+    width: 100%;
+  }
+
+  .login-header {
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  .logo-icon img {
+    width: 120px;
+    height: 120px;
+  }
 }
