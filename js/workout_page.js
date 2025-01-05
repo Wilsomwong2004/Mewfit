@@ -5,55 +5,254 @@ let canvasContext;
 let isRunning = false;
 let animationFrameId;
 
-// Initialize the pose detection system
-async function initPoseDetection() {
-    // Create video and canvas elements
+// Initialize TensorFlow backend
+async function initializeTF() {
+    try {
+        await tf.ready();
+        // Explicitly wait for backend initialization
+        await tf.setBackend('webgl');
+        console.log('TensorFlow.js initialized successfully');
+        return true;
+    } catch (error) {
+        console.error('Error initializing TensorFlow:', error);
+        return false;
+    }
+}
+
+// Modified init function
+async function init() {
     const workoutUser = document.querySelector('.workout-user');
-    workoutUser.innerHTML = ''; // Clear the "User Camera" text
-
-    // Create and style video element
-    videoElement = document.createElement('video');
-    videoElement.style.width = '100%';
-    videoElement.style.height = '100%';
-    videoElement.style.objectFit = 'cover';
-    videoElement.style.borderRadius = '16px';
-    videoElement.autoplay = true;
-    videoElement.playsinline = true;
-
-    // Create and style canvas element
-    canvasElement = document.createElement('canvas');
-    canvasElement.style.position = 'absolute';
-    canvasElement.style.width = '100%';
-    canvasElement.style.height = '100%';
-    canvasElement.style.borderRadius = '16px';
-
-    // Set actual canvas dimensions
-    canvasElement.width = workoutUser.offsetWidth;
-    canvasElement.height = workoutUser.offsetHeight;
-
-    // Add elements to container
-    workoutUser.style.position = 'relative';
-    workoutUser.appendChild(videoElement);
-    workoutUser.appendChild(canvasElement);
-
-    canvasContext = canvasElement.getContext('2d');
 
     try {
-        // Access webcam
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: workoutUser.offsetWidth,
-                height: workoutUser.offsetHeight
-            },
-            audio: false
-        });
-        videoElement.srcObject = stream;
+        // Initialize TensorFlow first
+        const tfInitialized = await initializeTF();
+        if (!tfInitialized) {
+            workoutUser.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <p>Error: Could not initialize TensorFlow. Please check if your browser supports WebGL.</p>
+                    <button onclick="retryInitialization()" style="
+                        background-color: #ff6060;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 12px 24px;
+                        margin-top: 15px;
+                        cursor: pointer;
+                    ">Try Again</button>
+                </div>
+            `;
+            return;
+        }
 
-        // Load pose detection model
-        const model = poseDetection.SupportedModels.MoveNet;
-        detector = await poseDetection.createDetector(model, {
-            modelType: 'lightning'
-        });
+        // Proceed with pose detection initialization
+        await initPoseDetection();
+    } catch (error) {
+        console.error('Initialization error:', error);
+        workoutUser.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <p>Error: ${error.message}</p>
+                <p>Please refresh the page or try a different browser.</p>
+                <button onclick="retryInitialization()" style="
+                    background-color: #ff6060;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px 24px;
+                    margin-top: 15px;
+                    cursor: pointer;
+                ">Try Again</button>
+            </div>
+        `;
+    }
+}
+
+// Update the window load event handler
+window.addEventListener('load', async () => {
+    // Wait a moment to ensure all scripts are loaded
+    setTimeout(async () => {
+        await init();
+    }, 1000);
+});
+
+// Add function to handle device enumeration and selection
+async function getAvailableCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        return devices.filter(device => device.kind === 'videoinput');
+    } catch (error) {
+        console.error('Error getting camera devices:', error);
+        return [];
+    }
+}
+
+// Modified camera permission request with device selection
+async function requestCameraPermission() {
+    const workoutUser = document.querySelector('.workout-user');
+
+    try {
+        // First try to get the list of available cameras
+        const cameras = await getAvailableCameras();
+
+        // Check if we have any cameras available
+        if (cameras.length === 0) {
+            workoutUser.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px;">
+                    <i class="fa-solid fa-video-slash" style="font-size: 48px; margin-bottom: 20px; color: #ff6060;"></i>
+                    <h3 style="margin-bottom: 15px;">No Camera Detected</h3>
+                    <p style="margin-bottom: 20px;">Please ensure your camera is properly connected and not in use by another application.</p>
+                    <button onclick="location.reload()" style="
+                        background-color: #ff6060;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 12px 24px;
+                        cursor: pointer;
+                        font-size: 16px;
+                    ">Try Again</button>
+                </div>
+            `;
+            return;
+        }
+
+        // Attempt to start the camera with more specific constraints
+        let stream;
+        for (const camera of cameras) {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        deviceId: camera.deviceId,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 60 }
+                    },
+                    audio: false
+                });
+
+                if (stream) break; // Successfully got a stream
+            } catch (err) {
+                console.log(`Failed to get stream from camera ${camera.deviceId}:`, err);
+                continue; // Try next camera
+            }
+        }
+
+        if (!stream) {
+            throw new Error('Could not access any camera');
+        }
+
+        // If we got a stream, proceed with initialization
+        await initializeVideoElements(stream);
+
+    } catch (error) {
+        console.error('Camera access error:', error);
+
+        let errorMessage;
+        let errorTitle;
+        let errorIcon = 'fa-circle-exclamation';
+
+        switch (error.name) {
+            case 'NotReadableError':
+                errorTitle = 'Camera Not Available';
+                errorMessage = `
+                    <p>The camera is currently in use by another application or encountered a hardware error.</p>
+                    <br>
+                    <p>Please try:</p>
+                    <ol style="text-align: left; margin-top: 10px;">
+                        <li>Closing other applications that might be using the camera</li>
+                        <li>Disconnecting and reconnecting your camera</li>
+                        <li>Restarting your browser</li>
+                        <li>Checking your computer's privacy settings</li>
+                    </ol>
+                `;
+                break;
+            case 'NotAllowedError':
+                errorTitle = 'Camera Access Denied';
+                errorMessage = 'Please enable camera access in your browser settings.';
+                break;
+            case 'NotFoundError':
+                errorTitle = 'No Camera Found';
+                errorIcon = 'fa-video-slash';
+                errorMessage = 'Please connect a camera and refresh the page.';
+                break;
+            default:
+                errorTitle = 'Camera Error';
+                errorMessage = `An error occurred: ${error.message}`;
+        }
+
+        workoutUser.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px;">
+                <i class="fa-solid ${errorIcon}" style="font-size: 48px; margin-bottom: 20px; color: #ff6060;"></i>
+                <h3 style="margin-bottom: 15px;">${errorTitle}</h3>
+                <div style="margin-bottom: 20px;">${errorMessage}</div>
+                <button onclick="retryInitialization()" style="
+                    background-color: #ff6060;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px 24px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Try Again</button>
+            </div>
+        `;
+    }
+}
+
+// Add retry function
+async function retryInitialization() {
+    const workoutUser = document.querySelector('.workout-user');
+    workoutUser.innerHTML = '<div style="text-align: center; padding: 20px;">Retrying camera initialization...</div>';
+
+    // Small delay before retrying
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await initPoseDetection();
+}
+
+// Modified initializeVideoElements to handle potential errors
+async function initializeVideoElements(stream) {
+    const workoutUser = document.querySelector('.workout-user');
+    workoutUser.innerHTML = '';
+
+    try {
+        // Create video element with error handling
+        videoElement = document.createElement('video');
+        videoElement.style.width = '100%';
+        videoElement.style.height = '100%';
+        videoElement.style.objectFit = 'cover';
+        videoElement.style.borderRadius = '16px';
+        videoElement.autoplay = true;
+        videoElement.playsinline = true;
+
+        // Add error handling for video element
+        videoElement.onerror = (e) => {
+            console.error('Video element error:', e);
+            throw new Error('Failed to initialize video element');
+        };
+
+        // Create canvas element
+        canvasElement = document.createElement('canvas');
+        canvasElement.style.position = 'absolute';
+        canvasElement.style.width = '100%';
+        canvasElement.style.height = '100%';
+        canvasElement.style.borderRadius = '16px';
+        canvasElement.width = workoutUser.offsetWidth;
+        canvasElement.height = workoutUser.offsetHeight;
+
+        // Set up container
+        workoutUser.style.position = 'relative';
+        workoutUser.appendChild(videoElement);
+        workoutUser.appendChild(canvasElement);
+
+        // Set up video stream
+        videoElement.srcObject = stream;
+        canvasContext = canvasElement.getContext('2d');
+
+        // Load pose detection model with correct configuration
+        detector = await poseDetection.createDetector(
+            poseDetection.SupportedModels.MoveNet,
+            {
+                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+            }
+        );
 
         // Start detection when video is ready
         videoElement.onloadedmetadata = () => {
@@ -61,8 +260,67 @@ async function initPoseDetection() {
         };
 
     } catch (error) {
+        console.error('Error in video initialization:', error);
+        workoutUser.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <p>Error initializing video: ${error.message}</p>
+                <button onclick="retryInitialization()" style="
+                    background-color: #ff6060;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px 24px;
+                    margin-top: 15px;
+                    cursor: pointer;
+                ">Try Again</button>
+            </div>
+        `;
+    }
+}
+
+// Initialize the pose detection system
+async function initPoseDetection() {
+    // Start with permission request
+    await requestCameraPermission();
+
+    try {
+        // Access webcam
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        });
+
+        // Load pose detection model with correct configuration
+        detector = await poseDetection.createDetector(
+            poseDetection.SupportedModels.MoveNet,
+            {
+                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+            }
+        );
+
+        await initializeVideoElements(stream);
+
+    } catch (error) {
         console.error('Error initializing pose detection:', error);
-        workoutUser.innerHTML = 'Error: Could not access camera. Please check your camera permissions and refresh the page.';
+        const workoutUser = document.querySelector('.workout-user');
+        workoutUser.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <p>Error: Could not access camera or initialize pose detection. Please check your camera permissions and refresh the page.</p>
+                <p>Error details: ${error.message}</p>
+                <button onclick="retryInitialization()" style="
+                    background-color: #ff6060;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px 24px;
+                    margin-top: 15px;
+                    cursor: pointer;
+                ">Try Again</button>
+            </div>
+        `;
     }
 }
 
@@ -198,49 +456,3 @@ function areLibrariesLoaded() {
         typeof poseDetection !== 'undefined' &&
         tf.backend() !== undefined;
 }
-
-// Initialize TensorFlow backend
-async function initializeTF() {
-    try {
-        await tf.setBackend('webgl');
-        await tf.ready();
-        return true;
-    } catch (error) {
-        console.error('Error initializing TensorFlow:', error);
-        return false;
-    }
-}
-
-// Modified initialization
-async function init() {
-    const workoutUser = document.querySelector('.workout-user');
-
-    try {
-        // Check if libraries are loaded
-        if (!areLibrariesLoaded()) {
-            workoutUser.innerHTML = 'Error: Required libraries not loaded. Please check your internet connection and refresh the page.';
-            return;
-        }
-
-        // Initialize TensorFlow
-        const tfInitialized = await initializeTF();
-        if (!tfInitialized) {
-            workoutUser.innerHTML = 'Error: Could not initialize TensorFlow. Please check if your browser supports WebGL.';
-            return;
-        }
-
-        // If everything is loaded, start pose detection
-        await initPoseDetection();
-    } catch (error) {
-        console.error('Initialization error:', error);
-        workoutUser.innerHTML = `Error: ${error.message}. Please refresh the page or try a different browser.`;
-    }
-}
-
-// Update the window load event handler
-window.addEventListener('load', async () => {
-    // Wait a short moment to ensure scripts are loaded
-    setTimeout(async () => {
-        await init();
-    }, 1000);
-});
