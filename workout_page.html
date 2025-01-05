@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MewFit - Workout</title>
+        <link rel="stylesheet" href="./css/workout_page.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="header">
+            <div class="timer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M176 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l16 0 0 34.4C92.3 113.8 16 200 16 304c0 114.9 93.1 208 208 208s208-93.1 208-208c0-41.8-12.3-80.7-33.5-113.2l24.1-24.1c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L355.7 143c-28.1-23-62.2-38.8-99.7-44.6L256 64l16 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L224 0 176 0zm72 192l0 128c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-128c0-13.3 10.7-24 24-24s24 10.7 24 24z"/></svg>
+                <div class="timer-text">0:00</div>
+            </div>
+            <div class="workout-details">
+                <div class="workout-name">Workout Name</div>
+                <div class="workout-round">1/20</div>
+            </div>
+            <div class="close-btn">
+                <i id="close-btn-icon" class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="workout-container">
+            <div class="workout-guide">
+                Demo
+            </div>
+            <div class="workout-user">
+                User Camera
+            </div>
+        </div>
+        <div class="bottom">
+            <div class="control-panel">
+                <div class="pause">
+                    <i id="pause-btn-icon" class="fa-solid fa-pause"></i>
+                    <p class="pause-text">Pause</p>
+                </div>
+                <div class="skip">
+                    <i class="fa-solid fa-forward"></i>
+                </div>
+            </div>
+            <div class="workout-settings">
+                <div class="music">
+                    <i class="fa-solid fa-music"></i>
+                </div>
+                <div class="more">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script src="./js/workout_page.js"></script>
+</html>
