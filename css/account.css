@@ -4,7 +4,7 @@
 3. functionallity  */
 
 body {
-  background: url("../Image/login_screen.png") no-repeat;
+  background: url("../css/Image/login_screen.png") no-repeat;
   background-position: center;
   background-size: cover;
   color: lightgray;
@@ -37,7 +37,7 @@ form {
   border: white solid;
   border-radius: 20px;
   width: 90vw;
-  height: 80vh;
+  height: 90vh;
   margin: 0 auto;
 }
 
@@ -63,7 +63,19 @@ form {
   color: #ff946e;
   font-family: "Mogra";
   font-size: 1.5rem;
+  font-weight: normal;
   transition: all 1s;
+}
+
+.input-box {
+  width: 100%;
+  max-width: 400px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  margin: 30px 0px;
+  position: relative;
+  transform: translateY(-10%);
 }
 
 .input-box input {
@@ -73,39 +85,49 @@ form {
   border: none;
   outline: none;
   border: 2px solid #ffad84;
-  border-radius: 5px;
+  border-radius: 10px;
+  font-family: "Inter";
   font-size: 16px;
-  color: #fff;
-  margin: 5px 0px;
-  padding: 2px 3px;
+  font-weight: bold;
+  color: black;
+  margin: 7px 0px;
+  padding: 5px 10px;
 }
 
 .input-box input::placeholder {
   color: #cdcdcd;
 }
 
-.input-box i {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-}
-
 .login-form .btn {
-  width: 300%;
+  width: 250px;
+  height: 50px;
   color: #fff;
   background-color: #ff946e;
   border: none;
   border-radius: 30px;
   font-family: "Inter";
   font-weight: bold;
+  margin: 10px 0px;
   padding: 10px 5px;
   transition: all 0.5s;
 }
 
 .login-form .btn:hover {
   background-color: #ff6c37;
+}
+
+.forget-password a {
+  text-decoration: none;
+  color: #4a9adb;
+  font-family: "Inter";
+  font-weight: bold;
+}
+
+.sign_up a {
+  text-decoration: none;
+  color: #ffbca5;
+  font-family: "Inter";
+  font-weight: bold;
 }
 
 @media only screen and (max-width: 768px) {
