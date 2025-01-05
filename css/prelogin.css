@@ -1,14 +1,66 @@
 body {
     font-family: Inter;
+    margin:0;
+    overflow:hidden;
+}
+
+.header{
+    background-color: rgb(255, 241, 226);
+    display: flex;
+    align-items: center;
+    padding:1vw 2vw 1vw;
 }
 
 .login_btn{
     color:white;
     background-color: #FFAD84;
     border-radius: 68px;
-    margin-left:20px;
-    width:80px;
+    margin-left:auto;
+    width:9vw;
     font-size:16px;
     text-align:center;
-    padding:10px;
+    padding:1vw;
+    font-weight:bold;
+}
+
+/* ________________________________________________ */
+
+.page1{
+    padding-top:8vw;
+    display:flex;
+    height:40vw;
+    padding-left:10px;
+    justify-content: space-between;
+    align-items:center;
+}
+.page1 h1{font-size:3vw;}
+.page1 p{font-size: 1.5vw;}
+.page1 img{width:40vw;}
+
+@media (max-width: 900px) {
+    .page1 {
+        height:90vw;
+        flex-direction: column;
+    }
+    .page1 h1 {
+        font-size:5vw;
+        text-align: center;
+    }
+    .page1 p {
+        font-size:2.5vw;
+        text-align:center;
+    }
+    .page1 img{ width:60vw;}
+}
+
+
+.page2 {
+    position: relative;
+    height: 100vh;
+    background-color:#3B3636;
+    display:flex;
+}
+.page2 img{
+    position:absolute;
+    width:100px;
 }
