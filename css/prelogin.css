@@ -1,66 +1,167 @@
 body {
     font-family: Inter;
-    margin:0;
-    overflow:hidden;
+    margin: 0;
 }
 
-.header{
+.header {
     background-color: rgb(255, 241, 226);
     display: flex;
     align-items: center;
-    padding:1vw 2vw 1vw;
+    padding: 1vw 2vw 1vw;
+    position: fixed;
+    width: 100%;
+    z-index: 1;
 }
 
-.login_btn{
-    color:white;
+.login_btn {
+    color: white;
     background-color: #FFAD84;
     border-radius: 68px;
-    margin-left:auto;
-    width:9vw;
-    font-size:16px;
-    text-align:center;
-    padding:1vw;
-    font-weight:bold;
+    margin-left: auto;
+    margin-right: 3vw;
+    width: 9vw;
+    font-size: 16px;
+    text-align: center;
+    padding: 1vw;
+    font-weight: bold;
 }
 
-/* ________________________________________________ */
+/* ___________________FADE IN ANIMATION__________________ */
 
-.page1{
-    padding-top:8vw;
-    display:flex;
-    height:40vw;
-    padding-left:10px;
+.left-fade-in, .right-fade-in {
+    opacity: 0; /* Start hidden */
+    transition: opacity 2s ease, transform 2s ease; /* Animation transition */
+}
+
+.right-fade-in {
+    transform: translateX(50px); /* Start slightly to the right */
+}
+
+.left-fade-in {
+    transform: translateX(-50px); /* Start slightly to the left */
+}
+
+.visible {
+    opacity: 1; /* End state */
+    transform: translateX(0); /* End position */
+}
+
+/* _______________________PAGE 1_______________________ */
+#page1 {
+    padding-top: 8vw;
+    display: flex;
+    height: 40vw;
+    padding-left: 10px;
     justify-content: space-between;
-    align-items:center;
+    align-items: center;
+    overflow:hidden;
 }
-.page1 h1{font-size:3vw;}
-.page1 p{font-size: 1.5vw;}
-.page1 img{width:40vw;}
+
+#page1-words {
+    white-space: nowrap;
+    padding-left: 4vw;
+}
+
+#page1 h1 { font-size: 3.5vw; }
+#page1 p { font-size: 1.5vw; }
+#page1 img { width: 40vw; }
+#tryforfree_btn {
+    color: white;
+    background-color: #FFAD84;
+    border-radius: 68px;
+    margin-left: 4vw;
+    width: 13vw;
+    font-size: 16px;
+    text-align: center;
+    padding: 1vw;
+}
+#page1-pic {
+    display: flex;
+    justify-content: flex-end;
+}
 
 @media (max-width: 900px) {
-    .page1 {
-        height:90vw;
+    #page1 {
+        height: 90vw;
         flex-direction: column;
     }
-    .page1 h1 {
-        font-size:5vw;
+    #page1 h1 {
+        font-size: 5vw;
         text-align: center;
     }
-    .page1 p {
-        font-size:2.5vw;
-        text-align:center;
+    #page1 p {
+        font-size: 2.5vw;
+        text-align: center;
     }
-    .page1 img{ width:60vw;}
+    #page1 img { width: 60vw; }
 }
 
-
+/* _____________________PAGE 2_______________________ */
 .page2 {
+    background-color: rgb(65, 56, 53);
+    justify-content: center;
+    align-items: center;
     position: relative;
-    height: 100vh;
-    background-color:#3B3636;
+}
+
+.scroll, .scroll2 {
+    overflow: hidden;
+    display: flex;
+}
+
+.scroll div, .scroll2 div {
+    display: flex;
+    animation: moving 30s linear infinite;
+}
+
+.scroll2 div {
+    animation-delay: 3.5s;
+}
+
+@keyframes moving {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+.scroll img, .scroll2 img {
+    width: 25vw;
+    height:15vw;
+    opacity: 0.5;
+    padding:5px;
+    border-radius: 20px;
+}
+
+#page2-heading {
+    text-align: center;
+    position: absolute;
+    top: 10%;
+    left: 15%;
+}
+
+#page2-heading h1 { 
+    font-size: 6vw; 
+    margin:6px;
+}
+
+#page2-word{
     display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
-.page2 img{
-    position:absolute;
-    width:100px;
+
+#page2-word h2{
+    font-size:9vw;
+    background: linear-gradient(0deg,#ffe0c0,#FFAD84);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip:text;
+    background-clip:text;
+    margin-bottom: 5px;
 }
+
+#page2-word p{
+    color:white;
+    font-size: 2.5vw;
+    margin-top:0;
+}
+
+/* ___________________PAGE 3______________________ */
