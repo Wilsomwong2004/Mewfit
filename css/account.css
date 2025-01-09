@@ -67,12 +67,17 @@ body {
   justify-items: center;
 }
 
+.name-input-box {
+  display: flex;
+  align-content: space-between;
+}
+
 .input-box {
   width: 100%;
   max-width: 400px;
   height: 35px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   margin: 30px 0px;
   position: relative;
   transform: translateY(-10%);
@@ -96,6 +101,14 @@ body {
 
 .input-box input::placeholder {
   color: #cdcdcd;
+}
+
+#f-name {
+  width: 200px;
+}
+
+#l-name {
+  width: 200px;
 }
 
 .login-form .btn {
