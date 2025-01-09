@@ -506,3 +506,31 @@ function areLibrariesLoaded() {
         typeof poseDetection !== 'undefined' &&
         tf.backend() !== undefined;
 }
+
+//.........................................................................................//
+// More Function (pop up window)
+
+document.addEventListener('DOMContentLoaded', function () {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+    const closeBtn = document.getElementById('close-btn');
+    
+    function showPopup(title, content) {
+        popupTitle.textContent = title;
+        popupBody.innerHTML = content;
+        popupContainer.style.display = 'flex';
+    }
+
+    function closePopup() {
+        popupContainer.style.display = 'none';
+    }
+
+    document.getElementById('more').addEventListener('click', function (e) {
+        e.preventDefault();
+        showPopup('More Information', `
+            <p>Here is some more information about the workout.</p>
+            <p>This is a sample popup window with some content.</p>
+        `);
+    });
+});

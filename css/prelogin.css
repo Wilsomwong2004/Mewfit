@@ -20,7 +20,7 @@ body {
     margin-left: auto;
     margin-right: 3vw;
     width: 8.5vw;
-    font-size: 12pt;
+    font-size: 10pt;
     text-align: center;
     padding: 0.75vw;
     font-weight: bold;
@@ -28,67 +28,87 @@ body {
 
 @media (max-width: 900px) {
     .login_btn {
-        font-size:2.25vw;
-        width:10vw;
-        padding:1.5vw;
+        font-size: 2.25vw;
+        width: 10vw;
+        padding: 1.5vw;
     }
 }
 
 /* ___________________FADE IN ANIMATION__________________ */
 
-.left-fade-in, .right-fade-in {
-    opacity: 0; /* Start hidden */
-    transition: opacity 2s ease, transform 2s ease; /* Animation transition */
+.left-fade-in,
+.right-fade-in {
+    opacity: 0;
+    /* Start hidden */
+    transition: opacity 2s ease, transform 2s ease;
+    /* Animation transition */
 }
 
 .right-fade-in {
-    transform: translateX(50px); /* Start slightly to the right */
+    transform: translateX(50px);
+    /* Start slightly to the right */
 }
 
 .left-fade-in {
-    transform: translateX(-50px); /* Start slightly to the left */
+    transform: translateX(-50px);
+    /* Start slightly to the left */
 }
 
 .visible {
-    opacity: 1; /* End state */
-    transform: translateX(0); /* End position */
+    opacity: 1;
+    /* End state */
+    transform: translateX(0);
+    /* End position */
 }
 
 /* _______________________PAGE 1_______________________ */
 #page1 {
     display: flex;
-    height: 50vw;
+    height: 46vw;
     padding-left: 10px;
     justify-content: space-between;
     align-items: center;
-    overflow:hidden;
-    background: linear-gradient(180deg, white 80%, #ffe0c0 , #3B3636 );
+    overflow: hidden;
+    background: linear-gradient(180deg, white 80%, #ffe0c0, #3B3636);
 }
 
-.page1n3-words{
+.page1n3-words {
     white-space: nowrap;
     padding-left: 4vw;
     padding-bottom: 1vw;
-    line-height:30px;
+    line-height: 30px;
 }
 
-#page1 h1 { font-size: 3vw; }
-#page1 p { font-size: 1.5vw; line-height:2.5vw;}
-#page1 img { width: 40vw; }
+#page1 h1 {
+    font-size: 2.6vw;
+}
+
+#page1 p {
+    font-size: 1.3vw;
+    line-height: 2.2vw;
+}
+
+#page1 img {
+    width: 37vw;
+    transform: translateX(-5vw);
+}
+
 #tryforfree_btn {
     color: white;
     background-color: #FFAD84;
     border-radius: 68px;
     margin-left: 4vw;
+    margin-top: 1.5vh;
     width: 13vw;
-    font-size: 25px;
+    font-size: 1rem;
     text-align: center;
     padding: 1vw;
 }
+
 #page1-pic {
     display: flex;
     justify-content: flex-end;
-    padding-top:8vw;
+    padding-top: 8vw;
 }
 
 @media (max-width: 900px) {
@@ -96,23 +116,27 @@ body {
         height: 110vw;
         flex-direction: column;
     }
+
     #page1 h1 {
-        padding-top:15vw;
+        padding-top: 15vw;
         font-size: 5vw;
         text-align: center;
     }
+
     #page1 p {
         font-size: 2.5vw;
         text-align: center;
     }
-    #page1 img { 
-        width: 60vw; 
+
+    #page1 img {
+        width: 60vw;
     }
-    #tryforfree_btn{
+
+    #tryforfree_btn {
         margin: 0 auto;
         white-space: nowrap;
-        width:120px;
-        font-size:2vw;
+        width: 120px;
+        font-size: 2vw;
     }
 }
 
@@ -124,12 +148,14 @@ body {
     position: relative;
 }
 
-.scroll, .scroll2 {
+.scroll,
+.scroll2 {
     overflow: hidden;
     display: flex;
 }
 
-.scroll div, .scroll2 div {
+.scroll div,
+.scroll2 div {
     display: flex;
     animation: moving 30s linear infinite;
 }
@@ -139,15 +165,21 @@ body {
 }
 
 @keyframes moving {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
-.scroll img, .scroll2 img {
+.scroll img,
+.scroll2 img {
     width: 25vw;
-    height:13.5vw;
+    height: 13.5vw;
     opacity: 0.5;
-    padding:10px;
+    padding: 10px;
     border-radius: 20px;
 }
 
@@ -158,74 +190,88 @@ body {
     left: 25%;
 }
 
-#page2-heading h1 { 
-    font-size: 4.5vw; 
-    margin:6px;
+#page2-heading h1 {
+    font-size: 4.5vw;
+    margin: 6px;
 }
 
-#page2-word{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+#page2-word {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#page2-word h2{
-    font-size:8vw;
-    background: linear-gradient(0deg,#ffe0c0,#FFAD84);
+#page2-word h2 {
+    font-size: 8vw;
+    background: linear-gradient(0deg, #ffe0c0, #FFAD84);
     -webkit-text-fill-color: transparent;
-    -webkit-background-clip:text;
-    background-clip:text;
+    -webkit-background-clip: text;
+    background-clip: text;
     margin-bottom: 5px;
 }
 
-#page2-word p{
-    color:white;
+#page2-word p {
+    color: white;
     font-size: 2vw;
-    margin-top:0;
+    margin-top: 0;
 }
 
 /* ___________________PAGE 3______________________ */
 #page3 {
     display: flex;
     height: 48vw;
-    padding-right:4vw;
+    padding-right: 4vw;
     justify-content: space-between;
     align-items: center;
-    overflow:hidden;
+    overflow: hidden;
     background: linear-gradient(180deg, white 80%, #ffe0c0);
 }
 
-#page3 h1 { font-size: 3vw; }
-#page3 p { font-size: 1.5vw; line-height:3vw; }
-#page3 img { 
-    width: 30vw; 
-    height:30vw;
-    border-radius: 30px;
-    position:relative;
+#page3 h1 {
+    font-size: 3vw;
+}
+
+#page3 p {
+    font-size: 1.5vw;
+    line-height: 3vw;
+}
+
+#page3 img {
+    left: 70px;
+    width: 30vw;
+    height: 30vw;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    position: relative;
     z-index: 1;
 }
 
 #page3-pic {
     display: flex;
     justify-content: flex-end;
-    position:relative;
+    position: relative;
 }
 
-#color-rect1,#color-rect2{
-    position:absolute;
-    width:30vw;
-    height:30vw;
+#color-rect1,
+#color-rect2 {
+    position: absolute;
+    width: 30vw;
+    height: 30vw;
     border-radius: 30px;
     transition: transform 0.2s ease;
 }
 
-#color-rect1{
+#color-rect1 {
     background: #ffe0c0;
+    top: 10px;
+    left: 10vw;
     transform: translateY(40px);
 }
 
-#color-rect2{
+#color-rect2 {
     background: #FFAD84;
+    top: 6px;
+    left: 6vw;
     transform: translateY(20px);
 }
 
@@ -234,21 +280,26 @@ body {
         height: 110vw;
         flex-direction: column;
     }
+
     #page3 h1 {
-        padding-top:15vw;
+        padding-top: 15vw;
         font-size: 5vw;
         text-align: center;
     }
+
     #page3 p {
         font-size: 2.5vw;
         text-align: center;
     }
-    #page3 img { 
-        width: 50vw; 
-        height:50vw;
+
+    #page3 img {
+        width: 50vw;
+        height: 50vw;
     }
-    #color-rect1, #color-rect2{
-        width:50vw;
-        height:50vw;
+
+    #color-rect1,
+    #color-rect2 {
+        width: 50vw;
+        height: 50vw;
     }
 }
