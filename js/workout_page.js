@@ -4,14 +4,17 @@ let canvasElement;
 let canvasContext;
 let isRunning = false;
 let animationFrameId;
+let isInitialized = false;
 
 // Initialize TensorFlow backend
 async function initializeTF() {
+    if (isInitialized) return true;
+
     try {
         await tf.ready();
-        // Explicitly wait for backend initialization
         await tf.setBackend('webgl');
         console.log('TensorFlow.js initialized successfully');
+        isInitialized = true;
         return true;
     } catch (error) {
         console.error('Error initializing TensorFlow:', error);
@@ -27,44 +30,25 @@ async function init() {
         // Initialize TensorFlow first
         const tfInitialized = await initializeTF();
         if (!tfInitialized) {
-            workoutUser.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <p>Error: Could not initialize TensorFlow. Please check if your browser supports WebGL.</p>
-                    <button onclick="retryInitialization()" style="
-                        background-color: #ff6060;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 12px 24px;
-                        margin-top: 15px;
-                        cursor: pointer;
-                    ">Try Again</button>
-                </div>
-            `;
-            return;
+            throw new Error('Could not initialize TensorFlow. Please check if your browser supports WebGL.');
         }
 
-        // Proceed with pose detection initialization
-        await initPoseDetection();
+        // Initialize pose detector
+        detector = await poseDetection.createDetector(
+            poseDetection.SupportedModels.MoveNet,
+            {
+                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
+            }
+        );
+
+        // Proceed with camera initialization
+        await requestCameraPermission();
     } catch (error) {
         console.error('Initialization error:', error);
-        workoutUser.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <p>Error: ${error.message}</p>
-                <p>Please refresh the page or try a different browser.</p>
-                <button onclick="retryInitialization()" style="
-                    background-color: #ff6060;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 12px 24px;
-                    margin-top: 15px;
-                    cursor: pointer;
-                ">Try Again</button>
-            </div>
-        `;
+        showErrorModal(error.message);
     }
 }
+
 
 // Update the window load event handler
 window.addEventListener('load', async () => {
@@ -213,40 +197,59 @@ async function initializeVideoElements(stream) {
     workoutUser.innerHTML = '';
 
     try {
-        // Create video element with error handling
+        // Create container for video and canvas
+        const videoContainer = document.createElement('div');
+        // const videoContainer = document.createElement('div');
+        videoContainer.style.position = 'relative';
+        videoContainer.style.width = '100%';
+        videoContainer.style.height = '100%';
+        videoContainer.style.overflow = 'hidden';
+        videoContainer.style.borderRadius = '16px';
+
+        // Create video element
         videoElement = document.createElement('video');
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
         videoElement.style.objectFit = 'cover';
-        videoElement.style.borderRadius = '16px';
         videoElement.autoplay = true;
         videoElement.playsinline = true;
-
-        // Add error handling for video element
-        videoElement.onerror = (e) => {
-            console.error('Video element error:', e);
-            throw new Error('Failed to initialize video element');
-        };
 
         // Create canvas element
         canvasElement = document.createElement('canvas');
         canvasElement.style.position = 'absolute';
+        canvasElement.style.top = '0';
+        canvasElement.style.left = '0';
         canvasElement.style.width = '100%';
         canvasElement.style.height = '100%';
-        canvasElement.style.borderRadius = '16px';
-        canvasElement.width = workoutUser.offsetWidth;
-        canvasElement.height = workoutUser.offsetHeight;
 
-        // Set up container
-        workoutUser.style.position = 'relative';
-        workoutUser.appendChild(videoElement);
-        workoutUser.appendChild(canvasElement);
+        // Add elements to container
+        videoContainer.appendChild(videoElement);
+        videoContainer.appendChild(canvasElement);
+        workoutUser.appendChild(videoContainer);
 
         // Set up video stream
         videoElement.srcObject = stream;
         canvasContext = canvasElement.getContext('2d');
 
-        // Load pose detection model with correct configuration
+        // Update canvas size on video load
+        videoElement.onloadedmetadata = () => {
+            const updateCanvasSize = () => {
+                const rect = videoContainer.getBoundingClientRect();
+                canvasElement.width = rect.width;
+                canvasElement.height = rect.height;
+            };
+
+            // Initial size update
+            updateCanvasSize();
+
+            // Update size on window resize
+            window.addEventListener('resize', updateCanvasSize);
+
+            // Start detection
+            startDetection();
+        };
+
+        // Load pose detection model
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
@@ -254,27 +257,9 @@ async function initializeVideoElements(stream) {
             }
         );
 
-        // Start detection when video is ready
-        videoElement.onloadedmetadata = () => {
-            startDetection();
-        };
-
     } catch (error) {
         console.error('Error in video initialization:', error);
-        workoutUser.innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <p>Error initializing video: ${error.message}</p>
-                <button onclick="retryInitialization()" style="
-                    background-color: #ff6060;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 12px 24px;
-                    margin-top: 15px;
-                    cursor: pointer;
-                ">Try Again</button>
-            </div>
-        `;
+        showErrorModal(error.message);
     }
 }
 
@@ -324,9 +309,48 @@ async function initPoseDetection() {
     }
 }
 
+function showErrorModal(errorMessage) {
+    const workoutUser = document.querySelector('.workout-user');
+    const modalContainer = document.createElement('div');
+    modalContainer.style.position = 'absolute';
+    modalContainer.style.top = '0';
+    modalContainer.style.left = '0';
+    modalContainer.style.width = '100%';
+    modalContainer.style.height = '100%';
+    modalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    modalContainer.style.display = 'flex';
+    modalContainer.style.justifyContent = 'center';
+    modalContainer.style.alignItems = 'center';
+
+    modalContainer.innerHTML = `
+        <div style="
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 80%;
+        ">
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 48px; color: #ff6060; margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 15px;">Camera Error</h3>
+            <p style="margin-bottom: 20px;">${errorMessage}</p>
+            <button onclick="retryInitialization()" style="
+                background-color: #ff6060;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 24px;
+                cursor: pointer;
+                font-size: 16px;
+            ">Try Again</button>
+        </div>
+    `;
+
+    workoutUser.appendChild(modalContainer);
+}
+
 // Detect poses and draw them
 async function detectPose() {
-    if (!isRunning) return;
+    if (!isRunning || !detector) return;
 
     try {
         const poses = await detector.estimatePoses(videoElement);
@@ -335,35 +359,62 @@ async function detectPose() {
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         // Draw keypoints and skeleton if poses detected
-        if (poses.length > 0) {
-            drawKeypoints(poses[0].keypoints);
-            drawSkeleton(poses[0].keypoints);
+        if (poses && poses.length > 0) {
+            const displayWidth = canvasElement.width;
+            const displayHeight = canvasElement.height;
+            const videoWidth = videoElement.videoWidth;
+            const videoHeight = videoElement.videoHeight;
+
+            // Calculate scaling to maintain aspect ratio
+            const scale = Math.min(displayWidth / videoWidth, displayHeight / videoHeight);
+            const scaledWidth = videoWidth * scale;
+            const scaledHeight = videoHeight * scale;
+
+            // Calculate centering offsets
+            const offsetX = (displayWidth - scaledWidth) / 2;
+            const offsetY = (displayHeight - scaledHeight) / 2;
+
+            drawKeypoints(poses[0].keypoints, scale, offsetX, offsetY);
+            drawSkeleton(poses[0].keypoints, scale, offsetX, offsetY);
         }
 
         animationFrameId = requestAnimationFrame(detectPose);
     } catch (error) {
         console.error('Error during pose detection:', error);
+        isRunning = false;
     }
 }
 
+// Modified window load event handler
+window.addEventListener('load', async () => {
+    // Wait for DOM to be fully loaded
+    setTimeout(async () => {
+        if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+            await init();
+        } else {
+            const workoutUser = document.querySelector('.workout-user');
+            showErrorModal('Required libraries not loaded. Please refresh the page.');
+        }
+    }, 1000);
+});
+
 // Draw detected keypoints
-function drawKeypoints(keypoints) {
+function drawKeypoints(keypoints, scale, offsetX, offsetY) {
     for (const keypoint of keypoints) {
         if (keypoint.score > 0.3) {
+            const x = keypoint.x * scale + offsetX;
+            const y = keypoint.y * scale + offsetY;
+
             canvasContext.beginPath();
-            canvasContext.arc(
-                keypoint.x * (canvasElement.width / videoElement.videoWidth),
-                keypoint.y * (canvasElement.height / videoElement.videoHeight),
-                5, 0, 2 * Math.PI
-            );
-            canvasContext.fillStyle = '#FF6060'; // Matching your color scheme
+            canvasContext.arc(x, y, 4, 0, 2 * Math.PI);
+            canvasContext.fillStyle = '#FF6060';
             canvasContext.fill();
         }
     }
 }
 
 // Draw skeleton connecting keypoints
-function drawSkeleton(keypoints) {
+function drawSkeleton(keypoints, scale, offsetX, offsetY) {
     const connections = [
         ['nose', 'left_eye'], ['nose', 'right_eye'],
         ['left_eye', 'left_ear'], ['right_eye', 'right_ear'],
@@ -376,7 +427,7 @@ function drawSkeleton(keypoints) {
         ['left_knee', 'left_ankle'], ['right_knee', 'right_ankle']
     ];
 
-    canvasContext.strokeStyle = '#FFA476'; // Matching your color scheme
+    canvasContext.strokeStyle = '#FFA476';
     canvasContext.lineWidth = 2;
 
     for (const [p1Name, p2Name] of connections) {
@@ -384,15 +435,14 @@ function drawSkeleton(keypoints) {
         const p2 = keypoints.find(kp => kp.name === p2Name);
 
         if (p1 && p2 && p1.score > 0.3 && p2.score > 0.3) {
+            const x1 = p1.x * scale + offsetX;
+            const y1 = p1.y * scale + offsetY;
+            const x2 = p2.x * scale + offsetX;
+            const y2 = p2.y * scale + offsetY;
+
             canvasContext.beginPath();
-            canvasContext.moveTo(
-                p1.x * (canvasElement.width / videoElement.videoWidth),
-                p1.y * (canvasElement.height / videoElement.videoHeight)
-            );
-            canvasContext.lineTo(
-                p2.x * (canvasElement.width / videoElement.videoWidth),
-                p2.y * (canvasElement.height / videoElement.videoHeight)
-            );
+            canvasContext.moveTo(x1, y1);
+            canvasContext.lineTo(x2, y2);
             canvasContext.stroke();
         }
     }
