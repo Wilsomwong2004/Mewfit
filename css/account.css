@@ -67,17 +67,11 @@ body {
   justify-items: center;
 }
 
-.name-input-box {
-  display: flex;
-  align-content: space-between;
-}
-
 .input-box {
   width: 100%;
   max-width: 400px;
   height: 35px;
   display: flex;
-  flex-direction: column;
   margin: 30px 0px;
   position: relative;
   transform: translateY(-10%);
@@ -176,8 +170,33 @@ body {
 }
 
 .sign-in-form {
-  border: black solid;
   height: 100%;
+}
+
+.name-input-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 20px;
+}
+
+.name-input {
+  display: flex;
+  flex-direction: column;
+  width: 45%; /* Adjust width as needed */
+}
+
+.name-input label {
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.name-input input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 @media only screen and (max-width: 768px) {
