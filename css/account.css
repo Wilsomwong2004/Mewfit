@@ -17,6 +17,19 @@ body {
   min-height: 100vh;
 }
 
+button {
+  color: #fff;
+  background-color: #ffad84;
+  border: none;
+  border-radius: 20px;
+  font-family: "Inter";
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  height: 50px;
+  margin: 20px 0px;
+}
+
 .scroll-hidden {
   opacity: 0;
   transition: all 1s;
@@ -132,28 +145,28 @@ body {
 .sign-up-wrapper {
   display: flex;
   width: 90vw;
-  height: 90vh;
-  margin: 0 auto;
+  margin: 20px 0px;
 }
 
 .sign-up-fill {
   background-color: #fff;
   border-radius: 17px;
-  width: 50%;
-  height: 100%;
+  width: 60%;
   line-height: 10px;
   display: flex;
   flex-direction: column;
-  padding: 0px 7%;
+  padding: 0px 50px;
+  box-sizing: border-box;
   transition: all 1s;
 }
 
 .sign-in-header {
-  padding: 20px 0px;
+  padding: 25px 0px;
 }
 
 .sign-in-header h2 {
   color: black;
+  line-height: normal;
 }
 
 .sign-in-header p {
@@ -161,7 +174,15 @@ body {
   font-size: 0.75rem;
 }
 
+.sign-in-header i {
+  color: black;
+  font-size: 40px;
+  position: absolute;
+  transform: translate(-40px, 40%);
+}
+
 .name-input-wrapper {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -170,7 +191,8 @@ body {
 .name-input {
   display: flex;
   flex-direction: column;
-  width: 45%;
+  width: 49%;
+  margin: 5px 0px;
 }
 
 .name-input label {
@@ -188,12 +210,62 @@ body {
   border-radius: 4px;
 }
 
-.name-input input:focus {
-  border-color: #007bff;
-  outline: none;
+.name-input input::focus {
+  border: 2px solid #ff6c37;
+}
+
+.sign-in-inputs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 5px 0px;
+}
+
+.sign-in {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0px;
+}
+
+.sign-in label {
+  color: #666666;
+  margin-bottom: 7px;
+}
+
+.sign-in input {
+  border: 2px solid #ff946e;
+  border-radius: 4px;
+  height: 25px;
+  padding: 8px;
+}
+
+.password-rules ul {
+  display: flex;
+  flex-wrap: wrap;
+  line-height: 40px;
+  padding: 0px;
+}
+
+.password-rules li {
+  font-size: 0.8rem;
+  margin: 0px 20px;
+}
+
+.terms-and-condition {
+  color: black;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+
+.terms-and-condition a {
+  color: black;
 }
 
 @media only screen and (max-width: 768px) {
+  form {
+    padding: 0px;
+  }
+
   .login-form-box {
     width: 100%;
   }
@@ -210,5 +282,10 @@ body {
 
   .sign-up-fill {
     width: 100%;
+    padding: 0px;
+  }
+
+  .sign-in-header {
+    padding: 20px 30px;
   }
 }
