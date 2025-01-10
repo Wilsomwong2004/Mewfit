@@ -210,6 +210,14 @@ button {
   border-radius: 4px;
 }
 
+.name-input select {
+  height: 44px;
+  padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
+}
+
 .name-input input::focus {
   border: 2px solid #ff6c37;
 }
