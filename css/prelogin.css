@@ -111,32 +111,42 @@ body {
     padding-top: 8vw;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 450px) {
     #page1 {
-        height: 110vw;
+        height: 200vw;
         flex-direction: column;
+        padding-top:20vw;
+        padding-left:0;
+    }
+    
+    .page1n3-words {
+        white-space:wrap;
+        padding: 2vw;
     }
 
     #page1 h1 {
         padding-top: 15vw;
-        font-size: 5vw;
+        font-size: 10vw;
         text-align: center;
+        line-height: 55px;
     }
 
     #page1 p {
-        font-size: 2.5vw;
+        font-size: 4.5vw;
         text-align: center;
+        line-height: 30px;
     }
 
     #page1 img {
-        width: 60vw;
+        width: 90vw;
     }
 
     #tryforfree_btn {
         margin: 0 auto;
         white-space: nowrap;
-        width: 120px;
-        font-size: 2vw;
+        width: 200px;
+        padding:3vw;
+        font-size: 5vw;
     }
 }
 
@@ -216,6 +226,51 @@ body {
     margin-top: 0;
 }
 
+.scroll-visible{
+    display:none;
+}
+
+@media (max-width: 450px) {
+    .scroll-visible{
+        display:block;
+    }
+    .scroll img,.scroll2 img {
+    width: 60vw;
+    height: 37.1vw;
+    opacity: 0.5;
+    padding: 10px;
+    border-radius: 20px;
+    }
+
+    #page2-heading {
+        top: 10%;
+        left: 0;
+        margin: 3vw;
+    }
+    
+    #page2-heading h1 {
+        font-size: 11vw;
+        margin: 6px;
+    }
+    
+    #page2-word {
+        display: block;
+        justify-content: space-between;
+        align-items: center;
+        margin: 3vw;
+    }
+    
+    #page2-word h2 {
+        font-size: 25vw;
+        margin-bottom: 5px;
+    }
+    
+    #page2-word p {
+        font-size: 5vw;
+        margin-top: 0;
+    }
+}
+
 /* ___________________PAGE 3______________________ */
 #page3 {
     display: flex;
@@ -269,35 +324,39 @@ body {
     transform: translateY(20px);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 450px)  {
     #page3 {
-        height: 110vw;
+        height: 210vw;
         flex-direction: column;
         justify-content: normal;
         align-items: center;
     }
 
     #page3 h1 {
-        padding-top: 15vw;
-        font-size: 5vw;
+        padding-top: 25vw;
+        font-size: 10vw;
         text-align: center;
+        margin:2vw;
+        line-height: 50px;
     }
 
     #page3 p {
-        font-size: 2.5vw;
+        font-size: 4.5vw;
         text-align: center;
+        margin-left:1vw;
+        line-height: 30px;
     }
 
     #page3 img {
-        width: 50vw;
-        height: 50vw;
+        width: 75vw;
+        height: 75vw;
         margin-top: 5vw;
     }
 
     #color-rect1,
     #color-rect2 {
-        width: 50vw;
-        height: 50vw;
+        width: 75vw;
+        height: 75vw;
         margin-top: 5vw;
     }
 }
