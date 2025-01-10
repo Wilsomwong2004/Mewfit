@@ -97,14 +97,6 @@ body {
   color: #cdcdcd;
 }
 
-#f-name {
-  width: 200px;
-}
-
-#l-name {
-  width: 200px;
-}
-
 .login-form .btn {
   width: 250px;
   height: 50px;
@@ -139,7 +131,6 @@ body {
 
 .sign-up-wrapper {
   display: flex;
-  border-radius: 20px;
   width: 90vw;
   height: 90vh;
   margin: 0 auto;
@@ -148,16 +139,17 @@ body {
 .sign-up-fill {
   background-color: #fff;
   border-radius: 17px;
-  width: 60%;
+  width: 50%;
   height: 100%;
   line-height: 10px;
   display: flex;
   flex-direction: column;
+  padding: 0px 7%;
   transition: all 1s;
 }
 
 .sign-in-header {
-  padding: 20px 12%;
+  padding: 20px 0px;
 }
 
 .sign-in-header h2 {
@@ -169,34 +161,36 @@ body {
   font-size: 0.75rem;
 }
 
-.sign-in-form {
-  height: 100%;
-}
-
-.name-input-box {
+.name-input-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin: 20px;
 }
 
 .name-input {
   display: flex;
   flex-direction: column;
-  width: 45%; /* Adjust width as needed */
+  width: 45%;
 }
 
 .name-input label {
-  margin-bottom: 5px;
-  font-size: 16px;
-  font-weight: bold;
+  color: #666666;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
 }
 
 .name-input input {
+  height: 25px;
   padding: 8px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  border: 2px solid #ffad84;
   border-radius: 4px;
+}
+
+.name-input input:focus {
+  border-color: #007bff;
+  outline: none;
 }
 
 @media only screen and (max-width: 768px) {
@@ -212,5 +206,9 @@ body {
   .logo-icon img {
     width: 120px;
     height: 120px;
+  }
+
+  .sign-up-fill {
+    width: 100%;
   }
 }
