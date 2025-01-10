@@ -510,12 +510,304 @@ function areLibrariesLoaded() {
 //.........................................................................................//
 // More Function (pop up window)
 
+function createSettingsPopup() {
+    const popupContainer = document.getElementById('popup-container-more');
+    const moreButton = document.getElementById('more');
+    let popup = null;
+
+    function createPopup() {
+        const popupElement = document.createElement('div');
+        popupElement.className = 'popup-settings';
+
+        const options = [
+            { icon: 'fa-camera', label: 'Camera Settings' },
+            { icon: 'fa-users', label: 'Change Instructor' },
+            { icon: 'fa-chart-line', label: 'MewTrack' },
+            { icon: 'fa-table-cells-large', label: 'Layout' }
+        ];
+
+        const optionsHTML = options.map(option => `
+            <button class="settings-option">
+                <i class="fa-solid ${option.icon}"></i>
+                <span>${option.label}</span>
+                <span class="icon-right"><i class="fa-solid fa-chevron-right"></i></span>
+            </button>
+        `).join('');
+
+        popupElement.innerHTML = optionsHTML;
+        return popupElement;
+    }
+
+    function updatePopupPosition() {
+        if (!popup) return;
+
+        const buttonRect = moreButton.getBoundingClientRect();
+        const popupRect = popup.getBoundingClientRect();
+
+        // Position popup above the button
+        let top = buttonRect.top - popupRect.height - 20;
+        let left = buttonRect.left - (popupRect.width - buttonRect.width) / 2;
+
+        // Ensure popup stays within viewport
+        if (left + popupRect.width > window.innerWidth) {
+            left = window.innerWidth - popupRect.width - 40;
+        }
+        if (left < 20) {
+            left = 20;
+        }
+        if (top < 20) {
+            top = buttonRect.bottom + 10; // Show below if not enough space above
+        }
+
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+    }
+
+    function showPopup() {
+        if (!popup) {
+            popup = createPopup();
+            popupContainer.appendChild(popup);
+        }
+
+        popupContainer.style.display = 'block';
+        updatePopupPosition();
+
+        // Add click handlers for options
+        popup.querySelectorAll('.settings-option').forEach((option, index) => {
+            option.onclick = () => {
+                switch (index) {
+                    case 0: // Camera Settings
+                        handleCameraSettings();
+                        break;
+                    case 1: // Change Instructor
+                        handleInstructorChange();
+                        break;
+                    case 2: // MewTrack
+                        handleMewTrack();
+                        break;
+                    case 3: // Layout
+                        handleLayout();
+                        break;
+                }
+                hidePopup();
+            };
+        });
+    }
+
+    function hidePopup() {
+        popupContainer.style.display = 'none';
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', updatePopupPosition);
+
+    // Toggle popup on more button click
+    moreButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (popupContainer.style.display === 'block') {
+            hidePopup();
+        } else {
+            showPopup();
+        }
+    });
+
+    // Close popup when clicking outside
+    document.addEventListener('click', (e) => {
+        if (popupContainer.style.display === 'block' &&
+            !popup.contains(e.target) &&
+            e.target !== moreButton) {
+            hidePopup();
+        }
+    });
+}
+
+// Settings option handlers
+async function handleCameraSettings() {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    try {
+        // Get list of available cameras
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        popupTitle.textContent = 'Camera Settings';
+
+        // Create camera selection interface
+        let cameraOptionsHTML = `
+            <div style="padding: 10px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 500;">Select Camera:</label>
+                    <select id="cameraSelect" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+                        ${videoDevices.map((device, index) => `
+                            <option value="${device.deviceId}">
+                                ${device.label || `Camera ${index + 1}`}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="toggleCamera" style="
+                        background-color: #ff6060;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 20px;
+                        cursor: pointer;
+                    ">
+                        ${isRunning ? 'Turn Off Camera' : 'Turn On Camera'}
+                    </button>
+                    <button id="applyCameraSettings" style="
+                        background-color: #4CAF50;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 20px;
+                        cursor: pointer;
+                    ">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        `;
+
+        popupBody.innerHTML = cameraOptionsHTML;
+        popupContainer.style.display = 'flex';
+
+        // Set current camera as selected in dropdown
+        if (videoElement && videoElement.srcObject) {
+            const currentTrack = videoElement.srcObject.getVideoTracks()[0];
+            if (currentTrack) {
+                const select = document.getElementById('cameraSelect');
+                const options = Array.from(select.options);
+                const currentOption = options.find(option => {
+                    const device = videoDevices.find(d => d.deviceId === option.value);
+                    return device && device.label === currentTrack.label;
+                });
+                if (currentOption) {
+                    select.value = currentOption.value;
+                }
+            }
+        }
+
+        // Handle toggle camera button
+        const toggleButton = document.getElementById('toggleCamera');
+        toggleButton.addEventListener('click', async () => {
+            if (isRunning) {
+                // Stop camera
+                stopDetection();
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
+                toggleButton.textContent = 'Turn On Camera';
+                toggleButton.style.backgroundColor = '#4CAF50';
+            } else {
+                // Restart camera
+                const selectedDeviceId = document.getElementById('cameraSelect').value;
+                try {
+                    await initializeCamera(selectedDeviceId);
+                    startDetection();
+                    toggleButton.textContent = 'Turn Off Camera';
+                    toggleButton.style.backgroundColor = '#ff6060';
+                } catch (error) {
+                    console.error('Error restarting camera:', error);
+                    showErrorModal('Failed to start camera. Please try again.');
+                }
+            }
+        });
+
+        // Handle apply button
+        document.getElementById('applyCameraSettings').addEventListener('click', async () => {
+            const selectedDeviceId = document.getElementById('cameraSelect').value;
+            try {
+                // Stop current camera
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => track.stop());
+                }
+
+                // Start new camera
+                await initializeCamera(selectedDeviceId);
+                if (!isRunning) {
+                    startDetection();
+                }
+                popupContainer.style.display = 'none';
+            } catch (error) {
+                console.error('Error switching camera:', error);
+                showErrorModal('Failed to switch camera. Please try again.');
+            }
+        });
+
+    } catch (error) {
+        console.error('Error accessing camera settings:', error);
+        showErrorModal('Failed to access camera settings. Please check your browser permissions.');
+    }
+}
+
+async function initializeCamera(deviceId) {
+    try {
+        const constraints = {
+            video: {
+                deviceId: deviceId ? { exact: deviceId } : undefined,
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 60 }
+            }
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElement.srcObject = stream;
+
+        // Wait for video to be ready
+        await new Promise((resolve) => {
+            videoElement.onloadedmetadata = () => resolve();
+        });
+
+        // Update canvas size
+        const videoContainer = videoElement.parentElement;
+        const rect = videoContainer.getBoundingClientRect();
+        canvasElement.width = rect.width;
+        canvasElement.height = rect.height;
+
+        return true;
+    } catch (error) {
+        console.error('Error initializing camera:', error);
+        throw error;
+    }
+}
+
+
+function handleInstructorChange() {
+    // Add instructor change logic here
+    console.log('Change instructor clicked');
+}
+
+function handleMewTrack() {
+    // Add MewTrack logic here
+    console.log('MewTrack clicked');
+}
+
+function handleLayout() {
+    // Add layout change logic here
+    console.log('Layout clicked');
+}
+
+// Initialize settings popup when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    createSettingsPopup();
+});
+
+//.........................................................................................//
+// More Function (pop up window)
+
 document.addEventListener('DOMContentLoaded', function () {
     const popupContainer = document.getElementById('popup-container');
     const popupTitle = document.getElementById('popup-title');
     const popupBody = document.getElementById('popup-body');
     const closeBtn = document.getElementById('close-btn');
-    
+
     function showPopup(title, content) {
         popupTitle.textContent = title;
         popupBody.innerHTML = content;
@@ -526,11 +818,25 @@ document.addEventListener('DOMContentLoaded', function () {
         popupContainer.style.display = 'none';
     }
 
-    document.getElementById('more').addEventListener('click', function (e) {
+    document.getElementById('music').addEventListener('click', function (e) {
         e.preventDefault();
-        showPopup('More Information', `
-            <p>Here is some more information about the workout.</p>
-            <p>This is a sample popup window with some content.</p>
+        showPopup('Music', `
+            <div>
+                <p>Here is some more information about the workout.</p>
+                <p>This is a sample popup window with some content.</p>
+            </div>
+        `);
+    });
+
+    document.getElementById('close-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        showPopup('Music', `
+            <div>
+                <p>Do you really want to end the workout?</p>
+                <p>The progress of workout will not be saved.</p>
+                <button onclick="closePopup()">Yes</button>
+                <button onclick="closePopup()">No</button>
+            </div>
         `);
     });
 });
