@@ -237,11 +237,9 @@ body {
 }
 
 #page3 img {
-    left: 70px;
     width: 30vw;
     height: 30vw;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+    border-radius: 20px;
     position: relative;
     z-index: 1;
 }
@@ -263,15 +261,11 @@ body {
 
 #color-rect1 {
     background: #ffe0c0;
-    top: 10px;
-    left: 10vw;
     transform: translateY(40px);
 }
 
 #color-rect2 {
     background: #FFAD84;
-    top: 6px;
-    left: 6vw;
     transform: translateY(20px);
 }
 
@@ -279,6 +273,8 @@ body {
     #page3 {
         height: 110vw;
         flex-direction: column;
+        justify-content: normal;
+        align-items: center;
     }
 
     #page3 h1 {
@@ -295,11 +291,13 @@ body {
     #page3 img {
         width: 50vw;
         height: 50vw;
+        margin-top: 5vw;
     }
 
     #color-rect1,
     #color-rect2 {
         width: 50vw;
         height: 50vw;
+        margin-top: 5vw;
     }
 }
