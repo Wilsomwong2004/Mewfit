@@ -800,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //.........................................................................................//
-// More Function (pop up window)
+// Music & Close button Function (pop up window)
 
 document.addEventListener('DOMContentLoaded', function () {
     const popupContainer = document.getElementById('popup-container');
@@ -840,3 +840,245 @@ document.addEventListener('DOMContentLoaded', function () {
         `);
     });
 });
+
+//.........................................................................................//
+// MewTrack function (pop up window)
+function handleMewTrack() {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    popupTitle.textContent = 'MewTrack Settings';
+
+    // Create settings HTML
+    const settingsHTML = `
+        <div class="mewtrack-settings">
+            <!-- Enable MewTrack -->
+            <div class="setting-option">
+                <div class="setting-header">
+                    <h3>Enable MewTrack</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="enable-mewtrack" ${isRunning ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <p class="setting-description">
+                    MewTrack helps detect incorrect postures during your workout.
+                    Disable this to hide skeletal tracking and posture warnings.
+                </p>
+            </div>
+
+            <!-- Posture Notifications -->
+            <div class="setting-option">
+                <div class="setting-header">
+                    <h3>Posture Notifications</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="enable-notifications" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <p class="setting-description">
+                    Show pop-up notifications when incorrect posture is detected.
+                </p>
+            </div>
+
+            <!-- Skeleton Style -->
+            <div class="setting-option">
+                <h3>Skeleton Style</h3>
+                <div class="skeleton-styles">
+                    <div class="style-option" data-style="line">
+                        <div class="style-preview line-style"></div>
+                        <span>Lines</span>
+                    </div>
+                    <div class="style-option" data-style="dot">
+                        <div class="style-preview dot-style"></div>
+                        <span>Dots</span>
+                    </div>
+                    <div class="style-option" data-style="both">
+                        <div class="style-preview both-style"></div>
+                        <span>Both</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apply Button -->
+            <button id="apply-mewtrack">Apply Changes</button>
+        </div>
+    `;
+
+    // Set popup content
+    popupBody.innerHTML = settingsHTML;
+    popupContainer.style.display = 'flex';
+
+    // Handle skeleton style selection
+    const styleOptions = document.querySelectorAll('.style-option');
+    styleOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            styleOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+        });
+    });
+
+    // Set initial active style based on current setting
+    const currentStyle = localStorage.getItem('skeletonStyle') || 'both';
+    document.querySelector(`[data-style="${currentStyle}"]`).classList.add('active');
+
+    // Handle apply button click
+    document.getElementById('apply-mewtrack').addEventListener('click', () => {
+        const enableMewTrack = document.getElementById('enable-mewtrack').checked;
+        const enableNotifications = document.getElementById('enable-notifications').checked;
+        const selectedStyle = document.querySelector('.style-option.active').dataset.style;
+
+        // Save settings
+        localStorage.setItem('mewtrackEnabled', enableMewTrack);
+        localStorage.setItem('notificationsEnabled', enableNotifications);
+        localStorage.setItem('skeletonStyle', selectedStyle);
+
+        // Apply settings
+        updateMewTrackSettings(enableMewTrack, enableNotifications, selectedStyle);
+
+        // Close popup
+        popupContainer.style.display = 'none';
+    });
+}
+
+//.........................................................................................//
+// Loyout function (pop up window)
+function handleLayout() {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    popupTitle.textContent = 'Layout Settings';
+
+    // Create layout options
+    const layouts = [
+        {
+            id: 'side-by-side',
+            name: 'Side by Side',
+            description: 'Equal width displays',
+            preview: `
+                <div class="layout-preview side-by-side">
+                    <div class="preview-guide">Guide</div>
+                    <div class="preview-camera">Camera</div>
+                </div>
+            `
+        },
+        {
+            id: 'guide-focus',
+            name: 'Guide Focus',
+            description: 'Larger guide display',
+            preview: `
+                <div class="layout-preview guide-focus">
+                    <div class="preview-guide">Guide</div>
+                    <div class="preview-camera">Camera</div>
+                </div>
+            `
+        },
+        {
+            id: 'camera-focus',
+            name: 'Camera Focus',
+            description: 'Larger camera display',
+            preview: `
+                <div class="layout-preview camera-focus">
+                    <div class="preview-guide">Guide</div>
+                    <div class="preview-camera">Camera</div>
+                </div>
+            `
+        },
+        {
+            id: 'stacked',
+            name: 'Stacked',
+            description: 'Vertical arrangement',
+            preview: `
+                <div class="layout-preview stacked">
+                    <div class="preview-guide">Guide</div>
+                    <div class="preview-camera">Camera</div>
+                </div>
+            `
+        }
+    ];
+
+    // Create layout selector HTML
+    const layoutsHTML = layouts.map(layout => `
+        <div class="layout-option" data-layout="${layout.id}">
+            <div class="layout-info">
+                <h3>${layout.name}</h3>
+                <p>${layout.description}</p>
+            </div>
+            ${layout.preview}
+            <div class="layout-check">
+                <i class="fa-solid fa-check"></i>
+            </div>
+        </div>
+    `).join('');
+
+    // Set popup content
+    popupBody.innerHTML = `
+        <div class="layouts-container">
+            ${layoutsHTML}
+        </div>
+        <div class="layout-actions">
+            <button class="apply-layout">Apply Layout</button>
+        </div>
+    `;
+
+    // Show popup
+    popupContainer.style.display = 'flex';
+
+    // Add event listeners
+    const layoutOptions = popupBody.querySelectorAll('.layout-option');
+    let selectedLayout = 'side-by-side'; // Default layout
+
+    layoutOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove active class from all options
+            layoutOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to selected option
+            option.classList.add('active');
+            selectedLayout = option.dataset.layout;
+        });
+    });
+
+    // Set initial active state
+    document.querySelector(`[data-layout="side-by-side"]`).classList.add('active');
+
+    // Handle apply button click
+    const applyButton = popupBody.querySelector('.apply-layout');
+    applyButton.addEventListener('click', () => {
+        applyLayout(selectedLayout);
+        popupContainer.style.display = 'none';
+    });
+}
+
+function applyLayout(layoutId) {
+    const workoutContainer = document.querySelector('.workout-container');
+    const workoutGuide = document.querySelector('.workout-guide');
+    const workoutUser = document.querySelector('.workout-user');
+
+    // Remove all previous layout classes
+    workoutContainer.classList.remove('layout-side-by-side', 'layout-guide-focus', 'layout-camera-focus', 'layout-stacked');
+
+    // Add new layout class
+    workoutContainer.classList.add(`layout-${layoutId}`);
+
+    // Update canvas size after layout change
+    if (canvasElement) {
+        const rect = workoutUser.getBoundingClientRect();
+        canvasElement.width = rect.width;
+        canvasElement.height = rect.height;
+
+        // Redraw pose if detection is running
+        if (isRunning) {
+            detectPose();
+        }
+    }
+}
+
+// Add layout class to container on initial load
+document.addEventListener('DOMContentLoaded', () => {
+    const workoutContainer = document.querySelector('.workout-container');
+    workoutContainer.classList.add('layout-side-by-side');
+});
+
+//.........................................................................................//
