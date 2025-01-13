@@ -3,8 +3,13 @@ let videoElement;
 let canvasElement;
 let canvasContext;
 let isRunning = false;
+let isCameraEnabled = true; // Track camera state
+let cameras = []; // Store available cameras
 let animationFrameId;
 let isInitialized = false;
+let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
+let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+let skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
 
 // Initialize TensorFlow backend
 async function initializeTF() {
@@ -62,7 +67,8 @@ window.addEventListener('load', async () => {
 async function getAvailableCameras() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        return devices.filter(device => device.kind === 'videoinput');
+        cameras = devices.filter(device => device.kind === 'videoinput');
+        return cameras;
     } catch (error) {
         console.error('Error getting camera devices:', error);
         return [];
@@ -199,7 +205,6 @@ async function initializeVideoElements(stream) {
     try {
         // Create container for video and canvas
         const videoContainer = document.createElement('div');
-        // const videoContainer = document.createElement('div');
         videoContainer.style.position = 'relative';
         videoContainer.style.width = '100%';
         videoContainer.style.height = '100%';
@@ -245,8 +250,10 @@ async function initializeVideoElements(stream) {
             // Update size on window resize
             window.addEventListener('resize', updateCanvasSize);
 
-            // Start detection
-            startDetection();
+            // Start detection only if MewTrack is enabled
+            if (isMewTrackEnabled) {
+                startDetection();
+            }
         };
 
         // Load pose detection model
@@ -263,10 +270,15 @@ async function initializeVideoElements(stream) {
     }
 }
 
+
 // Initialize the pose detection system
 async function initPoseDetection() {
     // Start with permission request
     await requestCameraPermission();
+    if (!isCameraEnabled) {
+        showCameraOffMessage('Camera is currently turned off');
+        return;
+    }
 
     try {
         // Access webcam
@@ -307,7 +319,199 @@ async function initPoseDetection() {
             </div>
         `;
     }
+
+    await requestCameraPermission();
 }
+
+// Modify the camera settings handler
+async function handleCameraSettings() {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    popupTitle.innerHTML = `
+        Camera Settings
+        <button id="close-settings" style="
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 16px;
+        ">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    `;
+
+    // Show loading state
+    popupBody.innerHTML = `
+        <div style="padding: 20px;">
+            <div style="text-align: center;">Loading camera settings...</div>
+        </div>
+    `;
+
+    popupContainer.style.display = 'flex';
+
+    // Wait for cameras to be loaded
+    const availableCameras = await getAvailableCameras();
+
+    // Create settings UI
+    const settingsHTML = `
+        <div style="padding: 20px;">
+            <div class="setting-option" style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 500;">Enable Camera</span>
+                    <label class="switch">
+                        <input type="checkbox" id="camera-toggle" ${isCameraEnabled ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <p style="color: #666; margin: 20px 0 0 0; font-size: 14px;">
+                    Toggle camera on/off. When disabled, the camera will be completely turned off.
+                </p>
+            </div>
+
+            <div class="setting-option" style="margin-bottom: 20px;">
+                <label for="cameraSelect" style="display: block; margin-bottom: 8px; font-weight: 500;">Select Camera</label>
+                <select id="cameraSelect" style="
+                    width: 100%;
+                    padding: 8px;
+                    border-radius: 8px;
+                    border: 1px solid #ddd;
+                    background-color: white;
+                    font-size: 14px;
+                " ${!isCameraEnabled ? 'disabled' : ''}>
+                    ${availableCameras.map((device, index) => `
+                        <option value="${device.deviceId}">
+                            ${device.label || `Camera ${index + 1}`}
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+
+            <div style="
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 15px;
+                background: white;
+                border-top: 1px solid #eee;
+                text-align: right;
+            ">
+                <button id="apply-camera-settings" style="
+                    padding: 8px 24px;
+                    background: #ffb089;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Apply</button>
+            </div>
+        </div>
+    `;
+
+    popupBody.innerHTML = settingsHTML;
+
+    // Add event listeners
+    setupCameraSettingsEventListeners();
+}
+
+// Helper function to get current camera ID
+function getCurrentCameraId() {
+    if (videoElement && videoElement.srcObject) {
+        const track = videoElement.srcObject.getVideoTracks()[0];
+        if (track) {
+            return track.getSettings().deviceId;
+        }
+    }
+    return null;
+}
+
+// Function to stop camera
+function stopCamera() {
+    // Stop detection if running
+    if (isRunning) {
+        stopDetection();
+    }
+
+    // Stop all video tracks
+    if (videoElement && videoElement.srcObject) {
+        const tracks = videoElement.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        videoElement.srcObject = null;
+    }
+
+    // Clear canvas
+    if (canvasElement && canvasContext) {
+        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    }
+}
+
+// Function to show camera off message
+function showCameraOffMessage(message) {
+    const workoutUser = document.querySelector('.workout-user');
+    workoutUser.innerHTML = `
+        <div style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            background: #f8f8f8;
+            border-radius: 16px;
+        ">
+            <i class="fa-solid fa-video-slash" style="
+                font-size: 48px;
+                color: #ffb089;
+                margin-bottom: 20px;
+            "></i>
+            <h3 style="margin-bottom: 10px; color: #333;">Camera Off</h3>
+            <p style="color: #666;">${message}</p>
+            ${!isCameraEnabled ? `
+                <button onclick="handleCameraSettings()" style="
+                    margin-top: 20px;
+                    padding: 8px 16px;
+                    background: #ffb089;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                ">Enable Camera</button>
+            ` : ''}
+        </div>
+    `;
+}
+
+// Modify initPoseDetection to check camera state
+async function initPoseDetection() {
+    if (!isCameraEnabled) {
+        showCameraOffMessage('Camera is currently turned off');
+        return;
+    }
+
+    // Rest of the existing initPoseDetection code...
+    await requestCameraPermission();
+}
+
+// Update window load event to respect camera state
+window.addEventListener('load', async () => {
+    if (isCameraEnabled) {
+        setTimeout(async () => {
+            if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+                await init();
+            } else {
+                showErrorModal('Required libraries not loaded. Please refresh the page.');
+            }
+        }, 1000);
+    } else {
+        showCameraOffMessage('Camera is currently turned off');
+    }
+});
 
 function showErrorModal(errorMessage) {
     const workoutUser = document.querySelector('.workout-user');
@@ -330,11 +534,11 @@ function showErrorModal(errorMessage) {
             text-align: center;
             max-width: 80%;
         ">
-            <i class="fa-solid fa-circle-exclamation" style="font-size: 48px; color: #ff6060; margin-bottom: 15px;"></i>
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 48px; color: #ffb089; margin-bottom: 15px;"></i>
             <h3 style="margin-bottom: 15px;">Camera Error</h3>
             <p style="margin-bottom: 20px;">${errorMessage}</p>
             <button onclick="retryInitialization()" style="
-                background-color: #ff6060;
+                background-color: #ffb089;
                 color: white;
                 border: none;
                 border-radius: 8px;
@@ -350,9 +554,16 @@ function showErrorModal(errorMessage) {
 
 // Detect poses and draw them
 async function detectPose() {
-    if (!isRunning || !detector) return;
+    if (!isRunning || !detector || !isMewTrackEnabled) return;
 
     try {
+        // Ensure canvas dimensions are valid
+        if (canvasElement.width === 0 || canvasElement.height === 0) {
+            const rect = videoElement.getBoundingClientRect();
+            canvasElement.width = rect.width;
+            canvasElement.height = rect.height;
+        }
+
         const poses = await detector.estimatePoses(videoElement);
 
         // Clear previous frame
@@ -374,14 +585,20 @@ async function detectPose() {
             const offsetX = (displayWidth - scaledWidth) / 2;
             const offsetY = (displayHeight - scaledHeight) / 2;
 
-            drawKeypoints(poses[0].keypoints, scale, offsetX, offsetY);
-            drawSkeleton(poses[0].keypoints, scale, offsetX, offsetY);
+            // Draw based on skeleton style preference
+            if (skeletonStyle === 'both' || skeletonStyle === 'dot') {
+                drawKeypoints(poses[0].keypoints, scale, offsetX, offsetY);
+            }
+            if (skeletonStyle === 'both' || skeletonStyle === 'line') {
+                drawSkeleton(poses[0].keypoints, scale, offsetX, offsetY);
+            }
         }
 
         animationFrameId = requestAnimationFrame(detectPose);
     } catch (error) {
         console.error('Error during pose detection:', error);
-        isRunning = false;
+        // Don't stop running on error, just skip this frame
+        animationFrameId = requestAnimationFrame(detectPose);
     }
 }
 
@@ -621,129 +838,233 @@ function createSettingsPopup() {
     });
 }
 
+function handleCameraSettings() {
+    console.log('Camera Settings clicked');
+}
+
+function handleInstructorChange() {
+    console.log('Change instructor clicked');
+}
+
+function handleMewTrack() {
+    console.log('MewTrack clicked');
+}
+
+function handleLayout() {
+    console.log('Layout clicked');
+}
+
+// Initialize settings popup when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    createSettingsPopup();
+});
+
+//.........................................................................................//
+// Camera Settings function (pop up window)
+
 // Settings option handlers
-async function handleCameraSettings() {
+function handleCameraSettings() {
     const popupContainer = document.getElementById('popup-container');
     const popupTitle = document.getElementById('popup-title');
     const popupBody = document.getElementById('popup-body');
 
-    try {
-        // Get list of available cameras
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    popupTitle.innerHTML = `
+    Camera Settings
+    <button id="close-settings" style="
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 16px;
+    ">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    `;
 
-        popupTitle.textContent = 'Camera Settings';
+    // Initialize with loading state
+    popupBody.innerHTML = `
+    <div style="padding: 20px;">
+        <div style="text-align: center;">Loading camera settings...</div>
+    </div>
+    `;
 
-        // Create camera selection interface
-        let cameraOptionsHTML = `
-            <div style="padding: 10px;">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: 500;">Select Camera:</label>
-                    <select id="cameraSelect" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
-                        ${videoDevices.map((device, index) => `
-                            <option value="${device.deviceId}">
-                                ${device.label || `Camera ${index + 1}`}
-                            </option>
-                        `).join('')}
-                    </select>
+    // Create camera settings interface with switch
+    const settingsHTML = `
+        <div style="padding: 20px;">
+            <div class="setting-option" style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">Enable Camera</h3>
+                    <label class="switch">
+                        <input type="checkbox" id="camera-toggle" ${isCameraEnabled ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
                 </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="toggleCamera" style="
-                        background-color: #ff6060;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 10px 20px;
-                        cursor: pointer;
-                    ">
-                        ${isRunning ? 'Turn Off Camera' : 'Turn On Camera'}
-                    </button>
-                    <button id="applyCameraSettings" style="
-                        background-color: #4CAF50;
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        padding: 10px 20px;
-                        cursor: pointer;
-                    ">
-                        Apply
-                    </button>
-                </div>
+                <p style="color: #666; margin: 5px 0 0 0;">
+                    Toggle camera on/off. When disabled, the camera will be completely turned off.
+                </p>
             </div>
-        `;
 
-        popupBody.innerHTML = cameraOptionsHTML;
-        popupContainer.style.display = 'flex';
+            <div class="setting-option" style="margin-bottom: 20px;">
+                <label for="cameraSelect" style="display: block; margin-bottom: 8px; font-weight: 500;">Select Camera</label>
+                <select id="cameraSelect" style="
+                    width: 100%;
+                    padding: 8px;
+                    border-radius: 8px;
+                    border: 1px solid #ddd;
+                    background-color: white;
+                    font-size: 14px;
+                " ${!isCameraEnabled ? 'disabled' : ''}>
+                    ${cameras.map((device, index) => `
+                        <option value="${device.deviceId}">
+                            ${device.label || `Camera ${index + 1}`}
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
 
-        // Set current camera as selected in dropdown
-        if (videoElement && videoElement.srcObject) {
-            const currentTrack = videoElement.srcObject.getVideoTracks()[0];
-            if (currentTrack) {
-                const select = document.getElementById('cameraSelect');
-                const options = Array.from(select.options);
-                const currentOption = options.find(option => {
-                    const device = videoDevices.find(d => d.deviceId === option.value);
-                    return device && device.label === currentTrack.label;
-                });
-                if (currentOption) {
-                    select.value = currentOption.value;
-                }
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 30px;">
+                <button id="apply-camera-settings" style="
+                    padding: 8px 16px;
+                    background: #ffb089;
+                    width: 100%;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    margin-right: 0px;
+                    transition: background-color 0.3s;
+                    padding: 12px 24px;
+                    font-size: 16px;
+                ">Apply Changes</button>
+            </div>
+        </div>
+    `;
+
+    popupBody.innerHTML = settingsHTML;
+    popupContainer.style.display = 'flex';
+
+    // Set current camera as selected in dropdown
+    if (videoElement && videoElement.srcObject) {
+        const currentTrack = videoElement.srcObject.getVideoTracks()[0];
+        if (currentTrack) {
+            const select = document.getElementById('cameraSelect');
+            const options = Array.from(select.options);
+            const currentOption = options.find(option => {
+                const device = cameras.find(d => d.deviceId === option.value);
+                return device && device.label === currentTrack.label;
+            });
+            if (currentOption) {
+                select.value = currentOption.value;
             }
         }
+    }
 
-        // Handle toggle camera button
-        const toggleButton = document.getElementById('toggleCamera');
-        toggleButton.addEventListener('click', async () => {
-            if (isRunning) {
-                // Stop camera
-                stopDetection();
-                if (videoElement.srcObject) {
-                    videoElement.srcObject.getTracks().forEach(track => track.stop());
-                    videoElement.srcObject = null;
-                }
-                toggleButton.textContent = 'Turn On Camera';
-                toggleButton.style.backgroundColor = '#4CAF50';
-            } else {
-                // Restart camera
-                const selectedDeviceId = document.getElementById('cameraSelect').value;
+    // Handle camera toggle affecting dropdown
+    document.getElementById('camera-toggle').addEventListener('change', (e) => {
+        document.getElementById('cameraSelect').disabled = !e.target.checked;
+    });
+
+    // Handle apply button
+    document.getElementById('apply-camera-settings').addEventListener('click', async () => {
+        const newCameraEnabled = document.getElementById('camera-toggle').checked;
+        const selectedDeviceId = document.getElementById('cameraSelect').value;
+
+        if (newCameraEnabled !== isCameraEnabled ||
+            (newCameraEnabled && selectedDeviceId !== getCurrentCameraId())) {
+
+            isCameraEnabled = newCameraEnabled;
+
+            if (isCameraEnabled) {
                 try {
                     await initializeCamera(selectedDeviceId);
                     startDetection();
-                    toggleButton.textContent = 'Turn Off Camera';
-                    toggleButton.style.backgroundColor = '#ff6060';
                 } catch (error) {
-                    console.error('Error restarting camera:', error);
-                    showErrorModal('Failed to start camera. Please try again.');
+                    console.error('Failed to start camera:', error);
+                    showCameraOffMessage('Failed to start camera. Please check permissions and try again.');
                 }
+            } else {
+                stopCamera();
+                showCameraOffMessage('Camera is currently turned off');
             }
-        });
+        }
 
-        // Handle apply button
-        document.getElementById('applyCameraSettings').addEventListener('click', async () => {
-            const selectedDeviceId = document.getElementById('cameraSelect').value;
-            try {
-                // Stop current camera
-                if (videoElement.srcObject) {
-                    videoElement.srcObject.getTracks().forEach(track => track.stop());
-                }
+        popupContainer.style.display = 'none';
+    });
 
-                // Start new camera
-                await initializeCamera(selectedDeviceId);
-                if (!isRunning) {
-                    startDetection();
-                }
-                popupContainer.style.display = 'none';
-            } catch (error) {
-                console.error('Error switching camera:', error);
-                showErrorModal('Failed to switch camera. Please try again.');
-            }
-        });
+    // Handle x-mark close button
+    document.getElementById('close-settings').addEventListener('click', () => {
+        popupContainer.style.display = 'none';
+    });
+}
 
-    } catch (error) {
-        console.error('Error accessing camera settings:', error);
-        showErrorModal('Failed to access camera settings. Please check your browser permissions.');
+// Helper function to get current camera ID
+function getCurrentCameraId() {
+    if (videoElement && videoElement.srcObject) {
+        const track = videoElement.srcObject.getVideoTracks()[0];
+        if (track) {
+            return track.getSettings().deviceId;
+        }
     }
+    return null;
+}
+
+// Function to stop camera
+function stopCamera() {
+    // Stop detection if running
+    if (isRunning) {
+        stopDetection();
+    }
+
+    // Stop all video tracks
+    if (videoElement && videoElement.srcObject) {
+        const tracks = videoElement.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        videoElement.srcObject = null;
+    }
+
+    // Clear canvas
+    if (canvasElement && canvasContext) {
+        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    }
+}
+
+// Function to show camera off message
+function showCameraOffMessage(message) {
+    const workoutUser = document.querySelector('.workout-user');
+    workoutUser.innerHTML = `
+        <div style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            background: #f8f8f8;
+            border-radius: 16px;
+        ">
+            <i class="fa-solid fa-video-slash" style="
+                font-size: 48px;
+                color: #ff6060;
+                margin-bottom: 20px;
+            "></i>
+            <h3 style="margin-bottom: 10px; color: #333;">Camera Off</h3>
+            <p style="color: #666;">${message}</p>
+            ${!isCameraEnabled ? `
+                <button onclick="handleCameraSettings()" style="
+                    margin-top: 20px;
+                    padding: 8px 16px;
+                    background: #ffb089;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                ">Enable Camera</button>
+            ` : ''}
+        </div>
+    `;
 }
 
 async function initializeCamera(deviceId) {
@@ -756,6 +1077,11 @@ async function initializeCamera(deviceId) {
                 frameRate: { ideal: 60 }
             }
         };
+
+        // Stop any existing camera stream
+        if (videoElement.srcObject) {
+            videoElement.srcObject.getTracks().forEach(track => track.stop());
+        }
 
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoElement.srcObject = stream;
@@ -777,69 +1103,6 @@ async function initializeCamera(deviceId) {
         throw error;
     }
 }
-
-
-function handleInstructorChange() {
-    // Add instructor change logic here
-    console.log('Change instructor clicked');
-}
-
-function handleMewTrack() {
-    // Add MewTrack logic here
-    console.log('MewTrack clicked');
-}
-
-function handleLayout() {
-    // Add layout change logic here
-    console.log('Layout clicked');
-}
-
-// Initialize settings popup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    createSettingsPopup();
-});
-
-//.........................................................................................//
-// Music & Close button Function (pop up window)
-
-document.addEventListener('DOMContentLoaded', function () {
-    const popupContainer = document.getElementById('popup-container');
-    const popupTitle = document.getElementById('popup-title');
-    const popupBody = document.getElementById('popup-body');
-    const closeBtn = document.getElementById('close-btn');
-
-    function showPopup(title, content) {
-        popupTitle.textContent = title;
-        popupBody.innerHTML = content;
-        popupContainer.style.display = 'flex';
-    }
-
-    function closePopup() {
-        popupContainer.style.display = 'none';
-    }
-
-    document.getElementById('music').addEventListener('click', function (e) {
-        e.preventDefault();
-        showPopup('Music', `
-            <div>
-                <p>Here is some more information about the workout.</p>
-                <p>This is a sample popup window with some content.</p>
-            </div>
-        `);
-    });
-
-    document.getElementById('close-btn').addEventListener('click', function (e) {
-        e.preventDefault();
-        showPopup('Music', `
-            <div>
-                <p>Do you really want to end the workout?</p>
-                <p>The progress of workout will not be saved.</p>
-                <button onclick="closePopup()">Yes</button>
-                <button onclick="closePopup()">No</button>
-            </div>
-        `);
-    });
-});
 
 //.........................................................................................//
 // MewTrack function (pop up window)
@@ -941,6 +1204,31 @@ function handleMewTrack() {
         popupContainer.style.display = 'none';
     });
 }
+
+function updateMewTrackSettings(enableMewTrack, enableNotifications, style) {
+    isMewTrackEnabled = enableMewTrack;
+    notificationsEnabled = enableNotifications;
+    skeletonStyle = style;
+
+    // Update detection state based on MewTrack setting
+    if (enableMewTrack && !isRunning) {
+        startDetection();
+    } else if (!enableMewTrack && isRunning) {
+        stopDetection();
+    }
+
+    // Clear canvas if MewTrack is disabled
+    if (!enableMewTrack) {
+        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize MewTrack settings from localStorage or defaults
+    isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
+    notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+    skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
+});
 
 //.........................................................................................//
 // Loyout function (pop up window)
@@ -1082,3 +1370,219 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //.........................................................................................//
+// Music Function (pop up window)
+
+document.addEventListener('DOMContentLoaded', function () {
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+    const closeBtn = document.getElementById('close-btn');
+
+    function showPopup(title, content) {
+        popupTitle.textContent = title;
+        popupBody.innerHTML = content;
+        popupContainer.style.display = 'flex';
+    }
+
+    function closePopup() {
+        popupContainer.style.display = 'none';
+    }
+
+    class WorkoutMusicPlayer {
+        constructor() {
+            this.audio = new Audio();
+            this.playlist = [];
+            this.currentTrackIndex = 0;
+            this.isPlaying = false;
+            this.volume = 0.7;
+        }
+
+        async initializeMusicPlayer() {
+            // Sample playlist - Replace with your actual music files
+            this.playlist = [
+                {
+                    title: "Workout Energy",
+                    artist: "Fitness Beats",
+                    duration: "3:45",
+                    url: "/path/to/music1.mp3"
+                },
+                {
+                    title: "Power Up",
+                    artist: "Gym Tracks",
+                    duration: "4:20",
+                    url: "/path/to/music2.mp3"
+                }
+            ];
+
+            this.createMusicInterface();
+            this.setupEventListeners();
+        }
+
+        createMusicInterface() {
+            const musicContainer = document.createElement('div');
+            musicContainer.className = 'music-player';
+            musicContainer.innerHTML = `
+                <div class="music-player-container">
+                    <div class="music-info">
+                        <div class="track-details">
+                            <span class="track-title">${this.playlist[this.currentTrackIndex].title}</span>
+                            <span class="track-artist">${this.playlist[this.currentTrackIndex].artist}</span>
+                        </div>
+                        <div class="track-duration">${this.playlist[this.currentTrackIndex].duration}</div>
+                    </div>
+                    
+                    <div class="music-controls">
+                        <button class="previous-track">
+                            <i class="fas fa-backward"></i>
+                        </button>
+                        <button class="play-pause">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="next-track">
+                            <i class="fas fa-forward"></i>
+                        </button>
+                        <div class="volume-control">
+                            <i class="fas fa-volume-up"></i>
+                            <input type="range" min="0" max="100" value="70" class="volume-slider">
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar"></div>
+                        <div class="progress-current"></div>
+                    </div>
+                </div>
+            `;
+
+            // Add the music player to your workout interface
+            const workoutContainer = document.querySelector('.workout-container');
+            workoutContainer.appendChild(musicContainer);
+        }
+
+        setupEventListeners() {
+            const playPauseBtn = document.querySelector('.play-pause');
+            const nextBtn = document.querySelector('.next-track');
+            const prevBtn = document.querySelector('.previous-track');
+            const volumeSlider = document.querySelector('.volume-slider');
+            const progressBar = document.querySelector('.progress-container');
+
+            playPauseBtn.addEventListener('click', () => this.togglePlay());
+            nextBtn.addEventListener('click', () => this.nextTrack());
+            prevBtn.addEventListener('click', () => this.previousTrack());
+            volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
+            progressBar.addEventListener('click', (e) => this.seekTo(e));
+
+            // Update progress bar
+            this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        }
+
+        togglePlay() {
+            if (this.isPlaying) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        }
+
+        play() {
+            this.audio.play();
+            this.isPlaying = true;
+            document.querySelector('.play-pause i').className = 'fas fa-pause';
+        }
+
+        pause() {
+            this.audio.pause();
+            this.isPlaying = false;
+            document.querySelector('.play-pause i').className = 'fas fa-play';
+        }
+
+        nextTrack() {
+            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+            this.loadTrack();
+        }
+
+        previousTrack() {
+            this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+            this.loadTrack();
+        }
+
+        loadTrack() {
+            const track = this.playlist[this.currentTrackIndex];
+            this.audio.src = track.url;
+            document.querySelector('.track-title').textContent = track.title;
+            document.querySelector('.track-artist').textContent = track.artist;
+            if (this.isPlaying) {
+                this.play();
+            }
+        }
+
+        setVolume(value) {
+            this.volume = value;
+            this.audio.volume = value;
+        }
+
+        updateProgress() {
+            const progress = (this.audio.currentTime / this.audio.duration) * 100;
+            document.querySelector('.progress-current').style.width = `${progress}%`;
+        }
+
+        seekTo(event) {
+            const progressBar = document.querySelector('.progress-container');
+            const percent = event.offsetX / progressBar.offsetWidth;
+            this.audio.currentTime = percent * this.audio.duration;
+        }
+    }
+
+    // Initialize music player
+    document.addEventListener('DOMContentLoaded', () => {
+        const musicPlayer = new WorkoutMusicPlayer();
+        musicPlayer.initializeMusicPlayer();
+    });
+
+    // Show music player popup
+    document.getElementById('music').addEventListener('click', function (e) {
+        e.preventDefault();
+        showPopup('Music', `
+            <div>
+                <p>Select a music track to play:</p>
+                <div class="music-list">
+                    <div class="music-item">
+                        <div class="music-item-image">
+                            <img src="/path/to/music1.jpg" alt="Workout Energy">
+                        </div>
+                        <div class="music-item-details">
+                            <span class="music-item-title">Workout Energy</span>
+                            <span class="music-item-artist">Fitness Beats</span>
+                        </div>
+                        <button class="play-btn">Play</button>
+                    </div>
+                    <div class="music-item">
+                        <div class="music-item-image">
+                            <img src="/path/to/music2.jpg" alt="Power Up">
+                        </div>
+                        <div class="music-item-details">
+                            <span class="music-item-title">Power Up</span>
+                            <span class="music-item-artist">Gym Tracks</span>
+                        </div>
+                        <button class="play-btn">Play</button>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+
+    //.........................................................................................//
+    // Close button Function (pop up window)
+
+    document.getElementById('close-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        showPopup('Music', `
+            <div>
+                <p>Do you really want to end the workout?</p>
+                <p>The progress of workout will not be saved.</p>
+                <button onclick="closePopup()">Yes</button>
+                <button onclick="closePopup()">No</button>
+            </div>
+        `);
+    });
+});

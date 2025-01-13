@@ -52,7 +52,7 @@ body {
     color: #000000;
     border: none;
     border-radius: 20px;
-    padding: 15px 22px;
+    padding: 15px 20px;
     font-size: 18px;
     cursor: pointer;
     margin: 0 20px;
@@ -265,15 +265,18 @@ body {
 }
 
 .popup-content button {
-    background-color: #dcaf48;
+    background-color: #ffb089;
     color: white;
-    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin-right: 10px;
-    font-size: 14px;
+    margin-top: 20px;
     transition: background-color 0.3s ease;
+}
+
+h2#popup-title{
+    margin-left: 20px;
 }
 
 /* ......................................................................................... */
@@ -341,11 +344,11 @@ body {
 }
 
 .layout-option:hover {
-    border-color: #ff6060;
+    border-color: #ffa579;
 }
 
 .layout-option.active {
-    border-color: #ff6060;
+    border-color: #ffb089;
     background-color: #fff1f1;
 }
 
@@ -426,7 +429,7 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    color: #ff6060;
+    color: #ffb089;
     display: none;
 }
 
@@ -442,18 +445,20 @@ body {
 }
 
 .apply-layout {
-    background-color: #ff6060;
+    padding: 12px 24px;
+    background-color: #ffb089;
     color: white;
     border: none;
     border-radius: 8px;
     padding: 12px 24px;
     font-size: 16px;
     cursor: pointer;
+    width: 100%;
     transition: background-color 0.2s ease;
 }
 
 .apply-layout:hover {
-    background-color: #ff4444;
+    background-color: #fc9d6d;
 }
 
 /* ......................................................................................... */
@@ -534,7 +539,7 @@ body {
 }
 
 input:checked+.slider {
-    background-color: #ff6060;
+    background-color: #ffb089;
 }
 
 input:checked+.slider:before {
@@ -563,7 +568,7 @@ input:checked+.slider:before {
 }
 
 .style-option.active {
-    border-color: #ff6060;
+    border-color: #ffb089;
     background-color: #fff1f1;
 }
 
@@ -581,7 +586,7 @@ input:checked+.slider:before {
     content: "";
     width: 40px;
     height: 2px;
-    background-color: #ff6060;
+    background-color: #ffb089;
 }
 
 .dot-style::after {
@@ -589,21 +594,21 @@ input:checked+.slider:before {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #ff6060;
+    background-color: #ffb089;
 }
 
 .both-style::after {
     content: "";
     width: 40px;
     height: 10px;
-    background: linear-gradient(to right, #ff6060 2px, transparent 2px) 0 0,
-        radial-gradient(circle, #ff6060 3px, transparent 3px) 0 0;
+    background: linear-gradient(to right, #ffb089 2px, transparent 2px) 0 0,
+        radial-gradient(circle, #ffb089 3px, transparent 3px) 0 0;
     background-size: 100% 2px, 8px 8px;
 }
 
 /* Apply Button */
 #apply-mewtrack {
-    background-color: #ff6060;
+    background-color: #ffb089;
     color: white;
     border: none;
     border-radius: 8px;
@@ -616,7 +621,7 @@ input:checked+.slider:before {
 }
 
 #apply-mewtrack:hover {
-    background-color: #ff4646;
+    background-color: #fa9f71;
 }
 
 #apply-mewtrack:active {
