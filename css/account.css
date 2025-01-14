@@ -269,41 +269,72 @@ button {
   color: black;
 }
 
-.weight-input-container {
+.weight-height-wrapper {
+  width: 100%;
+  margin: 10px 0px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+
+.weight-input {
+  width: 49%;
   display: flex;
   flex-direction: column;
   position: relative;
-  width: 300px;
 }
 
-.weight-input-container label {
+.weight-input label {
   color: #666666;
   margin-bottom: 10px;
-  font-size: 1rem;
-  font-family: "Poppins", sans-serif;
 }
 
-.weight-input-container input[type="number"] {
-  flex: 1 1 0;
-  padding: 8px 10px;
-  padding-right: 50px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-.weight-input-container select {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+.weight-input select {
+  right: 20px;
+  top: 55%;
   border: none;
+  border-radius: 10px;
   background: transparent;
-  font-size: 14px;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
+  position: absolute;
+}
+
+.weight-input input {
+  border: 2px solid #ff946e;
+  border-radius: 4px;
+  height: 25px;
+  padding: 8px;
+}
+
+.bmi-label {
+  margin-bottom: 60px;
+}
+
+.target-weight-input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.target-weight-input input {
+  border: 2px solid #ff946e;
+  border-radius: 4px;
+  height: 25px;
+  padding: 8px;
+}
+
+.target-weight-input select {
+  right: 20px;
+  top: 55%;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  position: absolute;
+}
+
+.target-weight-input label {
+  color: #666666;
+  margin-bottom: 10px;
 }
 
 @media only screen and (max-width: 768px) {
