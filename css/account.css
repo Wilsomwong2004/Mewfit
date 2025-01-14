@@ -290,6 +290,7 @@ button {
 }
 
 .weight-input select {
+  font-family: "Poppins";
   right: 20px;
   top: 55%;
   border: none;
@@ -324,6 +325,7 @@ button {
 }
 
 .target-weight-input select {
+  font-family: "Poppins";
   right: 20px;
   top: 55%;
   border: none;
