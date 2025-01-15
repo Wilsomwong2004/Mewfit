@@ -307,6 +307,7 @@ button {
 }
 
 .bmi-label {
+  color: #666666;
   margin-bottom: 60px;
 }
 
@@ -337,6 +338,15 @@ button {
 .target-weight-input label {
   color: #666666;
   margin-bottom: 10px;
+}
+
+.sign-up-fill form {
+  display: flex;
+}
+
+.sign-up-fill .sign-in-steps {
+  border: 2px black solid;
+  width: 3000px;
 }
 
 @media only screen and (max-width: 768px) {
