@@ -373,4 +373,12 @@ body {
   .button-inputs {
     width: 100%;
   }
+
+  .policy {
+    font-size: 0.75rem;
+  }
+
+  .create-header {
+    padding: 30px 0px 0px 0px;
+  }
 }
