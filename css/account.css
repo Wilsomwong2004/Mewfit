@@ -157,6 +157,7 @@ button {
   flex-direction: column;
   padding: 0px 50px;
   box-sizing: border-box;
+  flex-shrink: 0%;
   transition: all 1s;
 }
 
