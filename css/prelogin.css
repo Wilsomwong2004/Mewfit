@@ -379,7 +379,7 @@ body {
 }
 
 #page4-heading{
-    padding-top:2vw;
+    padding-top:4vw;
     position: absolute;
     z-index:1;
     top:0%;
@@ -393,11 +393,11 @@ body {
 }
 
 #line1{
-    font-size:3vw;
+    font-size:2.5vw;
 }
 
 #line2{
-    font-size:6vw;
+    font-size:5vw;
     background: linear-gradient(90deg, #ffbf76, #ff7a99);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
@@ -410,16 +410,18 @@ body {
     z-index:1;
     top:20%;
     padding:4vw;
+    padding-top:6vw;
     display:flex;
 }
 
 #page4-content h2 {
-    font-size: 2.5vw;
+    padding-top:3.5vw;
+    font-size: 1.7vw;
     width:80%;
 }
 
 #page4-content p {
-    font-size: 1.5vw;
+    font-size: 1.2vw;
     line-height: 3vw;
     width:80%;
 }
@@ -428,7 +430,7 @@ body {
     width: 40vw;
     height: 27vw;
     border-radius: 20px;
-    margin-top:2vw;
+    margin-top:0vw;
 }
 
 @media (max-width: 450px)  {
@@ -522,4 +524,5 @@ body {
     border-width: 2px;
     border-style: solid;
 }
+
 
