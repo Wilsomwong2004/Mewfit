@@ -10,7 +10,7 @@ body {
     padding: 0.5vw 2vw 0.5vw;
     position: fixed;
     width: 100%;
-    z-index: 1;
+    z-index: 2;
 }
 
 .login_btn {
@@ -39,9 +39,7 @@ body {
 .left-fade-in,
 .right-fade-in {
     opacity: 0;
-    /* Start hidden */
     transition: opacity 2s ease, transform 2s ease;
-    /* Animation transition */
 }
 
 .right-fade-in {
@@ -56,15 +54,13 @@ body {
 
 .visible {
     opacity: 1;
-    /* End state */
     transform: translateX(0);
-    /* End position */
 }
 
 /* _______________________PAGE 1_______________________ */
 #page1 {
     display: flex;
-    height: 46vw;
+    height: 50vw;
     padding-left: 10px;
     justify-content: space-between;
     align-items: center;
@@ -115,7 +111,7 @@ body {
     #page1 {
         height: 200vw;
         flex-direction: column;
-        padding-top:20vw;
+        padding-top:17vw;
         padding-left:0;
     }
     
@@ -162,6 +158,7 @@ body {
 .scroll2 {
     overflow: hidden;
     display: flex;
+    z-index:0;
 }
 
 .scroll div,
@@ -275,10 +272,10 @@ body {
 #page3 {
     display: flex;
     height: 48vw;
-    padding-right: 4vw;
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
+    padding-right:4vw;
     background: linear-gradient(180deg, white 80%, #ffe0c0);
 }
 
@@ -345,6 +342,7 @@ body {
         text-align: center;
         margin-left:1vw;
         line-height: 30px;
+        margin-bottom:10vw;
     }
 
     #page3 img {
@@ -359,4 +357,140 @@ body {
         height: 75vw;
         margin-top: 5vw;
     }
+}
+
+/* ___________________PAGE 4______________________ */
+#page4 {
+    height: 48vw;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    background: #ffe0c0;
+    position: relative;
+}
+
+.scroll h3, .scroll2 h3{
+    font-size: 4vw;
+    opacity: 0.2;
+    margin:0.5vw;
+    position: relative;
+    z-index:0;
+    color:#FFAD84
+}
+
+#page4-heading{
+    padding-top:2vw;
+    position: absolute;
+    z-index:1;
+    top:0%;
+    width:100%;
+    text-align: center;
+}
+
+#line1,#line2{
+    text-align: center;
+    margin:1px;
+}
+
+#line1{
+    font-size:3vw;
+}
+
+#line2{
+    font-size:6vw;
+    background: linear-gradient(90deg, #ffbf76, #ff7a99);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 0px 5px 2px #ffbf7f6e;
+}
+
+#page4-content{
+    position: absolute;
+    z-index:1;
+    top:20%;
+    padding:4vw;
+    display:flex;
+}
+
+#page4-content h2 {
+    font-size: 2.5vw;
+    width:80%;
+}
+
+#page4-content p {
+    font-size: 1.5vw;
+    line-height: 3vw;
+    width:80%;
+}
+
+#page4-content img{
+    width: 40vw;
+    height: 27vw;
+    border-radius: 20px;
+    margin-top:2vw;
+}
+
+@media (max-width: 450px)  {
+    .scroll h3, .scroll2 h3{
+        font-size:8vw;
+    }
+
+    #page4 {
+        height: 210vw;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    #page4-heading{
+        padding-top:3vw;
+    }
+
+    #line1{
+        font-size:7vw;
+        padding:1vw;
+    }
+    
+    #line2 {
+        font-size: 10vw;
+    }
+
+    #page4-content{
+        top:10%;
+        display:flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    #page4-content h2{
+        font-size:6.5vw;
+        width:100%;
+    }
+
+    #page4-content p {
+        font-size: 3.7vw;
+        line-height: 30px;
+        margin-bottom:10vw;
+        width:100%;
+    }
+
+    #page4-content img {
+        width: 75vw;
+        height: 75vw;
+        margin-top: 5vw;
+        
+    }
+}
+
+/* ___________________PAGE 5______________________ */
+#page5 {
+    height: 48vw;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(0deg, white 90%, #ffe0c0);
+    position: relative;
 }
