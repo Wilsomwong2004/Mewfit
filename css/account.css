@@ -3,11 +3,15 @@
 2. positions
 3. functionallity  */
 
+* {
+  box-sizing: content-box;
+}
+
 body {
   background: url("../Image/login_screen.png") no-repeat;
   background-position: center;
   background-size: cover;
-  color: lightgray;
+  color: black;
   font-family: "poppins";
   padding: 0;
   margin: 0;
@@ -17,7 +21,7 @@ body {
   min-height: 100vh;
 }
 
-button {
+/* button {
   color: #fff;
   background-color: #ffad84;
   border: none;
@@ -28,7 +32,7 @@ button {
   width: 100%;
   height: 50px;
   margin: 20px 0px;
-}
+} */
 
 .scroll-hidden {
   opacity: 0;
@@ -43,6 +47,7 @@ button {
   display: flex;
   border: white solid;
   border-radius: 20px;
+  box-sizing: content-box;
   width: 90vw;
   height: 90vh;
   margin: 0 auto;
@@ -51,6 +56,7 @@ button {
 .login-form-box {
   background-color: #fff;
   border-radius: 17px;
+  box-sizing: content-box;
   width: 50%;
   height: 100%;
   display: flex;
@@ -85,9 +91,9 @@ button {
   max-width: 400px;
   height: 35px;
   display: flex;
-  margin: 30px 0px;
+  margin: 20px 0px;
   position: relative;
-  transform: translateY(-10%);
+  transform: translateY(0%);
 }
 
 .input-box input {
@@ -112,7 +118,7 @@ button {
 
 .login-form .btn {
   width: 250px;
-  height: 50px;
+  height: 35px;
   color: #fff;
   background-color: #ff946e;
   border: none;
@@ -142,211 +148,190 @@ button {
   font-weight: bold;
 }
 
-.sign-up-wrapper {
-  display: flex;
+.outer-form {
   width: 90vw;
-  margin: 20px 0px;
+  height: 90vh;
 }
 
-.sign-up-fill {
+.form-wrapper {
   background-color: #fff;
   border-radius: 17px;
   width: 60%;
-  line-height: 10px;
+  overflow: hidden;
+}
+
+.create-header {
+  padding: 30px 20px 0px 20px;
+  line-height: 0;
+  display: flex;
+}
+
+.create-header button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.create-header i {
+  font-size: 30px;
+  padding: 0px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.sign-in-steps {
+  display: flex;
+  width: 100%;
+}
+
+.pages {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 0px 50px;
-  box-sizing: border-box;
+  align-content: center;
+  flex-shrink: 0;
+  padding: 0px 13%;
+  position: relative;
   transition: all 1s;
 }
 
-.sign-in-header {
-  padding: 25px 0px;
-}
-
-.sign-in-header h2 {
-  color: black;
-  line-height: normal;
-}
-
-.sign-in-header p {
-  color: #878787;
-  font-size: 0.75rem;
-}
-
-.sign-in-header i {
-  color: black;
-  font-size: 40px;
-  position: absolute;
-  transform: translate(-40px, 40%);
-}
-
-.name-input-wrapper {
+.half-input-wrapper {
   width: 100%;
+  margin: 5px 0px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.name-input {
-  display: flex;
-  flex-direction: column;
+.half-inputs {
   width: 49%;
-  margin: 5px 0px;
-}
-
-.name-input label {
-  color: #666666;
-  margin-bottom: 10px;
-  font-size: 1rem;
-  font-family: "Poppins", sans-serif;
-}
-
-.name-input input {
-  height: 25px;
-  padding: 8px;
-  font-size: 14px;
-  border: 2px solid #ffad84;
-  border-radius: 4px;
-}
-
-.name-input select {
-  height: 44px;
-  padding: 8px;
-  font-size: 14px;
-  border: 2px solid #ffad84;
-  border-radius: 4px;
-}
-
-.name-input input::focus {
-  border: 2px solid #ff6c37;
-}
-
-.sign-in-inputs {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  margin: 5px 0px;
+  position: relative;
 }
 
-.sign-in {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 0px;
-}
-
-.sign-in label {
+.half-inputs label {
   color: #666666;
   margin-bottom: 7px;
 }
 
-.sign-in input {
-  border: 2px solid #ff946e;
-  border-radius: 4px;
-  height: 25px;
+.half-inputs input {
+  height: 35px;
   padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
 }
 
-.password-rules ul {
-  display: flex;
-  flex-wrap: wrap;
-  line-height: 40px;
-  padding: 0px;
+.half-inputs select {
+  font-family: "Poppins";
+  right: 0px;
+  top: 60%;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  position: absolute;
 }
 
-.password-rules li {
-  font-size: 0.8rem;
-  margin: 0px 20px;
-}
-
-.terms-and-condition {
-  color: black;
-  font-size: 0.9rem;
-  margin-bottom: 30px;
-}
-
-.terms-and-condition a {
-  color: black;
-}
-
-.weight-height-wrapper {
-  width: 100%;
-  margin: 10px 0px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-}
-
-.weight-input {
+.gender-inputs {
   width: 49%;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.weight-input label {
+.gender-inputs label {
   color: #666666;
-  margin-bottom: 10px;
+  margin-bottom: 7px;
 }
 
-.weight-input select {
-  font-family: "Poppins";
-  right: 20px;
-  top: 55%;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  position: absolute;
-}
-
-.weight-input input {
-  border: 2px solid #ff946e;
-  border-radius: 4px;
-  height: 25px;
+.gender-inputs select {
+  height: 35px;
   padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
 }
 
-.bmi-label {
-  color: #666666;
-  margin-bottom: 60px;
-}
-
-.target-weight-input {
-  width: 100%;
+.inputs {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.target-weight-input input {
-  border: 2px solid #ff946e;
-  border-radius: 4px;
-  height: 25px;
-  padding: 8px;
+.inputs label {
+  color: #666666;
+  margin-bottom: 7px;
 }
 
-.target-weight-input select {
+.inputs input {
+  height: 35px;
+  padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
+}
+
+.inputs button {
+  color: #fff;
+  background-color: #ffad84;
+  border: none;
+  border-radius: 20px;
+  font-family: "Inter";
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  height: 50px;
+}
+
+.inputs select {
   font-family: "Poppins";
-  right: 20px;
-  top: 55%;
+  right: 0px;
+  top: 60%;
   border: none;
   border-radius: 10px;
   background: transparent;
   position: absolute;
 }
 
-.target-weight-input label {
-  color: #666666;
-  margin-bottom: 10px;
+.button-inputs {
+  width: 74%;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
 }
 
-.sign-up-fill form {
+.button-inputs button {
+  color: #fff;
+  background-color: #ffad84;
+  border: none;
+  border-radius: 20px;
+  font-family: "Inter";
+  font-weight: bold;
+  font-size: 1rem;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.account-rules {
+  width: 100%;
+  color: #666666;
   display: flex;
 }
 
-.sign-up-fill .sign-in-steps {
-  border: 2px black solid;
-  width: 3000px;
+.account-rules ul {
+  width: 100%;
+  padding: 0px 20px;
+}
+
+.policy p {
+  text-align: center;
+}
+
+.policy a {
+  color: black;
 }
 
 @media only screen and (max-width: 768px) {
@@ -366,14 +351,5 @@ button {
   .logo-icon img {
     width: 120px;
     height: 120px;
-  }
-
-  .sign-up-fill {
-    width: 100%;
-    padding: 0px;
-  }
-
-  .sign-in-header {
-    padding: 20px 30px;
   }
 }

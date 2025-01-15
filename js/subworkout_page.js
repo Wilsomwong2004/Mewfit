@@ -3,13 +3,13 @@ let videoElement;
 let canvasElement;
 let canvasContext;
 let isRunning = false;
-let isCameraEnabled = true; // Track camera state
 let cameras = []; // Store available cameras
 let animationFrameId;
 let isInitialized = false;
 let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
 let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
 let skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
+let isCameraEnabled = localStorage.getItem('cameraEnabled') !== 'false';
 
 // Initialize TensorFlow backend
 async function initializeTF() {
@@ -417,7 +417,40 @@ async function handleCameraSettings() {
     popupBody.innerHTML = settingsHTML;
 
     // Add event listeners
-    setupCameraSettingsEventListeners();
+    document.getElementById('camera-toggle').addEventListener('change', (e) => {
+        document.getElementById('cameraSelect').disabled = !e.target.checked;
+    });
+
+    document.getElementById('apply-camera-settings').addEventListener('click', async () => {
+        const newCameraEnabled = document.getElementById('camera-toggle').checked;
+        const selectedDeviceId = document.getElementById('cameraSelect').value;
+
+        try {
+            if (newCameraEnabled) {
+                await initializeCamera(selectedDeviceId);
+                isCameraEnabled = true;
+                localStorage.setItem('cameraEnabled', 'true');
+
+                if (isMewTrackEnabled) {
+                    startDetection();
+                }
+            } else {
+                stopCamera();
+                isCameraEnabled = false;
+                localStorage.setItem('cameraEnabled', 'false');
+                showCameraOffMessage('Camera is currently turned off');
+            }
+        } catch (error) {
+            console.error('Failed to apply camera settings:', error);
+            showErrorModal('Failed to apply camera settings. Please try again.');
+        }
+
+        popupContainer.style.display = 'none';
+    });
+
+    document.getElementById('close-settings').addEventListener('click', () => {
+        popupContainer.style.display = 'none';
+    });
 }
 
 // Helper function to get current camera ID
@@ -436,6 +469,7 @@ function stopCamera() {
     // Stop detection if running
     if (isRunning) {
         stopDetection();
+        isRunning = false;
     }
 
     // Stop all video tracks
@@ -449,7 +483,11 @@ function stopCamera() {
     if (canvasElement && canvasContext) {
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
     }
+
+    // Reset detector
+    detector = null;
 }
+
 
 // Function to show camera off message
 function showCameraOffMessage(message) {
@@ -500,17 +538,22 @@ async function initPoseDetection() {
 
 // Update window load event to respect camera state
 window.addEventListener('load', async () => {
-    if (isCameraEnabled) {
-        setTimeout(async () => {
-            if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+    // Wait a moment to ensure all scripts are loaded
+    setTimeout(async () => {
+        if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+            // Check the saved camera state
+            const savedCameraState = localStorage.getItem('cameraEnabled');
+            isCameraEnabled = savedCameraState !== 'false'; // Default to true if not set
+
+            if (isCameraEnabled) {
                 await init();
             } else {
-                showErrorModal('Required libraries not loaded. Please refresh the page.');
+                showCameraOffMessage('Camera is currently turned off');
             }
-        }, 1000);
-    } else {
-        showCameraOffMessage('Camera is currently turned off');
-    }
+        } else {
+            showErrorModal('Required libraries not loaded. Please refresh the page.');
+        }
+    }, 1000);
 });
 
 function showErrorModal(errorMessage) {
@@ -663,6 +706,96 @@ function drawSkeleton(keypoints, scale, offsetX, offsetY) {
             canvasContext.stroke();
         }
     }
+}
+
+function startWorkoutCountdown(workoutName, onCompleteCallback) {
+    // Set initial count
+    let currentCount = 3;
+    let countdownInterval;
+
+    // Create countdown content
+    const countdownContent = `
+        <div class="header">
+            <div class="timer">
+                <div class="timer-text">0:20</div>
+            </div>
+            <div class="workout-details">
+                <div class="workout-name">${workoutName}</div>
+                <div class="workout-round">1/13</div>
+            </div>
+            <div id="countdown-close" class="close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        <div class="countdown-main">
+            <h1 class="ready-text">READY TO GO</h1>
+            <div class="count-circle">${currentCount}</div>
+            <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
+        </div>
+        <div class="bottom">
+            <div class="control-panel">
+                <div class="pause" id="countdown-pause">
+                    <i class="fa-solid fa-pause"></i>
+                    <p class="pause-text">Pause</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Create overlay div
+    const overlay = document.createElement('div');
+    overlay.className = 'countdown-overlay';
+    overlay.innerHTML = countdownContent;
+    document.body.appendChild(overlay);
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+
+    // Start countdown
+    let isPaused = false;
+    countdownInterval = setInterval(() => {
+        if (!isPaused) {
+            currentCount--;
+            const countCircle = overlay.querySelector('.count-circle');
+            if (countCircle) {
+                countCircle.textContent = currentCount;
+            }
+
+            if (currentCount <= 0) {
+                clearInterval(countdownInterval);
+                overlay.remove();
+                styleSheet.remove();
+                if (onCompleteCallback) {
+                    onCompleteCallback();
+                }
+            }
+        }
+    }, 1000);
+
+    // Add event listeners
+    const pauseBtn = overlay.querySelector('#countdown-pause');
+    const closeBtn = overlay.querySelector('#countdown-close');
+
+    pauseBtn.addEventListener('click', () => {
+        isPaused = !isPaused;
+        const pauseIcon = pauseBtn.querySelector('i');
+        const pauseText = pauseBtn.querySelector('.pause-text');
+        
+        if (isPaused) {
+            pauseIcon.className = 'fa-solid fa-play';
+            pauseText.textContent = 'Resume';
+        } else {
+            pauseIcon.className = 'fa-solid fa-pause';
+            pauseText.textContent = 'Pause';
+        }
+    });
+
+    closeBtn.addEventListener('click', () => {
+        clearInterval(countdownInterval);
+        overlay.remove();
+        styleSheet.remove();
+    });
 }
 
 // Start detection
@@ -963,8 +1096,35 @@ function handleCameraSettings() {
     }
 
     // Handle camera toggle affecting dropdown
-    document.getElementById('camera-toggle').addEventListener('change', (e) => {
-        document.getElementById('cameraSelect').disabled = !e.target.checked;
+    document.getElementById('camera-toggle').addEventListener('change', async (e) => {
+        const cameraSelect = document.getElementById('cameraSelect');
+        cameraSelect.disabled = !e.target.checked;
+
+        // Immediately handle camera state when toggled
+        const newCameraEnabled = e.target.checked;
+        const selectedDeviceId = cameraSelect.value;
+
+        if (newCameraEnabled !== isCameraEnabled) {
+            isCameraEnabled = newCameraEnabled;
+
+            if (isCameraEnabled) {
+                try {
+                    const success = await initializeCamera(selectedDeviceId);
+                    if (success) {
+                        startDetection(); // Only if camera initialization was successful
+                    }
+                } catch (error) {
+                    console.error('Failed to start camera:', error);
+                    showCameraOffMessage('Failed to start camera. Please check permissions and try again.');
+                    // Reset the toggle if camera fails to start
+                    e.target.checked = false;
+                    cameraSelect.disabled = true;
+                }
+            } else {
+                stopCamera();
+                showCameraOffMessage('Camera is currently turned off');
+            }
+        }
     });
 
     // Handle apply button
