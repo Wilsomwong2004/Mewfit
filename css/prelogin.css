@@ -96,7 +96,7 @@ body {
     margin-left: 4vw;
     margin-top: 1.5vh;
     width: 13vw;
-    font-size: 1rem;
+    font-size: 1.2vw;
     text-align: center;
     padding: 1vw;
 }
@@ -488,9 +488,38 @@ body {
 /* ___________________PAGE 5______________________ */
 #page5 {
     height: 48vw;
-    justify-content: space-between;
     align-items: center;
     overflow: hidden;
     background: linear-gradient(0deg, white 90%, #ffe0c0);
     position: relative;
+    justify-content:center;
 }
+
+#page5-content{
+    position: absolute;
+    z-index:1;
+    top:2%;
+    padding:4vw;
+    display:flex;
+}
+
+#page5-content h2 {
+    padding-top:1vw;
+    font-size: 3vw;
+}
+
+#page5-content p {
+    font-size: 1.5vw;
+    line-height: 3vw;
+}
+
+.page5-pic{
+    width: 30vw;
+    height: 18vw;
+    border-radius: 20px;
+    margin-top:2vw;
+    border-color:#FFAD84;
+    border-width: 2px;
+    border-style: solid;
+}
+
