@@ -3,10 +3,6 @@
 2. positions
 3. functionallity  */
 
-* {
-  box-sizing: content-box;
-}
-
 body {
   background: url("../Image/login_screen.png") no-repeat;
   background-position: center;
@@ -150,19 +146,24 @@ body {
 
 .outer-form {
   width: 90vw;
-  height: 90vh;
+  border: 2px white solid;
+  border-radius: 17px;
+  box-sizing: border-box;
+  margin: 20px 0px;
 }
 
 .form-wrapper {
   background-color: #fff;
   border-radius: 17px;
+  box-sizing: border-box;
   width: 60%;
+  height: 100%;
+  transition: all 1ms;
   overflow: hidden;
 }
 
 .create-header {
   padding: 30px 20px 0px 20px;
-  line-height: 0;
   display: flex;
 }
 
@@ -217,7 +218,7 @@ body {
 }
 
 .half-inputs input {
-  height: 35px;
+  height: 25px;
   padding: 8px;
   font-size: 14px;
   border: 2px solid #ffad84;
@@ -236,6 +237,7 @@ body {
 
 .gender-inputs {
   width: 49%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -247,7 +249,7 @@ body {
 }
 
 .gender-inputs select {
-  height: 35px;
+  height: 100%;
   padding: 8px;
   font-size: 14px;
   border: 2px solid #ffad84;
@@ -266,7 +268,7 @@ body {
 }
 
 .inputs input {
-  height: 35px;
+  height: 25px;
   padding: 8px;
   font-size: 14px;
   border: 2px solid #ffad84;
@@ -318,12 +320,19 @@ body {
 .account-rules {
   width: 100%;
   color: #666666;
-  display: flex;
+  font-size: 0.9rem;
+  margin-bottom: 40px;
 }
 
 .account-rules ul {
   width: 100%;
   padding: 0px 20px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.account-rules ul li {
+  margin: 0px 15px;
 }
 
 .policy p {
@@ -351,5 +360,17 @@ body {
   .logo-icon img {
     width: 120px;
     height: 120px;
+  }
+
+  .form-wrapper {
+    width: 100%;
+  }
+
+  .pages {
+    padding: 0px;
+  }
+
+  .button-inputs {
+    width: 100%;
   }
 }
