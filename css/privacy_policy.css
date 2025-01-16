@@ -13,6 +13,55 @@ body {
     text-align: justify; /* Align text to the center of the container */
 }
 
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, #ffe0e9, #ffd6de);
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%; 
+    z-index: 1000; 
+}
+
+.navbar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1; 
+}
+
+.logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.nav-button {
+    padding: 8px 20px;
+    background: #ffd6de;
+    color: #333;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-align: right;
+}
+
+.nav-button:hover {
+    background: #ffb3c2;
+    color: white;
+}
+
 header {
     background: linear-gradient(to right, #fbd3e9, #bb377d);
     padding: 20px;
