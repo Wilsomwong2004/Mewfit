@@ -277,7 +277,7 @@ body {
     align-items: center;
     overflow: hidden;
     padding-right:4vw;
-    background: linear-gradient(180deg, white 80%, #ffe0c0);
+    background: linear-gradient(180deg, white 80%, #FFE6DA);
 }
 
 #page3 h1 {
@@ -366,7 +366,7 @@ body {
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
-    background: #ffe0c0;
+    background: #FFE6DA;
     position: relative;
 }
 
@@ -493,7 +493,7 @@ body {
     height: 48vw;
     align-items: center;
     overflow: hidden;
-    background: linear-gradient(0deg, white 90%, #ffe0c0);
+    background: linear-gradient(0deg, white 90%, #FFE6DA);
     position: relative;
     justify-content:center;
 }
@@ -624,7 +624,97 @@ body {
     height: 48vw;
     align-items: center;
     overflow: hidden;
-    background: linear-gradient(0deg, white 90%, #ffe0c0);
     position: relative;
     justify-content:center;
+    text-align: center;
+}
+
+#last-page h1{
+    font-size:4.5vw;
+    background: linear-gradient(90deg, #ffbf76, #ff7ac3);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    margin-bottom:1vw;
+    margin-top:2vw;
+}
+
+#last-page h2{
+    font-size:2vw;
+    padding-bottom:2vw;
+}
+
+.cus-comment div{
+    width:30vw;
+    height:13vw;
+    background-color: #FCE4D8;
+    border-radius: 20px;
+    margin:1.2vw;
+    align-items: center;
+}
+
+.cus-comment img{
+    border-radius:55%;
+    transform:translateX(1vw);
+    width:7vw;
+    height:7vw;
+    opacity:1;
+}
+
+.cus-comment p{
+    padding-left: 2vw;
+    text-align:left;
+    width:20vw;
+    font-size:1.5vw;
+}
+
+@media (max-width: 450px){
+    #last-page{
+        height: 170vw;
+        justify-content: center;
+        align-items: center;
+    } 
+
+    #last-page h1{
+        font-size:7vw;
+        margin-bottom:5vw;
+        margin-top:15vw;
+    }
+    
+    #last-page h2{
+        font-size:3.2vw;
+        padding-bottom:3vw;
+    }
+    
+    .cus-comment div{
+        width:60vw;
+        height:26vw;
+        margin:3vw;
+    }
+    
+    .cus-comment img{
+        width:14vw;
+        height:14vw;
+    }
+    
+    .cus-comment p{
+        padding-left: 2vw;
+        width:40vw;
+        font-size:3vw;
+    }
+
+}
+
+/* ___________________FOOTER______________________ */
+#footer{
+    height:15vw;
+    display: flex;
+    background: linear-gradient(0deg, #FFD1BB 85%, white);
+}
+
+#footer-icon{
+    width:10vw;
+    height: 10vw;
+    border-radius:50%;
+    background-color: white;
 }
