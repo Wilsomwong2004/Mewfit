@@ -549,8 +549,9 @@ body {
 
 .overlay-text{
     position:absolute;
-    top:90%;
-    transform:translate(60%,-100%);
+    top:80%;
+    left:24%;
+    width: 50%;
     text-align: center;
     font-weight: bold;
     color: white;
@@ -566,16 +567,64 @@ body {
         height: 210vw;
         justify-content: center;
         align-items: center;
-        text-align: center;
-        flex-wrap:wrap;
     }
 
     #page5-content {
         flex-direction: column-reverse;
-        
         align-items: center; 
+        width:100%;
+        padding-left:0vw;
+    }
+
+    #page5-content h2{
+        font-size:7vw;
+        width:100%;
+        padding-top: 5vw;
+        padding-left:0vw;
+        text-align: center;
+    }
+
+    #page5-content h3{
+        font-size:4vw;
+        padding-left: 2vw;
+    }
+    #page5-content p{
+        font-size:3vw;
+        width:80%;
+        padding-left:11.5vw;
+    }
+
+    .page5-pic{
+        width: 60vw;
+        height: 36vw;
+        border-radius: 20px;
+        margin-top:5vw;
+        border-width: 2px;
+    }
+    
+    .page5-icon{
+        width:4vw;
+        height:4vw;
+        padding-top:4.5vw;
+        padding-left:5.5vw;
+    }
+
+    .overlay-text{
+        transform:translate(60%,-100%);
+        font-size:3vw;
+        left:-5%;
+        width: 50%;
+        top:90%;
     }
 }
 
 /* ___________________LAST PAGE______________________ */
 
+#last-page{
+    height: 48vw;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(0deg, white 90%, #ffe0c0);
+    position: relative;
+    justify-content:center;
+}
