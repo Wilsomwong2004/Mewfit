@@ -24,7 +24,7 @@ window.addEventListener('scroll', checkScroll);
 checkScroll();
 
 
-//for page 3 animation
+//for page 3 color rect animation
 const rectangle = document.getElementById('color-rect1');
 const rectangle2 = document.getElementById('color-rect2');
 const page3 = document.getElementById('page3');
@@ -47,3 +47,80 @@ window.addEventListener('scroll', function() {
     rectangle.style.transform = `translateY(${newYPosition1}px)`;
     rectangle2.style.transform = `translateY(${newYPosition2}px)`;
 });
+
+
+//for page 3 transition animation
+let scrollProgress = 0;
+const fixedContent = document.getElementById("fix");
+const scrollableSection = document.getElementById("page3");
+
+const scrollText = document.getElementById("header");
+scrollText.classList.add("header-style");
+
+const scrollText2 = document.getElementById("content");
+scrollText2.classList.add("content-style");
+
+const img = document.getElementById("image");
+img.classList.add("image-style");
+
+window.addEventListener("wheel", (event) => {
+    const rect = scrollableSection.getBoundingClientRect();
+    const sectionHeight = scrollableSection.clientHeight;
+    const viewportHeight = window.innerHeight;
+
+    // Check if 80% of the section is within the viewport
+    const isFullyVisible =
+        rect.top >= -sectionHeight * 0.15 &&
+        rect.bottom <= viewportHeight + sectionHeight * 0.15;
+
+    if (!isFullyVisible) {
+        return; 
+    }
+    
+    const direction = event.deltaY > 0 ? 1 : -1;
+    const newProgress = Math.min(Math.max(scrollProgress + direction, 0), 3);
+
+
+    if (newProgress !== scrollProgress) {
+        scrollProgress = newProgress;
+
+        handleTextUpdate(scrollProgress);
+
+        // Temporarily disable scrolling
+        document.body.style.overflow = "hidden";
+    }
+
+    if (scrollProgress < 2 && scrollProgress > 0) {
+        event.preventDefault();
+    } else{
+        document.body.style.overflow = "auto"; 
+    }
+});
+
+function handleTextUpdate(progress) {
+    switch (progress) {
+        case 0:
+            scrollText.innerHTML = "Welcome to MEWFIT";
+            scrollText2.innerHTML = "Discover workouts tailored to your goals,<br>track your progress, and unlock a healthier, stronger you.";
+            img.src = "assets/workout_pics/workout1.jpeg";
+            break;
+        case 1:
+            scrollText.textContent = "Discover workouts tailored to you";
+            scrollText2.innerHTML = "Your goals,track your progress,<br> and unlock a healthier, stronger you.";
+            img.src = "assets/workout_pics/workout2.jpeg";
+            break;
+        case 2:
+            scrollText.textContent = "Track progress like never before";
+            scrollText2.innerHTML = "Track your progress, and unlock a healthier,<br> stronger you.";
+            img.src = "assets/workout_pics/workout3.jpeg";
+            break;
+        case 3:
+            fixedContent.classList.add("hidden");
+            break;
+    }
+
+    fixedContent.style.opacity = 0;
+    setTimeout(() => {
+        fixedContent.style.opacity = 1; 
+    }, 900); 
+}
