@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mewfit</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+        <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
+        <link rel="stylesheet" href="./css/workout_page.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="nav-links">
+                <span class="workout-home"><a href="#">HOME</a></span>
+                <span class="workout-navbar"><a href="#">WORKOUT</a></span>
+                <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo">
+                <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
+                <span class="workout-settings"><a href="#">SETTINGS</a></span>
+            </div>
+            <div class="profile">
+                <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <div class="profile-info">
+                        <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
+                        <div>
+                            <h3>unknown</h3>
+                            <p>unknown</p>
+                        </div>
+                    </div>
+                    <ul>
+                        <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                        <li>
+                        <i class="fas fa-moon"></i> Dark Mode
+                        <label class="switch">
+                            <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                        </li>
+                        <li><a href="#" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                        <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <div class="content-title">
+                    <h2 class="content-logo-name">MEWFIT</h2><h2 class="content-title-name">Workout Plan</h2>
+                </div>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search">
+                </div>
+            </div>
+            <div class="hero-card">
+                <div class="hero-content">
+                    <h1>Delicious Creamy Bicep Curls</h1>
+                    <p>Perfect your form and build stronger biceps with our guided workout plan.</p>
+                    <div class="workout-stats">
+                        <span>20 minutes</span>
+                        <span>Intermediate</span>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="./assets/workout pics/" alt="Hero Image">
+                </div>
+            </div>
+
+            <section>
+                <h2 class="section-title">⚡ Activity Types</h2>
+                <div class="activity-types">
+                    <div class="activity-card">All</div>
+                    <div class="activity-card">Weighted</div>
+                    <div class="activity-card">Cardio</div>
+                    <div class="activity-card">Weight-free</div>
+                    <div class="activity-card">Yoga</div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">❤️ Top Picks For You</h2>
+                <div class="workout-grid">
+                    <div class="workout-card">
+                        <div class="workout-image"></div>
+                        <div class="workout-info">
+                            <h3>Push Up</h3>
+                            <div class="workout-stats">
+                                <span>20 minutes</span>
+                                <span>Beginner</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Repeated workout cards -->
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">⭐ My Favorite</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">🕒 Recently Workout</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+        </main>
+    </body>
+    <script src="./js/workout_page.js"></script>
+</html>
