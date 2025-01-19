@@ -255,12 +255,11 @@ input:checked+.slider:before {
 
 .search-bar input::placeholder {
     color: #a0a0a0;
-    margin-left: 29px;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 10px 400px 10px 10px;
+    padding: 10px 250px 10px 50px;
     border: 1px solid #e0e0e0;
     border-radius: 20px;
 }
