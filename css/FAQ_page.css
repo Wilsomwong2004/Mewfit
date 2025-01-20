@@ -4,13 +4,17 @@ body {
     padding: 0;
     background-color: #f8f8f8;
     color: #333;
-    max-width: 1200px; /* Set the maximum width of the content */
-    margin: 20px auto; /* Center the content horizontally */
+    max-width: 1200px;
+    /* Set the maximum width of the content */
+    margin: 20px auto;
+    /* Center the content horizontally */
     background: #fff;
-    padding: 20px; /* Add spacing inside the content box */
+    padding: 20px;
+    /* Add spacing inside the content box */
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: justify; /* Align text to the center of the container */
+    text-align: justify;
+    /* Align text to the center of the container */
 }
 
 .navbar {
@@ -20,18 +24,18 @@ body {
     background: linear-gradient(to bottom, #FFCBB1, #ffffff);
     padding: 10px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: fixed; 
+    position: fixed;
     top: 0;
     left: 0;
-    width: 98%; 
-    z-index: 1000; 
+    width: 98%;
+    z-index: 1000;
 }
 
 .navbar-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1; 
+    flex: 1;
 }
 
 .logo {
@@ -55,7 +59,7 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-left: auto;
-    display:inline-block;
+    display: inline-block;
 }
 
 .nav-button:hover {
@@ -90,7 +94,8 @@ main h2 {
     color: #444;
 }
 
-main p, main ul {
+main p,
+main ul {
     margin: 10px 0;
     line-height: 1.6;
 }
