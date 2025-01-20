@@ -233,15 +233,17 @@ document.querySelectorAll('.activity-card').forEach(card => {
 
 // Populate workout cards dynamically
 const workouts = [
-    { title: 'Push Up', duration: '20 minutes', level: 'Beginner' },
-    { title: 'Video fit', duration: '15 minutes', level: 'Advanced' },
-    { title: 'Pull Up', duration: '25 minutes', level: 'Intermediate' },
+    { title: 'Push Up', duration: '20 minutes', level: 'Beginner', image:'./assets/icons/vegan.svg'},
+    { title: 'Video fit', duration: '15 minutes', level: 'Advanced', image:'' },
+    { title: 'Pull Up', duration: '25 minutes', level: 'Intermediate', image:''},
 ];
 
 const createWorkoutCard = (workout) => {
     return `
-        <div class="workout-card">
-            <div class="workout-image"></div>
+        <div class="workout-card-content">
+            <div class="workout-image">
+                <img src="${workout.image}" alt="Workout-pic">
+            </div>
             <div class="workout-info">
                 <h3>${workout.title}</h3>
                 <div class="workout-stats">
