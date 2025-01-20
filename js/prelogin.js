@@ -100,18 +100,18 @@ window.addEventListener("wheel", (event) => {
 function handleTextUpdate(progress) {
     switch (progress) {
         case 0:
-            scrollText.innerHTML = "Welcome to MEWFIT";
-            scrollText2.innerHTML = "Discover workouts tailored to your goals,<br>track your progress, and unlock a healthier, stronger you.";
+            scrollText.innerHTML = "Unleash Fun with <br> MEWFIT's Cat Tower!";
+            scrollText2.innerHTML = "MEWFIT engages users through a unique cat tower game,<br> transforming workouts into fun challenges that keep you motivated.";
             img.src = "assets/workout_pics/workout1.jpeg";
             break;
         case 1:
-            scrollText.textContent = "Discover workouts tailored to you";
-            scrollText2.innerHTML = "Your goals,track your progress,<br> and unlock a healthier, stronger you.";
+            scrollText.innerHTML = "Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!";
+            scrollText2.innerHTML = "MEWFIT offers tailored diet plans with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.";
             img.src = "assets/workout_pics/workout2.jpeg";
             break;
         case 2:
-            scrollText.textContent = "Track progress like never before";
-            scrollText2.innerHTML = "Track your progress, and unlock a healthier,<br> stronger you.";
+            scrollText.innerHTML = "Effortless Calorie Tracking <br>and Beyond!";
+            scrollText2.innerHTML = "Keep tabs on your daily calories burnt and consumed, <br> plus a host of other fitness metrics with <br> MEWFIT's comprehensive tracking features.";
             img.src = "assets/workout_pics/workout3.jpeg";
             break;
         case 3:
