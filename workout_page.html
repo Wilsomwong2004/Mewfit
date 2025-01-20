@@ -54,28 +54,56 @@
                     <input type="text" placeholder="Search">
                 </div>
             </div>
-            <div class="hero-card">
-                <div class="hero-content">
-                    <h1>Delicious Creamy Bicep Curls</h1>
-                    <p>Perfect your form and build stronger biceps with our guided workout plan.</p>
-                    <div class="workout-stats">
-                        <span>20 minutes</span>
-                        <span>Intermediate</span>
+            <section class="workout-carousel">
+                <div class="workout-track">
+                    <!-- Slides will be repeated in 3 groups for infinite scroll effect -->
+                    <div class="workout-slides">
+                        <div class="workout-card">
+                            <div class="card-content">
+                                <h3>Delicious Creamy Bicep Curls</h3>
+                                <p>Lorem ipsum dolor sit amet, consecteturadipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqut enim ad minim</p>
+                                <div class="workout-meta">
+                                    <span><i class="fas fa-clock"></i> 15 Minutes</span>
+                                    <span><i class="fas fa-fire"></i> 200 kcal</span>
+                                </div>
+                                <button class="start-workout">Start Workout</button>
+                            </div>
+                            <div class="card-image">
+                                <img src="/api/placeholder/400/300" alt="Workout">
+                            </div>
+                        </div>
+                        <!-- More cards will be added by JavaScript -->
                     </div>
                 </div>
-                <div class="hero-image">
-                    <img src="./assets/workout pics/" alt="Hero Image">
-                </div>
-            </div>
+            </section>
 
             <section>
                 <h2 class="section-title">⚡ Activity Types</h2>
                 <div class="activity-types">
-                    <div class="activity-card">All</div>
-                    <div class="activity-card">Weighted</div>
-                    <div class="activity-card">Cardio</div>
-                    <div class="activity-card">Weight-free</div>
-                    <div class="activity-card">Yoga</div>
+                    <div class="activity-card activity-card-all" id="default-selection">
+                        <img src="./assets/icons/all workout.svg" alt="All">
+                        <p>All</p>
+                    </div>
+                    <div class="activity-card activity-card-weighted">
+                        <img src="./assets/icons/weighted.svg" alt="Weighted">
+                        <p>Weighted</p>
+                    </div>
+                    <div class="activity-card activity-card-cardio">
+                        <img src="./assets/icons/cardio.svg" alt="Cardio">
+                        <p>Cardio</p>
+                    </div>
+                    <div class="activity-card activity-card-weightfree">
+                        <img src="./assets/icons/weight free workout.svg" alt="Weight-free">
+                        <p>Weight-free</p>
+                    </div>
+                    <div class="activity-card activity-card-yoga">
+                        <img src="./assets/icons/yoga.svg" alt="Yoga">
+                        <p>Yoga</p>
+                    </div>
+                    <div class="activity-card activity-card-meditation">
+                        <img src="./assets/icons/meditation.svg" alt="Meditation">
+                        <p>Meditation</p>
+                    </div>
                 </div>
             </section>
 
