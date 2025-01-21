@@ -1,0 +1,258 @@
+body{
+    padding-left:3vw;
+    padding-right:3vw;
+}
+
+/* _____________________SECTION 1______________________ */
+
+.back-button{
+    text-decoration: none;
+    font-size: 2.5vw;
+    color:black;
+}
+
+.section-1{
+    display:flex;
+    justify-content: space-between;
+    padding-top:4vw;
+    align-items: center;
+}
+
+.section-1 h1{
+    font-size:2.5vw;
+    padding-left:2vw;
+}
+
+.general-info{
+    display:flex;
+    justify-content: flex-end;
+    width:50%;
+}
+
+.general-info svg{
+    width:1.7vw;
+    margin-left:2vw;
+}
+
+.general-info h6,.general-info p{
+    padding-left:2vw;
+    font-size:0.8vw;
+    padding-right:2vw;
+    padding-top:0.4vw;
+    text-wrap: nowrap;
+}
+
+.vertical-border{
+    border-left: 2px solid rgb(213, 213, 213);
+    height:3vw;
+}
+
+/* _____________________SECTION 2______________________ */
+.section-2{
+    padding-left:3.5vw;
+    padding-top:3vw;
+    display:flex;
+}
+
+.diet-image{
+    width:70vw;
+    height:45vw;
+    border-radius: 20px;
+}
+
+.nutrient-box{
+    background-image:linear-gradient(#FFCCB2,#FFEADF);
+    border-radius:20px;
+    margin-left:2vw;
+    padding:3vw;
+    padding-top:3vw;
+    width:30vw;
+}
+
+.nutrient{
+    display:flex;
+    justify-content: space-between;
+    border-bottom: 2px solid rgba(77, 77, 77, 0.199);
+}
+
+.nutrient p,.nutrient h6{
+    font-size:1.1vw;
+    margin-bottom:1.5vw;
+    margin-top:1.5vw;
+    color:rgb(114, 104, 104);
+    font-weight:600;
+}
+
+.nutrient p{
+    justify-content: flex-end;
+    color:black;
+    font-weight:normal;
+}
+
+#nutrient-note{
+    font-size:1.1vw; 
+    color:rgb(111, 86, 86); 
+    font-weight:600;
+    padding-top:4vw;
+    padding-bottom:1vw;
+}
+
+.eat-button{
+    width:30vw;
+    height:5.5vw;
+    background-color: #FF9967;
+    color: white;
+    text-align: center;
+    margin:2vw;
+    margin-top: 2.2vw;
+    font-size:1.8vw;
+    border-radius: 15px;
+    font-weight:bold;
+    padding-top: 1.5vw;
+}
+
+.description{
+    padding-left:3.5vw;
+    padding-top:3vw;
+    color:grey;
+    font-size:1.2vw;
+}
+
+
+/* _____________________SECTION 3______________________ */
+.section-3{
+    padding-left:3.5vw;
+    padding-top:3vw;
+    display:flex;
+}
+
+#checklist {
+    list-style-type: none;
+    padding: 0;
+}
+
+#checklist span{
+    font-size:1vw;
+}
+
+#checklist li {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    padding: 1vw;
+    padding-left:0.3vw;
+    border-radius: 5px;
+}
+
+#checklist li:hover {
+    background-color: #ffefe7; 
+}
+
+label {
+    display: flex;
+    align-items: center; 
+    cursor: pointer; 
+}
+
+input[type="checkbox"] {
+    display: none; 
+}
+
+.custom-checkbox {
+    width: 1.5vw; 
+    height: 1.5vw; 
+    border: 2px solid grey; 
+    border-radius: 50%; 
+    margin-right: 10px; 
+    position: relative; 
+    background-color: white;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #FF9967; 
+    border-color: #FF9967;
+}
+
+input[type="checkbox"]:checked + .custom-checkbox::after{
+    content: '';
+    position: absolute; 
+    left:0.23vw;
+    top:0.11vw;
+    width: 0.4vw; 
+    height: 0.8vw; 
+    border: solid white; 
+    border-width: 0 0.2vw 0.2vw 0; 
+    transform: rotate(45deg);
+}   
+
+input[type="checkbox"]:checked + .custom-checkbox + span{
+    color: grey; 
+    text-decoration: line-through;
+}
+
+.custom-input{
+    border: 2px solid grey;
+    border-radius:4px;
+    width:6vw;
+    height:2vw;
+    font-size:1vw;
+    text-align:center;
+}
+
+h2{
+    font-size:2.5vw;
+    color:#FF9967;
+    padding-bottom:3.5vw;
+}
+
+h3{
+    font-size:1.5vw;
+}
+
+.ingredient{
+    display:grid; 
+    grid-template-columns: 50% 50%;
+    width:55vw;
+    margin-right:2vw;
+}
+
+.other-recipes{
+    display:flex;
+    padding-bottom:2vw; 
+}
+
+.other-recipes img{
+    width:14vw;
+    height:9vw;
+    border-radius: 10px;
+}
+
+.other-recipes h5{
+    font-size:1.5vw;
+    padding-left:2vw;
+    margin: auto;
+    width:50%;
+}
+
+/* _____________________SECTION 4______________________ */
+.section-4{
+    padding-left:3.5vw;
+    padding-top:8vw;
+}
+
+#direction{
+    padding-left:2.5vw;
+}
+
+#direction li{
+    font-weight:bold;
+    line-height:6vw;
+    font-size:1.5vw;
+}
+
+#direction p{
+    font-weight:normal;
+    color:grey;
+    line-height:3.5vw;
+}

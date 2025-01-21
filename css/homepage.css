@@ -1,0 +1,44 @@
+body{
+    font-family: Inter;
+    margin: 0;
+    padding-left:4vw;
+    padding-right:4vw;
+}
+
+.section1{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top:3vw;
+}
+
+.s1-words{
+    width:45%;
+}
+
+.s1-words h2{
+    font-size:3vw;
+}
+
+.s1-words p{
+    font-size:1.4vw;
+    line-height:2vw;
+    padding-top:1vw;
+}
+
+.s1-icon{
+    display:flex;
+    padding-top:2vw;
+    align-items:center;
+}
+
+.s1-icon img{
+    width:2.5vw;
+    height:2.5vw;
+    padding-right:2vw;
+}
+
+.s1-icon p{
+    font-size: 1.5vw;
+    padding-right:2vw;
+}
