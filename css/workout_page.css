@@ -479,6 +479,8 @@ html.dark-mode .search-bar i,
     overflow-x: auto;
     padding: 1rem 0;
     gap: 25px;
+    scrollbar-width: none;
+    z-index: 1000;
 }
 
 /* Activity Types */
@@ -544,6 +546,65 @@ html.dark-mode .search-bar i,
     border-radius: 0.5rem;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+}
+
+.workout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.workout-image {
+    width: 100%;
+    height: 200px;
+}
+
+.workout-info {
+    padding: 1rem;
+}
+
+.workout-level {
+    padding: 0.1rem 0.5rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.workout-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+   .activity-types {
+        gap: 1rem;
+    }
+}
+
+@media screen and (max-width: 864px) {
+   .activity-types {
+        gap: 0.5rem;
+    }
+
+    .search-bar input{
+        padding: 10px 200px 10px 50px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+
+tent {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .workout-grid {
@@ -568,4 +629,3 @@ html.dark-mode .search-bar i,
     margin-top: 0.5rem;
     font-size: 0.9rem;
     color: #666;
-}

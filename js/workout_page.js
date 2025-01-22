@@ -29,6 +29,10 @@ class WorkoutCarousel {
         this.currentIndex = 0;
         this.isScrolling = false;
         this.scrollTimeout = null;
+        this.scrollAccumulator = 0;
+
+        // Add wrapper div for better positioning
+        this.createWrapper();
         this.init();
     }
 
@@ -38,10 +42,17 @@ class WorkoutCarousel {
         this.setupInfiniteScroll();
         this.bindEvents();
         this.centerActiveSlide();
+
+        // Initial resize handler call
+        this.handleResize();
+
+        // Add resize handler
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
     }
 
     createSlides() {
-        // Create three sets of slides for infinite scroll effect
         const slidesHTML = this.slides.map(slide => this.createSlideHTML(slide)).join('');
         this.track.innerHTML = slidesHTML + slidesHTML + slidesHTML;
         this.updateActiveSlide();
@@ -66,13 +77,68 @@ class WorkoutCarousel {
         `;
     }
 
+    createWrapper() {
+        // Create wrapper div
+        const wrapper = document.createElement('div');
+        wrapper.className = 'carousel-wrapper';
+        wrapper.style.cssText = `
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        `;
+
+        // Move carousel into wrapper
+        this.carousel.parentNode.insertBefore(wrapper, this.carousel);
+        wrapper.appendChild(this.carousel);
+
+        // Update carousel styles
+        this.carousel.style.cssText = `
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding-bottom: 40px; /* Space for dots */
+        `;
+
+        // Update track styles
+        this.track.parentElement.style.cssText = `
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        `;
+    }
+
     createDots() {
+        const existingDots = this.carousel.querySelector('.carousel-dots');
+        if (existingDots) {
+            existingDots.remove();
+        }
+
         const dotsContainer = document.createElement('div');
         dotsContainer.className = 'carousel-dots';
+        dotsContainer.style.cssText = `
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+            padding: 10px;
+        `;
 
         for (let i = 0; i < this.slides.length; i++) {
             const dot = document.createElement('div');
             dot.className = 'carousel-dot';
+            dot.style.cssText = `
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background-color: #ccc;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            `;
             dot.addEventListener('click', () => this.goToSlide(i));
             dotsContainer.appendChild(dot);
         }
@@ -80,21 +146,86 @@ class WorkoutCarousel {
         this.carousel.appendChild(dotsContainer);
     }
 
-    updateDots() {
-        const dots = document.querySelectorAll('.carousel-dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === this.currentIndex % this.slides.length);
-        });
+    handleResize() {
+        // Reset track position
+        this.centerActiveSlide();
+
+        // Adjust container height to match content
+        const activeCard = document.querySelector('.workout-card');
+        if (activeCard) {
+            this.carousel.style.height = `${activeCard.offsetHeight + 50}px`; // Add padding for dots
+        }
+
+        // Force recalculation of slide positions
+        this.updateActiveSlide();
     }
 
-    updateActiveSlide() {
-        const cards = document.querySelectorAll('.workout-card');
-        cards.forEach((card, index) => {
-            const normalizedIndex = ((index - this.slides.length) % this.slides.length + this.slides.length) % this.slides.length;
-            const isActive = normalizedIndex === this.currentIndex % this.slides.length;
-            card.classList.toggle('active', isActive);
+    bindEvents() {
+        // Trackpad/Mouse wheel horizontal scroll
+        this.carousel.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            if (this.isScrolling) return;
+
+            // Accumulate scroll delta
+            this.scrollAccumulator += e.deltaX || e.deltaY;
+
+            // Threshold for scroll action
+            const scrollThreshold = 50;
+
+            if (Math.abs(this.scrollAccumulator) > scrollThreshold) {
+                if (this.scrollAccumulator > 0) {
+                    this.nextSlide();
+                } else {
+                    this.previousSlide();
+                }
+                // Reset accumulator after action
+                this.scrollAccumulator = 0;
+            }
+        }, { passive: false });
+
+        // Touch events
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        this.carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        this.carousel.addEventListener('touchmove', (e) => {
+            if (!touchStartX || !touchStartY) return;
+
+            const touchEndX = e.touches[0].clientX;
+            const touchEndY = e.touches[0].clientY;
+
+            // Calculate horizontal and vertical distance
+            const xDiff = touchStartX - touchEndX;
+            const yDiff = touchStartY - touchEndY;
+
+            // Only handle horizontal swipes
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        this.carousel.addEventListener('touchend', (e) => {
+            if (!touchStartX) return;
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const swipeDistance = touchStartX - touchEndX;
+
+            if (Math.abs(swipeDistance) > 50) {
+                if (swipeDistance > 0) {
+                    this.nextSlide();
+                } else {
+                    this.previousSlide();
+                }
+            }
+
+            touchStartX = 0;
+            touchStartY = 0;
         });
-        this.updateDots();
     }
 
     setupInfiniteScroll() {
@@ -105,40 +236,34 @@ class WorkoutCarousel {
 
     getSlideWidth() {
         const card = document.querySelector('.workout-card');
-        return card.offsetWidth + 20; // width + gap
+        return card ? card.offsetWidth + 20 : 0; // width + gap
     }
 
-    bindEvents() {
-        let isHovering = false;
-
-        this.carousel.addEventListener('mouseenter', () => {
-            isHovering = true;
+    updateActiveSlide() {
+        const cards = document.querySelectorAll('.workout-card');
+        cards.forEach((card, index) => {
+            const normalizedIndex = ((index - this.slides.length) % this.slides.length + this.slides.length) % this.slides.length;
+            const isActive = normalizedIndex === this.currentIndex % this.slides.length;
+            card.style.opacity = isActive ? '1' : '0.5';
+            card.style.transform = isActive ? 'scale(1)' : 'scale(0.9)';
         });
+        this.updateDots();
+    }
 
-        this.carousel.addEventListener('mouseleave', () => {
-            isHovering = false;
+    updateDots() {
+        const dots = document.querySelectorAll('.carousel-dot');
+        dots.forEach((dot, index) => {
+            dot.style.backgroundColor = index === this.currentIndex % this.slides.length ? '#FFAD84' : '#ccc';
         });
+    }
 
-        window.addEventListener('wheel', (e) => {
-            if (!isHovering || this.isScrolling) return;
+    centerActiveSlide() {
+        const slideWidth = this.getSlideWidth();
+        if (slideWidth === 0) return;
 
-            e.preventDefault();
-
-            // Debounce scroll events
-            this.isScrolling = true;
-            clearTimeout(this.scrollTimeout);
-
-            if (e.deltaY > 0) {
-                this.nextSlide();
-            } else {
-                this.previousSlide();
-            }
-
-            // Reset scroll lock after animation
-            this.scrollTimeout = setTimeout(() => {
-                this.isScrolling = false;
-            }, 500);
-        }, { passive: false });
+        const offset = (this.slides.length + this.currentIndex) * slideWidth;
+        this.track.style.transform = `translateX(-${offset}px)`;
+        this.updateActiveSlide();
     }
 
     goToSlide(index) {
@@ -146,12 +271,7 @@ class WorkoutCarousel {
 
         this.isScrolling = true;
         this.currentIndex = index;
-
-        const slideWidth = this.getSlideWidth();
-        const newPosition = -((this.slides.length + index) * slideWidth);
-
-        this.track.style.transform = `translateX(${newPosition}px)`;
-        this.updateActiveSlide();
+        this.centerActiveSlide();
 
         setTimeout(() => {
             this.isScrolling = false;
@@ -159,33 +279,16 @@ class WorkoutCarousel {
     }
 
     nextSlide() {
-        if (this.currentIndex >= this.slides.length - 1) {
-            this.currentIndex = 0;
-        } else {
-            this.currentIndex++;
-        }
+        this.currentIndex = (this.currentIndex + 1) % this.slides.length;
         this.goToSlide(this.currentIndex);
     }
 
     previousSlide() {
-        if (this.currentIndex <= 0) {
-            this.currentIndex = this.slides.length - 1;
-        } else {
-            this.currentIndex--;
-        }
+        this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
         this.goToSlide(this.currentIndex);
-    }
-
-    centerActiveSlide() {
-        const slideWidth = this.getSlideWidth();
-        this.currentIndex = Math.floor(this.slides.length / 2);
-        const newPosition = -(this.slides.length + this.currentIndex) * slideWidth;
-        this.track.style.transform = `translateX(${newPosition}px)`;
-        this.updateActiveSlide();
     }
 }
 
-// Initialize carousel when page loads
 document.addEventListener('DOMContentLoaded', () => {
     new WorkoutCarousel();
 });
@@ -233,9 +336,9 @@ document.querySelectorAll('.activity-card').forEach(card => {
 
 // Populate workout cards dynamically
 const workouts = [
-    { title: 'Push Up', duration: '20 minutes', level: 'Beginner', image:'./assets/icons/vegan.svg'},
-    { title: 'Video fit', duration: '15 minutes', level: 'Advanced', image:'' },
-    { title: 'Pull Up', duration: '25 minutes', level: 'Intermediate', image:''},
+    { title: 'Push Up', duration: '20 minutes', calories: '200Kcal', level: 'Beginner', image: './assets/icons/vegan.svg' },
+    { title: 'Video fit', duration: '15 minutes', calories: '100Kcal', level: 'Advanced', image: '' },
+    { title: 'Pull Up', duration: '25 minutes', calories: '450Kcal', level: 'Intermediate', image: '' },
 ];
 
 const createWorkoutCard = (workout) => {
@@ -246,9 +349,10 @@ const createWorkoutCard = (workout) => {
             </div>
             <div class="workout-info">
                 <h3>${workout.title}</h3>
+                <span class="workout-level">${workout.level}</span>
                 <div class="workout-stats">
-                    <span>${workout.duration}</span>
-                    <span>${workout.level}</span>
+                    <span><i class="fas fa-clock"></i> ${workout.duration}</span>
+                    <span><i class="fas fa-fire"></i> ${workout.calories}</span>
                 </div>
             </div>
         </div>
