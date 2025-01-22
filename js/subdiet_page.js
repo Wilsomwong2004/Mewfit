@@ -4,3 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
         item.checked = false; // Uncheck all items
     });
 });
+
+function goBack() {
+    window.history.back(); 
+}
