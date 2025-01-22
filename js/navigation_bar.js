@@ -1,3 +1,77 @@
+// Hamburger menu functionality
+const hamburgerMenu = document.getElementById('hamburger-menu');
+const navLinks = document.getElementById('nav-links');
+
+console.log('hamburgerMenu:', hamburgerMenu);
+console.log('navLinks:', navLinks);
+
+function toggleMenuVisibility(show) {
+    console.log('toggleMenuVisibility called with:', show);
+    console.log('hamburgerMenu:', hamburgerMenu);
+    console.log('navLinks:', navLinks);
+
+    if (hamburgerMenu && navLinks) {
+        console.log('Both elements found, toggling classes');
+        hamburgerMenu.classList.toggle('active', show);
+        navLinks.classList.toggle('show', show);
+        document.body.classList.toggle('menu-open', show);
+        console.log('hamburgerMenu classes:', hamburgerMenu.classList);
+        console.log('navLinks classes:', navLinks.classList);
+        console.log('body classes:', document.body.classList);
+    } else {
+        console.log('One or both elements are null');
+        if (!hamburgerMenu) console.log('hamburgerMenu is null');
+        if (!navLinks) console.log('navLinks is null');
+    }
+}
+
+if (hamburgerMenu) {
+    console.log('Adding click event listener to hamburgerMenu');
+    hamburgerMenu.addEventListener('click', function (event) {
+        console.log('Hamburger menu clicked');
+        event.stopPropagation(); // Prevent the click from propagating to the document
+        toggleMenuVisibility(!navLinks?.classList.contains('show'));
+    });
+} else {
+    console.log('hamburgerMenu not found');
+}
+
+if (navLinks) {
+    console.log('Adding click event listeners to navLinks');
+    // Close menu when a link is clicked (except for dark mode toggle)
+    navLinks.querySelectorAll('a:not(.dark-mode-toggle)').forEach(link => {
+        link.addEventListener('click', () => {
+            console.log('Nav link clicked');
+            toggleMenuVisibility(false);
+        });
+    });
+} else {
+    console.log('navLinks not found');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function (event) {
+    console.log('Document clicked');
+    if (navLinks && navLinks.classList.contains('show') && !navLinks.contains(event.target) && event.target !== hamburgerMenu) {
+        console.log('Clicking outside, closing menu');
+        toggleMenuVisibility(false);
+    }
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', function (event) {
+    console.log('Document clicked');
+    if (hamburgerMenu && navLinks) {
+        const isClickInsideMenu = navLinks.contains(event.target);
+        const isClickOnHamburger = hamburgerMenu.contains(event.target);
+
+        if (!isClickInsideMenu && !isClickOnHamburger && navLinks.classList.contains('show')) {
+            console.log('Closing menu');
+            toggleMenuVisibility(false);
+        }
+    }
+});
+
 //mini profile
 const profilePic = document.getElementById('profile-pic');
 const profileDropdown = document.getElementById('profile-dropdown');

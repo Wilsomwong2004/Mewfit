@@ -8,291 +8,266 @@ class WorkoutCarousel {
                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
                 duration: "15 Minutes",
                 calories: "200 kcal",
-                image: "/api/placeholder/400/300"
+                image: "/api/placeholder/600/400"
             },
             {
-                title: "Cool",
+                title: "Push-up Challenge",
                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-                duration: "15 Minutes",
-                calories: "200 kcal",
-                image: "/api/placeholder/400/300"
+                duration: "20 Minutes",
+                calories: "250 kcal",
+                image: "/api/placeholder/600/400"
             },
             {
-                title: "I like ",
+                title: "Core Workout",
                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-                duration: "15 Minutes",
-                calories: "200 kcal",
-                image: "/api/placeholder/400/300"
-            },
+                duration: "25 Minutes",
+                calories: "300 kcal",
+                image: "/api/placeholder/600/400"
+            }
         ];
 
         this.currentIndex = 0;
-        this.isScrolling = false;
-        this.scrollTimeout = null;
-        this.scrollAccumulator = 0;
-
-        // Add wrapper div for better positioning
-        this.createWrapper();
+        this.isTransitioning = false;
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.autoSlideInterval = null;
+        this.autoSlideDelay = 10000;
         this.init();
     }
 
     init() {
         this.createSlides();
-        this.createDots();
-        this.setupInfiniteScroll();
+        this.createNavigation();
         this.bindEvents();
-        this.centerActiveSlide();
-
-        // Initial resize handler call
-        this.handleResize();
-
-        // Add resize handler
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
+        this.updateSlidePosition();
+        this.updateSlideVisibility();
+        this.startAutoSlide();
     }
 
+    startAutoSlide() {
+        // Clear any existing interval
+        if (this.autoSlideInterval) {
+            clearInterval(this.autoSlideInterval);
+        }
+        
+        // Start new interval
+        this.autoSlideInterval = setInterval(() => {
+            if (this.currentIndex < this.slides.length - 1) {
+                this.nextSlide();
+            } else {
+                this.goToSlide(0); // Return to first slide
+            }
+        }, this.autoSlideDelay);
+    }
+
+    pauseAutoSlide() {
+        if (this.autoSlideInterval) {
+            clearInterval(this.autoSlideInterval);
+            this.autoSlideInterval = null;
+        }
+    }
+
+    resumeAutoSlide() {
+        // Wait for transition and user interaction to complete before resuming
+        setTimeout(() => {
+            this.startAutoSlide();
+        }, 500);
+    }
+    
     createSlides() {
-        const slidesHTML = this.slides.map(slide => this.createSlideHTML(slide)).join('');
-        this.track.innerHTML = slidesHTML + slidesHTML + slidesHTML;
-        this.updateActiveSlide();
-    }
-
-    createSlideHTML(slide) {
-        return `
-            <div class="workout-card">
-                <div class="card-content">
-                    <h3>${slide.title}</h3>
-                    <p>${slide.description}</p>
-                    <div class="workout-meta">
-                        <span><i class="fas fa-clock"></i> ${slide.duration}</span>
-                        <span><i class="fas fa-fire"></i> ${slide.calories}</span>
+        const slidesHTML = this.slides.map((slide, index) => `
+            <div class="workout-slide" data-index="${index}">
+                <div class="workout-card">
+                    <div class="card-content">
+                        <h3>${slide.title}</h3>
+                        <p>${slide.description}</p>
+                        <div class="workout-meta">
+                            <span class="duration">
+                                <i class="fas fa-clock"></i> ${slide.duration}
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i> ${slide.calories}
+                            </span>
+                        </div>
+                        <button class="start-workout">Start Workout</button>
                     </div>
-                    <button class="start-workout">Start Workout</button>
-                </div>
-                <div class="card-image">
-                    <img src="${slide.image}" alt="Workout">
+                    <div class="card-image">
+                        <img src="${slide.image}" alt="Workout">
+                    </div>
                 </div>
             </div>
-        `;
+        `).join('');
+
+        this.track.innerHTML = slidesHTML;
+        this.slides = document.querySelectorAll('.workout-slide');
     }
 
-    createWrapper() {
-        // Create wrapper div
-        const wrapper = document.createElement('div');
-        wrapper.className = 'carousel-wrapper';
-        wrapper.style.cssText = `
-            position: relative;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        `;
+    createNavigation() {
+        const nav = document.createElement('div');
+        nav.className = 'carousel-nav';
 
-        // Move carousel into wrapper
-        this.carousel.parentNode.insertBefore(wrapper, this.carousel);
-        wrapper.appendChild(this.carousel);
+        this.slides.forEach((_, index) => {
+            const dot = document.createElement('button');
+            dot.className = `nav-dot ${index === 0 ? 'active' : ''}`;
+            dot.addEventListener('click', () => this.goToSlide(index));
+            nav.appendChild(dot);
+        });
 
-        // Update carousel styles
-        this.carousel.style.cssText = `
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            padding-bottom: 40px; /* Space for dots */
-        `;
-
-        // Update track styles
-        this.track.parentElement.style.cssText = `
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-        `;
-    }
-
-    createDots() {
-        const existingDots = this.carousel.querySelector('.carousel-dots');
-        if (existingDots) {
-            existingDots.remove();
-        }
-
-        const dotsContainer = document.createElement('div');
-        dotsContainer.className = 'carousel-dots';
-        dotsContainer.style.cssText = `
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 1000;
-            padding: 10px;
-        `;
-
-        for (let i = 0; i < this.slides.length; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'carousel-dot';
-            dot.style.cssText = `
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                background-color: #ccc;
-                cursor: pointer;
-                transition: background-color 0.3s;
-            `;
-            dot.addEventListener('click', () => this.goToSlide(i));
-            dotsContainer.appendChild(dot);
-        }
-
-        this.carousel.appendChild(dotsContainer);
-    }
-
-    handleResize() {
-        // Reset track position
-        this.centerActiveSlide();
-
-        // Adjust container height to match content
-        const activeCard = document.querySelector('.workout-card');
-        if (activeCard) {
-            this.carousel.style.height = `${activeCard.offsetHeight + 50}px`; // Add padding for dots
-        }
-
-        // Force recalculation of slide positions
-        this.updateActiveSlide();
+        this.carousel.appendChild(nav);
     }
 
     bindEvents() {
-        // Trackpad/Mouse wheel horizontal scroll
-        this.carousel.addEventListener('wheel', (e) => {
-            e.preventDefault();
-
-            if (this.isScrolling) return;
-
-            // Accumulate scroll delta
-            this.scrollAccumulator += e.deltaX || e.deltaY;
-
-            // Threshold for scroll action
-            const scrollThreshold = 50;
-
-            if (Math.abs(this.scrollAccumulator) > scrollThreshold) {
-                if (this.scrollAccumulator > 0) {
-                    this.nextSlide();
-                } else {
-                    this.previousSlide();
-                }
-                // Reset accumulator after action
-                this.scrollAccumulator = 0;
-            }
-        }, { passive: false });
-
-        // Touch events
-        let touchStartX = 0;
-        let touchStartY = 0;
-
+        // Touch/Trackpad events
         this.carousel.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
+            this.touchStartX = e.touches[0].clientX;
+            this.touchStartY = e.touches[0].clientY;
+        });
 
         this.carousel.addEventListener('touchmove', (e) => {
-            if (!touchStartX || !touchStartY) return;
+            if (this.isTransitioning) return;
 
             const touchEndX = e.touches[0].clientX;
             const touchEndY = e.touches[0].clientY;
 
-            // Calculate horizontal and vertical distance
-            const xDiff = touchStartX - touchEndX;
-            const yDiff = touchStartY - touchEndY;
+            // Calculate horizontal and vertical distance moved
+            const deltaX = this.touchStartX - touchEndX;
+            const deltaY = this.touchStartY - touchEndY;
 
-            // Only handle horizontal swipes
-            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+            // If horizontal movement is greater than vertical movement,
+            // prevent default scrolling behavior
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 e.preventDefault();
             }
         }, { passive: false });
 
         this.carousel.addEventListener('touchend', (e) => {
-            if (!touchStartX) return;
+            if (this.isTransitioning) return;
 
             const touchEndX = e.changedTouches[0].clientX;
-            const swipeDistance = touchStartX - touchEndX;
+            const touchEndY = e.changedTouches[0].clientY;
 
-            if (Math.abs(swipeDistance) > 50) {
-                if (swipeDistance > 0) {
+            const deltaX = this.touchStartX - touchEndX;
+            const deltaY = this.touchStartY - touchEndY;
+
+            // Only handle horizontal swipes if they're more significant than vertical movement
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0) {
                     this.nextSlide();
                 } else {
                     this.previousSlide();
                 }
             }
+        });
 
-            touchStartX = 0;
-            touchStartY = 0;
+        // Mouse wheel event
+        this.carousel.addEventListener('wheel', (e) => {
+            // If it's primarily horizontal scrolling (e.g., trackpad gesture)
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                e.preventDefault();
+
+                if (this.isTransitioning) return;
+
+                // Accumulate deltaX until it reaches a threshold
+                if (Math.abs(e.deltaX) > 50) {
+                    if (e.deltaX > 0) {
+                        this.nextSlide();
+                    } else {
+                        this.previousSlide();
+                    }
+                }
+            }
+            // If it's primarily vertical scrolling, let the page scroll naturally
+        }, { passive: false });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (this.isTransitioning) return;
+
+            if (e.key === 'ArrowRight') {
+                this.nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                this.previousSlide();
+            }
+        });
+
+        // Navigation dots
+        document.querySelectorAll('.nav-dot').forEach((dot, index) => {
+            dot.addEventListener('click', () => this.goToSlide(index));
         });
     }
 
-    setupInfiniteScroll() {
-        const slideWidth = this.getSlideWidth();
-        const totalSlides = this.slides.length;
-        this.track.style.transform = `translateX(-${totalSlides * slideWidth}px)`;
-    }
+    updateSlidePosition() {
+        this.isTransitioning = true;
 
-    getSlideWidth() {
-        const card = document.querySelector('.workout-card');
-        return card ? card.offsetWidth + 20 : 0; // width + gap
-    }
-
-    updateActiveSlide() {
-        const cards = document.querySelectorAll('.workout-card');
-        cards.forEach((card, index) => {
-            const normalizedIndex = ((index - this.slides.length) % this.slides.length + this.slides.length) % this.slides.length;
-            const isActive = normalizedIndex === this.currentIndex % this.slides.length;
-            card.style.opacity = isActive ? '1' : '0.5';
-            card.style.transform = isActive ? 'scale(1)' : 'scale(0.9)';
+        this.slides.forEach((slide, index) => {
+            const offset = (index - this.currentIndex) * 100;
+            slide.style.transform = `translateX(${offset}%)`;
         });
+
+        this.updateSlideVisibility();
         this.updateDots();
-    }
-
-    updateDots() {
-        const dots = document.querySelectorAll('.carousel-dot');
-        dots.forEach((dot, index) => {
-            dot.style.backgroundColor = index === this.currentIndex % this.slides.length ? '#FFAD84' : '#ccc';
-        });
-    }
-
-    centerActiveSlide() {
-        const slideWidth = this.getSlideWidth();
-        if (slideWidth === 0) return;
-
-        const offset = (this.slides.length + this.currentIndex) * slideWidth;
-        this.track.style.transform = `translateX(-${offset}px)`;
-        this.updateActiveSlide();
-    }
-
-    goToSlide(index) {
-        if (this.isScrolling) return;
-
-        this.isScrolling = true;
-        this.currentIndex = index;
-        this.centerActiveSlide();
 
         setTimeout(() => {
-            this.isScrolling = false;
+            this.isTransitioning = false;
         }, 500);
     }
 
+    updateSlideVisibility() {
+        this.slides.forEach((slide, index) => {
+            const distance = Math.abs(index - this.currentIndex);
+            if (distance <= 1) {
+                slide.style.opacity = distance === 0 ? '1' : '0.5';
+                slide.style.visibility = 'visible';
+                slide.style.zIndex = distance === 0 ? '1' : '0';
+            } else {
+                slide.style.opacity = '0';
+                slide.style.visibility = 'hidden';
+            }
+        });
+    }
+
+    updateDots() {
+        const dots = document.querySelectorAll('.nav-dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === this.currentIndex);
+        });
+    }
+
+    goToSlide(index) {
+        if (this.isTransitioning) return;
+        this.currentIndex = index;
+        this.updateSlidePosition();
+    }
+
     nextSlide() {
-        this.currentIndex = (this.currentIndex + 1) % this.slides.length;
-        this.goToSlide(this.currentIndex);
+        if (this.currentIndex < this.slides.length - 1) {
+            this.goToSlide(this.currentIndex + 1);
+        }
     }
 
     previousSlide() {
-        this.currentIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
-        this.goToSlide(this.currentIndex);
+        if (this.currentIndex > 0) {
+            this.goToSlide(this.currentIndex - 1);
+        }
     }
 }
 
+const styles = `
+`;
+
+// Initialize carousel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Add styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+
+    // Initialize carousel
     new WorkoutCarousel();
 });
 
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Activity Types
 // Add interactivity
 document.querySelectorAll('.activity-card').forEach(card => {
     const defaultSelection = document.getElementById('default-selection');
@@ -334,6 +309,8 @@ document.querySelectorAll('.activity-card').forEach(card => {
     });
 });
 
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Workout Cards
 // Populate workout cards dynamically
 const workouts = [
     { title: 'Push Up', duration: '20 minutes', calories: '200Kcal', level: 'Beginner', image: './assets/icons/vegan.svg' },

@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
         <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
         <link rel="stylesheet" href="./css/workout_page.css">
+        <link rel="stylesheet" href="./css/navigation_bar.css">
     </head>
     <body>
         <nav class="navbar">
@@ -20,6 +21,13 @@
             </div>
             <div class="profile">
                 <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+                <div class="header-right">
+                    <button id="hamburger-menu" aria-label="Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
                 <div class="profile-dropdown" id="profile-dropdown">
                     <div class="profile-info">
                         <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
@@ -54,74 +62,79 @@
                     <input type="text" placeholder="Search">
                 </div>
             </div>
-            <section class="workout-carousel">
-                <div class="workout-track">
-                    <div class="workout-slides">
-                        <!-- Slides content -->
-                    </div>
-            </section>
+        </main>
 
-            <section>
-                <h2 class="section-title">⚡ Activity Types</h2>
-                <div class="activity-types">
-                    <div class="activity-card activity-card-all" id="default-selection">
-                        <img src="./assets/icons/all workout.svg" alt="All">
-                        <p>All</p>
-                    </div>
-                    <div class="activity-card activity-card-weighted">
-                        <img src="./assets/icons/weighted.svg" alt="Weighted">
-                        <p>Weighted</p>
-                    </div>
-                    <div class="activity-card activity-card-cardio">
-                        <img src="./assets/icons/cardio.svg" alt="Cardio">
-                        <p>Cardio</p>
-                    </div>
-                    <div class="activity-card activity-card-weightfree">
-                        <img src="./assets/icons/weight free workout.svg" alt="Weight-free">
-                        <p>Weight-free</p>
-                    </div>
-                    <div class="activity-card activity-card-yoga">
-                        <img src="./assets/icons/yoga.svg" alt="Yoga">
-                        <p>Yoga</p>
-                    </div>
-                    <div class="activity-card activity-card-meditation">
-                        <img src="./assets/icons/meditation.svg" alt="Meditation">
-                        <p>Meditation</p>
-                    </div>
+        <section class="workout-carousel">
+            <div class="workout-track">
+                <div class="workout-slides">
+                    <!-- Slides content -->
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section>
-                <h2 class="section-title">❤️ Top Picks For You</h2>
-                <div class="workout-grid">
-                    <div class="workout-card-content">
-                        <div class="workout-image"></div>
-                        <div class="workout-info">
-                            <h3>Push Up</h3>
-                            <div class="workout-stats">
-                                <span>20 minutes</span>
-                                <span>Beginner</span>
-                            </div>
+        <section>
+            <h2 class="section-title">⚡ Activity Types</h2>
+            <div class="activity-types">
+                <div class="activity-card activity-card-all" id="default-selection">
+                    <img src="./assets/icons/all workout.svg" alt="All">
+                    <p>All</p>
+                </div>
+                <div class="activity-card activity-card-weighted">
+                    <img src="./assets/icons/weighted.svg" alt="Weighted">
+                    <p>Weighted</p>
+                </div>
+                <div class="activity-card activity-card-cardio">
+                    <img src="./assets/icons/cardio.svg" alt="Cardio">
+                    <p>Cardio</p>
+                </div>
+                <div class="activity-card activity-card-weightfree">
+                    <img src="./assets/icons/weight free workout.svg" alt="Weight-free">
+                    <p>Weight-free</p>
+                </div>
+                <div class="activity-card activity-card-yoga">
+                    <img src="./assets/icons/yoga.svg" alt="Yoga">
+                    <p>Yoga</p>
+                </div>
+                <div class="activity-card activity-card-meditation">
+                    <img src="./assets/icons/meditation.svg" alt="Meditation">
+                    <p>Meditation</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">❤️ Top Picks For You</h2>
+            <div class="workout-grid">
+                <div class="workout-card-content">
+                    <div class="workout-image"></div>
+                    <div class="workout-info">
+                        <h3>Push Up</h3>
+                        <div class="workout-stats">
+                            <span>20 minutes</span>
+                            <span>Beginner</span>
                         </div>
                     </div>
-                    <!-- Repeated workout cards -->
                 </div>
-            </section>
+                <!-- Repeated workout cards -->
+            </div>
+        </section>
 
-            <section>
-                <h2 class="section-title">⭐ My Favorite</h2>
-                <div class="workout-grid">
-                    <!-- Similar workout cards -->
-                </div>
-            </section>
+        <section>
+            <h2 class="section-title">⭐ My Favorite</h2>
+            <div class="workout-grid">
+                <!-- Similar workout cards -->
+            </div>
+        </section>
 
-            <section>
-                <h2 class="section-title">🕒 Recently Workout</h2>
-                <div class="workout-grid">
-                    <!-- Similar workout cards -->
-                </div>
-            </section>
-        </main>
+        <section>
+            <h2 class="section-title">🕒 Recently Workout</h2>
+            <div class="workout-grid">
+                <!-- Similar workout cards -->
+            </div>
+        </section>
+
+        <div class="container-side-transparent-left"></div>
+        <div class="container-side-transparent-right"></div>
     </body>
     <script src="./js/workout_page.js"></script>
     <script src="./js/navigation_bar.js"></script>
