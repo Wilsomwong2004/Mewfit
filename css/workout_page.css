@@ -72,6 +72,7 @@
     padding: 10px 250px 10px 50px;
     border: 1px solid #e0e0e0;
     border-radius: 20px;
+    transition: all 0.3s;
 }
 
 /* For responsive design */
@@ -291,6 +292,12 @@ html.dark-mode .search-bar i,
     padding-left: 40px;
 }
 
+.section-title img{
+    width: 25px;
+    height: 25px;
+    margin-right: 6px;
+}
+
 .activity-types {
     display: flex;
     gap: 1rem;
@@ -306,7 +313,7 @@ html.dark-mode .search-bar i,
     position: fixed;
     top: 0;
     left: 0;
-    width: 50px;
+    width: 30px;
     height: 100vh;
     background: linear-gradient(to right, white, transparent);
     pointer-events: none;
@@ -317,7 +324,7 @@ html.dark-mode .search-bar i,
     position: fixed;
     top: 0;
     right: 0;
-    width: 50px;
+    width: 30px;
     height: 100vh;
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
@@ -403,6 +410,10 @@ html.dark-mode .search-bar i,
     padding: 1rem;
 }
 
+.workout-title{
+    margin-bottom: 3px;
+}
+
 .workout-level {
     padding: 0.1rem 0.5rem;
     background-color: #FFAD84;
@@ -415,16 +426,9 @@ html.dark-mode .search-bar i,
 .workout-stats {
     display: flex;
     gap: 1rem;
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
     font-size: 0.9rem;
     color: #666;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 1200px) {
-    .activity-types {
-        gap: 1rem;
-    }
 }
 
 @media screen and (max-width: 864px) {
@@ -433,7 +437,8 @@ html.dark-mode .search-bar i,
     }
 
     .search-bar input{
-        padding: 10px 200px 10px 50px;
+        padding: 10px 100px 10px 50px;
+        transition: all 0.3s;
     }
 }
 
@@ -467,5 +472,10 @@ html.dark-mode .search-bar i,
         margin-top: 0.5rem;
         font-size: 0.9rem;
         color: #666;
+    }
+
+    .search-bar input{
+        padding: 10px 20px 10px 50px;
+        transition: all 0.3s;
     }
 }

@@ -49,7 +49,7 @@ class WorkoutCarousel {
         if (this.autoSlideInterval) {
             clearInterval(this.autoSlideInterval);
         }
-        
+
         // Start new interval
         this.autoSlideInterval = setInterval(() => {
             if (this.currentIndex < this.slides.length - 1) {
@@ -73,7 +73,7 @@ class WorkoutCarousel {
             this.startAutoSlide();
         }, 500);
     }
-    
+
     createSlides() {
         const slidesHTML = this.slides.map((slide, index) => `
             <div class="workout-slide" data-index="${index}">
@@ -313,19 +313,89 @@ document.querySelectorAll('.activity-card').forEach(card => {
 // Workout Cards
 // Populate workout cards dynamically
 const workouts = [
-    { title: 'Push Up', duration: '20 minutes', calories: '200Kcal', level: 'Beginner', image: './assets/icons/vegan.svg' },
-    { title: 'Video fit', duration: '15 minutes', calories: '100Kcal', level: 'Advanced', image: '' },
-    { title: 'Pull Up', duration: '25 minutes', calories: '450Kcal', level: 'Intermediate', image: '' },
+    {
+        title: 'Push Up',
+        duration: '20 minutes',
+        calories: '200Kcal',
+        level: 'Beginner',
+        image: './assets/icons/vegan.svg',
+        type: ['All', 'Weighted', 'Weightfree']
+    },
+    {
+        title: 'Video Fit',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        level: 'Advanced',
+        image: '',
+        type: ['All', 'Cardio']
+    },
+    {
+        title: 'Pull Up',
+        duration: '25 minutes',
+        calories: '450Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Weighted']
+    },
+    {
+        title: 'Yoga Flow',
+        duration: '30 minutes',
+        calories: '180Kcal',
+        level: 'Beginner',
+        image: '',
+        type: ['All', 'Yoga']
+    },
+    {
+        title: 'Meditation',
+        duration: '20 minutes',
+        calories: '50Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Meditation']
+    },
+    {
+        title: 'Meditation',
+        duration: '20 minutes',
+        calories: '50Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Meditation']
+    },
+    {
+        title: 'Meditation',
+        duration: '20 minutes',
+        calories: '50Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Meditation']
+    },
+    {
+        title: 'Meditation',
+        duration: '20 minutes',
+        calories: '50Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Meditation']
+    },
+    {
+        title: 'Meditation',
+        duration: '20 minutes',
+        calories: '50Kcal',
+        level: 'Intermediate',
+        image: '',
+        type: ['All', 'Meditation']
+    }
 ];
 
+// Helper function to create a workout card
 const createWorkoutCard = (workout) => {
     return `
         <div class="workout-card-content">
             <div class="workout-image">
-                <img src="${workout.image}" alt="Workout-pic">
+                <img src="${workout.image}" alt="${workout.title}">
             </div>
             <div class="workout-info">
-                <h3>${workout.title}</h3>
+                <h3 class="workout-title">${workout.title}</h3>
                 <span class="workout-level">${workout.level}</span>
                 <div class="workout-stats">
                     <span><i class="fas fa-clock"></i> ${workout.duration}</span>
@@ -336,6 +406,50 @@ const createWorkoutCard = (workout) => {
     `;
 };
 
+// Function to filter workouts based on activity type
+const filterWorkouts = (type) => {
+    return workouts.filter(workout => workout.type.includes(type));
+};
+
 document.querySelectorAll('.workout-grid').forEach(grid => {
-    grid.innerHTML = workouts.map(createWorkoutCard).join('');
+    const type = grid.closest('section').querySelector('.section-title').textContent.trim();
+    const filteredWorkouts = filterWorkouts(type);
+    grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+});
+
+document.querySelectorAll('.activity-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const selectedType = card.querySelector('p').textContent.trim();
+
+        if (selectedType === 'All') {
+            document.querySelectorAll('section').forEach(section => {
+                section.style.display = '';
+            });
+
+            document.querySelectorAll('.workout-grid').forEach(grid => {
+                const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
+                const filteredWorkouts = filterWorkouts(type);
+                grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+            });
+        } else {
+            // 隐藏非相关的 section
+            document.querySelectorAll('section').forEach(section => {
+                const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+                if (['Activity Types', 'Top Picks For You', 'Recently Workout', selectedType].includes(sectionTitle)) {
+                    section.style.display = '';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // 更新相关 section 的内容
+            document.querySelectorAll('.workout-grid').forEach(grid => {
+                const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
+                if (['Top Picks For You', 'Recently Workout', selectedType].includes(type)) {
+                    const filteredWorkouts = filterWorkouts(type);
+                    grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+                }
+            });
+        }
+    });
 });
