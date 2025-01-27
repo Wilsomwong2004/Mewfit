@@ -432,7 +432,6 @@ document.querySelectorAll('.activity-card').forEach(card => {
                 grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
             });
         } else {
-            // 隐藏非相关的 section
             document.querySelectorAll('section').forEach(section => {
                 const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
                 if (['Activity Types', 'Top Picks For You', 'Recently Workout', selectedType].includes(sectionTitle)) {
@@ -442,7 +441,6 @@ document.querySelectorAll('.activity-card').forEach(card => {
                 }
             });
 
-            // 更新相关 section 的内容
             document.querySelectorAll('.workout-grid').forEach(grid => {
                 const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
                 if (['Top Picks For You', 'Recently Workout', selectedType].includes(type)) {
