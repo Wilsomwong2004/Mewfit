@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Close menu when clicking outside
     document.addEventListener('click', function (event) {
-        console.log('Document clicked');
         if (hamburgerMenu && navLinks) {
             const isClickInsideMenu = navLinks.contains(event.target);
             const isClickOnHamburger = hamburgerMenu.contains(event.target);

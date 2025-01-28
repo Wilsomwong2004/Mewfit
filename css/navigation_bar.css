@@ -387,31 +387,37 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
         padding: 1rem 2rem;
     }
 
+    #hamburger-menu {
+        display: block;
+    }
+
     .nav-links {
         display: flex;
         flex-direction: column;
         width: 100%;
-        order: 3;
-        max-height: 0;
+        height: 100%;
+        position: absolute;
+        top: 80px;
+        background: var(--background-color);
+        padding: 0;
         overflow: hidden;
-        transition: max-height 0.5s ease-out;
+        transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
         opacity: 0;
         visibility: hidden;
         margin-top: 10px;
+        z-index: 3;
     }
 
     .nav-links.show {
         max-height: 500px;
-        /* Adjust this value based on your menu's expected maximum height */
         opacity: 1;
         visibility: visible;
-        transition: max-height 0.5s ease-out, opacity 0.3s ease-out, visibility 0s;
         margin-top: 20px;
         margin-bottom: 20px;
     }
 
     .nav-links a {
-        padding: 10px;
+        padding: 10px 20px;
         opacity: 0;
         transform: translateY(-20px);
         transition: opacity 0.3s ease-out, transform 0.3s ease-out;
