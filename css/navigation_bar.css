@@ -31,6 +31,11 @@ nav-links.html.dark-mode {
     background: var(--background-color);
 }
 
+/* Style for the active/current page */
+.nav-links a.active {
+    color: white;
+}
+
 /* About navigation bar but need copy to your page */
 /* .nav-links a {
     text-decoration: none;
@@ -101,8 +106,8 @@ animated-popup.html.dark-mode {
 }
 
 #profile-pic {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     overflow: hidden;
@@ -112,7 +117,7 @@ animated-popup.html.dark-mode {
     display: none;
     position: absolute;
     top: 100%;
-    margin-top: 8px;
+    margin-top: 10px;
     right: 0;
     background-color: var(--miniprofile-background);
     border-radius: 9px;
@@ -123,12 +128,14 @@ animated-popup.html.dark-mode {
     transition: opacity 0.3s ease, transform 0.3s ease;
     opacity: 0;
     transform: translateY(-10px);
+    font-size: 13px;
+    border: 1px solid var(--border-color);
 }
 
-/* html.dark-mode .profile-dropdown {
+html.dark-mode .profile-dropdown {
     box-shadow: var(--box-shadow-dark);
     border: 1px solid var(--borderline-color-dark);
-} */
+}
 
 .profile-dropdown.show {
     display: block;
@@ -140,8 +147,8 @@ animated-popup.html.dark-mode {
     display: flex;
     align-items: center;
     border-bottom: 1px solid #ddd;
-    padding: 10px 60px 20px 0;
-    margin: 0px 10px 10px 0;
+    padding: 5px 60px 15px 0;
+    margin: 0 0 10px 0;
 }
 
 html.dark-mode .profile-info {
@@ -158,7 +165,8 @@ html.dark-mode .profile-info {
 
 .profile-info h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 13px;
+    margin-top: 5px;
 }
 
 .profile-info p {
@@ -397,27 +405,27 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
         width: 100%;
         height: 100%;
         position: absolute;
-        top: 80px;
+        top: 50px;
         background: var(--background-color);
         padding: 0;
         overflow: hidden;
-        transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
+        transition: max-height 0.5s ease-in-out, opacity 0.3s ease-out;
         opacity: 0;
         visibility: hidden;
         margin-top: 10px;
-        z-index: 3;
+        z-index: 11;
     }
 
     .nav-links.show {
-        max-height: 500px;
         opacity: 1;
         visibility: visible;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin-top: 20px 0;
+        padding-top: 60px;
     }
 
     .nav-links a {
-        padding: 10px 20px;
+        padding: 10px 40px;
+        font-size: 16px;
         opacity: 0;
         transform: translateY(-20px);
         transition: opacity 0.3s ease-out, transform 0.3s ease-out;
@@ -427,6 +435,10 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
         opacity: 1;
         transform: translateY(0);
         transition-delay: 0.2s;
+    }
+
+    .nav-links img {
+        display: none;
     }
 
     .profile {

@@ -268,50 +268,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
-// Add interactivity
 document.querySelectorAll('.activity-card').forEach(card => {
     const defaultSelection = document.getElementById('default-selection');
 
-    card.style.background = 'white';
-    card.style.color = 'black';
-    card.style.transition = 'background 0.5s';
-
-    if (card === defaultSelection) {
-        card.style.background = '#FFAD84';
-        card.style.color = 'white';
+    function checkDarkMode() {
+        if (typeof window.isDarkMode === 'function') {
+            return window.isDarkMode();
+        }
+        return localStorage.getItem('darkMode') === 'dark';
     }
 
+    function updateCardStyles(card, isDefault = false) {
+        const isDark = checkDarkMode();
+
+        if (isDark) {
+            card.style.background = isDefault ? '#F97316' : '#1F2937';
+            card.style.color = '#E5E7EB';
+            card.style.border = isDefault ? '1px solid #F97316' : '1px solid #374151';
+        } else {
+            card.style.background = isDefault ? '#FFAD84' : 'white';
+            card.style.color = isDefault ? 'white' : 'black';
+            card.style.border = '1px solid #E5E7EB';
+        }
+        card.style.transition = 'all 0.3s ease';
+    }
+
+    updateCardStyles(card, card === defaultSelection);
+
     card.addEventListener('mouseover', () => {
-        if (card.style.background !== 'rgb(255, 173, 132)') { // Check if not active
-            card.style.background = '#FFE4D2'; // Lighter hover color
+        const isDark = checkDarkMode();
+        const isActive = isDark ?
+            (card.style.background === 'rgb(249, 115, 22)') :
+            (card.style.background === 'rgb(255, 173, 132)');
+
+        if (!isActive) {
+            card.style.background = isDark ? '#374151' : '#FFE4D2';
         }
     });
 
     card.addEventListener('mouseout', () => {
-        if (card.style.background !== 'rgb(255, 173, 132)') { // Check if not active
-            card.style.background = 'white'; // Reset to default
+        const isDark = checkDarkMode();
+        const isActive = isDark ?
+            (card.style.background === 'rgb(249, 115, 22)') :
+            (card.style.background === 'rgb(255, 173, 132)');
+
+        if (!isActive) {
+            updateCardStyles(card);
         }
     });
 
+    // Handle click states
     card.addEventListener('click', () => {
-        const isActive = card.style.background === '#FFAD84)';
-        // Reset all cards to their default state
+        const isDark = checkDarkMode();
+        const isActive = isDark ?
+            (card.style.background === 'rgb(249, 115, 22)') :
+            (card.style.background === 'rgb(255, 173, 132)');
+
         document.querySelectorAll('.activity-card').forEach(c => {
-            c.style.background = 'white';
-            c.style.color = 'black'; // Reset text color
+            updateCardStyles(c);
         });
 
-        // If the clicked card was not active, apply the active styles
         if (!isActive) {
-            card.style.background = '#FFAD84';
-            card.style.color = 'white';
+            if (isDark) {
+                card.style.background = '#F97316';
+                card.style.border = '1px solid #F97316';
+                card.style.color = 'white';
+            } else {
+                card.style.background = '#FFAD84';
+                card.style.color = 'white';
+            }
         }
+    });
+
+    window.addEventListener('darkModeChange', (event) => {
+        const isDefault = card === defaultSelection;
+        updateCardStyles(card, isDefault);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCardStyles(card, card === defaultSelection);
     });
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Workout Cards
-// Populate workout cards dynamically
 const workouts = [
     {
         title: 'Push Up',

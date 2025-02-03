@@ -12,178 +12,183 @@
         <link rel="stylesheet" href="./css/gemini_chatbot.css">
     </head>
     <body>
-        <nav class="navbar">
-            <div class="nav-links" id="nav-links">
-                <span class="workout-home"><a href="#">HOME</a></span>
-                <span class="workout-navbar"><a href="#">WORKOUT</a></span>
-                <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo">
-                <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
-                <span class="workout-settings"><a href="#">SETTINGS</a></span>
-            </div>
-            <div class="profile">
-                <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
-                <div class="header-right">
-                    <button id="hamburger-menu" aria-label="Menu">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
+        <div class="no-select">
+            <nav class="navbar" id="navbar">
+                <div class="nav-links" id="nav-links">
+                    <span class="workout-home"><a href="#">HOME</a></span>
+                    <span class="workout-navbar"><a href="#">WORKOUT</a></span>
+                    <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo">
+                    <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
+                    <span class="workout-settings"><a href="#">SETTINGS</a></span>
                 </div>
-                <div class="profile-dropdown" id="profile-dropdown">
-                    <div class="profile-info">
-                        <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
-                        <div>
-                            <h3>unknown</h3>
-                            <p>unknown</p>
-                        </div>
+                <div class="profile">
+                    <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+                    <div class="header-right">
+                        <button id="hamburger-menu" aria-label="Menu">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
                     </div>
-                    <ul>
-                        <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
-                        <li>
-                        <i class="fas fa-moon"></i> Dark Mode
-                        <label class="switch">
-                            <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
-                            <span class="slider round"></span>
-                        </label>
-                        </li>
-                        <li><a href="#" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
-                        <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
-                    </ul>
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-info">
+                            <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
+                            <div>
+                                <h3>unknown</h3>
+                                <p>unknown</p>
+                            </div>
+                        </div>
+                        <ul>
+                            <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                            <li>
+                            <i class="fas fa-moon"></i> Dark Mode
+                            <label class="switch">
+                                <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                            </li>
+                            <li><a href="#" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                            <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
 
-        <main class="main-content">
-            <div class="content-header">
-                <div class="content-title">
-                    <h2 class="content-logo-name">MEWFIT</h2><h2 class="content-title-name">Workout Plan</h2>
+            <main class="main-content">
+                <div class="content-header">
+                    <div class="content-title">
+                        <h2 class="content-logo-name">MEWFIT</h2><h2 class="content-title-name">Workout Plan</h2>
+                    </div>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search">
+                    </div>
+                    <div class="search-bar-small">
+                        <i class="fas fa-search"></i>
+                    </div>
                 </div>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-            </div>
-        </main>
+            </main>
 
-        <div class="workout-carousel">
-            <div class="workout-track">
-                <div class="workout-slides">
-                    <!-- Slides content -->
+            <div class="workout-carousel">
+                <div class="workout-track">
+                    <div class="workout-slides">
+                        <!-- Slides content -->
+                    </div>
                 </div>
             </div>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-lightning-64.png">Activity Types</h2>
+                <div class="activity-types">
+                    <div class="activity-card activity-card-all" id="default-selection">
+                        <img src="./assets/icons/all workout.svg" alt="All">
+                        <p>All</p>
+                    </div>
+                    <div class="activity-card activity-card-cardio">
+                        <img src="./assets/icons/cardio.svg" alt="Cardio">
+                        <p>Cardio</p>
+                    </div>
+                    <div class="activity-card activity-card-weighted">
+                        <img src="./assets/icons/weighted.svg" alt="Weighted">
+                        <p>Weighted</p>
+                    </div>
+                    <div class="activity-card activity-card-weightfree">
+                        <img src="./assets/icons/weight free workout.svg" alt="Weight-free">
+                        <p>Weight-free</p>
+                    </div>
+                    <div class="activity-card activity-card-yoga">
+                        <img src="./assets/icons/yoga.svg" alt="Yoga">
+                        <p>Yoga</p>
+                    </div>
+                    <div class="activity-card activity-card-meditation">
+                        <img src="./assets/icons/meditation.svg" alt="Meditation">
+                        <p>Meditation</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-heart-50.png">Top Picks For You</h2>
+                <div class="workout-grid">
+
+                    <!-- Repeated workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Workout</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-cardio-50.png">Cardio</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-gym-equipment-50.png">Weighted</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-kettlebell-50.png">Weight-free</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-yoga-50.png">Yoga</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <section class="workout-body">
+                <h2 class="section-title"><img src="./assets/icons/icons8-meditation-50.png">Meditation</h2>
+                <div class="workout-grid">
+                    <!-- Similar workout cards -->
+                </div>
+            </section>
+
+            <!-- Popup container -->
+            <div id="popup-container" class="popup-container">
+                <div class="popup-content">
+                    <h2 id="popup-title"></h2>
+                    <div id="popup-body"></div>
+                </div>
+            </div>
+
+            <!-- Chatbot Interface -->
+            <div class="chatbot-container">
+                <div class="chatbot-header">
+                    <div class="chatbot-header-left">
+                        <img src="./assets/icons/cat-logo-tabs.png">
+                        <h3>MEWAI</h3>
+                    </div>
+                    <button class="close-chat">&times;</button>
+                </div>
+                <div class="chatbot-transparent-top-down"></div>
+                <div class="chatbot-messages">
+                </div>
+                <div class="chatbot-input">
+                    <input type="text" placeholder="Ask me about fitness...">
+                    <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+            <button class="chatbot-toggle">
+                <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+            </button>
+
+            <div class="container-side-transparent-left"></div>
+            <div class="container-side-transparent-right"></div>
         </div>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-lightning-64.png">Activity Types</h2>
-            <div class="activity-types">
-                <div class="activity-card activity-card-all" id="default-selection">
-                    <img src="./assets/icons/all workout.svg" alt="All">
-                    <p>All</p>
-                </div>
-                <div class="activity-card activity-card-cardio">
-                    <img src="./assets/icons/cardio.svg" alt="Cardio">
-                    <p>Cardio</p>
-                </div>
-                <div class="activity-card activity-card-weighted">
-                    <img src="./assets/icons/weighted.svg" alt="Weighted">
-                    <p>Weighted</p>
-                </div>
-                <div class="activity-card activity-card-weightfree">
-                    <img src="./assets/icons/weight free workout.svg" alt="Weight-free">
-                    <p>Weight-free</p>
-                </div>
-                <div class="activity-card activity-card-yoga">
-                    <img src="./assets/icons/yoga.svg" alt="Yoga">
-                    <p>Yoga</p>
-                </div>
-                <div class="activity-card activity-card-meditation">
-                    <img src="./assets/icons/meditation.svg" alt="Meditation">
-                    <p>Meditation</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-heart-50.png">Top Picks For You</h2>
-            <div class="workout-grid">
-
-                <!-- Repeated workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Workout</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-cardio-50.png">Cardio</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-gym-equipment-50.png">Weighted</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-kettlebell-50.png">Weight-free</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-yoga-50.png">Yoga</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-meditation-50.png">Meditation</h2>
-            <div class="workout-grid">
-                <!-- Similar workout cards -->
-            </div>
-        </section>
-
-        <!-- Popup container -->
-        <div id="popup-container" class="popup-container">
-            <div class="popup-content">
-                <h2 id="popup-title"></h2>
-                <div id="popup-body"></div>
-            </div>
-        </div>
-
-        <!-- Chatbot Interface -->
-        <div class="chatbot-container">
-            <div class="chatbot-header">
-                <div class="chatbot-header-left">
-                    <img src="./assets/icons/cat-logo-tabs.png">
-                    <h3>MEWAI</h3>
-                </div>
-                <button class="close-chat">&times;</button>
-            </div>
-            <div class="chatbot-transparent-top-down"></div>
-            <div class="chatbot-messages">
-            </div>
-            <div class="chatbot-input">
-                <input type="text" placeholder="Ask me about fitness...">
-                <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-        <button class="chatbot-toggle">
-            <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
-        </button>
-
-        <div class="container-side-transparent-left"></div>
-        <div class="container-side-transparent-right"></div>
     </body>
     <script src="./js/workout_page.js"></script>
     <script src="./js/navigation_bar.js"></script>

@@ -29,12 +29,15 @@ class FitnessChatbot {
 
             setTimeout(() => {
                 this.chatContainer.classList.remove('closing');
+                this.chatContainer.style.display = 'none'; // Add this line
                 this.toggleBtn.style.display = 'block';
             }, 300);
         } else {
             this.chatContainer.style.display = 'block';
-            this.chatContainer.classList.add('active');
-            this.toggleBtn.style.display = 'none';
+            setTimeout(() => {  // Add small delay to ensure display:block is applied first
+                this.chatContainer.classList.add('active');
+                this.toggleBtn.style.display = 'none';
+            }, 10);
         }
     }
 
@@ -83,9 +86,33 @@ class FitnessChatbot {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `You are a professional fitness coach. Only answer questions related to fitness, exercise, nutrition, and health.
-                            IF asked about Hi or Hello or related to greetings, respond with "Hello, I'm your fitness assistants. What can i help you today?"
-                            If asked about other topics, respond with "I specialize only in fitness and health-related topics. How can I assist you with your fitness goals?"
+                            text: `You are a professional fitness coach. Answer questions related to fitness, exercise, and nutrition.
+    
+                            Rules:
+                            1. If the message is ONLY a greeting (like "hi", "hello", "hey"), respond with: "Hello, I'm your fitness assistant. What can I help you today?"
+                            2. If the message is a fitness/health question, provide a helpful, detailed response about that specific topic.
+                            3. If the message is unrelated to fitness/health, respond with: "I specialize only in fitness and health-related topics. How can I assist you with your fitness goals?"
+                            
+                            Important formatting rules:
+                            - Do not use asterisks (*) or special characters
+                            - Use clear paragraphs with line breaks between sections
+                            - Use simple headings followed by a colon or period
+                            - Keep responses well-structured but informal
+                            
+                            For weight loss questions, structure the response with these sections:
+                            
+                            Caloric Planning:
+                            [Provide specific advice]
+                            
+                            Exercise Plan:
+                            [List specific activities]
+                            
+                            Nutrition Guidelines:
+                            [Provide eating recommendations]
+                            
+                            Healthy Habits:
+                            [List sustainable practices]
+                            
                             Current query: ${message}`
                         }]
                     }]
@@ -93,7 +120,7 @@ class FitnessChatbot {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP Error: ${response.status}`);
+                throw new Error(`HTTP error: ${response.status}`);
             }
 
             const data = await response.json();
@@ -102,7 +129,11 @@ class FitnessChatbot {
                 throw new Error('No valid responses from API');
             }
 
-            return data.candidates[0].content.parts[0].text;
+            // Clean up any remaining asterisks that might come through
+            let response_text = data.candidates[0].content.parts[0].text;
+            response_text = response_text.replace(/\*/g, '');
+
+            return response_text;
         } catch (error) {
             console.error('API Error:', error);
             return "Sorry, I'm having trouble processing your request. Please try again.";

@@ -33,9 +33,21 @@ html.dark-mode {
     font-family: 'Inter', sans-serif;
 }
 
+body {
+    background-color: var(--background-color);
+    margin-bottom: 50px;
+}
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
 .nav-links a {
     text-decoration: none;
     color: black;
+    white-space: nowrap;
 }
 
 html.dark-mode .nav-links a {
@@ -47,6 +59,7 @@ html.dark-mode .nav-links a {
 .workout-settings {
     margin-top: 5px;
     cursor: pointer;
+    font-size: 80%;
 }
 
 .workout-navbar a {
@@ -55,7 +68,7 @@ html.dark-mode .nav-links a {
     justify-content: space-between;
     align-items: center;
     padding: 5px 20px;
-    font-size: 15px;
+    font-size: 12px;
     border-radius: 68px;
     background-color: #FFAD84;
     color: white;
@@ -72,8 +85,8 @@ html.dark-mode .nav-links a {
 }
 
 .search-bar input {
-    width: 100%;
-    padding: 10px 250px 10px 50px;
+    width: 500px;
+    padding: 10px 20px 10px 50px;
     border: 1px solid #bbbbbb;
     border-radius: 20px;
     transition: all 0.3s;
@@ -133,7 +146,10 @@ html.dark-mode .main-content {
 
 .content-title {
     display: flex;
-    font-size: 17px;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 9px;
+    transition: all 0.3s;
 }
 
 .content-logo-name {
@@ -203,7 +219,7 @@ html.dark-mode .workout-card {
 }
 
 .card-content h3 {
-    font-size: 34px;
+    font-size: 28px;
     font-weight: bold;
     margin-bottom: 16px;
     margin-top: 15px;
@@ -231,7 +247,7 @@ html.dark-mode .card-content p {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    font-size: 14px;
+    font-size: 13px;
     color: #000000;
     background: white;
     padding: 10px 16px;
@@ -254,7 +270,7 @@ html.dark-mode .card-content p {
     width: 100%;
     background: #FFAD84;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     padding: 15px 50px;
     border-radius: 14px;
@@ -286,7 +302,7 @@ html.dark-mode .card-content p {
     transform: translateX(-50%);
     display: flex;
     gap: 8px;
-    z-index: 10;
+    z-index: 2;
 }
 
 .nav-dot.active {
@@ -306,23 +322,23 @@ html.dark-mode .card-content p {
 }
 
 .section-title {
-    font-size: 1.3rem;
-    padding: 2rem 0 1rem 0;
+    font-size: 1rem;
+    padding: 1.5rem 0 1rem 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding-left: 40px;
 }
 
-.section-title img{
-    width: 25px;
-    height: 25px;
+.section-title img {
+    width: 24px;
+    height: 24px;
     margin-right: 6px;
 }
 
 .activity-types {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     overflow-x: auto;
     padding: 0.5rem 0;
     padding-left: 40px;
@@ -337,7 +353,7 @@ html.dark-mode .card-content p {
     top: 0;
     left: 0;
     width: 30px;
-    height: 100vh;
+    height: 100%;
     background: linear-gradient(to right, white, transparent);
     pointer-events: none;
     z-index: 100;
@@ -352,7 +368,7 @@ html.dark-mode .container-side-transparent-left {
     top: 0;
     right: 0;
     width: 30px;
-    height: 100vh;
+    height: 100%;
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
     z-index: 100;
@@ -364,7 +380,7 @@ html.dark-mode .container-side-transparent-right {
 
 .activity-card {
     display: flex;
-    padding: 1.2rem;
+    padding: 1rem;
     text-align: center;
     border: 1px solid #ffd1b8;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -375,33 +391,33 @@ html.dark-mode .container-side-transparent-right {
 }
 
 .activity-card img {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
 }
 
 .activity-card-all {
-    min-width: 160px;
+    min-width: 130px;
 }
 
 .activity-card-all p {
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     padding-top: 12px;
     padding-right: 5px;
 }
 
 .activity-card-weighted,
 .activity-card-meditation {
-    min-width: 200px;
+    min-width: 170px;
 }
 
 .activity-card-weightfree {
-    min-width: 220px;
+    min-width: 180px;
 }
 
 .activity-card-cardio,
 .activity-card-yoga {
-    min-width: 170px;
+    min-width: 150px;
 }
 
 .activity-card-weighted p,
@@ -410,9 +426,19 @@ html.dark-mode .container-side-transparent-right {
 .activity-card-yoga p,
 .activity-card-meditation p {
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     padding-top: 12px;
     padding-left: 5px;
+}
+
+.search-bar-small {
+    display: none;
+    transition: all 0.3s;
+    color: #4e4e4e;
+}
+
+html.dark-mode .search-bar-small {
+    color: #f2f2f7;
 }
 
 /* Workout List */
@@ -421,7 +447,7 @@ html.dark-mode .container-side-transparent-right {
     color: black;
 }
 
-html.dark-mode .workout-body{
+html.dark-mode .workout-body {
     background-color: #353536;
     color: white;
 }
@@ -447,8 +473,7 @@ html.dark-mode .workout-card-content {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1rem;
-    margin-top: 2rem;
-    padding-left: 40px;
+    margin: 1rem 2.5rem;
 }
 
 .workout-image {
@@ -458,10 +483,12 @@ html.dark-mode .workout-card-content {
 
 .workout-info {
     padding: 1rem;
+    font-size: 80%;
 }
 
-.workout-title{
-    margin-bottom: 3px;
+.workout-title {
+    font-size: 18px;
+    margin: 10px 0px;
 }
 
 .workout-level {
@@ -476,8 +503,8 @@ html.dark-mode .workout-card-content {
 .workout-stats {
     display: flex;
     gap: 1rem;
-    margin-top: 0.6rem;
-    font-size: 0.9rem;
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
     color: #666;
 }
 
@@ -485,21 +512,28 @@ html.dark-mode .workout-stats {
     color: #bdbdbd;
 }
 
+.workout-stats i {
+    margin-right: 0.2rem;
+}
+
 @media screen and (max-width: 1274px) {
-    .search-bar input{
-        padding: 10px 100px 10px 50px;
+    .search-bar input {
+        width: 300px;
+        padding: 10px 20px 10px 50px;
         transition: all 0.3s;
     }
 }
 
+@media screen and (max-width: 964px) {
+    .card-image {
+        display: none;
+    }
+}
+
+
 @media screen and (max-width: 864px) {
     .activity-types {
-        gap: 0.5rem;
-    }
-
-    .search-bar input{
-        padding: 10px 100px 10px 50px;
-        transition: all 0.3s;
+        gap: 1rem;
     }
 }
 
@@ -515,7 +549,6 @@ html.dark-mode .workout-stats {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 1rem;
-        margin-top: 2rem;
     }
 
     .workout-image {
@@ -535,8 +568,88 @@ html.dark-mode .workout-stats {
         color: #666;
     }
 
-    .search-bar input{
+    .search-bar input {
+        width: 200px;
         padding: 10px 20px 10px 50px;
+        transition: all 0.3s
+    }
+
+    .search-bar-small {
         transition: all 0.3s;
+    }
+}
+
+@media screen and (max-width: 654px) {
+    .content-title {
+        font-size: 14px;
+        margin-top: 8px;
+        transition: all 0.3s;
+    }
+
+    .card-content h3 {
+        font-size: 30px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .card-content p {
+        font-size: 16px;
+        margin-top: 8px;
+    }
+
+    .workout-stats {
+        font-size: 0.8rem;
+    }
+
+    .search-bar {
+        display: none;
+    }
+
+    .search-bar-small {
+        display: block;
+        margin-top: 10px;
+        color: #4e4e4e;
+        transition: all 0.3s;
+    }
+
+    .main-content {
+        padding: 0.2rem 2.5rem;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .section-title img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .activity-card {
+        padding: 0.9rem;
+        transition: all 0.3s;
+        font-size: 16px;
+    }
+
+    .activity-card img {
+        width: 35px;
+    }
+
+    .carousel-nav {
+        margin-left: 5%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .card-content h3 {
+        font-size: 25px;
+    }
+
+    .card-content p {
+        font-size: 14px;
+    }
+
+    .workout-stats {
+        font-size: 0.5rem;
     }
 }
