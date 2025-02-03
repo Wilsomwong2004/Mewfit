@@ -114,7 +114,7 @@ body {
 
 .login-form .btn {
   width: 250px;
-  height: 35px;
+  height: 40px;
   color: #fff;
   background-color: #ff946e;
   border: none;
@@ -154,6 +154,7 @@ body {
   border: 3px black solid;
   border-radius: 20px;
   opacity: 0;
+  scale: 0;
   position: fixed;
   transition: 200ms ease-in-out;
   z-index: 10;
@@ -161,6 +162,7 @@ body {
 
 .forget-password-modal.active {
   opacity: 1;
+  scale: 1;
 }
 
 .modal-header {
@@ -207,6 +209,17 @@ body {
 #overlay.active {
   opacity: 1;
   pointer-events: all;
+}
+
+.forget-password-button {
+  color: #4a9adb;
+  font-family: "Inter";
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 10px 0px;
 }
 
 .outer-form {
