@@ -5,79 +5,86 @@ body {
     background-color: #f8f8f8;
     color: #333;
     max-width: 1200px;
-    /* Set the maximum width of the content */
     margin: 20px auto;
-    /* Center the content horizontally */
     background: #fff;
-    padding: 20px;
-    /* Add spacing inside the content box */
+    padding: 20px 80px;
+    padding-bottom: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: justify;
-    /* Align text to the center of the container */
+    transition: all 0.3s ease-in-out;
 }
 
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    background: linear-gradient(to bottom, #FFCBB1, #ffffff);
-    padding: 10px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* background: linear-gradient(to top, #fffffff3, #fddcb4); */
+    background: #FFE7DA;
+    padding: 5px 20px;
     position: fixed;
     top: 0;
     left: 0;
-    width: 98%;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.gradient-navbar {
+    background: linear-gradient(to top, transparent, #FFE7DA);
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    top: 50px;
+    left: 0;
+    width: 100%;
     z-index: 1000;
 }
 
-.navbar-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-}
-
-.logo {
-    height: 40px;
-    margin-right: 10px;
-}
-
-.navbar-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-}
-
 .nav-button {
-    padding: 8px 20px;
+    padding: 10px 35px;
     background: #FFAD84;
-    color: #333;
+    color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 68px;
+    font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease;
-    margin-left: auto;
-    display: inline-block;
+    position: absolute;
+    left: 25px;
+    margin-top: 2px;
+    transition: all 0.3s ease-in-out;
 }
 
 .nav-button:hover {
-    background: #FFCBB1;
+    background: #f28f68;
     color: white;
 }
 
+.logo-and-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
+    /* Allows centering in the available space */
+}
+
 header {
-    background: linear-gradient(to right, #FFCBB1, #bb377d);
+    background: linear-gradient(to right, #fbd3e9, #bb377d);
     padding: 20px;
     text-align: center;
     color: #fff;
 }
 
 header h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
+    background-color: rgb(255, 241, 226);
+    display: flex;
+    align-items: center;
+    padding: 0.5vw 2vw 0.5vw;
+    position: fixed;
+    width: 100%;
+    z-index: 2;
 }
 
 main {
@@ -120,4 +127,100 @@ button.back-button {
 button.back-button:hover {
     background: #bb377d;
     color: #fff;
+}
+
+.material-icons {
+    display: none;
+}
+
+.title {
+    transition: all 0.3s ease-in-out;
+}
+
+/* responsive design */
+@media screen and (max-width: 600px) {
+    body {
+        padding: 20px 40px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    header h1 {
+        padding: 0.5vw 2vw 0.5vw;
+        font-size: 6px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .nav-button {
+        padding: 10px 20px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .logo-and-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex-grow: 1;
+        /* Allows centering in the available space */
+    }
+
+    .nav-button {
+        display: block;
+    }
+
+    .title {
+        font-size: 30px;
+        transition: all 0.3s ease-in-out;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    body {
+        padding: 20px 30px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    header h1 {
+        padding: 0.5vw 2vw 0.5vw;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .nav-button {
+        padding: 10px 20px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .logo-and-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex-grow: 1;
+        /* Allows centering in the available space */
+    }
+
+    .nav-button {
+        display: none;
+    }
+
+    .material-icons {
+        display: block;
+        position: absolute;
+        z-index: 1000;
+        left: 20px;
+        font-size: 18px;
+        margin-top: 5px;
+        color: #545454;
+    }
+
+    .title {
+        font-size: 25px;
+        transition: all 0.3s ease-in-out;
+    }
 }
