@@ -14,7 +14,7 @@
       rel="stylesheet"
     />
     <!-- add defer attribute to make sure it run after the body -->
-    <script defer src="scroll.js"></script>
+    <script defer src="js/forget_password.js"></script>
   </head>
   <body>
     <div class="login-box">
@@ -41,7 +41,10 @@
                 required
               />
             </div>
-            <div class="forget-password"><a href="">Forget Password?</a></div>
+            <button type="button" data-modal-target="#modal">
+              Forget Password
+            </button>
+            <!-- <div class="forget-password"><a href="">Forget Password?</a></div> -->
             <div class="login-button">
               <button type="submit" name="login" class="btn">LOGIN</button>
             </div>
@@ -50,5 +53,20 @@
         </div>
       </div>
     </div>
+    <div class="forget-password-modal" id="modal">
+      <div class="modal-header">
+        <div class="modal-title">Forget password</div>
+        <button data-close-button class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Animi sapiente
+        exercitationem beatae voluptatum soluta sunt minima quaerat sequi! Sequi
+        fugit autem ab molestias, beatae accusantium dicta asperiores dolorem
+        mollitia magni, consectetur cum odit? Repudiandae quis quos aspernatur
+        explicabo maiores iusto fugit minima aliquid, ducimus, deleniti est.
+        Nisi labore quia veniam.
+      </div>
+    </div>
+    <div id="overlay"></div>
   </body>
 </html>
