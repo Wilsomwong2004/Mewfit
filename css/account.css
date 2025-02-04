@@ -129,17 +129,6 @@ body {
   background-color: #ff6c37;
 }
 
-.forget-password {
-  padding: 15px 0px 0px 0px;
-}
-
-.forget-password a {
-  text-decoration: none;
-  color: #4a9adb;
-  font-family: "Inter";
-  font-weight: bold;
-}
-
 .sign_up a {
   text-decoration: none;
   color: #ffbca5;
