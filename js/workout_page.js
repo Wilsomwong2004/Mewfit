@@ -272,17 +272,20 @@ document.querySelectorAll('.activity-card').forEach(card => {
     const defaultSelection = document.getElementById('default-selection');
 
     function checkDarkMode() {
-        if (typeof window.isDarkMode === 'function') {
-            return window.isDarkMode();
+        const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
+        if (darkModeToggle) {
+            // Set initial state based on localStorage
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            darkModeToggle.checked = isDarkMode;
+            document.documentElement.classList.toggle('dark-mode', isDarkMode);
         }
-        return localStorage.getItem('darkMode') === 'dark';
     }
 
     function updateCardStyles(card, isDefault = false) {
         const isDark = checkDarkMode();
 
         if (isDark) {
-            card.style.background = isDefault ? '#F97316' : '#1F2937';
+            card.style.background = isDefault ? '#F97316' : '#4d4d4e';
             card.style.color = '#E5E7EB';
             card.style.border = isDefault ? '1px solid #F97316' : '1px solid #374151';
         } else {
@@ -446,48 +449,83 @@ const createWorkoutCard = (workout) => {
     `;
 };
 
-// Function to filter workouts based on activity type
 const filterWorkouts = (type) => {
     return workouts.filter(workout => workout.type.includes(type));
 };
 
-document.querySelectorAll('.workout-grid').forEach(grid => {
-    const type = grid.closest('section').querySelector('.section-title').textContent.trim();
-    const filteredWorkouts = filterWorkouts(type);
-    grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
-});
+const styleSheet = document.createElement('style');
+styleSheet.textContent = styles;
+document.head.appendChild(styleSheet);
+
+
+function initializeWorkoutSections() {
+    document.querySelectorAll('section.workout-body').forEach(section => {
+        const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+        const workoutGrid = section.querySelector('.workout-grid');
+
+        if (workoutGrid) {
+            workoutGrid.classList.add('scroll-layout');
+
+            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
+            const filteredWorkouts = filterWorkouts(sectionType);
+            workoutGrid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+
+            section.style.display = '';
+        }
+    });
+}
 
 document.querySelectorAll('.activity-card').forEach(card => {
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeWorkoutSections();
+
+        const defaultCard = document.querySelector('.activity-card-all');
+        if (defaultCard) {
+            defaultCard.click();
+        }
+    });
+
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
 
-        if (selectedType === 'All') {
-            document.querySelectorAll('section').forEach(section => {
-                section.style.display = '';
-            });
+        document.querySelectorAll('section.workout-body').forEach(section => {
+            const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+            const workoutGrid = section.querySelector('.workout-grid');
 
-            document.querySelectorAll('.workout-grid').forEach(grid => {
-                const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
-                const filteredWorkouts = filterWorkouts(type);
-                grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
-            });
-        } else {
-            document.querySelectorAll('section').forEach(section => {
-                const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
-                if (['Activity Types', 'Top Picks For You', 'Recently Workout', selectedType].includes(sectionTitle)) {
+            if (selectedType === 'All') {
+                section.style.display = '';
+                if (workoutGrid) {
+                    workoutGrid.classList.add('scroll-layout');
+                    workoutGrid.classList.remove('grid-layout');
+                }
+            } else {
+                if (['Activity Types', 'Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
                     section.style.display = '';
+                    if (workoutGrid && ['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
+                        workoutGrid.classList.add('scroll-layout');
+                        workoutGrid.classList.remove('grid-layout');
+                    }
+                } else if (sectionTitle.includes(selectedType)) {
+                    section.style.display = '';
+                    if (workoutGrid) {
+                        workoutGrid.classList.add('grid-layout');
+                        workoutGrid.classList.remove('scroll-layout');
+                    }
                 } else {
                     section.style.display = 'none';
                 }
-            });
+            }
+        });
 
-            document.querySelectorAll('.workout-grid').forEach(grid => {
-                const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
-                if (['Top Picks For You', 'Recently Workout', selectedType].includes(type)) {
-                    const filteredWorkouts = filterWorkouts(type);
-                    grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
-                }
-            });
-        }
+        document.querySelectorAll('.workout-grid').forEach(grid => {
+            const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
+            if (['Top Picks For You', 'Recently Workout'].includes(type) ||
+                type.includes(selectedType) ||
+                selectedType === 'All') {
+                const filteredWorkouts = filterWorkouts(type.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, ''));
+                grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+            }
+        });
     });
 });
+
