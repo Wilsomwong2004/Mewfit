@@ -249,7 +249,7 @@ button {
   flex-direction: column;
   align-content: center;
   flex-shrink: 0;
-  padding: 0px 13%;
+  padding: 0px 50px;
   position: relative;
   transition: all 1s;
 }
@@ -355,8 +355,10 @@ button {
 }
 
 .button-inputs {
-  width: 74%;
+  width: calc(100% - 100px);
   height: 50px;
+  margin: 0 auto;
+  box-sizing: border-box;
   position: absolute;
   bottom: 0;
 }
@@ -424,11 +426,11 @@ button {
   }
 
   .pages {
-    padding: 0px;
+    padding: 15px;
   }
 
   .button-inputs {
-    width: 100%;
+    width: calc(100% - 30px);
   }
 
   .policy {
