@@ -32,6 +32,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 832) {
+            navLogoRes.style.display = 'none';
+        } else if (!document.body.classList.contains('menu-open')) {
+            navLogoRes.style.display = 'block';
+        }
+    });
+
+
     if (hamburgerMenu) {
         hamburgerMenu.addEventListener('click', function (event) {
             event.stopPropagation();
@@ -81,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showAnimatedPopup(message) {
-        // If there's an existing popup, remove it immediately
         if (currentPopup) {
             document.body.removeChild(currentPopup);
             clearTimeout(removeTimeout);
@@ -94,13 +102,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(animatedPopup);
         currentPopup = animatedPopup;
 
-        // Trigger the animation
         requestAnimationFrame(() => {
             animatedPopup.style.top = '20px';
             animatedPopup.style.opacity = '1';
         });
 
-        // Remove the popup after 3 seconds
         removeTimeout = setTimeout(() => {
             animatedPopup.style.top = '-100px';
             animatedPopup.style.opacity = '0';
@@ -165,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (darkModeToggle) {
         // Set initial state based on localStorage
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
         darkModeToggle.checked = isDarkMode;
         document.documentElement.classList.toggle('dark-mode', isDarkMode);
 
@@ -176,10 +183,28 @@ document.addEventListener('DOMContentLoaded', function () {
             // Show notification
             const message = isDarkModeEnabled ? "Dark mode is now enabled" : "Dark mode is now disabled";
             showAnimatedPopup(message);
+            changeLogoPic();
 
             // Sync dark mode across open tabs
             localStorage.setItem('darkModeTimestamp', Date.now().toString());
         });
+    }
+
+    function changeLogoPic() {
+        const navLogo = document.getElementById('nav-logo');
+        const navLogoResponsive = document.getElementById('nav-logo-responsive');
+
+        if (!navLogo || !navLogoResponsive) return;
+
+        const isDarkMode = document.documentElement.classList.contains('dark-mode');
+        const darkModeLogoPath = './assets/icons/logo-dark-mode-1.svg';
+        const lightModeLogoPath = './assets/icons/logo.svg';
+
+        navLogo.src = isDarkMode ? darkModeLogoPath : lightModeLogoPath;
+        navLogo.alt = isDarkMode ? 'Dark Mode Logo' : 'Light Mode Logo';
+
+        navLogoResponsive.src = isDarkMode ? darkModeLogoPath : lightModeLogoPath;
+        navLogoResponsive.alt = isDarkMode ? 'Dark Mode Logo' : 'Light Mode Logo';
     }
 
     // Logout functionality

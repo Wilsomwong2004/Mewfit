@@ -124,7 +124,7 @@ animated-popup.html.dark-mode {
     display: none;
     position: absolute;
     top: 100%;
-    margin-top: 20px;
+    margin-top: 15px;
     right: 0;
     background-color: var(--miniprofile-background);
     border-radius: 9px;
@@ -475,6 +475,14 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
     .header-right {
         display: flex;
         align-items: center;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .shown {
+        display: block;
     }
 
     #hamburger-menu {
