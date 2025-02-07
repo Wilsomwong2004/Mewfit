@@ -47,6 +47,13 @@ nav-links.html.dark-mode {
     height: 40px;
 }
 
+.nav-logo-responsive {
+    width: 40px;
+    height: 40px;
+    display: none;
+}
+
+
 .navbar-main {
     display: flex;
 }
@@ -117,7 +124,7 @@ animated-popup.html.dark-mode {
     display: none;
     position: absolute;
     top: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
     right: 0;
     background-color: var(--miniprofile-background);
     border-radius: 9px;
@@ -420,7 +427,7 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
         opacity: 1;
         visibility: visible;
         margin-top: 20px 0;
-        padding-top: 60px;
+        padding-top: 100px;
     }
 
     .nav-links a {
@@ -437,8 +444,13 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
         transition-delay: 0.2s;
     }
 
-    .nav-links img {
+    .nav-logo {
         display: none;
+    }
+
+    .nav-logo-responsive {
+        display: block;
+        margin-left: 40%;
     }
 
     .profile {
@@ -446,7 +458,7 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
     }
 
     #profile-pic {
-        margin-right: 20px;
+        margin-right: 5px;
     }
 
     .profile-info img {
@@ -468,6 +480,7 @@ html.dark-mode .logout-modal-content button#cancel-logout:hover {
     #hamburger-menu {
         display: block;
         margin-top: 3px;
+        margin-left: 10px;
     }
 
     #hamburger-menu span {

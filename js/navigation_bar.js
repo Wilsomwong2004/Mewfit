@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const navLinks = document.getElementById('nav-links');
     const navbar = document.getElementById('navbar');
+    const navLogoRes = document.getElementById('nav-logo-responsive');
 
     function toggleMenuVisibility(show) {
         if (hamburgerMenu && navLinks) {
@@ -17,11 +18,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.style.overflow = 'hidden';
                 profilePic.style.display = 'none';
                 navbar.style.padding = '1.8rem 2rem';
+                navLogoRes.style.display = 'none';
             } else {
-                // When menu closes, enable scrolling
                 document.body.style.overflow = 'auto';
                 profilePic.style.display = 'block';
                 navbar.style.padding = '1rem 2rem';
+                if (window.innerWidth > 832) {
+                    navLogoRes.style.display = 'none';
+                } else {
+                    navLogoRes.style.display = 'block';
+                }
             }
         }
     }
