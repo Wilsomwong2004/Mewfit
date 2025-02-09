@@ -83,7 +83,6 @@ window.addEventListener("wheel", (event) => {
 
     if (newProgress !== scrollProgress) {
         scrollProgress = newProgress;
-
         handleTextUpdate(scrollProgress);
 
         // Temporarily disable scrolling
@@ -107,12 +106,12 @@ function handleTextUpdate(progress) {
         case 1:
             scrollText.innerHTML = "Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!";
             scrollText2.innerHTML = "MEWFIT offers tailored diet plans with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.";
-            img.src = "assets/workout_pics/workout2.jpeg";
+            img.src = "./assets/workout_pics/workout2.jpeg";
             break;
         case 2:
             scrollText.innerHTML = "Effortless Calorie Tracking <br>and Beyond!";
             scrollText2.innerHTML = "Keep tabs on your daily calories burnt and consumed, <br> plus a host of other fitness metrics with <br> MEWFIT's comprehensive tracking features.";
-            img.src = "assets/workout_pics/workout3.jpeg";
+            img.src = "./assets/workout_pics/workout3.jpeg";
             break;
         case 3:
             fixedContent.classList.add("hidden");
