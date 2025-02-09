@@ -102,7 +102,7 @@ function handleTextUpdate(progress) {
         case 0:
             scrollText.innerHTML = "Unleash Fun with <br> MEWFIT's Cat Tower!";
             scrollText2.innerHTML = "MEWFIT engages users through a unique cat tower game,<br> transforming workouts into fun challenges that keep you motivated.";
-            img.src = "assets/workout_pics/workout1.jpeg";
+            img.src = "./assets/workout_pics/workout1.jpeg";
             break;
         case 1:
             scrollText.innerHTML = "Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!";

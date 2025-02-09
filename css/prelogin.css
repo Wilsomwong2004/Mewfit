@@ -31,6 +31,7 @@ body {
         font-size: 2.25vw;
         width: 10vw;
         padding: 1.5vw;
+        margin-right: 22px;
     }
 }
 
@@ -497,26 +498,29 @@ body {
         flex-direction: column;
         align-items: center;
         text-align: center;
+        width:100vw;
         padding:0vw;
+        margin-left: 15px;
+        margin-right: 30px;
     }
 
     #page4-content h2{
         font-size:6.5vw;
-        width:100%;
+        width:90%;
     }
 
     #page4-content p {
         font-size: 3.7vw;
         line-height: 30px;
         margin-bottom:10vw;
-        width:100%;
+        width:90%;
     }
 
     #page4-content img {
         width: 75vw;
         height: 75vw;
         margin-top: 5vw;
-        margin-right:0px;
+        margin-right:45px;
     }
 }
 
@@ -541,7 +545,7 @@ body {
 #page5-content h2 {
     font-size: 50px;
     width:55vw;
-    margin-bottom:1vw;
+    margin-bottom:2vw;
     margin-top:1.5vw;
     padding-left:5vw;
 }
@@ -696,7 +700,7 @@ body {
     padding-left: 2vw;
     text-align:left;
     width:19vw;
-    font-size:2vw;
+    font-size:18px;
 }
 
 @media (max-width: 800px){

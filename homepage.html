@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Homepage</title>
     <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/homepage.css">
     <link rel="stylesheet" href="./css/workout_page.css">
+    <link rel="stylesheet" href="./css/navigation_bar.css">
+    <link rel="stylesheet" href="./css/gemini_chatbot.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-links">
-            <span class="workout-home"><a href="homepage.html">HOME</a></span>
+    <nav class="navbar" id="navbar">
+        <div class="nav-links" id="nav-links">
+            <span class="workout-home"><a href="#">HOME</a></span>
             <span class="workout-navbar"><a href="#">WORKOUT</a></span>
             <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo">
             <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
@@ -19,6 +21,13 @@
         </div>
         <div class="profile">
             <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+            <div class="header-right">
+                <button id="hamburger-menu" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
             <div class="profile-dropdown" id="profile-dropdown">
                 <div class="profile-info">
                     <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
@@ -42,6 +51,7 @@
             </div>
         </div>
     </nav>
+    
 
     <section class="section1">
         <div class="s1-words">
@@ -49,15 +59,30 @@
             <p>Today is the workout time that you have long awaited for. <br>
                 Let’s hit the workout time goal to get a mew mew! </p>
             <div class="s1-icon">
-                <img src="assets/icons/calories or streak.svg">
+                <img src="assets/icons/calories or streak.svg" style="width: 30px;">
                 <p>214</p>
-                <img src="assets/icons/level.svg">
-
+                <img src="assets/icons/level.svg" style="width: 45px;">
+                <p>LV. 1</p>
             </div>
         </div>
         <div>
-            <img src="assets/icons/cat tower.svg" style="width:35vw;display: flex;justify-content: flex-end;">
+            <img src="assets/icons/cat tower.svg" style="width:600px;display: flex;justify-content: flex-end;">
         </div>
     </section>
+
+    <section>
+        <h3>Fitness Summary</h3>
+        <div>
+            <div class="container-1">
+                <img src="./assets/icons/total calories.svg" style="width:40px">
+                <h5>Total Calories</h5>
+                <h6>1124 <span>/3000 kcal</span></h6>
+                <p>Calories has been consumed</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="./js/navigation_bar.js"></script>
+    <script src="./js/gemini_chatbot.js"></script>
 </body>
 </html>

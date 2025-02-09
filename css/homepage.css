@@ -10,35 +10,38 @@ body{
     justify-content: space-between;
     align-items: center;
     padding-top:3vw;
+    border-bottom: 2px solid rgba(77, 77, 77, 0.199);
 }
 
 .s1-words{
     width:45%;
+    padding-right:40px;
 }
 
 .s1-words h2{
-    font-size:3vw;
+    font-size:30px;
 }
 
 .s1-words p{
-    font-size:1.4vw;
-    line-height:2vw;
-    padding-top:1vw;
+    font-size:15px;
+    line-height:25px;
+    padding-top:20px;
+    font-weight: 500;
 }
 
 .s1-icon{
     display:flex;
-    padding-top:2vw;
-    align-items:center;
+    padding-top:10px;
+    align-items: center;
+    padding-bottom:50px;
 }
 
 .s1-icon img{
-    width:2.5vw;
-    height:2.5vw;
-    padding-right:2vw;
+    padding-top:15px;
 }
 
 .s1-icon p{
-    font-size: 1.5vw;
-    padding-right:2vw;
+    font-size: 15px;
+    margin-left:20px;
+    margin-right:40px;
 }
