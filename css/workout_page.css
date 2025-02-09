@@ -46,8 +46,12 @@ body {
 
 .nav-links a {
     text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
     color: black;
     white-space: nowrap;
+    z-index: 3;
+    position: relative;
 }
 
 html.dark-mode .nav-links a {
@@ -70,7 +74,6 @@ html.dark-mode .nav-links a {
     padding: 5px 20px;
     font-size: 12px;
     border-radius: 68px;
-    background-color: #FFAD84;
     color: white;
     cursor: pointer;
 }
@@ -91,14 +94,6 @@ html.dark-mode .nav-links a {
     border-radius: 20px;
     transition: all 0.3s;
 }
-
-/* For responsive design */
-/* .search-bar input {
-    width: 100%;
-    padding: 10px 30px 10px 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-} */
 
 .search-bar input:focus {
     outline: none;
@@ -126,6 +121,139 @@ html.dark-mode .search-bar input {
 html.dark-mode .search-bar i,
 ::placeholder {
     color: #cfd4d4
+}
+
+.search-dropdown {
+    position: absolute;
+    top: 125%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 3;
+}
+
+html.dark-mode .search-dropdown {
+    background-color: #494949;
+    border: 1px solid #494949;
+    color: white;
+}
+
+/* Search Result Item */
+.search-result-item {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.search-result-item:hover {
+    background-color: #f9f9f9;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+/* Result Image */
+.result-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.result-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Result Content */
+.result-content {
+    margin-left: 16px;
+    flex-grow: 1;
+}
+
+.result-content h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+}
+
+/* Result Meta Information */
+.result-meta {
+    display: flex;
+    gap: 16px;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.result-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+i.fas.fa-clock {
+    font-size: 12px;
+    left: 100px;
+}
+
+/* No Results Message */
+.no-results {
+    padding: 24px;
+    text-align: center;
+    color: #6B7280;
+}
+
+html.dark-mode .no-results {
+    background-color: #595959;
+    color: white;
+}
+
+/* Dark Mode Styles */
+html.dark-mode .search-bar input {
+    color: #E5E7EB;
+}
+
+html.dark-mode .search-result-item {
+    border-bottom-color: #484848;
+    background-color: #4a4a4a;
+}
+
+html.dark-mode .search-result-item:hover {
+    background-color: #484848;
+}
+
+html.dark-mode .result-content h3 {
+    color: #E5E7EB;
+}
+
+html.dark-mode .result-meta {
+    color: #9CA3AF;
+}
+
+/* Scrollbar Styling */
+.search-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.search-dropdown::-webkit-scrollbar-track {
+    background: #F9FAFB;
+    border-radius: 3px;
+}
+
+.search-dropdown::-webkit-scrollbar-thumb {
+    background: #FFAD84;
+    border-radius: 3px;
+}
+
+.search-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #ffba98;
 }
 
 /* main page */
@@ -462,6 +590,11 @@ html.dark-mode .workout-body {
     flex: 0 0 300px;
 }
 
+.workout-card-content:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
 html.dark-mode .workout-card-content {
     background: #4d4d4e;
     border-radius: 0.5rem;
@@ -563,12 +696,6 @@ html.dark-mode .workout-stats {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .workout-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-
     .workout-image {
         width: 100%;
         height: 200px;
@@ -587,13 +714,17 @@ html.dark-mode .workout-stats {
     }
 
     .search-bar input {
-        width: 200px;
+        width: 250px;
         padding: 10px 20px 10px 50px;
-        transition: all 0.3s
+        transition: all 0.3s;
     }
 
     .search-bar-small {
-        transition: all 0.3s;
+        display: none;
+    }
+
+    .search-bar.show-search {
+        display: flex;
     }
 }
 
@@ -628,10 +759,6 @@ html.dark-mode .workout-stats {
         margin-top: 10px;
         color: #4e4e4e;
         transition: all 0.3s;
-    }
-
-    .main-content {
-        padding: 0.2rem 2.5rem;
     }
 
     .section-title {

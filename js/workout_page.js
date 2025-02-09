@@ -529,3 +529,150 @@ document.querySelectorAll('.activity-card').forEach(card => {
     });
 });
 
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Search functionality
+class SearchImplementation {
+    constructor() {
+        this.searchInput = document.querySelector('.search-bar input');
+        this.searchBarSmall = document.querySelector('.search-bar-small');
+        this.dropdownContainer = null;
+        this.workoutSections = document.querySelectorAll('section.workout-body');
+        this.isDropdownVisible = false;
+
+        this.init();
+    }
+
+    init() {
+        this.createDropdownContainer();
+        this.bindEvents();
+    }
+
+    createDropdownContainer() {
+        if (!this.dropdownContainer) {
+            this.dropdownContainer = document.createElement('div');
+            this.dropdownContainer.className = 'search-dropdown';
+            this.dropdownContainer.style.maxHeight = '300px';
+            this.dropdownContainer.style.overflowY = 'auto';
+            this.searchInput.parentElement.appendChild(this.dropdownContainer);
+
+            this.dropdownContainer.style.display = 'none';
+        }
+    }
+
+    bindEvents() {
+        let debounceTimeout;
+        this.searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                this.handleSearch(e.target.value);
+            }, 300);
+        });
+
+        this.searchBarSmall.addEventListener('click', () => {
+            const searchBar = document.querySelector('.search-bar');
+            searchBar.classList.toggle('show-search');
+            searchBar.querySelector('input').focus();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!this.searchInput.parentElement.contains(e.target)) {
+                this.hideDropdown();
+            }
+        });
+    }
+
+    handleSearch(query) {
+        if (!query.trim()) {
+            this.hideDropdown();
+            return;
+        }
+
+        const searchResults = [];
+        this.workoutSections.forEach(section => {
+            const sectionTitle = section.querySelector('.section-title')?.textContent;
+            const workoutCards = section.querySelectorAll('.workout-card-content');
+
+            workoutCards.forEach(card => {
+                const title = card.querySelector('.workout-title')?.textContent;
+                const duration = card.querySelector('.workout-stats span:first-child')?.textContent;
+                const calories = card.querySelector('.workout-stats span:last-child')?.textContent;
+                const image = card.querySelector('img')?.src;
+
+                if (this.startsWithSearch(query, title)) {
+                    searchResults.push({ title, duration, calories, image, section: sectionTitle });
+                }
+            });
+        });
+
+        this.updateDropdown(searchResults);
+    }
+
+    startsWithSearch(query, title) {
+        if (!title) return false;
+        return title.toLowerCase().startsWith(query.toLowerCase());
+    }
+
+    updateDropdown(results) {
+        if (results.length === 0) {
+            this.dropdownContainer.innerHTML = `
+                <div class="no-results">
+                    <p>No workouts found</p>
+                </div>
+            `;
+        } else {
+            const visibleResults = results.slice(0, 3);
+            const remainingResults = results.slice(3);
+
+            this.dropdownContainer.innerHTML = `
+                <div class="visible-results">
+                    ${visibleResults.map(result => this.createResultItem(result)).join('')}
+                </div>
+                ${remainingResults.length > 0 ? `
+                    <div class="remaining-results">
+                        ${remainingResults.map(result => this.createResultItem(result)).join('')}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        this.showDropdown();
+    }
+
+    createResultItem(result) {
+        return `
+            <div class="search-result-item">
+                <div class="result-image">
+                    <img src="${result.image || './assets/icons/vegan.svg'}" alt="${result.title}">
+                </div>
+                <div class="result-content">
+                    <h3 class="workout-title">${result.title}</h3>
+                    <div class="result-meta">
+                        <span class="duration">
+                            
+                            <i class="fas fa-clock"></i> ${result.duration}
+                        </span>
+                        <span class="calories">
+                            <i class="fas fa-fire"></i>
+                            ${result.calories}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    showDropdown() {
+        this.dropdownContainer.style.display = 'block';
+        this.isDropdownVisible = true;
+    }
+
+    hideDropdown() {
+        this.dropdownContainer.style.display = 'none';
+        this.isDropdownVisible = false;
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new SearchImplementation();
+});
