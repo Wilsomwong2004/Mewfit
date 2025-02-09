@@ -226,4 +226,92 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+
+    //Animation on navbar for hover
+    // Replace the existing indicator code with:
+    const navLinksa = document.querySelectorAll('.nav-links a');
+    const indicator = document.createElement('div');
+    indicator.classList.add('nav-links-indicator');
+    document.querySelector('.nav-links').appendChild(indicator);
+
+    function updateIndicatorPosition(link) {
+        // Ensure the nav-links container is fully rendered
+        requestAnimationFrame(() => {
+            const rect = link.getBoundingClientRect();
+            const navLinksContainer = link.closest('.nav-links');
+            const navLinksRect = navLinksContainer.getBoundingClientRect();
+            const isMobile = window.innerWidth <= 832;
+            const minWidth = 80;
+
+            navLinksa.forEach(l => {
+                if (!l.classList.contains('active')) {
+                    l.style.padding = '5px 15px';
+                }
+            });
+
+            // Set active link padding
+            if (!isMobile && link.classList.contains('active')) {
+                link.style.padding = '5px 15px';
+            }
+
+            if (isMobile) {
+                indicator.style.width = '150px';
+                indicator.style.height = `${rect.height}px`;
+                indicator.style.borderRadius = '68px';
+                navLinks.style.color = 'white';
+                const top = rect.top - navLinksRect.top;
+                indicator.style.transform = `translateY(${top}px)`;
+            } else {
+                const linkWidth = Math.max(rect.width, minWidth);
+                const left = rect.left - navLinksRect.left + (rect.width - linkWidth) / 2;
+                indicator.style.width = `${linkWidth}px`;
+                indicator.style.height = '25px';
+                indicator.style.borderRadius = '68px';
+                navLinks.style.color = 'white';
+                indicator.style.transform = `translateX(${left}px)`;
+            }
+        });
+    }
+
+    const activeLink = document.querySelector('.nav-links a.active');
+    if (activeLink) updateIndicatorPosition(activeLink);
+
+    setTimeout(() => {
+        const activeLink = document.querySelector('.nav-links a.active');
+        if (activeLink) updateIndicatorPosition(activeLink);
+    }, 100);
+
+    navLinksa.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            if (!document.documentElement.classList.contains('dark-mode')) {
+                const activeLink = document.querySelector('.nav-links a.active');
+                if (activeLink && !activeLink.isSameNode(link)) {
+                    activeLink.style.color = 'black';
+                }
+            }
+            updateIndicatorPosition(link);
+        });
+
+        link.addEventListener('mouseleave', () => {
+            const active = document.querySelector('.nav-links a.active');
+            if (active) updateIndicatorPosition(active);
+            if (!document.documentElement.classList.contains('dark-mode')) {
+                const activeLink = document.querySelector('.nav-links a.active');
+                if (activeLink && !activeLink.isSameNode(link)) {
+                    activeLink.style.color = 'white';
+                }
+            }
+        });
+    });
+
+
+    // Update on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const active = document.querySelector('.nav-links a.active');
+            if (active) updateIndicatorPosition(active);
+        }, 100);
+    });
 });

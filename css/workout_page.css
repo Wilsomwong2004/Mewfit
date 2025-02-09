@@ -46,8 +46,12 @@ body {
 
 .nav-links a {
     text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
     color: black;
     white-space: nowrap;
+    z-index: 3;
+    position: relative;
 }
 
 html.dark-mode .nav-links a {
@@ -70,7 +74,6 @@ html.dark-mode .nav-links a {
     padding: 5px 20px;
     font-size: 12px;
     border-radius: 68px;
-    background-color: #FFAD84;
     color: white;
     cursor: pointer;
 }
