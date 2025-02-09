@@ -315,7 +315,7 @@ h3{
     }
 
     #checklist span{
-        font-size:20px;
+        font-size:15px;
     }
     
     .custom-checkbox {
@@ -334,7 +334,7 @@ h3{
     .custom-input{
         width:70px;
         height:24px;
-        font-size:20px;
+        font-size:15px;
     }
     
     h2{
@@ -352,11 +352,26 @@ h3{
         width:80vw;
         margin-right:2vw;
     }
-
     .section-3a{
-        grid-column: 1/-1;
+        display:none;
     }
     
+    .description{
+        font-size:15px;
+    }
+}
+
+.section-5{
+    display:none;
+}
+
+@media (max-width: 910px){
+    .section-5{
+        display:block;
+        grid-column: 1/-1;
+        padding-top:40px;
+    }
+
     .other-recipes{
         padding-top:4vw;
     }
@@ -407,10 +422,10 @@ h3{
     
     #direction li{
         line-height:50px;
-        font-size:20px;
     }
     
     #direction p{
         line-height:25px;
+        font-size:15px;
     }
 }

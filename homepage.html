@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>MewFit</title>
     <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="./css/homepage.css">
@@ -67,22 +67,80 @@
             </div>
         </div>
         <div>
-            <img src="assets/icons/cat tower.svg" style="width:600px;display: flex;justify-content: flex-end;">
+            <img src="assets/icons/cat tower.svg" style="width:600px;display: flex;justify-content: flex-end; padding-bottom:50px;">
         </div>
     </section>
 
     <section>
-        <h3>Fitness Summary</h3>
-        <div>
-            <div class="container-1">
-                <img src="./assets/icons/total calories.svg" style="width:40px">
-                <h5>Total Calories</h5>
-                <h6>1124 <span>/3000 kcal</span></h6>
+        <div class="section2-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M543.8 287.6c17 0 32-14 32-32.1c1-9-3-17-11-24L309.5 7c-6-5-14-7-21-7s-15 1-22 8L10 231.5c-7 7-10 15-10 24c0 18 14 32.1 32 32.1l32 0 0 160.4c0 35.3 28.7 64 64 64l320.4 0c35.5 0 64.2-28.8 64-64.3l-.7-160.2 32 0zM256 208c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 48 48 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-48 0 0 48c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-48-48 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l48 0 0-48z"/></svg>
+            <h3>Fitness Summary</h3>
+        </div>
+        
+        <div style="display:flex;justify-content:space-around;">
+            <div id="fitness-summary-container" style="border: 2px solid #FFCD97;">
+                <div style="display:flex;">
+                    <img src="./assets/icons/total calories.svg">
+                    <h4>Total Calories</h4>
+                    <h5>></h5>
+                </div>
+                <h6>1124 <span style="color:#515151; font-size:10px;padding-top:10px;">/3000 kcal</span></h6>
                 <p>Calories has been consumed</p>
+            </div>
+            <div id="fitness-summary-container" style="border: 2px solid #FFCBB1;">
+                <div style="display:flex;">
+                    <img src="./assets/icons/calories or streak.svg" style="width:15px;">
+                    <h4>Calories Burnt</h4>
+                    <h5>></h5>
+                </div>
+                <h6>200 <span style="color:#515151; font-size:10px;padding-top:10px;">/240 kcal</span></h6>
+                <p>Calories burned from workout</p>
+            </div>
+            <div id="fitness-summary-container" style="border: 2px solid #9ECBF5;">
+                <div style="display:flex;">
+                    <img src="./assets/icons/workout time.svg" style="width:15px;">
+                    <h4>Workout Time</h4>
+                    <h5>></h5>
+                </div>
+                <h6>24 <span style="color:#515151; font-size:10px;padding-top:10px;">/60 min</span></h6>
+                <p>minutes for workout today</p>
+            </div>
+            <div id="fitness-summary-container" style="border: 2px solid #BBF3AA;">
+                <div style="display:flex;">
+                    <img src="./assets/icons/day streaks.svg" style="width:15px;">
+                    <h4>Day Streaks</h4>
+                    <h5>></h5>
+                </div>
+                <h6>34 <span style="color:#515151; font-size:10px;padding-top:10px;">/50 days</span></h6>
+                <p>Days of consistency</p>
             </div>
         </div>
     </section>
 
+    <section>
+        <div>
+            
+        </div>
+    </section>
+
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <img src="./assets/icons/cat-logo-tabs.png">
+                <h3>MEWAI</h3>
+            </div>
+            <button class="close-chat">&times;</button>
+        </div>
+        <div class="chatbot-transparent-top-down"></div>
+        <div class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Ask me about fitness...">
+            <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button class="chatbot-toggle">
+        <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+    </button>
     <script src="./js/navigation_bar.js"></script>
     <script src="./js/gemini_chatbot.js"></script>
 </body>

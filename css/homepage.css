@@ -5,6 +5,8 @@ body{
     padding-right:4vw;
 }
 
+/* -----------------------SECTION 1-------------------------- */
+
 .section1{
     display:flex;
     justify-content: space-between;
@@ -33,15 +35,69 @@ body{
     display:flex;
     padding-top:10px;
     align-items: center;
-    padding-bottom:50px;
 }
 
 .s1-icon img{
     padding-top:15px;
+    padding-bottom:30px;
 }
 
 .s1-icon p{
     font-size: 15px;
     margin-left:20px;
     margin-right:40px;
+    padding-bottom:30px;
 }
+
+/* -----------------------SECTION 2-------------------------- */
+.section2-title{
+    display:flex;
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+.section2-title svg{
+    width:30px;
+    margin-right:20px;
+}
+
+
+#fitness-summary-container{
+    border-radius:20px;
+    padding:10px;
+    height:160px;
+    margin-right:20px;
+}
+
+#fitness-summary-container img{
+    width:20px;
+}
+
+#fitness-summary-container h4{
+    padding-left:5px;
+    width:18vw;
+    font-weight:500;
+    font-size:15px;
+}
+
+#fitness-summary-container h5{
+    display: flex;
+    justify-content:flex-end;
+    color:#141414;
+}
+
+#fitness-summary-container h6{
+    font-size:45px;
+    font-weight:normal;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:100px;
+}
+
+#fitness-summary-container p{
+    font-size:15px;
+    text-align: center;
+}
+
+/* -----------------------SECTION 3a-------------------------- */
