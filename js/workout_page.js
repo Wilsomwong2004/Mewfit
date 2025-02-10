@@ -362,6 +362,7 @@ const workouts = [
         calories: '200Kcal',
         level: 'Beginner',
         image: './assets/icons/vegan.svg',
+        video: '',
         type: ['All', 'Weighted', 'Weightfree']
     },
     {
@@ -370,6 +371,7 @@ const workouts = [
         calories: '100Kcal',
         level: 'Advanced',
         image: '',
+        video: '',
         type: ['All', 'Cardio']
     },
     {
@@ -378,6 +380,7 @@ const workouts = [
         calories: '450Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Weighted']
     },
     {
@@ -386,6 +389,7 @@ const workouts = [
         calories: '180Kcal',
         level: 'Beginner',
         image: '',
+        video: '',
         type: ['All', 'Yoga']
     },
     {
@@ -394,6 +398,7 @@ const workouts = [
         calories: '50Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Meditation']
     },
     {
@@ -402,6 +407,7 @@ const workouts = [
         calories: '50Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Meditation']
     },
     {
@@ -410,6 +416,7 @@ const workouts = [
         calories: '50Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Meditation']
     },
     {
@@ -418,6 +425,7 @@ const workouts = [
         calories: '50Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Meditation']
     },
     {
@@ -426,14 +434,15 @@ const workouts = [
         calories: '50Kcal',
         level: 'Intermediate',
         image: '',
+        video: '',
         type: ['All', 'Meditation']
     }
 ];
 
 // Helper function to create a workout card
-const createWorkoutCard = (workout) => {
+const createWorkoutCard = (workout, index) => {
     return `
-        <div class="workout-card-content">
+        <div class="workout-card-content" data-index="${index}">
             <div class="workout-image">
                 <img src="${workout.image}" alt="${workout.title}">
             </div>
@@ -457,6 +466,35 @@ const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
+function setupWorkoutCardClick() {
+    document.querySelectorAll('.workout-card-content').forEach((card, index) => {
+        card.addEventListener('click', () => {
+            const workout = workouts[index];
+            if (!workout) return;
+
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+            } else {
+                workoutImage.src = './assets/default-workout.jpg';
+            }
+
+            // Set other details
+            document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+            document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+            
+            document.getElementById('popup-container').classList.add('active');
+        });
+    });
+
+    document.getElementById('popup-container').addEventListener('click', (e) => {
+        if (e.target.classList.contains('popup-close') || e.target === document.getElementById('popup-container')) {
+            document.getElementById('popup-container').classList.remove('active');
+        }
+    });
+}
 
 function initializeWorkoutSections() {
     document.querySelectorAll('section.workout-body').forEach(section => {
@@ -465,14 +503,17 @@ function initializeWorkoutSections() {
 
         if (workoutGrid) {
             workoutGrid.classList.add('scroll-layout');
-
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
             const filteredWorkouts = filterWorkouts(sectionType);
-            workoutGrid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
-
-            section.style.display = '';
+            workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
+                createWorkoutCard(workout, index)
+            ).join('');
         }
     });
+
+    setTimeout(() => {
+        setupWorkoutCardClick();
+    }, 0);
 }
 
 document.querySelectorAll('.activity-card').forEach(card => {
