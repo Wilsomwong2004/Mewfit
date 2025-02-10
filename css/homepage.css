@@ -54,19 +54,25 @@ body{
     display:flex;
     padding-top:20px;
     padding-bottom:20px;
+    align-items: center;
 }
 
 .section2-title svg{
-    width:30px;
+    width:28px;
     margin-right:20px;
 }
 
+.section2-title img{
+    width:34px;
+    margin-right:20px;
+}
 
 #fitness-summary-container{
     border-radius:20px;
     padding:10px;
     height:160px;
-    margin-right:20px;
+    box-shadow: 5px 5px 5px #e0e0e0;
+    width:23.5%;
 }
 
 #fitness-summary-container img{
@@ -100,4 +106,109 @@ body{
     text-align: center;
 }
 
-/* -----------------------SECTION 3a-------------------------- */
+/* -----------------------SECTION 2a-------------------------- */
+.section2a{
+    border: 2px solid #FFCBB1;
+    border-radius: 20px;
+    padding:10px;
+    margin-top:20px;
+    width:48%;
+    height:260px;
+    box-shadow: 5px 5px 5px #e0e0e0;
+}
+
+.section2a img{
+    width:25px;
+}
+
+#chart{
+    width:50%;
+    text-align: center;
+    color:#868686;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.section2a h4{
+    font-size: 15px;
+    font-weight: 500;
+    margin-left:10px;
+    margin-top:5px;
+}
+
+.section2a h5{
+    font-size:13px;
+    font-weight:500;
+}
+.section2a h6{
+    font-size:40px;
+    color:#FF946E;
+    font-weight:normal;
+}
+
+.section2a-description{
+    display:flex; 
+    justify-content: space-between;
+    padding-top:10px;
+    
+}
+
+.section2a-description span{
+    color:#868686;
+    font-size:12px;
+}
+
+.section2a h3{
+    font-size:13px;
+    font-weight:normal;
+}
+
+.section2a p{
+    padding-left:1vw;
+    font-size:15px;
+    color:#FF946E;
+    font-weight:500;
+}
+
+.section2a button{
+    padding:8px;
+    border-radius: 15px;
+    border:1px solid #FFAD84;
+    background-color: #FFAD84;
+    color:white;
+    font-weight:600;
+    width:100%;
+    margin-top:20px;
+}
+
+/* -----------------------SECTION 3-------------------------- */
+
+.container {
+    margin: auto;
+    text-align: center;
+}
+
+.dynamic-container {
+    box-shadow: 5px 5px 5px #e0e0e0;
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 20px;
+    transition: transform 0.2s;
+}
+
+#dynamicContainers{
+    display:flex;
+}
+
+.dynamic-container:hover {
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.dynamic-container img {
+    max-width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Optional: round the corners of the image */
+}
