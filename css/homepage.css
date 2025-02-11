@@ -232,7 +232,7 @@ html.dark-mode .container-side-transparent-right {
     border-radius: 20px;
     padding: 10px;
     height: 160px;
-    box-shadow: 5px 5px 5px #e0e0e0;
+    box-shadow: 5px 5px 5px #0000002c;
     width:48%;
 }
 
@@ -340,7 +340,7 @@ html.dark-mode .container-side-transparent-right {
     margin-top: 20px;
     width: 48%;
     height: 260px;
-    box-shadow: 5px 5px 5px #e0e0e0;
+    box-shadow: 5px 5px 5px #0000002c;
 }
 
 .section2a img {
@@ -518,13 +518,13 @@ html.dark-mode .container-side-transparent-right {
     background: white;
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px #0000002c;
     border-radius: 16px;
     flex: 0 0 300px;
 }
 
 .workout-card-content:hover, .diet-card-content:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px #0000002c;
     cursor: pointer;
 }
 
