@@ -356,8 +356,9 @@ html.dark-mode .workout-card {
 
 .card-content p {
     color: #666;
-    margin-top: 25px;
+    margin-top: 10px;
     height: -webkit-fill-available;
+    line-height: 1.5;
 }
 
 html.dark-mode .card-content p {
@@ -380,6 +381,17 @@ html.dark-mode .card-content p {
     background: white;
     padding: 10px 16px;
     border-radius: 20px;
+}
+
+.seperate-workout-transparent{
+    position: relative;
+    left: 24px;
+    width: 25px;
+    max-height: 450px;
+    height: 100%;
+    background: linear-gradient(to right, #ffcdb4, transparent);
+    pointer-events: none;
+    z-index: 100;
 }
 
 .card-image {
@@ -728,7 +740,7 @@ html.dark-mode .workout-stats {
     display: block;
 }
 
-.gradient-white{
+.gradient-white {
     position: relative;
     left: -29px;
     width: 30px;
@@ -818,7 +830,7 @@ html.dark-mode .workout-stats {
     }
 }
 
-@media screen and (max-width: 964px) {
+@media screen and (max-width: 968px) {
     .card-image {
         display: none;
     }

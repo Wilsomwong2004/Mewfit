@@ -1,28 +1,29 @@
+let selectedWorkout = null;
 class WorkoutCarousel {
     constructor() {
         this.carousel = document.querySelector('.workout-carousel');
         this.track = document.querySelector('.workout-slides');
         this.slides = [
             {
-                title: "Delicious Creamy Bicep Curls",
-                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+                title: "Today Workout",
+                description: "Carefully crafted by AI, this invigorating routine is designed to jumpstart your day with movements that enhance flexibility, improve overall stamina, and uplift your mood.",
                 duration: "15 Minutes",
                 calories: "200 kcal",
-                image: "/api/placeholder/600/400"
+                image: "./assets/workout_pics/workout9.jpg"
             },
             {
-                title: "Push-up Challenge",
-                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-                duration: "20 Minutes",
-                calories: "250 kcal",
-                image: "/api/placeholder/600/400"
+                title: "10 Minute Cardio",
+                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in just 10 minutes.",
+                duration: "10 Minutes",
+                calories: "150 kcal",
+                image: "./assets/workout_pics/workout11.jpg"
             },
             {
-                title: "Core Workout",
-                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-                duration: "25 Minutes",
-                calories: "300 kcal",
-                image: "/api/placeholder/600/400"
+                title: "No Joke Cardio",
+                description: "Push your limits with this advanced, high-intensity cardio workout that’s not for the faint of heart. Make you feel suffering and don't want to do again.  ",
+                duration: "30 Minutes",
+                calories: "350 kcal",
+                image: "./assets/workout_pics/workout10.jpg"
             }
         ];
 
@@ -91,6 +92,7 @@ class WorkoutCarousel {
                         </div>
                         <button class="start-workout">Start Workout</button>
                     </div>
+                    <div class="seperate-workout-transparent"></div>
                     <div class="card-image">
                         <img src="${slide.image}" alt="Workout">
                     </div>
@@ -357,94 +359,187 @@ document.querySelectorAll('.activity-card').forEach(card => {
 // Workout Cards
 const workouts = [
     {
-        title: 'Push Up',
+        title: 'Quick Cardio Starter',
+        duration: '10 minutes',
+        calories: '80Kcal',
+        level: 'Beginner',
+        description: 'A quick and easy cardio workout to get started.',
+        image: '',
+        video: '',
+        type: ['All', 'Cardio'],
+        sets: 1,
+        exercises: [
+            { exercise: 'March in Place', duration: '3 minutes' },
+            { exercise: 'Side Steps', duration: '3 minutes' },
+            { exercise: 'Low Impact Jumping Jacks', duration: '3 minutes' },
+            { exercise: 'Cool Down Stretches', duration: '1 minute' }
+        ]
+    },
+    {
+        title: 'Push-Up Basics',
+        duration: '15 minutes',
+        calories: '150Kcal',
+        level: 'Beginner',
+        description: 'Learn the basics of push-ups and build strength.',
+        image: '',
+        video: '',
+        type: ['All', 'Weightfree'],
+        sets: 3,
+        exercises: [
+            { exercise: 'Knee Push-ups', reps: 12 },
+            { exercise: 'Incline Push-ups', reps: 10 },
+            { exercise: 'Wide Arm Push-ups', reps: 8 },
+            { exercise: 'Rest', duration: '2 minutes' }
+        ]
+    },
+    {
+        title: 'Yoga for Relaxation',
+        duration: '20 minutes',
+        calories: '120Kcal',
+        level: 'Beginner',
+        description: 'A calming yoga session for flexibility and stress relief.',
+        image: '',
+        video: '',
+        type: ['All', 'Yoga'],
+        sets: 1,
+        exercises: [
+            { pose: 'Child’s Pose', duration: '5 minutes' },
+            { pose: 'Cat-Cow Stretch', duration: '5 minutes' },
+            { pose: 'Seated Forward Bend', duration: '5 minutes' },
+            { pose: 'Corpse Pose', duration: '5 minutes' }
+        ]
+    },
+    {
+        title: 'Mindful Breathing',
+        duration: '15 minutes',
+        calories: '50Kcal',
+        level: 'Beginner',
+        description: 'Focus on your breath to relax your body and mind.',
+        image: '',
+        video: '',
+        type: ['All', 'Meditation'],
+        sets: 1,
+        exercises: [
+            { activity: 'Breathing Exercise', duration: '5 minutes' },
+            { activity: 'Body Awareness Meditation', duration: '5 minutes' },
+            { activity: 'Closing Reflection', duration: '5 minutes' }
+        ]
+    },
+    {
+        title: 'Core Strength Builder',
         duration: '20 minutes',
         calories: '200Kcal',
-        level: 'Beginner',
-        image: './assets/icons/vegan.svg',
-        video: '',
-        type: ['All', 'Weighted', 'Weightfree']
-    },
-    {
-        title: 'Video Fit',
-        duration: '15 minutes',
-        calories: '100Kcal',
-        level: 'Advanced',
+        level: 'Intermediate',
+        description: 'Strengthen your core with targeted exercises.',
         image: '',
         video: '',
-        type: ['All', 'Cardio']
+        type: ['All', 'Weightfree'],
+        sets: 3,
+        exercises: [
+            { exercise: 'Plank Hold', duration: '1 minute' },
+            { exercise: 'Bicycle Crunches', reps: 20 },
+            { exercise: 'Leg Raises', reps: 15 },
+            { exercise: 'Side Planks', duration: '30 seconds each side' },
+            { exercise: 'Rest', duration: '2 minutes' }
+        ]
     },
     {
-        title: 'Pull Up',
+        title: 'Pull-Up Progression',
         duration: '25 minutes',
-        calories: '450Kcal',
+        calories: '300Kcal',
         level: 'Intermediate',
+        description: 'Improve your pull-up form and strength.',
         image: '',
         video: '',
-        type: ['All', 'Weighted']
+        type: ['All', 'Weighted'],
+        sets: 3,
+        exercises: [
+            { exercise: 'Assisted Pull-ups', reps: 10 },
+            { exercise: 'Chin-ups', reps: 8 },
+            { exercise: 'Negative Pull-ups', reps: 6 },
+            { exercise: 'Wide-grip Pull-ups', reps: 6 },
+            { exercise: 'Rest', duration: '2 minutes' }
+        ]
     },
     {
-        title: 'Yoga Flow',
+        title: 'Dynamic Yoga Flow',
+        duration: '25 minutes',
+        calories: '200Kcal',
+        level: 'Intermediate',
+        description: 'A more active yoga sequence for flexibility and strength.',
+        image: '',
+        video: '',
+        type: ['All', 'Yoga'],
+        sets: 1,
+        exercises: [
+            { pose: 'Sun Salutations', duration: '10 minutes' },
+            { pose: 'Warrior I and II', duration: '5 minutes' },
+            { pose: 'Triangle Pose', duration: '5 minutes' },
+            { pose: 'Pigeon Pose', duration: '5 minutes' }
+        ]
+    },
+    {
+        title: 'Cardio Extreme',
+        duration: '20 minutes',
+        calories: '300Kcal',
+        level: 'Advanced',
+        description: 'A high-intensity cardio session for experienced athletes.',
+        image: '',
+        video: '',
+        type: ['All', 'Cardio'],
+        sets: 3,
+        exercises: [
+            { exercise: 'Sprint Intervals', duration: '4 minutes' },
+            { exercise: 'Burpees', duration: 'llenge' },
+            { exercise: 'Jump Squats', duration: '4 minutes' },
+            { exercise: 'Mountain Climbers', duration: '4 minutes' },
+            { exercise: 'Cool Down', duration: '4 minutes' }
+        ]
+    },
+    {
+        title: 'Strength Max',
         duration: '30 minutes',
-        calories: '180Kcal',
-        level: 'Beginner',
+        calories: '350Kcal',
+        level: 'Advanced',
+        description: 'Build maximum strength with a challenging routine.',
         image: '',
         video: '',
-        type: ['All', 'Yoga']
+        type: ['All', 'Weighted'],
+        sets: 3,
+        exercises: [
+            { exercise: 'Deadlifts', reps: 10 },
+            { exercise: 'Barbell Squats', reps: 10 },
+            { exercise: 'Bench Press', reps: 8 },
+            { exercise: 'Pull-ups', reps: 10 },
+            { exercise: 'Rest', duration: '3 minutes' }
+        ]
     },
     {
-        title: 'Meditation',
-        duration: '20 minutes',
-        calories: '50Kcal',
-        level: 'Intermediate',
+        title: 'Advanced Yoga Challenge',
+        duration: '30 minutes',
+        calories: '250Kcal',
+        level: 'Advanced',
+        description: 'A powerful yoga sequence for flexibility and strength.',
         image: '',
         video: '',
-        type: ['All', 'Meditation']
-    },
-    {
-        title: 'Meditation',
-        duration: '20 minutes',
-        calories: '50Kcal',
-        level: 'Intermediate',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation']
-    },
-    {
-        title: 'Meditation',
-        duration: '20 minutes',
-        calories: '50Kcal',
-        level: 'Intermediate',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation']
-    },
-    {
-        title: 'Meditation',
-        duration: '20 minutes',
-        calories: '50Kcal',
-        level: 'Intermediate',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation']
-    },
-    {
-        title: 'Meditation',
-        duration: '20 minutes',
-        calories: '50Kcal',
-        level: 'Intermediate',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation']
+        type: ['All', 'Yoga'],
+        sets: 1,
+        exercises: [
+            { pose: 'Handstand Practice', duration: '10 minutes' },
+            { pose: 'Crow Pose', duration: '5 minutes' },
+            { pose: 'Wheel Pose', duration: '10 minutes' },
+            { pose: 'Savasana', duration: '5 minutes' }
+        ]
     }
 ];
+
 
 // Helper function to create a workout card
 const createWorkoutCard = (workout, index) => {
     return `
-        <div class="workout-card-content" data-index="${index}">
+        <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
             <div class="workout-image">
-                <img src="${workout.image}" alt="${workout.title}">
+                <img src="${workout.image || './assets/default-workout.jpg'}" alt="${workout.title}">
             </div>
             <div class="workout-info">
                 <h3 class="workout-title">${workout.title}</h3>
@@ -458,7 +553,9 @@ const createWorkoutCard = (workout, index) => {
     `;
 };
 
+
 const filterWorkouts = (type) => {
+    if (type === 'All') return workouts;
     return workouts.filter(workout => workout.type.includes(type));
 };
 
@@ -467,34 +564,51 @@ styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
 function setupWorkoutCardClick() {
-    document.querySelectorAll('.workout-card-content').forEach((card, index) => {
+    document.querySelectorAll('.workout-card-content').forEach(card => {
         card.addEventListener('click', () => {
-            const workout = workouts[index];
-            if (!workout) return;
+            const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+            const workoutTitle = card.getAttribute('data-workout-title');
+            const workout = workouts.find(w => w.title === workoutTitle);
 
-            const workoutImage = document.getElementById('popup-workout-image');
-            if (workout.image) {
-                workoutImage.src = workout.image;
-                workoutImage.alt = `${workout.title} Image`;
-            } else {
-                workoutImage.src = './assets/default-workout.jpg';
+            if (!workout) {
+                console.error('Workout not found:', workoutTitle);
+                return;
             }
+
+            selectedWorkout = workout;
+
+            // Update popup content
+            const workoutImage = document.getElementById('popup-workout-image');
+            workoutImage.src = workout.image || './assets/default-workout.jpg';
+            workoutImage.alt = `${workout.title} Image`;
 
             // Set other details
             document.getElementById('popup-title').textContent = workout.title.toUpperCase();
             document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
             document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
-            
+
+            // Show popup
             document.getElementById('popup-container').classList.add('active');
         });
     });
 
+    // Setup popup close handlers
     document.getElementById('popup-container').addEventListener('click', (e) => {
         if (e.target.classList.contains('popup-close') || e.target === document.getElementById('popup-container')) {
             document.getElementById('popup-container').classList.remove('active');
+            selectedWorkout = null;
         }
     });
 }
+
+document.querySelector('.popup-start-button').addEventListener('click', () => {
+    if (selectedWorkout) {
+        localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
+        window.location.href = 'subworkout_page.html';
+    } else {
+        console.error('No workout selected');
+    }
+});
 
 function initializeWorkoutSections() {
     document.querySelectorAll('section.workout-body').forEach(section => {
@@ -511,9 +625,7 @@ function initializeWorkoutSections() {
         }
     });
 
-    setTimeout(() => {
-        setupWorkoutCardClick();
-    }, 0);
+    setupWorkoutCardClick();
 }
 
 document.querySelectorAll('.activity-card').forEach(card => {
@@ -556,17 +668,30 @@ document.querySelectorAll('.activity-card').forEach(card => {
                     section.style.display = 'none';
                 }
             }
+            setupWorkoutCardClick();
         });
 
         document.querySelectorAll('.workout-grid').forEach(grid => {
-            const type = grid.closest('section').querySelector('.section-title')?.textContent.trim();
-            if (['Top Picks For You', 'Recently Workout'].includes(type) ||
-                type.includes(selectedType) ||
+            const section = grid.closest('section');
+            const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
+
+            // Only update content if section is relevant
+            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle) ||
+                sectionTitle.includes(selectedType) ||
                 selectedType === 'All') {
-                const filteredWorkouts = filterWorkouts(type.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, ''));
-                grid.innerHTML = filteredWorkouts.map(createWorkoutCard).join('');
+
+                const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
+
+                // Use the enhanced createWorkoutCard with proper indexing
+                grid.innerHTML = filteredWorkouts.map((workout, index) =>
+                    createWorkoutCard(workout, index)
+                ).join('');
             }
         });
+
+        // Reattach click handlers to newly created workout cards
+        setupWorkoutCardClick();
     });
 });
 
