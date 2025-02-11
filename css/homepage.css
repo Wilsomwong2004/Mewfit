@@ -161,6 +161,22 @@ html.dark-mode .container-side-transparent-right {
     -webkit-user-drag: none;
 }
 
+.cat:hover{
+    scale:1.1;
+}
+
+.speech-bubble{
+    position: absolute;
+    transform: translateX(-10%);
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    padding: 5px;
+    color:rgb(45, 45, 45);
+    border-radius: 5px;
+    z-index: 10;
+    white-space: nowrap;
+}
+
 #day-streak{
     width: 30px;
 }
