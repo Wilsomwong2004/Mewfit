@@ -1,45 +1,125 @@
-const containerData = [
+const workouts = [
     {
-        image: "./assets/icons/cat-logo-tabs.png",
-        content: "This is the first container."
+        title: 'Push Up',
+        duration: '20 minutes',
+        calories: '200Kcal',
+        level: 'Beginner',
+        image: './assets/workout_pics/workout1.jpeg',
     },
     {
-        content: "Container 2: This is the second container.",
-        image: "https://via.placeholder.com/300x150?text=Image+2"
+        title: 'Video Fit',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        level: 'Advanced',
+        image: './assets/workout_pics/workout3.jpeg',
     },
     {
-        content: "Container 3: This is the third container.",
-        image: "https://via.placeholder.com/300x150?text=Image+3"
+        title: 'Push Up',
+        duration: '20 minutes',
+        calories: '200Kcal',
+        level: 'Beginner',
+        image: './assets/icons/vegan.svg',
     },
     {
-        content: "Container 4: This is the fourth container.",
-        image: "https://via.placeholder.com/300x150?text=Image+4"
-    }
+        title: 'Video Fit',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        level: 'Advanced',
+        image: '',
+    },
+    {
+        title: 'Push Up',
+        duration: '20 minutes',
+        calories: '200Kcal',
+        level: 'Beginner',
+        image: './assets/icons/vegan.svg',
+    },
+    {
+        title: 'Video Fit',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        level: 'Advanced',
+        image: '',
+    },
 ];
 
-// Function to create containers
-function createContainers() {
-    const containerDiv = document.getElementById('dynamicContainers');
+const diets = [
+    {
+        title: 'Salad',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        level: 'Advanced',
+        image: 'https://via.placeholder.com/200?text=Salad'
+    },
+    {
+        title: 'Salad',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        image: 'https://via.placeholder.com/200?text=Salad',
+        level: 'Advanced'
+    },
+    {
+        title: 'Salad',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        image: 'https://via.placeholder.com/200?text=Salad',
+        level: 'Advanced'
+    },
+    {
+        title: 'Salad',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        image: 'https://via.placeholder.com/200?text=Salad',
+        level: 'Advanced'
+    },
+    {
+        title: 'Salad',
+        duration: '15 minutes',
+        calories: '100Kcal',
+        image: 'https://via.placeholder.com/200?text=Salad',
+        level: 'Advanced'
+    },
+];
 
-    // Loop through the containerData array and create a container for each item
-    containerData.forEach(data => {
-        const newContainer = document.createElement('div');
-        newContainer.className = 'dynamic-container';
+// Helper function to create a card
+const createCard = (item, type) => {
+    if (type === 'workout') {
+        return `
+            <div class="workout-card-content">
+                <div >
+                    <img src="${item.image}" alt="${item.title}" class="workout-image">
+                </div>
+                <div class="workout-info">
+                    <h3 class="workout-title">${item.title}</h3>
+                    <span class="workout-level">${item.level || ''}</span>
+                    <div class="workout-stats">
+                        <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
+                        <span><i class="fas fa-fire"></i> ${item.calories}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (type === 'diet') {
+        return `
+            <div class="diet-card-content">
+                <div class="diet-image">
+                    <img src="${item.image || 'https://via.placeholder.com/200'}" alt="${item.title}">
+                </div>
+                <div class="diet-info">
+                    <h3 class="diet-title">${item.title}</h3>
+                    <span class="diet-level">${item.level || ''}</span>
+                    <div class="diet-stats">
+                        <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
+                        <span><i class="fas fa-fire"></i> ${item.calories}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+};
 
-        // Create an image element
-        const img = document.createElement('img');
-        img.src = data.image; // Set the image source
-        img.alt = `Image for ${data.content}`; 
+const workoutGrid = document.querySelector('.workout-history-grid');
+const dietGrid = document.querySelector('.diet-history-grid');
 
-        // Append the image and text to the new container
-        newContainer.appendChild(img);
-        newContainer.appendChild(document.createElement('br')); // Add a line break
-        newContainer.appendChild(document.createTextNode(data.content)); // Add text content
-
-        // Append the new container to the dynamicContainers div
-        containerDiv.appendChild(newContainer);
-    });
-}
-
-// Call the function to create containers
-createContainers();
+workoutGrid.innerHTML = workouts.map(workout => createCard(workout, 'workout')).join('');
+dietGrid.innerHTML = diets.map(diet => createCard(diet, 'diet')).join('');

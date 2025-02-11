@@ -1,8 +1,8 @@
 body{
     font-family: Inter;
     margin: 0;
-    padding-left:4vw;
-    padding-right:4vw;
+    padding-left:40px;
+    padding-right:40px;
 }
 
 /* -----------------------SECTION 1-------------------------- */
@@ -49,6 +49,66 @@ body{
     padding-bottom:30px;
 }
 
+.cat-tower{
+    width:600px;
+    padding-bottom:50px;
+}
+
+#day-streak{
+    width: 30px;
+}
+
+#level{
+    width:45px;
+}
+
+@media screen and (max-width: 935px) {
+    .section1{
+        flex-direction:column;
+        justify-content: center;
+    }
+    
+    .s1-words{
+        text-align:center;
+        width:100%;
+        padding-right:0px;
+    }
+    
+    .s1-words h2{
+        font-size:5vw;
+    }
+    
+    .s1-words p{
+        font-size:3vw;
+        line-height: 4vw;
+    }
+    
+    .s1-icon{
+        justify-content: center;
+    }
+    
+    .s1-icon img{
+        padding-top:15px;
+        padding-bottom:30px;
+    }
+    
+    .s1-icon p{
+        font-size: 2.5vw;
+    }
+
+    .cat-tower{
+        width:90vw;
+    }
+
+    #day-streak{
+        width: 4vw;
+    }
+    
+    #level{
+        width:6vw;
+    }
+}
+
 /* -----------------------SECTION 2-------------------------- */
 .section2-title{
     display:flex;
@@ -67,12 +127,18 @@ body{
     margin-right:20px;
 }
 
+.section2-containers{
+    display:flex;
+    gap:2vw;
+    width:100%;
+}
+
 #fitness-summary-container{
     border-radius:20px;
     padding:10px;
     height:160px;
     box-shadow: 5px 5px 5px #e0e0e0;
-    width:23.5%;
+    width:48%;
 }
 
 #fitness-summary-container img{
@@ -102,8 +168,68 @@ body{
 }
 
 #fitness-summary-container p{
-    font-size:15px;
+    font-size:13px;
     text-align: center;
+}
+
+.section2-each-container{
+    display:flex;
+    justify-content:space-between;
+    width:50vw;
+}
+
+@media screen and (max-width: 935px){
+    .section2-title svg{
+        width:4vw;
+    }
+    
+    .section2-title img{
+        width:5vw;
+    }
+    
+    .section2-containers{
+        gap:4vw;
+        flex-direction: column;
+    }
+    
+    #fitness-summary-container{
+        height:30vw;
+        width:47%;
+        margin-right:2vw;
+    }
+    
+    #fitness-summary-container img{
+        width:5vw;
+    }
+    
+    #fitness-summary-container h4{
+        width:25vw;
+        font-size:3vw;
+    }
+
+    .section2-each-container{
+        width:92vw;
+    }
+    
+    #fitness-summary-container h5{
+        display: flex;
+        justify-content:flex-end;
+        color:#141414;
+    }
+    
+    #fitness-summary-container h6{
+        font-size:45px;
+        font-weight:normal;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height:100px;
+    }
+    
+    #fitness-summary-container p{
+        font-size:13px;
+        text-align: center;
+    }
 }
 
 /* -----------------------SECTION 2a-------------------------- */
@@ -185,30 +311,95 @@ body{
 }
 
 /* -----------------------SECTION 3-------------------------- */
-
-.container {
-    margin: auto;
-    text-align: center;
+.section3{
+    display:flex; 
+    justify-content: space-between;
+    align-items: center;
 }
 
-.dynamic-container {
-    box-shadow: 5px 5px 5px #e0e0e0;
-    padding: 20px;
-    margin: 10px 0;
-    border-radius: 20px;
-    transition: transform 0.2s;
-}
-
-#dynamicContainers{
+.section3 h4{
+    font-size:15px;
+    color:#868686;
+    font-weight: 500;
     display:flex;
+    padding-right:20px;
 }
 
-.dynamic-container:hover {
-    transform: scale(1.05); /* Slightly enlarge on hover */
+.section3 h4:hover{
+    cursor:pointer;
+    color:#666;
+    font-size:15.5px;
+    transition:0.5s ease;
 }
 
-.dynamic-container img {
-    max-width: 100%; /* Make images responsive */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 5px; /* Optional: round the corners of the image */
+/* -----------workout history------------ */
+.workout-history-grid,.diet-history-grid {
+    display: flex;
+    gap: 20px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.workout-history-grid.scroll-layout, .diet-history-grid.scroll-layout {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-bottom: 15px;
+}
+
+.workout-history-grid.grid-layout,.diet-history-grid.grid-layout {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.workout-history-grid.scroll-layout::-webkit-scrollbar,.diet-history-grid.scroll-layout::-webkit-scrollbar {
+    display: none;
+}
+
+.workout-card-content, .diet-card-content {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    flex: 0 0 300px;
+}
+
+.workout-card-content:hover, .diet-card-content:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.workout-image, .diet-image{
+    height: 100px;
+}
+
+.workout-info, .diet-info{
+    padding: 1rem;
+    font-size: 80%;
+}
+
+.workout-title, .diet-title{
+    font-size: 18px;
+    margin: 10px 0px;
+}
+
+.workout-level, .diet-level{
+    padding: 0.1rem 0.5rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    margin: 100px 0;
+}
+
+.workout-stats, .diet-stats{
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    color: #666;
+    margin-right: 0.2rem;
 }
