@@ -143,6 +143,8 @@ html.dark-mode .container-side-transparent-right {
 
 .cat-tower{
     width:600px;
+    display: flex;
+    justify-content: flex-end; 
     padding-bottom:50px;
 }
 
@@ -153,6 +155,7 @@ html.dark-mode .container-side-transparent-right {
 #level{
     width:45px;
 }
+
 
 @media screen and (max-width: 935px) {
     .section1{
@@ -221,8 +224,8 @@ html.dark-mode .container-side-transparent-right {
 
 .section2-containers{
     display:flex;
-    gap:2vw;
     width:100%;
+    gap:2vw;
 }
 
 #fitness-summary-container {
@@ -230,7 +233,7 @@ html.dark-mode .container-side-transparent-right {
     padding: 10px;
     height: 160px;
     box-shadow: 5px 5px 5px #e0e0e0;
-    width:23.5%;
+    width:48%;
 }
 
 #fitness-summary-container img {
@@ -242,12 +245,15 @@ html.dark-mode .container-side-transparent-right {
     width: 18vw;
     font-weight: 500;
     font-size: 15px;
+    display:flex;
+    align-items: center;
 }
 
 #fitness-summary-container h5 {
     display: flex;
     justify-content: flex-end;
     color: #141414;
+    align-items: center;
 }
 
 #fitness-summary-container h6 {
@@ -289,43 +295,45 @@ html.dark-mode .container-side-transparent-right {
         width:47%;
         margin-right:2vw;
     }
-    
-    #fitness-summary-container img{
-        width:5vw;
-    }
+
     
     #fitness-summary-container h4{
         width:25vw;
         font-size:3vw;
+        padding-left:15px;
     }
 
     .section2-each-container{
         width:92vw;
     }
+
+    #fitness-summary-container h4 {
+        width: 45vw;
+        font-size: 3vw;
+    }
     
     #fitness-summary-container h5{
-        display: flex;
-        justify-content:flex-end;
-        color:#141414;
+        font-size:3vw;
     }
     
     #fitness-summary-container h6{
-        font-size:45px;
-        font-weight:normal;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height:100px;
+        font-size:8vw;
+        height: 18vw;
     }
     
     #fitness-summary-container p{
-        font-size:13px;
-        text-align: center;
+        font-size:2.2vw;
     }
 }
 
 /* -----------------------SECTION 2a-------------------------- */
 .section2a {
+    display:flex;
+    justify-content: space-between;
+    width:100%;
+}
+
+.box {
     border: 2px solid #FFCBB1;
     border-radius: 20px;
     padding: 10px;
@@ -372,7 +380,6 @@ html.dark-mode .container-side-transparent-right {
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
-
 }
 
 .section2a-description span {
@@ -403,6 +410,61 @@ html.dark-mode .container-side-transparent-right {
     margin-top: 20px;
 }
 
+@media screen and (max-width: 935px){
+    .section2a{
+        flex-direction: column;
+        justify-content:center;
+    }
+    
+    .box {
+        width: 90vw;
+        height: 55vw;
+        margin-top: 4vw;
+        padding: 15px;
+    }
+    
+    
+    #chart {
+        width: 50vw;
+        font-size: 2.4vw;
+    }
+    
+    .section2a h4, .section2a h5 {
+        font-size: 3vw;
+    }
+    
+    .section2a h6 {
+        font-size: 7vw;
+    }
+
+    .section2a-description {
+        padding-top: 2vw;
+    }
+    
+    .section2a-description span {
+        font-size: 2vw;
+    }
+    
+    .section2a h3 {
+        font-size: 2.8vw;
+    }
+    
+    .section2a p {
+        font-size: 3vw;
+    }
+    
+    .section2a button {
+        font-size:3vw;
+        margin-top: 2vw;
+    }
+}
+
+@media screen and (max-width: 480px){
+    .box {
+        height: 60vw;
+    }
+}
+
 /* -----------------------SECTION 3-------------------------- */
 .section3{
     display:flex; 
@@ -410,24 +472,96 @@ html.dark-mode .container-side-transparent-right {
     align-items: center;
 }
 
-.dynamic-container {
-    box-shadow: 5px 5px 5px #e0e0e0;
-    padding: 20px;
-    margin: 10px 0;
-    border-radius: 20px;
-    transition: transform 0.2s;
-}
-
-#dynamicContainers{
+.section3 h4{
+    font-size:15px;
+    color:#868686;
+    font-weight: 500;
     display:flex;
+    padding-right:20px;
+
 }
 
-.dynamic-container:hover {
-    transform: scale(1.05); /* Slightly enlarge on hover */
+.section3 h4:hover{
+    cursor:pointer;
+    color:#666;
+    font-size:15.5px;
+    transition:0.5s ease;
 }
 
-.dynamic-container img {
-    max-width: 100%; /* Make images responsive */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 5px; /* Optional: round the corners of the image */
+/* -----------workout history------------ */
+.workout-history-grid,.diet-history-grid {
+    display: flex;
+    gap: 20px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.workout-history-grid.scroll-layout, .diet-history-grid.scroll-layout {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-bottom: 15px;
+}
+
+.workout-history-grid.grid-layout,.diet-history-grid.grid-layout {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.workout-history-grid.scroll-layout::-webkit-scrollbar,.diet-history-grid.scroll-layout::-webkit-scrollbar {
+    display: none;
+}
+
+.workout-card-content, .diet-card-content {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    flex: 0 0 300px;
+}
+
+.workout-card-content:hover, .diet-card-content:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.workout-image, .diet-image{
+    height: 200px;
+    width:100%;
+    object-fit: cover;
+}
+
+.workout-info, .diet-info{
+    padding: 1rem;
+    font-size: 80%;
+}
+
+.workout-title, .diet-title{
+    font-size: 18px;
+    margin: 10px 0px;
+}
+
+.workout-level, .diet-level{
+    padding: 0.1rem 0.5rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    margin: 100px 0;
+}
+
+.workout-stats, .diet-stats{
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    color: #666;
+    margin-right: 0.2rem;
+}
+
+@media screen and (max-width: 935px){
+
 }
