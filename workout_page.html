@@ -144,11 +144,31 @@
             <!-- Popup container -->
             <div id="popup-container" class="popup-container">
                 <div class="popup-content">
-                    <h2 id="popup-title"></h2>
-                    <div id="popup-body"></div>
+                    <div class="seperate-workout-pic-details">
+                        <div class="popup-workout-pic">
+                            <img id="popup-workout-image" src="" alt="Workout Image">
+                        </div>
+                        <div class="gradient-white"></div>
+                        <div id="popup-body">
+                            <span class="popup-close">&times;</span>
+                            <h2 id="popup-title"></h2>
+                            <p id="popup-desc"></p>
+                            <div class="popup-stats">
+                                <div class="popup-stat-item">
+                                    <div class="popup-stat-value" id="popup-duration"></div>
+                                    <div class="popup-stat-label">Minutes</div>
+                                </div>
+                                <div class="popup-stat-item">
+                                    <div class="popup-stat-value" id="popup-calories"></div>
+                                    <div class="popup-stat-label">kcal</div>
+                                </div>
+                            </div>
+                            <button class="popup-start-button">Start Workout</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
+            
             <!-- Chatbot Interface -->
             <div class="chatbot-container">
                 <div class="chatbot-header">
