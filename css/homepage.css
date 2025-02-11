@@ -108,8 +108,9 @@ html.dark-mode .container-side-transparent-right {
 }
 
 .s1-words {
-    width: 45%;
-    padding-right: 40px;
+    max-width: 35%;
+    min-width: 15%;
+    padding-right: 20px;
 }
 
 .s1-words h2 {
@@ -141,11 +142,23 @@ html.dark-mode .container-side-transparent-right {
     padding-bottom: 30px;
 }
 
+#cat-tower-section{
+    overflow:hidden;
+    width:600px;
+    height: 250px;
+    position: relative;
+}
+
 .cat-tower{
     width:600px;
-    display: flex;
-    justify-content: flex-end; 
     padding-bottom:50px;
+    -webkit-user-drag: none;
+}
+
+.cat{
+    width:45px;
+    position: absolute;
+    -webkit-user-drag: none;
 }
 
 #day-streak{
@@ -165,7 +178,7 @@ html.dark-mode .container-side-transparent-right {
     
     .s1-words{
         text-align:center;
-        width:100%;
+        max-width: 100%;
         padding-right:0px;
     }
     
@@ -191,8 +204,20 @@ html.dark-mode .container-side-transparent-right {
         font-size: 2.5vw;
     }
 
+    #cat-tower-section{
+        overflow:hidden;
+        width:90vw;
+        height: 35vw;
+        position: relative;
+    }
+    
     .cat-tower{
         width:90vw;
+    }
+    
+    .cat{
+        width:7vw;
+        position: absolute;
     }
 
     #day-streak{

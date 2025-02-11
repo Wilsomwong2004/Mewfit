@@ -1,3 +1,90 @@
+// --------Cat Tower Stuff------------
+const elementCount = 3;
+
+function createElements(){
+    const container = document.getElementById('cat-tower-section');
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    for (let i=0; i<elementCount; i++){
+        const newElement = document.createElement('img');
+        newElement.src= './assets/icons/lvl 1 cat.svg';
+        newElement.className = 'cat';
+        const randomX = Math.random() * (containerWidth - 50); 
+        const randomY = Math.random() * (containerHeight - 50);
+
+        newElement.style.left = `${randomX}px`;
+        newElement.style.top = `${randomY}px`;
+
+        container.appendChild(newElement);
+    }
+}
+
+
+
+var chooseElement;
+
+const move = function() {
+    const elements = document.querySelectorAll('.cat');
+
+    elements.forEach(element =>{
+        element.addEventListener("mousedown",(e) =>{
+            const container = document.getElementById('cat-tower-section'); 
+            const containerRect = container.getBoundingClientRect();
+            
+            chooseElement = element;
+
+            let offsetX = e.clientX - element.getBoundingClientRect().left;
+            let offsetY = e.clientY - element.getBoundingClientRect().top;
+
+            document.onmousemove = (e) =>{
+                
+
+                if (window.innerWidth < 935){
+                    
+                    let x = ((e.clientX/ window.innerWidth) * 100)-offsetX;
+                    let y = ((e.clientY/ window.innerHeight) * 100)-offsetY;
+
+                    const containerWidth = (containerRect.width / window.innerWidth) * 100;
+                    const containerHeight = (containerRect.height / window.innerHeight) * 100;
+                    const elementWidth = (element.clientWidth / window.innerWidth) * 100;
+                    const elementHeight = (element.clientHeight / window.innerHeight) * 100;
+
+                    if (x < 0) x = 0;
+                    if (y < 0) y = 0;
+                    if (x > containerWidth - elementWidth) x = containerWidth - elementWidth;
+                    if (y > containerHeight - elementHeight) y = containerHeight - elementHeight;
+
+                    chooseElement.style.left = `${x}vw`;
+                    chooseElement.style.top = `${y}vh`;
+                }else{
+                    let x = e.clientX;
+                    let y = e.clientY;
+
+                    if (x < containerRect.left) x = containerRect.left +20;
+                    if (y < containerRect.top) y = containerRect.top +30;
+                    if (x > containerRect.right) x = containerRect.right -30;
+                    if (y > containerRect.bottom) y = containerRect.bottom -15;
+
+                    chooseElement.style.left = `${x - containerRect.left -20}px`;
+                    chooseElement.style.top = `${y - containerRect.top -30}px`;
+                }
+
+                console.log(chooseElement);
+            }
+        })
+        document.onmouseup = function(e){
+            chooseElement = null;
+        };
+    })
+}
+
+window.onload = function() {
+    createElements();
+    move();
+};
+
+// -----------create Workout Cards-----------
 const workouts = [
     {
         title: 'Push Up',
