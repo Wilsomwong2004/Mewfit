@@ -275,8 +275,98 @@ body {
     transition: background-color 0.3s ease;
 }
 
-h2#popup-title{
+h2#popup-title {
     margin-left: 20px;
+}
+
+/* ......................................................................................... */
+/* Form feedback */
+
+#form-feedback {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.form-alert {
+    background: #ff9967;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* ......................................................................................... */
+/* Rest screen */
+
+.rest-screen {
+    text-align: center;
+    padding: 20px;
+}
+
+.rest-screen video {
+    width: 80%;
+    max-width: 400px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.rest-timer {
+    font-size: 48px;
+    font-weight: bold;
+    color: #FF9967;
+    margin: 20px 0;
+}
+
+.rest-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.add-time {
+    padding: 8px 16px;
+    background: #FF9967;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.workout-complete {
+    text-align: center;
+    padding: 40px;
+}
+
+.workout-complete button {
+    padding: 12px 24px;
+    background: #FF9967;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.rep-counter {
+    font-size: 36px !important;
+    color: #FF9967 !important;
 }
 
 /* ......................................................................................... */

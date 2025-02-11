@@ -600,48 +600,69 @@ async function detectPose() {
     if (!isRunning || !detector || !isMewTrackEnabled) return;
 
     try {
-        // Ensure canvas dimensions are valid
-        if (canvasElement.width === 0 || canvasElement.height === 0) {
-            const rect = videoElement.getBoundingClientRect();
-            canvasElement.width = rect.width;
-            canvasElement.height = rect.height;
-        }
-
         const poses = await detector.estimatePoses(videoElement);
-
-        // Clear previous frame
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-        // Draw keypoints and skeleton if poses detected
-        if (poses && poses.length > 0) {
-            const displayWidth = canvasElement.width;
-            const displayHeight = canvasElement.height;
-            const videoWidth = videoElement.videoWidth;
-            const videoHeight = videoElement.videoHeight;
+        if (poses.length > 0) {
+            const keypoints = poses[0].keypoints;
 
-            // Calculate scaling to maintain aspect ratio
-            const scale = Math.min(displayWidth / videoWidth, displayHeight / videoHeight);
-            const scaledWidth = videoWidth * scale;
-            const scaledHeight = videoHeight * scale;
+            // Draw skeleton
+            drawSkeleton(keypoints);
 
-            // Calculate centering offsets
-            const offsetX = (displayWidth - scaledWidth) / 2;
-            const offsetY = (displayHeight - scaledHeight) / 2;
-
-            // Draw based on skeleton style preference
-            if (skeletonStyle === 'both' || skeletonStyle === 'dot') {
-                drawKeypoints(poses[0].keypoints, scale, offsetX, offsetY);
-            }
-            if (skeletonStyle === 'both' || skeletonStyle === 'line') {
-                drawSkeleton(poses[0].keypoints, scale, offsetX, offsetY);
+            // Add form validation warnings
+            if (this.repCounter) {
+                const formFeedback = validateForm(keypoints, this.repCounter.exerciseType);
+                showFormFeedback(formFeedback);
             }
         }
 
         animationFrameId = requestAnimationFrame(detectPose);
     } catch (error) {
-        console.error('Error during pose detection:', error);
-        // Don't stop running on error, just skip this frame
+        console.error('Detection error:', error);
         animationFrameId = requestAnimationFrame(detectPose);
+    }
+}
+
+function validateForm(keypoints, exerciseType) {
+    const feedback = [];
+
+    switch (exerciseType) {
+        case 'Squats':
+            const kneeAngle = calculateAngle(
+                getKeypointByName(keypoints, 'left_hip'),
+                getKeypointByName(keypoints, 'left_knee'),
+                getKeypointByName(keypoints, 'left_ankle')
+            );
+            if (kneeAngle < 80) feedback.push('Keep knees behind toes!');
+            break;
+
+        case 'Push Ups':
+            const bodyAngle = calculateAngle(
+                getKeypointByName(keypoints, 'left_shoulder'),
+                getKeypointByName(keypoints, 'left_hip'),
+                getKeypointByName(keypoints, 'left_ankle')
+            );
+            if (bodyAngle > 170) feedback.push('Keep your body straight!');
+            break;
+    }
+
+    return feedback;
+}
+
+function showFormFeedback(messages) {
+    const feedbackElement = document.getElementById('form-feedback') ||
+        document.createElement('div');
+
+    feedbackElement.id = 'form-feedback';
+    feedbackElement.innerHTML = messages.map(msg => `
+    <div class="form-alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        ${msg}
+    </div>
+    `).join('');
+
+    if (!document.getElementById('form-feedback')) {
+        document.body.appendChild(feedbackElement);
     }
 }
 
@@ -781,7 +802,7 @@ function startWorkoutCountdown(workoutName, onCompleteCallback) {
         isPaused = !isPaused;
         const pauseIcon = pauseBtn.querySelector('i');
         const pauseText = pauseBtn.querySelector('.pause-text');
-        
+
         if (isPaused) {
             pauseIcon.className = 'fa-solid fa-play';
             pauseText.textContent = 'Resume';
@@ -1530,6 +1551,295 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //.........................................................................................//
+// Connection between workout page data to subworkout page
+
+class WorkoutManager {
+    constructor() {
+        this.workouts = JSON.parse(localStorage.getItem('currentWorkout')) || [];
+        this.currentIndex = 0;
+        this.isResting = false;
+        this.timer = null;
+        this.repCount = 0;
+        this.repCounter = null;
+
+        // DOM Elements
+        this.timerElement = document.querySelector('.timer-text');
+        this.workoutNameElement = document.querySelector('.workout-name');
+        this.roundElement = document.querySelector('.workout-round');
+        this.workoutUser = document.querySelector('.workout-user');
+        this.workoutGuide = document.querySelector('.workout-guide');
+    }
+
+    init() {
+        if (this.workouts.length === 0) return;
+
+        this.showCurrentWorkout();
+        this.startWorkout();
+    }
+
+    showCurrentWorkout() {
+        const current = this.workouts[this.currentIndex];
+        const [duration] = current.duration.split(' ');
+        const isReps = current.duration.includes('reps');
+
+        // Update UI
+        this.workoutNameElement.textContent = current.title;
+        this.roundElement.textContent = `${this.currentIndex + 1}/${this.workouts.length}`;
+
+        // Show/hide rep counter
+        if (isReps) {
+            this.timerElement.textContent = duration;
+            this.timerElement.classList.add('rep-counter');
+        } else {
+            this.timerElement.textContent = `0:${duration.padStart(2, '0')}`;
+            this.timerElement.classList.remove('rep-counter');
+        }
+    }
+
+    startWorkout() {
+        const current = this.workouts[this.currentIndex];
+        const [duration] = current.duration.split(' ');
+        const isReps = current.duration.includes('reps');
+
+        if (isReps) {
+            this.setupRepCounter(parseInt(duration));
+        } else {
+            this.startTimer(parseInt(duration));
+        }
+    }
+
+    startTimer(seconds) {
+        let timeLeft = seconds;
+
+        this.timer = setInterval(() => {
+            timeLeft--;
+            this.timerElement.textContent = `0:${timeLeft.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(this.timer);
+                this.nextWorkout();
+            }
+        }, 1000);
+    }
+
+    setupRepCounter(targetReps) {
+        const currentExercise = this.workouts[this.currentIndex].title;
+        this.repCounter = new RepCounter(currentExercise);
+
+        // Connect to pose detection
+        const originalDetectPose = detectPose.bind(this);
+        detectPose = async () => {
+            await originalDetectPose();
+
+            if (this.repCounter && detector) {
+                const poses = await detector.estimatePoses(videoElement);
+                if (poses.length > 0) {
+                    const countedReps = this.repCounter.analyzePose(poses[0].keypoints);
+                    this.timerElement.textContent = countedReps;
+
+                    if (countedReps >= targetReps) {
+                        this.nextWorkout();
+                    }
+                }
+            }
+        };
+
+        if (!isRunning) startDetection();
+    }
+
+    nextWorkout() {
+        this.repCounter = null;
+        clearInterval(this.timer);
+        this.currentIndex++;
+
+        if (this.currentIndex >= this.workouts.length) {
+            this.endWorkout();
+            return;
+        }
+
+        this.showRestScreen();
+    }
+
+    showRestScreen() {
+        this.isResting = true;
+        const nextWorkout = this.workouts[this.currentIndex];
+
+        // Hide camera view
+        this.workoutUser.style.display = 'none';
+
+        // Show rest screen
+        this.workoutGuide.innerHTML = `
+            <div class="rest-screen">
+                <h2>Next: ${nextWorkout.title}</h2>
+                <video src="${nextWorkout.video}" autoplay muted loop></video>
+                <div class="rest-timer">10</div>
+                <div class="rest-controls">
+                    <button class="add-time" data-seconds="10">+10s</button>
+                    <button class="add-time" data-seconds="20">+20s</button>
+                    <button class="add-time" data-seconds="30">+30s</button>
+                </div>
+            </div>
+        `;
+
+        this.startRestTimer(10);
+    }
+
+    startRestTimer(seconds) {
+        let timeLeft = seconds;
+        const timerElement = this.workoutGuide.querySelector('.rest-timer');
+
+        this.timer = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(this.timer);
+                this.endRest();
+            }
+        }, 1000);
+
+        // Add time buttons
+        this.workoutGuide.querySelectorAll('.add-time').forEach(btn => {
+            btn.addEventListener('click', () => {
+                timeLeft += parseInt(btn.dataset.seconds);
+                timerElement.textContent = timeLeft;
+            });
+        });
+    }
+
+    endRest() {
+        this.isResting = false;
+        this.workoutUser.style.display = 'block';
+        this.workoutGuide.innerHTML = 'Demo';
+        this.showCurrentWorkout();
+        this.startWorkout();
+    }
+
+    endWorkout() {
+        // Show completion screen
+        this.workoutGuide.innerHTML = `
+            <div class="workout-complete">
+                <h2>Workout Complete!</h2>
+                <p>Great job completing all exercises!</p>
+                <button onclick="window.location.href='workout_page.html'">Return Home</button>
+            </div>
+        `;
+        localStorage.removeItem('currentWorkout');
+    }
+}
+
+//.........................................................................................//
+// Pose detection algorithm
+class RepCounter {
+    constructor(exerciseType) {
+        this.exerciseType = exerciseType;
+        this.repCount = 0;
+        this.lastState = null;
+        this.keypointHistory = [];
+        this.repThresholds = {
+            'Squats': { min: 0.6, max: 0.9 },
+            'Push Ups': { min: 0.4, max: 0.8 },
+            'Jumping Jacks': { min: 0.3, max: 0.7 }
+        };
+    }
+
+    analyzePose(keypoints) {
+        switch (this.exerciseType) {
+            case 'Squats':
+                return this._analyzeSquats(keypoints);
+            case 'Push Ups':
+                return this._analyzePushUps(keypoints);
+            case 'Jumping Jacks':
+                return this._analyzeJumpingJacks(keypoints);
+            default:
+                return 0;
+        }
+    }
+
+    _analyzeSquats(keypoints) {
+        const leftHip = keypoints.find(k => k.name === 'left_hip');
+        const rightHip = keypoints.find(k => k.name === 'right_hip');
+        const hipsY = (leftHip.y + rightHip.y) / 2;
+
+        this.keypointHistory.push(hipsY);
+        if (this.keypointHistory.length > 10) this.keypointHistory.shift();
+
+        const avgY = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
+        const normalizedY = (avgY - this.repThresholds.Squats.min) /
+            (this.repThresholds.Squats.max - this.repThresholds.Squats.min);
+
+        if (normalizedY < 0.3 && this.lastState !== 'down') {
+            this.repCount++;
+            this.lastState = 'down';
+            return this.repCount;
+        }
+        if (normalizedY > 0.7) this.lastState = 'up';
+        return this.repCount;
+    }
+
+    _analyzePushUps(keypoints) {
+        const leftElbow = keypoints.find(k => k.name === 'left_elbow');
+        const rightElbow = keypoints.find(k => k.name === 'right_elbow');
+        const shoulder = keypoints.find(k => k.name === 'left_shoulder');
+        const wrist = keypoints.find(k => k.name === 'left_wrist');
+
+        const angle = this._calculateAngle(shoulder, leftElbow, wrist);
+        this.keypointHistory.push(angle);
+        if (this.keypointHistory.length > 5) this.keypointHistory.shift();
+
+        const avgAngle = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
+
+        if (avgAngle < 90 && this.lastState !== 'down') {
+            this.repCount++;
+            this.lastState = 'down';
+        }
+        if (avgAngle > 160) this.lastState = 'up';
+        return this.repCount;
+    }
+
+    _analyzeJumpingJacks(keypoints) {
+        const leftWrist = keypoints.find(k => k.name === 'left_wrist');
+        const rightWrist = keypoints.find(k => k.name === 'right_wrist');
+        const shoulderWidth = Math.abs(
+            keypoints.find(k => k.name === 'left_shoulder').x -
+            keypoints.find(k => k.name === 'right_shoulder').x
+        );
+
+        const handSpread = Math.abs(leftWrist.x - rightWrist.x);
+        const normalizedSpread = handSpread / shoulderWidth;
+
+        if (normalizedSpread > 2.5 && this.lastState !== 'open') {
+            this.repCount++;
+            this.lastState = 'open';
+        }
+        if (normalizedSpread < 1.2) this.lastState = 'closed';
+        return this.repCount;
+    }
+
+    _calculateAngle(a, b, c) {
+        const radians = Math.atan2(c.y - b.y, c.x - b.x) -
+            Math.atan2(a.y - b.y, a.x - b.x);
+        let angle = Math.abs(radians * (180 / Math.PI));
+        return angle > 180 ? 360 - angle : angle;
+    }
+}
+
+function getKeypointByName(keypoints, name) {
+    return keypoints.find(kp => kp.name === name);
+}
+
+function calculateDistance(kp1, kp2) {
+    return Math.sqrt(Math.pow(kp2.x - kp1.x, 2) + Math.pow(kp2.y - kp1.y, 2));
+}
+
+function calculateAngle(kp1, kp2, kp3) {
+    const radians = Math.atan2(kp3.y - kp2.y, kp3.x - kp2.x) -
+        Math.atan2(kp1.y - kp2.y, kp1.x - kp2.x);
+    let angle = Math.abs(radians * (180 / Math.PI));
+    return angle > 180 ? 360 - angle : angle;
+}
+
+//.........................................................................................//
 // Music Function (pop up window)
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1744,5 +2054,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button onclick="closePopup()">No</button>
             </div>
         `);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const workoutManager = new WorkoutManager();
+        workoutManager.init();
+
+        // Existing initialization code...
+        createSettingsPopup();
+        if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+            init();
+        }
     });
 });
