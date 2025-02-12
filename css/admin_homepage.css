@@ -58,3 +58,45 @@ p{
     border-radius: 20px;
     padding:20px;
 }
+
+@media screen and (max-width: 800px){
+    h1{
+        font-size:5vw;
+    }
+    
+    h2{
+        font-size:4.5vw;
+    }
+
+    h3{
+        font-size:4vw;
+    }
+    
+    h5{
+        font-size:3vw;
+    }
+    
+    h6{
+        font-size:8vw;
+    }
+    
+    p{
+        font-size:3vw;
+        font-weight: 500;
+    }
+    
+    .summary-container{
+        gap:2vw;
+    }
+
+    .summary img{
+        display:none;
+    }
+    
+    .summary{
+        justify-content: space-around;
+        margin-top:20px;
+        width:80vw;
+        height:100px;
+    }
+}
