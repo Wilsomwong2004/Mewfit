@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="css/admin_user_page.css">
+</head>
+<body>
+    <nav>
+        <div class="logo-space"> <div class="logo-and-title"></div>
+            <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">DASHBOARD</a></li>
+            <li><a href="#" class="active">USER</a></li>
+            <li><a href="#">WORKOUT</a></li>
+            <li><a href="#">MEALS</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- User Profile Table -->
+        <div class="profile-table">
+            <h2> USER <span>PROFILE</span></h2>
+            <input type="text" class="search-bar" placeholder="Search">
+                <div class="box"></div>
+        </div>
+
+        <!--Add New Profile Form -->
+        <div class="add-profile">
+            <h2>Add New <span>Profile</span></h2>
+            <form>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+                
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="user-type">User Type</label>
+                <input type="user-type" id="user-type" name="user-type" required>
+
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+
+                <center>
+                <button type="submit">Create New</button>
+                </center>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
