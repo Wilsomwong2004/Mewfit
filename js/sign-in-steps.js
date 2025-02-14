@@ -8,7 +8,7 @@ next_button.addEventListener("click", function () {
 
 prev_button.addEventListener("click", function () {
   if (slide_page.style.marginLeft == "0%") {
-    window.history.back();
+    window.location.href = "login_page.html";
   } else {
     slide_page.style.marginLeft = "0%";
   }

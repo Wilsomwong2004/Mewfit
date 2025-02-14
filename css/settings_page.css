@@ -1,0 +1,398 @@
+:root {
+    --background-color: #ffffff;
+    --card-background: #ffffff;
+    --navbar-more-background: #353535;
+    --miniprofile-background: #ffffff;
+    --miniprofile-gmail-text: #666;
+    --settings-change-profile-text: #666;
+    --text-color: #000000;
+    --primary-color: #FFAD84;
+    --secondary-color: #999;
+    --border-color: #c7c7cc;
+    --borderline-color-light: #ddd;
+    --borderline-color-dark: #666666;
+    --box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --box-shadow-dark: 0 2px 4px rgba(255, 255, 255, 0.1);
+    --transition-speed: 0.3s;
+}
+
+html.dark-mode {
+    --background-color: #353536;
+    --card-background: #353536;
+    --miniprofile-background: #4e4e4e;
+    --miniprofile-gmail-text: #999;
+    --settings-change-profile-text: #bbbbbb;
+    --text-color: #f2f2f7;
+    --border-color: #38383a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+}
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.nav-links a {
+    text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
+    color: black;
+    white-space: nowrap;
+    z-index: 3;
+    position: relative;
+}
+
+html.dark-mode .nav-links a {
+    color: white;
+}
+
+.workout-home,
+.workout-dietplan,
+.workout-navbar {
+    margin-top: 5px;
+    cursor: pointer;
+    font-size: 80%;
+}
+
+.workout-settings a {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font-size: 12px;
+    border-radius: 68px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Settings Page */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000;
+    text-decoration: none;
+    width: 100%;
+    padding: 8px 0px;
+    cursor: pointer;
+}
+
+html.dark-mode .setting-item {
+    color: white;
+}
+
+.arrow {
+    color: #000;
+    font-size: 1.2rem;
+    margin-left: 8px;
+}
+
+.danger {
+    color: #ff4d4d;
+    display: flex;
+    align-items: center;
+}
+
+.danger img {
+    margin-left: 15px;
+}
+
+.delete-container {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.delete-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px 0px;
+    cursor: pointer;
+}
+
+html.dark-mode .toggle-item {
+    color: white;
+}
+
+.slider-settings {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.slider-settings:before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: 0.3s;
+}
+
+.toggle-switch:checked+.slider-settings {
+    background: #fe8d6a;
+}
+
+.toggle-switch:checked+.slider-settings:before {
+    transform: translateX(20px);
+}
+
+.toggle-switch {
+    display: none;
+}
+
+.logout-btn {
+    padding: 8px 40px;
+    border-radius: 32px;
+    border: none;
+    background-color: #ff4d4d;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: red;
+    transition: all 0.3s;
+}
+
+.logout-btn i {
+    margin-right: 10px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+}
+
+.profile .profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.boxes-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+}
+
+.transparent-box {
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.transparent-box a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.main-container {
+    display: flex;
+    max-width: 2000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    justify-content: center;
+}
+
+.left-frame,
+.middle-frame,
+.right-frame {
+    padding: 1rem;
+    margin: 0.5rem;
+    transition: all 0.3s;
+}
+
+.left-frame {
+    width: 25%;
+}
+
+.middle-frame {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-left: 4rem;
+    padding-right: 4rem;
+}
+
+.right-frame {
+    width: 25%;
+}
+
+.profile-section {
+    text-align: center;
+    margin-top: 30px;
+    transition: all 0.3s;
+}
+
+.profile-section img {
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 0px 30px rgba(255, 160, 122, 0.848);
+}
+
+html.dark-mode .profile-section h2 {
+    color: white;
+}
+
+.profile-photo {
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+}
+
+.settings-group {
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.settings-group h3 {
+    font-weight: normal;
+    font-size: 1rem;
+    color: #999;
+    padding-bottom: 18px;
+}
+
+.settings-group ul {
+    list-style: none;
+}
+
+.settings-group li {
+    margin-bottom: 1rem;
+}
+
+.more-middle {
+    display: none;
+}
+
+.change-photo {
+    background-color: transparent;
+    color: #999;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: normal;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.change-photo:hover {
+    color: #2c2c2c;
+    transition: color 0.3s;
+}
+
+@media screen and (max-width: 1200px) {
+    .right-frame {
+        display: none;
+    }
+
+    .left-frame {
+        width: 40%;
+        transition: all 0.3s;
+    }
+
+    .middle-frame {
+        width: 50%;
+        padding: 0 1rem 1rem 1rem;
+        transition: all 0.3s;
+    }
+
+    .setting-item {
+        width: 100%;
+        max-width: 5100px;
+    }
+
+    .profile-section {
+        margin-top: 120px;
+        transition: all 0.3s;
+    }
+
+    .more-middle {
+        display: block;
+    }
+
+    .main-container {
+        padding: 0rem 2rem 2rem 2rem;
+    }
+}
+
+@media screen and (max-width: 962px) {
+    .profile-section img {
+        width: 150px;
+        height: 150px;
+        box-shadow: 0 0px 30px rgba(255, 160, 122, 0.848);
+    }
+
+    .profile-section {
+        display: flex;
+        margin-bottom: 30px;
+        margin-left: 15px;
+    }
+
+    .profile-info-settings {
+        display: block;
+        justify-items: center;
+        width: 70%;
+    }
+
+    .profile-info-settings h2 {
+        margin-top: 50px;
+        margin-left: 5px;
+    }
+
+    .middle-frame {
+        font-size: 16px;
+        width: 100%;
+    }
+
+    .main-container {
+        display: block;
+        justify-items: center;
+    }
+
+    .profile-section {
+        margin-top: 20px;
+        transition: all 0.3s;
+    }
+
+    .left-frame {
+        width: 450px;
+        transition: all 0.3s;
+    }
+
+}

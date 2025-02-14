@@ -13,7 +13,7 @@ class WorkoutCarousel {
             },
             {
                 title: "10 Minute Cardio",
-                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in just 10 minutes.",
+                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in 10 minutes.",
                 duration: "10 Minutes",
                 calories: "150 kcal",
                 image: "./assets/workout_pics/workout11.jpg"
@@ -563,6 +563,53 @@ const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
+// Function to update the popup level display
+function updatePopupLevel(level) {
+    const popupLevel = document.getElementById('popup-level');
+    const currentMeter = popupLevel.querySelector('.difficulty-meter');
+
+    // Remove existing meter if it exists
+    if (currentMeter) {
+        currentMeter.remove();
+    }
+
+    // Create difficulty meter container
+    const meterContainer = document.createElement('div');
+    meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
+
+    // Create three bars
+    for (let i = 0; i < 3; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'difficulty-bar';
+        meterContainer.appendChild(bar);
+    }
+
+    // Determine how many bars to fill based on level
+    let activeBars = 0;
+    switch (level.toLowerCase()) {
+        case 'beginner':
+            activeBars = 1;
+            break;
+        case 'intermediate':
+            activeBars = 2;
+            break;
+        case 'advanced':
+            activeBars = 3;
+            break;
+    }
+
+    // Activate the appropriate number of bars
+    const bars = meterContainer.querySelectorAll('.difficulty-bar');
+    for (let i = 0; i < activeBars; i++) {
+        bars[i].classList.add('active');
+    }
+
+    // Replace the content of popup-level
+    popupLevel.innerHTML = '';
+    popupLevel.appendChild(meterContainer);
+}
+
+// Modify your existing setupWorkoutCardClick function
 function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
         card.addEventListener('click', () => {
@@ -584,8 +631,12 @@ function setupWorkoutCardClick() {
 
             // Set other details
             document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+            document.getElementById('popup-desc').textContent = workout.description;
             document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
             document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+
+            // Update the level display with the new meter
+            updatePopupLevel(workout.level);
 
             // Show popup
             document.getElementById('popup-container').classList.add('active');
@@ -704,8 +755,14 @@ class SearchImplementation {
         this.dropdownContainer = null;
         this.workoutSections = document.querySelectorAll('section.workout-body');
         this.isDropdownVisible = false;
+        this.searchBackdrop = document.querySelector('.search-backdrop');
+        this.isMobile = window.innerWidth <= 768;
 
         this.init();
+
+        window.addEventListener('resize', () => {
+            this.isMobile = window.innerWidth <= 768;
+        });
     }
 
     init() {
@@ -745,6 +802,30 @@ class SearchImplementation {
                 this.hideDropdown();
             }
         });
+
+        this.searchBarSmall.addEventListener('click', () => {
+            const searchBar = document.querySelector('.search-bar');
+            searchBar.classList.add('show-search');
+            this.searchBackdrop.style.display = 'block';
+            searchBar.querySelector('input').focus();
+        });
+
+        this.searchBackdrop.addEventListener('click', () => {
+            this.closeMobileSearch();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeMobileSearch();
+            }
+        });
+    }
+
+    closeMobileSearch() {
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.classList.remove('show-search');
+        this.searchBackdrop.style.display = 'none';
+        this.hideDropdown();
     }
 
     handleSearch(query) {
@@ -766,6 +847,14 @@ class SearchImplementation {
 
                 if (this.startsWithSearch(query, title)) {
                     searchResults.push({ title, duration, calories, image, section: sectionTitle });
+                }
+
+                if (this.isMobile) {
+                    const inputRect = this.searchInput.getBoundingClientRect();
+                    this.dropdownContainer.style.top = `${inputRect.bottom + 10}px`;
+                    this.dropdownContainer.style.left = '20px';
+                    this.dropdownContainer.style.right = '20px';
+                    this.dropdownContainer.style.maxHeight = 'calc(100vh - 150px)';
                 }
             });
         });

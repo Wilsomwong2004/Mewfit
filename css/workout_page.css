@@ -354,6 +354,10 @@ html.dark-mode .workout-card {
     color: #333;
 }
 
+html.dark-mode .card-content h3 {
+    color: #fbf7f7;
+}
+
 .card-content p {
     color: #666;
     margin-top: 10px;
@@ -362,7 +366,7 @@ html.dark-mode .workout-card {
 }
 
 html.dark-mode .card-content p {
-    color: #d0d0d0;
+    color: #dbdada;
 }
 
 .workout-meta {
@@ -383,7 +387,7 @@ html.dark-mode .card-content p {
     border-radius: 20px;
 }
 
-.seperate-workout-transparent{
+.seperate-workout-transparent {
     position: relative;
     left: 24px;
     width: 25px;
@@ -392,6 +396,10 @@ html.dark-mode .card-content p {
     background: linear-gradient(to right, #ffcdb4, transparent);
     pointer-events: none;
     z-index: 100;
+}
+
+html.dark-mode .seperate-workout-transparent {
+    background: linear-gradient(to right, #76625a, transparent);
 }
 
 .card-image {
@@ -573,12 +581,64 @@ html.dark-mode .container-side-transparent-right {
 
 .search-bar-small {
     display: none;
-    transition: all 0.3s;
-    color: #4e4e4e;
+    position: fixed;
+    top: 12px;
+    right: 15px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 html.dark-mode .search-bar-small {
     color: #f2f2f7;
+}
+
+.search-bar.show-search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-background);
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease;
+}
+
+search-bar.show-search input {
+    width: 100% !important;
+    padding-left: 45px !important;
+}
+
+.search-bar.show-search .fa-search {
+    left: 25px !important;
+}
+
+/* Add backdrop effect */
+.search-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    display: none;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Workout List */
@@ -608,11 +668,15 @@ html.dark-mode .workout-body {
     cursor: pointer;
 }
 
+html.dark-mode .workout-card-content:hover {
+    box-shadow: 0 4px 12px rgb(98, 98, 98);
+}
+
 html.dark-mode .workout-card-content {
     background: #4d4d4e;
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(255, 0.1);
+    box-shadow: 0 2px 4px rgb(98, 98, 98);
     border-radius: 16px;
 }
 
@@ -708,18 +772,20 @@ html.dark-mode .workout-stats {
     align-items: center;
     justify-content: center;
     background: #000000;
+    transition: all 0.3s;
 }
 
 #popup-workout-image {
     width: 100%;
     height: 100%;
+    max-height: 500px;
     object-fit: cover;
     object-position: center;
 }
 
 .seperate-workout-pic-details {
     display: flex;
-    max-height: 450px;
+    max-height: 500px;
     height: 100%;
     width: 100%;
 }
@@ -744,11 +810,15 @@ html.dark-mode .workout-stats {
     position: relative;
     left: -29px;
     width: 30px;
-    max-height: 450px;
+    max-height: 500px;
     height: 100%;
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
     z-index: 100;
+}
+
+html.dark-mode .gradient-white {
+    background: linear-gradient(to left, #393939, transparent);
 }
 
 .popup-content {
@@ -756,7 +826,7 @@ html.dark-mode .workout-stats {
     padding: 0rem;
     border-radius: 16px;
     max-width: 800px;
-    max-height: 450px;
+    max-height: 500px;
     width: 100%;
     height: 100%;
     box-shadow: var(--box-shadow-light);
@@ -767,25 +837,40 @@ html.dark-mode .workout-stats {
 .popup-close {
     position: absolute;
     top: 1rem;
-    right: 1rem;
+    right: 1.5rem;
     cursor: pointer;
     font-size: 1.5rem;
     color: var(--text-color);
 }
 
 .popup-content h2 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-bottom: 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.popup-content p {
+    position: relative;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+    color: var(--text-color);
+}
+
+html.dark-mode .popup-content h2 {
+    color: white;
 }
 
 .popup-stats {
     display: flex;
+    position: relative;
+    top: 155px;
     justify-content: center;
-    gap: 2rem;
+    gap: 2.4rem;
     margin-bottom: 2rem;
 }
 
@@ -807,7 +892,9 @@ html.dark-mode .workout-stats {
 
 .popup-start-button {
     width: 100%;
-    padding: 1rem;
+    position: relative;
+    top: 155px;
+    padding: 0.9rem;
     background: var(--primary-color);
     color: white;
     border: none;
@@ -822,6 +909,40 @@ html.dark-mode .workout-stats {
     background: #ff9b6a;
 }
 
+/* Difficult level graphes */
+.difficulty-meter {
+    width: 50px;
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+}
+
+.difficulty-bar {
+    height: 20px;
+    flex: 1;
+    background-color: #e0e0e0;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+}
+
+.difficulty-bar.active {
+    background-color: #4CAF50;
+}
+
+.beginner .difficulty-bar.active {
+    background-color: #4CAF50;
+}
+
+.intermediate .difficulty-bar.active {
+    background-color: #FFA726;
+}
+
+.advanced .difficulty-bar.active {
+    background-color: #F44336;
+}
+
+/* Responsive Design */
 @media screen and (max-width: 1274px) {
     .search-bar input {
         width: 300px;
@@ -841,6 +962,28 @@ html.dark-mode .workout-stats {
     .activity-types {
         gap: 1rem;
     }
+
+    .popup-workout-pic {
+        display: none;
+        transition: all 0.3s;
+    }
+
+    #popup-body {
+        width: 100%;
+        padding: 2rem 2rem 2rem 2rem;
+        transition: all 0.3s;
+    }
+
+    .gradient-white {
+        transition: all 0.3s;
+        display: none;
+    }
+
+    .popup-content {
+        max-width: 60%;
+        transition: all 0.3s;
+    }
+
 }
 
 @media screen and (max-width: 768px) {
@@ -874,7 +1017,25 @@ html.dark-mode .workout-stats {
         transition: all 0.3s;
     }
 
+    .search-bar {
+        display: none;
+        position: static;
+        width: auto;
+    }
+
     .search-bar-small {
+        display: block;
+    }
+
+    .search-dropdown {
+        position: fixed !important;
+        top: 80px !important;
+        left: 20px !important;
+        right: 20px !important;
+        max-height: 60vh !important;
+    }
+
+    .nav-logo-responsive {
         display: none;
     }
 
@@ -907,13 +1068,6 @@ html.dark-mode .workout-stats {
 
     .search-bar {
         display: none;
-    }
-
-    .search-bar-small {
-        display: block;
-        margin-top: 10px;
-        color: #4e4e4e;
-        transition: all 0.3s;
     }
 
     .section-title {
