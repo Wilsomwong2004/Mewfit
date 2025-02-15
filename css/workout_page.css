@@ -129,7 +129,6 @@ html.dark-mode .search-bar i,
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #e5e7eb;
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 3;
@@ -147,6 +146,7 @@ html.dark-mode .search-dropdown {
     display: flex;
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
 }
 
 
@@ -581,9 +581,9 @@ html.dark-mode .container-side-transparent-right {
 
 .search-bar-small {
     display: none;
-    position: fixed;
-    top: 12px;
-    right: 15px;
+    position: relative;
+    top: 0px;
+    right: 0px;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.9);
     padding: 10px;
@@ -601,11 +601,13 @@ html.dark-mode .search-bar-small {
     top: 0;
     left: 0;
     right: 0;
+    height: 100%;
     background: var(--card-background);
     padding: 1rem;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     animation: slideDown 0.3s ease;
+    display: none;
 }
 
 search-bar.show-search input {
@@ -614,7 +616,19 @@ search-bar.show-search input {
 }
 
 .search-bar.show-search .fa-search {
-    left: 25px !important;
+    left: 38px !important;
+    margin-top: 51px;
+}
+
+#search-close-btn{
+    display: none;
+    position: relative;
+    top: -60px;
+    right: -15px;
+    font-size: 25px;
+    z-index: 1001;
+    animation: slideDown 0.4s ease;
+    cursor: pointer;
 }
 
 /* Add backdrop effect */
@@ -983,7 +997,6 @@ html.dark-mode .popup-content h2 {
         max-width: 60%;
         transition: all 0.3s;
     }
-
 }
 
 @media screen and (max-width: 768px) {
@@ -1012,9 +1025,16 @@ html.dark-mode .popup-content h2 {
     }
 
     .search-bar input {
-        width: 250px;
+        width: 1250px;
         padding: 10px 20px 10px 50px;
         transition: all 0.3s;
+        max-height: 50px;
+        margin-top: 60px;
+    }
+
+    .search-bar.show-search i{
+        position: relative;
+        bottom: 1200px;
     }
 
     .search-bar {

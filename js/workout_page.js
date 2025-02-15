@@ -539,7 +539,7 @@ const createWorkoutCard = (workout, index) => {
     return `
         <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
             <div class="workout-image">
-                <img src="${workout.image || './assets/default-workout.jpg'}" alt="${workout.title}">
+                <img src="${workout.image}" alt="${workout.title}">
             </div>
             <div class="workout-info">
                 <h3 class="workout-title">${workout.title}</h3>
@@ -573,18 +573,15 @@ function updatePopupLevel(level) {
         currentMeter.remove();
     }
 
-    // Create difficulty meter container
     const meterContainer = document.createElement('div');
     meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
 
-    // Create three bars
     for (let i = 0; i < 3; i++) {
         const bar = document.createElement('div');
         bar.className = 'difficulty-bar';
         meterContainer.appendChild(bar);
     }
 
-    // Determine how many bars to fill based on level
     let activeBars = 0;
     switch (level.toLowerCase()) {
         case 'beginner':
@@ -598,13 +595,11 @@ function updatePopupLevel(level) {
             break;
     }
 
-    // Activate the appropriate number of bars
     const bars = meterContainer.querySelectorAll('.difficulty-bar');
     for (let i = 0; i < activeBars; i++) {
         bars[i].classList.add('active');
     }
 
-    // Replace the content of popup-level
     popupLevel.innerHTML = '';
     popupLevel.appendChild(meterContainer);
 }
@@ -635,7 +630,6 @@ function setupWorkoutCardClick() {
             document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
             document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
 
-            // Update the level display with the new meter
             updatePopupLevel(workout.level);
 
             // Show popup
@@ -734,14 +728,12 @@ document.querySelectorAll('.activity-card').forEach(card => {
 
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
 
-                // Use the enhanced createWorkoutCard with proper indexing
                 grid.innerHTML = filteredWorkouts.map((workout, index) =>
                     createWorkoutCard(workout, index)
                 ).join('');
             }
         });
 
-        // Reattach click handlers to newly created workout cards
         setupWorkoutCardClick();
     });
 });
@@ -752,6 +744,7 @@ class SearchImplementation {
     constructor() {
         this.searchInput = document.querySelector('.search-bar input');
         this.searchBarSmall = document.querySelector('.search-bar-small');
+        this.searchBarCloseIcon = document.getElementById('search-close-btn');
         this.dropdownContainer = null;
         this.workoutSections = document.querySelectorAll('section.workout-body');
         this.isDropdownVisible = false;
@@ -760,14 +753,13 @@ class SearchImplementation {
 
         this.init();
 
-        window.addEventListener('resize', () => {
-            this.isMobile = window.innerWidth <= 768;
-        });
+        window.addEventListener('resize', this.handleResize.bind(this));
     }
 
     init() {
         this.createDropdownContainer();
         this.bindEvents();
+        this.handleResize(); // Ensure initial setup is correct
     }
 
     createDropdownContainer() {
@@ -779,6 +771,15 @@ class SearchImplementation {
             this.searchInput.parentElement.appendChild(this.dropdownContainer);
 
             this.dropdownContainer.style.display = 'none';
+        }
+    }
+
+    handleResize() {
+        this.isMobile = window.innerWidth <= 768;
+        if (this.isMobile) {
+            this.searchBarSmall.style.display = 'block';
+        } else {
+            this.searchBarSmall.style.display = 'none';
         }
     }
 
@@ -807,10 +808,12 @@ class SearchImplementation {
             const searchBar = document.querySelector('.search-bar');
             searchBar.classList.add('show-search');
             this.searchBackdrop.style.display = 'block';
+            this.searchBarSmall.style.display = 'none';
+            this.searchBarCloseIcon.style.display = 'block';
             searchBar.querySelector('input').focus();
         });
 
-        this.searchBackdrop.addEventListener('click', () => {
+        this.searchBarCloseIcon.addEventListener('click', () => {
             this.closeMobileSearch();
         });
 
@@ -825,7 +828,12 @@ class SearchImplementation {
         const searchBar = document.querySelector('.search-bar');
         searchBar.classList.remove('show-search');
         this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
         this.hideDropdown();
+
+        if (this.isMobile) {
+            this.searchBarSmall.style.display = 'block';
+        }
     }
 
     handleSearch(query) {
@@ -835,11 +843,11 @@ class SearchImplementation {
         }
 
         const searchResults = [];
-        this.workoutSections.forEach(section => {
+        this.workoutSections.forEach((section) => {
             const sectionTitle = section.querySelector('.section-title')?.textContent;
             const workoutCards = section.querySelectorAll('.workout-card-content');
 
-            workoutCards.forEach(card => {
+            workoutCards.forEach((card) => {
                 const title = card.querySelector('.workout-title')?.textContent;
                 const duration = card.querySelector('.workout-stats span:first-child')?.textContent;
                 const calories = card.querySelector('.workout-stats span:last-child')?.textContent;
@@ -880,13 +888,16 @@ class SearchImplementation {
 
             this.dropdownContainer.innerHTML = `
                 <div class="visible-results">
-                    ${visibleResults.map(result => this.createResultItem(result)).join('')}
+                    ${visibleResults.map((result) => this.createResultItem(result)).join('')}
                 </div>
-                ${remainingResults.length > 0 ? `
+                ${remainingResults.length > 0
+                    ? `
                     <div class="remaining-results">
-                        ${remainingResults.map(result => this.createResultItem(result)).join('')}
+                        ${remainingResults.map((result) => this.createResultItem(result)).join('')}
                     </div>
-                ` : ''}
+                `
+                    : ''
+                }
             `;
         }
 
@@ -903,12 +914,10 @@ class SearchImplementation {
                     <h3 class="workout-title">${result.title}</h3>
                     <div class="result-meta">
                         <span class="duration">
-                            
                             <i class="fas fa-clock"></i> ${result.duration}
                         </span>
                         <span class="calories">
-                            <i class="fas fa-fire"></i>
-                            ${result.calories}
+                            <i class="fas fa-fire"></i> ${result.calories}
                         </span>
                     </div>
                 </div>

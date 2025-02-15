@@ -1,104 +1,175 @@
-(function () {
-    console.log('Darkmode script loaded');
+(() => {
+    // Configuration
+    const CONFIG = {
+        STORAGE_KEY: 'darkMode',
+        TOGGLE_SELECTOR: 'input[type="checkbox"][name="dark-mode-toggle"]',
+        TRANSITION_DURATION: 300, // milliseconds
+        DEBUG: false
+    };
 
-    function setDarkMode(isDark) {
-        console.log('Setting dark mode:', isDark);
-        document.documentElement.classList.toggle('dark-mode', isDark);
-        localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
+    // State management with proper initialization
+    const state = {
+        isDark: false,
+        isTransitioning: false,
+        isInitialized: false
+    };
 
-        // Update all toggles on the page
-        const darkModeToggles = document.querySelectorAll('input[type="checkbox"][name="dark-mode-toggle"]');
-        darkModeToggles.forEach(toggle => {
-            toggle.checked = isDark;
-        });
+    // Logging utility
+    const log = (message, type = 'log') => {
+        if (CONFIG.DEBUG) {
+            console[type](`[DarkMode] ${message}`);
+        }
+    };
 
-        // Dispatch a custom event for other scripts that might need to react to the change
-        window.dispatchEvent(new CustomEvent('darkModeChange', { detail: { isDark } }));
+    // Debounce function to prevent rapid switching
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 
-    function applyDarkMode() {
-        const darkMode = localStorage.getItem('darkMode');
-        console.log('Applying dark mode state:', darkMode);
-        setDarkMode(darkMode === 'dark');
+    // Safe DOM manipulation with error handling
+    function safeToggleDarkMode(isDark) {
+        if (state.isTransitioning) {
+            log('Transition in progress, skipping toggle', 'warn');
+            return;
+        }
+
+        try {
+            state.isTransitioning = true;
+            state.isDark = isDark;
+
+            // Update DOM
+            document.documentElement.classList.toggle('dark-mode', isDark);
+
+            // Update storage - store as boolean string
+            localStorage.setItem(CONFIG.STORAGE_KEY, isDark.toString());
+
+            // Update all toggles
+            const toggles = document.querySelectorAll(CONFIG.TOGGLE_SELECTOR);
+            toggles.forEach(toggle => {
+                toggle.checked = isDark;
+            });
+
+            // Dispatch event for other components
+            window.dispatchEvent(new CustomEvent('darkModeChange', {
+                detail: { isDark, timestamp: Date.now() }
+            }));
+
+            log(`Dark mode ${isDark ? 'enabled' : 'disabled'}`);
+        } catch (error) {
+            log(`Error toggling dark mode: ${error.message}`, 'error');
+            // Attempt to recover
+            state.isDark = document.documentElement.classList.contains('dark-mode');
+        } finally {
+            // Ensure transition lock is released after animation
+            setTimeout(() => {
+                state.isTransitioning = false;
+            }, CONFIG.TRANSITION_DURATION);
+        }
     }
 
-    // Apply dark mode immediately on script load
-    applyDarkMode();
+    // Debounced version of toggle function
+    const debouncedToggle = debounce(safeToggleDarkMode, CONFIG.TRANSITION_DURATION);
 
-    function setupToggle(toggle) {
-        toggle.checked = localStorage.getItem('darkMode') === 'dark';
-        toggle.addEventListener('change', () => {
-            console.log('Dark mode toggle changed. New state:', toggle.checked);
-            setDarkMode(toggle.checked);
-        });
+    // Initialize a single toggle with error handling
+    function initializeToggle(toggle) {
+        try {
+            // Set initial state
+            toggle.checked = state.isDark;
+
+            // Remove any existing listeners to prevent duplicates
+            const newToggleHandler = () => {
+                debouncedToggle(!state.isDark);
+            };
+
+            toggle.removeEventListener('change', newToggleHandler);
+            toggle.addEventListener('change', newToggleHandler);
+
+            log(`Toggle initialized: ${toggle.id || 'unnamed'}`);
+        } catch (error) {
+            log(`Error initializing toggle: ${error.message}`, 'error');
+        }
     }
 
-    function initDarkMode() {
-        console.log('Initializing dark mode');
-        const darkModeToggles = document.querySelectorAll('input[type="checkbox"][name="dark-mode-toggle"]');
-        darkModeToggles.forEach(setupToggle);
-        applyDarkMode();
-    }
+    // Main initialization function
+    function initialize() {
+        if (state.isInitialized) {
+            log('Already initialized, skipping', 'warn');
+            return;
+        }
 
-    // Set up MutationObserver to watch for dynamically added toggles
-    const observer = new MutationObserver((mutationsList) => {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1 && node.matches('input[type="checkbox"][name="dark-mode-toggle"]')) {
-                        setupToggle(node);
-                    }
+        try {
+            // Get initial state from storage with light mode as default
+            const storedMode = localStorage.getItem(CONFIG.STORAGE_KEY);
+            state.isDark = storedMode ? storedMode === 'true' : false;
+
+            // Apply initial state without transition
+            document.documentElement.classList.toggle('dark-mode', state.isDark);
+
+            // Initialize existing toggles
+            document.querySelectorAll(CONFIG.TOGGLE_SELECTOR).forEach(initializeToggle);
+
+            // Watch for new toggles
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            const toggles = node.matches(CONFIG.TOGGLE_SELECTOR) ?
+                                [node] :
+                                node.querySelectorAll(CONFIG.TOGGLE_SELECTOR);
+                            toggles.forEach(initializeToggle);
+                        }
+                    });
                 });
-            }
-        }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+            });
 
-    // Initialize dark mode on DOM content loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initDarkMode);
-    } else {
-        initDarkMode();
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            // Handle cross-tab synchronization
+            window.addEventListener('storage', (e) => {
+                if (e.key === CONFIG.STORAGE_KEY) {
+                    debouncedToggle(e.newValue === 'true');
+                }
+            });
+
+            state.isInitialized = true;
+            log('Initialization complete');
+        } catch (error) {
+            log(`Initialization error: ${error.message}`, 'error');
+            // Recover to light mode
+            document.documentElement.classList.remove('dark-mode');
+            state.isDark = false;
+            state.isTransitioning = false;
+            localStorage.setItem(CONFIG.STORAGE_KEY, 'false');
+        }
     }
 
-    // Listen for dark mode changes in other tabs
-    window.addEventListener('storage', function (e) {
-        if (e.key === 'darkMode') {
-            console.log('Dark mode changed in another tab');
-            applyDarkMode();
+    // Public API
+    window.darkMode = {
+        toggle: () => debouncedToggle(!state.isDark),
+        enable: () => debouncedToggle(true),
+        disable: () => debouncedToggle(false),
+        isEnabled: () => state.isDark,
+        reset: () => {
+            localStorage.setItem(CONFIG.STORAGE_KEY, 'false');
+            initialize();
         }
-    });
-
-    // Reapply dark mode on page show (when navigating back to the page)
-    window.addEventListener('pageshow', function (e) {
-        console.log('Page show event fired');
-        applyDarkMode();
-    });
-
-    // Reapply dark mode on visibility change (when tab becomes visible)
-    document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) {
-            console.log('Page became visible');
-            applyDarkMode();
-        }
-    });
-
-    // Apply dark mode immediately when the script runs
-    applyDarkMode();
-
-    // Expose a method to get the current dark mode state
-    window.isDarkMode = function () {
-        return localStorage.getItem('darkMode') === 'dark';
     };
 
-    // Expose a method to toggle dark mode programmatically
-    window.toggleDarkMode = function () {
-        setDarkMode(!isDarkMode());
-    };
-
-    // Reapply dark mode on popstate event (when navigating through browser history)
-    window.addEventListener('popstate', function () {
-        console.log('Popstate event fired');
-        applyDarkMode();
-    });
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
 })();
