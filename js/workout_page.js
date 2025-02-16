@@ -536,10 +536,12 @@ const workouts = [
 
 // Helper function to create a workout card
 const createWorkoutCard = (workout, index) => {
+    const image = workout.image ? `./assets/workouts/${workout.image}` : './assets/icons/error.svg';
+
     return `
         <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
             <div class="workout-image">
-                <img src="${workout.image}" alt="${workout.title}">
+                <img src="${image}" alt="${workout.title}">
             </div>
             <div class="workout-info">
                 <h3 class="workout-title">${workout.title}</h3>
@@ -621,8 +623,16 @@ function setupWorkoutCardClick() {
 
             // Update popup content
             const workoutImage = document.getElementById('popup-workout-image');
-            workoutImage.src = workout.image || './assets/default-workout.jpg';
+            workoutImage.src = workout.image || './assets/icons/error.svg';
             workoutImage.alt = `${workout.title} Image`;
+
+            if(workoutImage.src = './assets/icons/error.svg') {
+                console.error('Workout image not found:', workout.image);
+                workoutImage.alt = 'Workout Image Not Found';
+                workoutImage.style.objectFit = 'fill';
+                workoutImage.style.width = '60%';
+                workoutImage.style.height = 'auto';
+            }
 
             // Set other details
             document.getElementById('popup-title').textContent = workout.title.toUpperCase();
@@ -662,6 +672,12 @@ function initializeWorkoutSections() {
 
         if (workoutGrid) {
             workoutGrid.classList.add('scroll-layout');
+
+            if (sectionTitle === 'Top Picks For You' || sectionTitle === 'Recently Workout') {
+                workoutGrid.innerHTML = '';
+                return;
+            }
+
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
             const filteredWorkouts = filterWorkouts(sectionType);
             workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
@@ -721,19 +737,84 @@ document.querySelectorAll('.activity-card').forEach(card => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
 
-            // Only update content if section is relevant
             if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle) ||
                 sectionTitle.includes(selectedType) ||
                 selectedType === 'All') {
 
-                const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
+                // Create a wrapper for the grid if it doesn't exist
+                let gridWrapper = grid.parentElement.querySelector('.grid-wrapper');
+                if (!gridWrapper) {
+                    gridWrapper = document.createElement('div');
+                    gridWrapper.className = 'grid-wrapper';
+                    grid.parentNode.insertBefore(gridWrapper, grid);
+                    gridWrapper.appendChild(grid);
+                }
 
+                const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
                 grid.innerHTML = filteredWorkouts.map((workout, index) =>
                     createWorkoutCard(workout, index)
                 ).join('');
+
+                // Clear existing arrows and gradients
+                const existingArrows = gridWrapper.querySelectorAll('.scroll-arrow, .scroll-gradient');
+                existingArrows.forEach(arrow => arrow.remove());
+
+                // Create arrow container and arrows
+                const gradientLeft = document.createElement('div');
+                gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+                const gradientRight = document.createElement('div');
+                gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+                const leftArrow = document.createElement('div');
+                leftArrow.className = 'scroll-arrow scroll-arrow-left';
+                leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+                const rightArrow = document.createElement('div');
+                rightArrow.className = 'scroll-arrow scroll-arrow-right';
+                rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+                // Add elements to wrapper
+                gridWrapper.appendChild(gradientLeft);
+                gridWrapper.appendChild(gradientRight);
+                gridWrapper.appendChild(leftArrow);
+                gridWrapper.appendChild(rightArrow);
+
+                // Update the arrow visibility function
+                const updateArrowVisibility = () => {
+                    const isAtStart = grid.scrollLeft <= 0;
+                    const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+
+                    // Left side
+                    gradientLeft.style.opacity = isAtStart ? '0' : '1';
+                    leftArrow.style.display = isAtStart ? 'none' : 'flex';
+
+                    // Right side
+                    gradientRight.style.opacity = isAtEnd ? '0' : '1';
+                    rightArrow.style.display = isAtEnd ? 'none' : 'flex';
+                };
+
+                // Handle arrow clicks
+                leftArrow.addEventListener('click', () => {
+                    grid.scrollBy({
+                        left: -300,
+                        behavior: 'smooth'
+                    });
+                });
+
+                rightArrow.addEventListener('click', () => {
+                    grid.scrollBy({
+                        left: 300,
+                        behavior: 'smooth'
+                    });
+                });
+
+                grid.addEventListener('scroll', updateArrowVisibility);
+                window.addEventListener('resize', updateArrowVisibility);
+
+                // Initial arrow visibility check
+                updateArrowVisibility();
             }
         });
-
         setupWorkoutCardClick();
     });
 });
