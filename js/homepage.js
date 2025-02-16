@@ -263,11 +263,13 @@ const diets = [
 
 // Helper function to create a card
 const createCard = (item, type) => {
+    const imageSrc = item.image || './assets/icons/error.svg';
+
     if (type === 'workout') {
         return `
             <div class="workout-card-content">
-                <div >
-                    <img src="${item.image}" alt="${item.title}" class="workout-image">
+                <div>
+                    <img src="${imageSrc}" alt="${item.title}" class="workout-image">
                 </div>
                 <div class="workout-info">
                     <h3 class="workout-title">${item.title}</h3>
@@ -283,7 +285,7 @@ const createCard = (item, type) => {
         return `
             <div class="diet-card-content">
                 <div class="diet-image">
-                    <img src="${item.image || 'https://via.placeholder.com/200'}" alt="${item.title}">
+                    <img src="${imageSrc}" alt="${item.title}">
                 </div>
                 <div class="diet-info">
                     <h3 class="diet-title">${item.title}</h3>

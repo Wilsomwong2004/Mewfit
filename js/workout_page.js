@@ -570,7 +570,6 @@ function updatePopupLevel(level) {
     const popupLevel = document.getElementById('popup-level');
     const currentMeter = popupLevel.querySelector('.difficulty-meter');
 
-    // Remove existing meter if it exists
     if (currentMeter) {
         currentMeter.remove();
     }
