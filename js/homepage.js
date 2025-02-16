@@ -1,43 +1,42 @@
 // ------------------Cat Tower Stuff-----------------------------
 // Create new cat elements
-let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10)||1;
+let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10) || 1;
 
 const maxLevel = 50;
-const catsPerLevel = 9; 
+const catsPerLevel = 9;
 const catDesigns = [
-    './assets/icons/lvl 1 cat.svg',  
-    './assets/icons/lvl 2 cat.svg', 
-    './assets/icons/lvl 3 cat.svg', 
-    './assets/icons/lvl 4 cat.svg', 
-    './assets/icons/lvl 5 cat.svg', 
+    './assets/icons/lvl 1 cat.svg',
+    './assets/icons/lvl 2 cat.svg',
+    './assets/icons/lvl 3 cat.svg',
+    './assets/icons/lvl 4 cat.svg',
+    './assets/icons/lvl 5 cat.svg',
 ];
-
 
 function updateCats() {
     const container = document.getElementById('cat-tower-section');
 
     let numCats = Math.min(userLevel, catsPerLevel); //to make sure the max num of cats is 9
-    
-    let currentDesignIndex = Math.floor(userLevel / 10); 
+
+    let currentDesignIndex = Math.floor(userLevel / 10);
     let prevDesignIndex = Math.max(0, currentDesignIndex - 1);
 
-    let newDesignCount = userLevel % 10; 
+    let newDesignCount = userLevel % 10;
     if (newDesignCount === 0 && userLevel > 0) {
         newDesignCount = 1;
     }
 
-    let oldDesignCount = catsPerLevel - newDesignCount; 
+    let oldDesignCount = catsPerLevel - newDesignCount;
 
     for (let i = 0; i < numCats; i++) {
         const newCat = document.createElement('img');
         newCat.className = 'cat';
 
         if (i < oldDesignCount) {
-            newCat.src = catDesigns[prevDesignIndex]; 
+            newCat.src = catDesigns[prevDesignIndex];
         } else {
-            newCat.src = catDesigns[currentDesignIndex]; 
+            newCat.src = catDesigns[currentDesignIndex];
         }
-        
+
         // Random position inside container
         const randomX = Math.random() * (container.clientWidth - 50);
         const randomY = Math.random() * (container.clientHeight - 50);
@@ -47,8 +46,8 @@ function updateCats() {
         container.appendChild(newCat);
     }
 
-    attachSpeechBubbles(); 
-    move(); 
+    attachSpeechBubbles();
+    move();
 }
 
 // speech bubbles
@@ -61,12 +60,12 @@ function attachSpeechBubbles() {
             speech.className = 'speech-bubble';
             speech.textContent = getRandomSpeech();
 
-            document.body.appendChild(speech); 
+            document.body.appendChild(speech);
 
             // Position the speech bubble above the cat
             const catRect = cat.getBoundingClientRect();
-            speech.style.left = `${catRect.left + catRect.width / 2}px`; 
-            speech.style.top = `${catRect.top - 30}px`; 
+            speech.style.left = `${catRect.left + catRect.width / 2}px`;
+            speech.style.top = `${catRect.top - 30}px`;
 
             setTimeout(() => {
                 speech.remove();
@@ -78,7 +77,7 @@ function attachSpeechBubbles() {
         });
 
         cat.addEventListener('mousedown', () => {
-            removeSpeechBubble(); 
+            removeSpeechBubble();
         });
     });
 }
@@ -106,70 +105,77 @@ function getRandomSpeech() {
     return speechTexts[randomIndex];
 }
 
-
 // moving any cat
-var chooseElement;
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+let selectedElement = null;
 
-const move = function() {
+const move = function () {
     const elements = document.querySelectorAll('.cat');
+    const container = document.getElementById('cat-tower-section');
 
-    elements.forEach(element =>{
-        element.addEventListener("mousedown",(e) =>{
-            const container = document.getElementById('cat-tower-section'); 
-            const containerRect = container.getBoundingClientRect();
-            
-            chooseElement = element;
+    elements.forEach(element => {
+        element.addEventListener('mousedown', dragStart);
+    });
 
-            let offsetX = e.clientX - element.getBoundingClientRect().left;
-            let offsetY = e.clientY - element.getBoundingClientRect().top;
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
 
-            document.onmousemove = (e) =>{
-                
+    function dragStart(e) {
+        selectedElement = e.target;
+        const rect = selectedElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-                if (window.innerWidth < 935){
-                    
-                    let x = ((e.clientX/ window.innerWidth) * 100)-offsetX;
-                    let y = ((e.clientY/ window.innerHeight) * 100)-offsetY;
+        initialX = e.clientX - rect.left;
+        initialY = e.clientY - rect.top;
 
-                    const containerWidth = (containerRect.width / window.innerWidth) * 100;
-                    const containerHeight = (containerRect.height / window.innerHeight) * 100;
-                    const elementWidth = (element.clientWidth / window.innerWidth) * 100;
-                    const elementHeight = (element.clientHeight / window.innerHeight) * 100;
+        currentX = rect.left - containerRect.left;
+        currentY = rect.top - containerRect.top;
 
-                    if (x < 0) x = 0;
-                    if (y < 0) y = 0;
-                    if (x > containerWidth - elementWidth) x = containerWidth - elementWidth;
-                    if (y > containerHeight - elementHeight) y = containerHeight - elementHeight;
+        isDragging = true;
+    }
 
-                    chooseElement.style.left = `${x}vw`;
-                    chooseElement.style.top = `${y}vh`;
-                }else{
-                    let x = e.clientX;
-                    let y = e.clientY;
+    function drag(e) {
+        if (!isDragging || !selectedElement) return;
 
-                    if (x < containerRect.left) x = containerRect.left +20;
-                    if (y < containerRect.top) y = containerRect.top +30;
-                    if (x > containerRect.right) x = containerRect.right -30;
-                    if (y > containerRect.bottom) y = containerRect.bottom -15;
+        e.preventDefault();
 
-                    chooseElement.style.left = `${x - containerRect.left -20}px`;
-                    chooseElement.style.top = `${y - containerRect.top -30}px`;
-                }
+        const containerRect = container.getBoundingClientRect();
 
-                console.log(chooseElement);
-            }
-        })
-        document.onmouseup = function(e){
-            chooseElement = null;
-        };
-    })
-}
+        // Calculate the new position
+        let newX = e.clientX - containerRect.left - initialX;
+        let newY = e.clientY - containerRect.top - initialY;
 
+        // Apply boundaries
+        const maxX = containerRect.width - selectedElement.offsetWidth;
+        const maxY = containerRect.height - selectedElement.offsetHeight;
 
-window.onload = function() {
-    updateCats();
+        newX = Math.min(Math.max(0, newX), maxX);
+        newY = Math.min(Math.max(0, newY), maxY);
+
+        selectedElement.style.left = `${newX}px`;
+        selectedElement.style.top = `${newY}px`;
+
+        currentX = newX;
+        currentY = newY;
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+        selectedElement = null;
+    }
 };
 
+window.onload = function () {
+    updateCats();
+};
 
 // -----------------------create Workout Cards------------------------
 const workouts = [
