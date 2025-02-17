@@ -1,3 +1,31 @@
+:root {
+    --background-color: #ffffff;
+    --card-background: #ffffff;
+    --navbar-more-background: #353535;
+    --miniprofile-background: #ffffff;
+    --miniprofile-gmail-text: #666;
+    --settings-change-profile-text: #666;
+    --text-color: #000000;
+    --primary-color: #FFAD84;
+    --secondary-color: #999;
+    --border-color: #c7c7cc;
+    --borderline-color-light: #ddd;
+    --borderline-color-dark: #666666;
+    --box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --box-shadow-dark: 0 2px 4px rgba(255, 255, 255, 0.1);
+    --transition-speed: 0.3s;
+}
+
+html.dark-mode {
+    --background-color: #353536;
+    --card-background: #353536;
+    --miniprofile-background: #4e4e4e;
+    --miniprofile-gmail-text: #999;
+    --settings-change-profile-text: #bbbbbb;
+    --text-color: #f2f2f7;
+    --border-color: #38383a;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;

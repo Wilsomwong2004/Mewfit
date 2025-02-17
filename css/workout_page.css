@@ -128,7 +128,7 @@ html.dark-mode .search-bar i,
     top: 125%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--background-color);
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 3;
@@ -136,7 +136,6 @@ html.dark-mode .search-bar i,
 
 html.dark-mode .search-dropdown {
     background-color: #494949;
-    border: 1px solid #494949;
     color: white;
 }
 
@@ -147,6 +146,10 @@ html.dark-mode .search-dropdown {
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
     border: 1px solid #e5e7eb;
+}
+
+html.dark-mode .search-result-item {
+    border: 1px solid #4d4d4d;
 }
 
 
@@ -584,6 +587,7 @@ html.dark-mode .container-side-transparent-right {
     padding-left: 5px;
 }
 
+/* Activity Card Arrow */
 .grid-wrapper {
     position: relative;
     width: 100%;
@@ -620,9 +624,17 @@ html.dark-mode .container-side-transparent-right {
     background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
 }
 
+html.dark-mode .scroll-gradient-left {
+    background: linear-gradient(to right, rgb(53, 53, 54), transparent);
+}
+
 .scroll-gradient-right {
     right: 0;
     background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+}
+
+html.dark-mode .scroll-gradient-right {
+    background: linear-gradient(to left, rgb(53, 53, 54), transparent);
 }
 
 .scroll-arrow {
@@ -642,8 +654,16 @@ html.dark-mode .container-side-transparent-right {
     z-index: 1;
 }
 
+html.dark-mode .scroll-arrow {
+    background: #505050;
+}
+
 .scroll-arrow:hover {
     background: #f0f0f0;
+}
+
+html.dark-mode .scroll-arrow:hover {
+    background: #727272;
 }
 
 .scroll-arrow-left {
@@ -654,13 +674,91 @@ html.dark-mode .container-side-transparent-right {
     right: 10px;
 }
 
+/* Activity Types Arrow */
+.activity-types-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.activity-cards-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.activity-cards-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+/* Adjust the existing scroll arrow styles for activity types */
+.activity-types-wrapper .scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.activity-types-wrapper .scroll-arrow-left {
+    left: -15px;
+}
+
+.activity-types-wrapper .scroll-arrow-right {
+    right: -15px;
+}
+
+.activity-types-wrapper .scroll-gradient {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.activity-types-wrapper .scroll-gradient-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+}
+
+.activity-types-wrapper .scroll-gradient-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+}
+
+/* Dark mode adjustments */
+.dark-mode .activity-types-wrapper .scroll-gradient-left {
+    background: linear-gradient(to right, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0));
+}
+
+.dark-mode .activity-types-wrapper .scroll-gradient-right {
+    background: linear-gradient(to left, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0));
+}
+
+.dark-mode .activity-types-wrapper .scroll-arrow {
+    background: rgba(75, 85, 99, 0.8);
+}
+
+/* Search Bar Small */
 .search-bar-small {
     display: none;
     position: relative;
     top: 0px;
     right: 0px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
     padding: 10px;
     border-radius: 20px;
     cursor: pointer;

@@ -270,89 +270,180 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
-document.querySelectorAll('.activity-card').forEach(card => {
+document.addEventListener('DOMContentLoaded', () => {
+    // Dark mode initialization
+    const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
+    const cards = document.querySelectorAll('.activity-card');
     const defaultSelection = document.getElementById('default-selection');
 
-    function checkDarkMode() {
-        const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
-        if (darkModeToggle) {
-            // Set initial state based on localStorage
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            darkModeToggle.checked = isDarkMode;
-            document.documentElement.classList.toggle('dark-mode', isDarkMode);
+    function setupActivityTypesScroll() {
+        const activityTypesSection = document.querySelector('.activity-types');
+        if (!activityTypesSection) return;
+
+        const cardContainer = activityTypesSection.querySelector('.activity-cards-container');
+        if (!cardContainer) return;
+
+        // Create wrapper for the activity types
+        const wrapper = document.createElement('div');
+        wrapper.className = 'activity-types-wrapper';
+        cardContainer.parentNode.insertBefore(wrapper, cardContainer);
+        wrapper.appendChild(cardContainer);
+
+        // Create arrows and gradients
+        const gradientLeft = document.createElement('div');
+        gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+        const gradientRight = document.createElement('div');
+        gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+        const leftArrow = document.createElement('div');
+        leftArrow.className = 'scroll-arrow scroll-arrow-left';
+        leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+        const rightArrow = document.createElement('div');
+        rightArrow.className = 'scroll-arrow scroll-arrow-right';
+        rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+        // Add elements to wrapper
+        wrapper.appendChild(gradientLeft);
+        wrapper.appendChild(gradientRight);
+        wrapper.appendChild(leftArrow);
+        wrapper.appendChild(rightArrow);
+
+        // Update arrow visibility based on dark mode
+        function updateArrowStyles(isDark) {
+            const arrowColor = isDark ? '#E5E7EB' : '#000000';
+            [leftArrow, rightArrow].forEach(arrow => {
+                arrow.style.color = arrowColor;
+            });
         }
+
+        // Update initial arrow styles
+        updateArrowStyles(document.documentElement.classList.contains('dark-mode'));
+
+        // Listen for dark mode changes
+        window.addEventListener('darkModeChange', (event) => {
+            updateArrowStyles(event.detail.isDarkMode);
+        });
+
+        const updateArrowVisibility = () => {
+            const isAtStart = cardContainer.scrollLeft <= 0;
+            const isAtEnd = cardContainer.scrollLeft + cardContainer.clientWidth >= cardContainer.scrollWidth - 1;
+            const hasOverflow = cardContainer.scrollWidth > cardContainer.clientWidth;
+
+            // Only show arrows and gradients if there's overflow
+            const showControls = hasOverflow && cardContainer.children.length > 0;
+
+            gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+            leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+            gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+            rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+        };
+
+        // Handle arrow clicks
+        leftArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cardContainer.scrollBy({
+                left: -200,
+                behavior: 'smooth'
+            });
+        });
+
+        rightArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cardContainer.scrollBy({
+                left: 200,
+                behavior: 'smooth'
+            });
+        });
+
+        // Update arrow visibility on various events
+        cardContainer.addEventListener('scroll', updateArrowVisibility);
+        window.addEventListener('resize', updateArrowVisibility);
+
+        // Initial check
+        updateArrowVisibility();
     }
 
-    function updateCardStyles(card, isDefault = false) {
+    function applyDarkMode(isDarkMode) {
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+
+        cards.forEach(card => {
+            updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
+        });
+
+        // Dispatch a custom event to notify changes
+        const event = new CustomEvent('darkModeChange', { detail: { isDarkMode } });
+        window.dispatchEvent(event);
+    }
+
+    function checkDarkMode() {
+        return document.documentElement.classList.contains('dark-mode');
+    }
+
+    function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        darkModeToggle.checked = isDarkMode;
+        applyDarkMode(isDarkMode);
+    }
+
+    function updateCardStyles(card, isActive = false) {
         const isDark = checkDarkMode();
 
         if (isDark) {
-            card.style.background = isDefault ? '#F97316' : '#4d4d4e';
-            card.style.color = '#E5E7EB';
-            card.style.border = isDefault ? '1px solid #F97316' : '1px solid #374151';
+            card.style.background = isActive ? '#ffa07a' : '#4d4d4e';
+            card.style.color = isActive ? '#ffffff' : '#E5E7EB';
+            card.style.border = isActive ? '2px solid#ea8b47' : '1px solid #374151';
         } else {
-            card.style.background = isDefault ? '#FFAD84' : 'white';
-            card.style.color = isDefault ? 'white' : 'black';
-            card.style.border = '1px solid #E5E7EB';
+            card.style.background = isActive ? '#FFAD84' : '#ffffff';
+            card.style.color = isActive ? '#ffffff' : '#000000';
+            card.style.border = isActive ? '2px solid #FFAD84' : '1px solid #E5E7EB';
         }
         card.style.transition = 'all 0.3s ease';
     }
 
-    updateCardStyles(card, card === defaultSelection);
-
-    card.addEventListener('mouseover', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        if (!isActive) {
-            card.style.background = isDark ? '#374151' : '#FFE4D2';
-        }
+    // Toggle dark mode when the checkbox changes
+    darkModeToggle.addEventListener('change', (event) => {
+        const isDarkMode = event.target.checked;
+        localStorage.setItem('darkMode', isDarkMode);
+        applyDarkMode(isDarkMode);
     });
 
-    card.addEventListener('mouseout', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
+    // Add event handlers to all cards
+    cards.forEach(card => {
+        updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
 
-        if (!isActive) {
-            updateCardStyles(card);
-        }
-    });
-
-    // Handle click states
-    card.addEventListener('click', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        document.querySelectorAll('.activity-card').forEach(c => {
-            updateCardStyles(c);
+        // Click to toggle active state
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            cards.forEach(c => updateCardStyles(c, c.classList.contains('active')));
         });
 
-        if (!isActive) {
-            if (isDark) {
-                card.style.background = '#F97316';
-                card.style.border = '1px solid #F97316';
-                card.style.color = 'white';
-            } else {
-                card.style.background = '#FFAD84';
-                card.style.color = 'white';
+        // Mouseover (hover) to temporarily highlight the card
+        card.addEventListener('mouseover', () => {
+            const isDark = checkDarkMode();
+            if (!card.classList.contains('active')) {
+                card.style.background = isDark ? '#cc916a' : '#FFE4D2';
             }
-        }
+        });
+
+        // Mouseout to revert the card's style
+        card.addEventListener('mouseout', () => {
+            if (!card.classList.contains('active')) {
+                updateCardStyles(card);
+            }
+        });
+
+        // Update card styles on dark mode change
+        window.addEventListener('darkModeChange', () => {
+            updateCardStyles(card, card.classList.contains('active'));
+        });
     });
 
-    window.addEventListener('darkModeChange', (event) => {
-        const isDefault = card === defaultSelection;
-        updateCardStyles(card, isDefault);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateCardStyles(card, card === defaultSelection);
-    });
+    // Initialize dark mode and activity types scroll
+    initializeDarkMode();
+    setupActivityTypesScroll();
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
@@ -625,7 +716,7 @@ function setupWorkoutCardClick() {
             workoutImage.src = workout.image || './assets/icons/error.svg';
             workoutImage.alt = `${workout.title} Image`;
 
-            if(workoutImage.src = './assets/icons/error.svg') {
+            if (workoutImage.src = './assets/icons/error.svg') {
                 console.error('Workout image not found:', workout.image);
                 workoutImage.alt = 'Workout Image Not Found';
                 workoutImage.style.objectFit = 'fill';
@@ -670,8 +761,7 @@ function initializeWorkoutSections() {
         const workoutGrid = section.querySelector('.workout-grid');
 
         if (workoutGrid) {
-            workoutGrid.classList.add('scroll-layout');
-
+            // Clear 'Top Picks' and 'Recently Workout' sections initially
             if (sectionTitle === 'Top Picks For You' || sectionTitle === 'Recently Workout') {
                 workoutGrid.innerHTML = '';
                 return;
@@ -679,25 +769,110 @@ function initializeWorkoutSections() {
 
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
             const filteredWorkouts = filterWorkouts(sectionType);
-            workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
-                createWorkoutCard(workout, index)
-            ).join('');
+
+            // Only add scroll layout for non-empty sections
+            if (filteredWorkouts.length > 0) {
+                workoutGrid.classList.add('scroll-layout');
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
+                    createWorkoutCard(workout, index)
+                ).join('');
+                setupScrollArrows(workoutGrid);
+            }
         }
     });
 
+    // Make sure to call setupWorkoutCardClick after creating cards
     setupWorkoutCardClick();
 }
 
-document.querySelectorAll('.activity-card').forEach(card => {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeWorkoutSections();
-
-        const defaultCard = document.querySelector('.activity-card-all');
-        if (defaultCard) {
-            defaultCard.click();
+function setupScrollArrows(grid) {
+    // Remove any existing wrapper and arrows
+    const existingWrapper = grid.parentElement.querySelector('.grid-wrapper');
+    if (existingWrapper) {
+        const originalGrid = existingWrapper.querySelector('.workout-grid');
+        if (originalGrid) {
+            existingWrapper.replaceWith(originalGrid);
         }
+    }
+
+    // Create new wrapper and elements
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'grid-wrapper';
+    grid.parentNode.insertBefore(gridWrapper, grid);
+    gridWrapper.appendChild(grid);
+
+    const gradientLeft = document.createElement('div');
+    gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+    const gradientRight = document.createElement('div');
+    gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'scroll-arrow scroll-arrow-left';
+    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'scroll-arrow scroll-arrow-right';
+    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+    gridWrapper.appendChild(gradientLeft);
+    gridWrapper.appendChild(gradientRight);
+    gridWrapper.appendChild(leftArrow);
+    gridWrapper.appendChild(rightArrow);
+
+    const updateArrowVisibility = () => {
+        const isAtStart = grid.scrollLeft <= 0;
+        const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+        const hasOverflow = grid.scrollWidth > grid.clientWidth;
+
+        // Only show arrows and gradients if there's overflow
+        const showControls = hasOverflow && grid.children.length > 0;
+
+        gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+        leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+        gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+        rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+    };
+
+    // Handle arrow clicks with stopPropagation
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: -300,
+            behavior: 'smooth'
+        });
     });
 
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: 300,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update arrow visibility on various events
+    grid.addEventListener('scroll', updateArrowVisibility);
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Initial check
+    updateArrowVisibility();
+
+    // Add mutation observer to watch for content changes
+    const observer = new MutationObserver(updateArrowVisibility);
+    observer.observe(grid, { childList: true, subtree: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWorkoutSections();
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
+});
+
+document.querySelectorAll('.activity-card').forEach(card => {
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
 
@@ -705,115 +880,35 @@ document.querySelectorAll('.activity-card').forEach(card => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
             const workoutGrid = section.querySelector('.workout-grid');
 
-            if (selectedType === 'All') {
-                section.style.display = '';
-                if (workoutGrid) {
-                    workoutGrid.classList.add('scroll-layout');
-                    workoutGrid.classList.remove('grid-layout');
-                }
-            } else {
-                if (['Activity Types', 'Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                    section.style.display = '';
-                    if (workoutGrid && ['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                        workoutGrid.classList.add('scroll-layout');
-                        workoutGrid.classList.remove('grid-layout');
-                    }
-                } else if (sectionTitle.includes(selectedType)) {
-                    section.style.display = '';
-                    if (workoutGrid) {
-                        workoutGrid.classList.add('grid-layout');
-                        workoutGrid.classList.remove('scroll-layout');
-                    }
-                } else {
-                    section.style.display = 'none';
-                }
+            if (!workoutGrid) return;
+
+            // Clear special sections when filter is applied
+            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
+                workoutGrid.innerHTML = '';
+                section.style.display = selectedType === 'All' ? '' : 'none';
+                return;
             }
-            setupWorkoutCardClick();
-        });
 
-        document.querySelectorAll('.workout-grid').forEach(grid => {
-            const section = grid.closest('section');
-            const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
-            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
+            // Handle visibility and layout based on selection
+            if (selectedType === 'All' || sectionTitle.includes(selectedType)) {
+                section.style.display = '';
+                const layout = selectedType === 'All' ? 'scroll-layout' : 'grid-layout';
+                workoutGrid.classList.add(layout);
+                workoutGrid.classList.remove(layout === 'scroll-layout' ? 'grid-layout' : 'scroll-layout');
 
-            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle) ||
-                sectionTitle.includes(selectedType) ||
-                selectedType === 'All') {
-
-                // Create a wrapper for the grid if it doesn't exist
-                let gridWrapper = grid.parentElement.querySelector('.grid-wrapper');
-                if (!gridWrapper) {
-                    gridWrapper = document.createElement('div');
-                    gridWrapper.className = 'grid-wrapper';
-                    grid.parentNode.insertBefore(gridWrapper, grid);
-                    gridWrapper.appendChild(grid);
-                }
-
+                const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
-                grid.innerHTML = filteredWorkouts.map((workout, index) =>
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
                     createWorkoutCard(workout, index)
                 ).join('');
 
-                // Clear existing arrows and gradients
-                const existingArrows = gridWrapper.querySelectorAll('.scroll-arrow, .scroll-gradient');
-                existingArrows.forEach(arrow => arrow.remove());
-
-                // Create arrow container and arrows
-                const gradientLeft = document.createElement('div');
-                gradientLeft.className = 'scroll-gradient scroll-gradient-left';
-                const gradientRight = document.createElement('div');
-                gradientRight.className = 'scroll-gradient scroll-gradient-right';
-
-                const leftArrow = document.createElement('div');
-                leftArrow.className = 'scroll-arrow scroll-arrow-left';
-                leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
-
-                const rightArrow = document.createElement('div');
-                rightArrow.className = 'scroll-arrow scroll-arrow-right';
-                rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
-
-                // Add elements to wrapper
-                gridWrapper.appendChild(gradientLeft);
-                gridWrapper.appendChild(gradientRight);
-                gridWrapper.appendChild(leftArrow);
-                gridWrapper.appendChild(rightArrow);
-
-                // Update the arrow visibility function
-                const updateArrowVisibility = () => {
-                    const isAtStart = grid.scrollLeft <= 0;
-                    const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
-
-                    // Left side
-                    gradientLeft.style.opacity = isAtStart ? '0' : '1';
-                    leftArrow.style.display = isAtStart ? 'none' : 'flex';
-
-                    // Right side
-                    gradientRight.style.opacity = isAtEnd ? '0' : '1';
-                    rightArrow.style.display = isAtEnd ? 'none' : 'flex';
-                };
-
-                // Handle arrow clicks
-                leftArrow.addEventListener('click', () => {
-                    grid.scrollBy({
-                        left: -300,
-                        behavior: 'smooth'
-                    });
-                });
-
-                rightArrow.addEventListener('click', () => {
-                    grid.scrollBy({
-                        left: 300,
-                        behavior: 'smooth'
-                    });
-                });
-
-                grid.addEventListener('scroll', updateArrowVisibility);
-                window.addEventListener('resize', updateArrowVisibility);
-
-                // Initial arrow visibility check
-                updateArrowVisibility();
+                setupScrollArrows(workoutGrid);
+            } else {
+                section.style.display = 'none';
             }
         });
+
+        // Make sure to call setupWorkoutCardClick after updating the content
         setupWorkoutCardClick();
     });
 });
@@ -830,6 +925,9 @@ class SearchImplementation {
         this.isDropdownVisible = false;
         this.searchBackdrop = document.querySelector('.search-backdrop');
         this.isMobile = window.innerWidth <= 768;
+
+        this.currentQuery = ''; // Cache the current query
+        this.cachedResults = []; // Cache the search results
 
         this.init();
 
@@ -868,8 +966,15 @@ class SearchImplementation {
         this.searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(() => {
+                this.currentQuery = e.target.value; // Cache the query
                 this.handleSearch(e.target.value);
             }, 300);
+        });
+
+        this.searchInput.addEventListener('focus', () => {
+            if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                this.updateDropdown(this.cachedResults); // Restore cached results
+            }
         });
 
         this.searchBarSmall.addEventListener('click', () => {
@@ -947,6 +1052,7 @@ class SearchImplementation {
             });
         });
 
+        this.cachedResults = searchResults; // Cache the results
         this.updateDropdown(searchResults);
     }
 
