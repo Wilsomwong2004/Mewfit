@@ -738,3 +738,5 @@ class SearchImplementation {
 document.addEventListener('DOMContentLoaded', () => {
     new SearchImplementation();
 });
+
+window.diets = diets;

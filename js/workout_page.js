@@ -701,8 +701,11 @@ function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
         card.addEventListener('click', () => {
             const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
-            const workoutTitle = card.getAttribute('data-workout-title');
-            const workout = workouts.find(w => w.title === workoutTitle);
+            const workout = workouts[workoutIndex]; // Get the actual workout object
+
+            selectedWorkout = workout;
+
+            // const workout = workouts.find(w => w.title === workoutTitle);
 
             if (!workout) {
                 console.error('Workout not found:', workoutTitle);
@@ -1126,3 +1129,5 @@ class SearchImplementation {
 document.addEventListener('DOMContentLoaded', () => {
     new SearchImplementation();
 });
+
+window.workouts = workouts;
