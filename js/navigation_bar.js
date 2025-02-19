@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const navLinks = document.getElementById('nav-links');
     const navbar = document.getElementById('navbar');
     const navLogoRes = document.getElementById('nav-logo-responsive');
+    const searchBarSmall = document.getElementById('search-bar-small');
 
     function toggleMenuVisibility(show) {
         if (hamburgerMenu && navLinks) {
@@ -19,14 +20,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 profilePic.style.display = 'none';
                 navbar.style.padding = '1.8rem 2rem';
                 navLogoRes.style.display = 'none';
+                searchBarSmall.style.display = 'none';
             } else {
                 document.body.style.overflow = 'auto';
                 profilePic.style.display = 'block';
                 navbar.style.padding = '1rem 2rem';
+
+                // Handle searchBarSmall and navLogoRes based on window width
                 if (window.innerWidth > 832) {
                     navLogoRes.style.display = 'none';
+                    // searchBarSmall.style.display = 'none';
                 } else {
                     navLogoRes.style.display = 'block';
+                    // searchBarSmall.style.display = 'block';
                 }
             }
         }
@@ -35,10 +41,13 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('resize', () => {
         if (window.innerWidth > 832) {
             navLogoRes.style.display = 'none';
+            // searchBarSmall.style.display = 'none';
         } else if (!document.body.classList.contains('menu-open')) {
             navLogoRes.style.display = 'block';
+            // searchBarSmall.style.display = 'block';
         }
     });
+
 
 
     if (hamburgerMenu) {
@@ -249,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-            // Set active link padding
             if (!isMobile && link.classList.contains('active')) {
                 link.style.padding = '5px 15px';
             }
@@ -259,8 +267,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 indicator.style.height = `${rect.height}px`;
                 indicator.style.borderRadius = '68px';
                 navLinks.style.color = 'white';
-                const top = rect.top - navLinksRect.top;
-                indicator.style.transform = `translateY(${top}px)`;
+                const scrollTop = navLinksContainer.scrollTop;
+                const top = rect.top - navLinksRect.top + scrollTop;
+                const mobileOffset = link.offsetTop;
+                indicator.style.transform = `translateY(${mobileOffset}px)`;
             } else {
                 const linkWidth = Math.max(rect.width, minWidth);
                 const left = rect.left - navLinksRect.left + (rect.width - linkWidth) / 2;

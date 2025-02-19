@@ -678,78 +678,62 @@ html.dark-mode .scroll-arrow:hover {
 .activity-types-wrapper {
     position: relative;
     width: 100%;
+    overflow: hidden;
 }
 
 .activity-cards-container {
     display: flex;
+    gap: 1rem;
     overflow-x: auto;
+    user-select: none; /* Prevent text selection during drag */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: grab;
     scroll-behavior: smooth;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding: 1rem;
+    /* Important for smooth dragging */
+    touch-action: pan-y pinch-zoom;
 }
 
+/* Hide scrollbar for Chrome/Safari */
 .activity-cards-container::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari, Opera */
 }
 
-/* Adjust the existing scroll arrow styles for activity types */
-.activity-types-wrapper .scroll-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.activity-card {
+    flex: 0 0 auto; /* Prevent cards from shrinking */
+    /* Add your existing card styles */
 }
 
-.activity-types-wrapper .scroll-arrow-left {
-    left: -15px;
-}
-
-.activity-types-wrapper .scroll-arrow-right {
-    right: -15px;
-}
-
-.activity-types-wrapper .scroll-gradient {
+.scroll-gradient {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 40px;
+    width: 50px;
     pointer-events: none;
-    z-index: 5;
+    transition: opacity 0.3s ease;
 }
 
-.activity-types-wrapper .scroll-gradient-left {
+.scroll-gradient-left {
     left: 0;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
 }
 
-.activity-types-wrapper .scroll-gradient-right {
+.scroll-gradient-right {
     right: 0;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
 }
 
-/* Dark mode adjustments */
-.dark-mode .activity-types-wrapper .scroll-gradient-left {
-    background: linear-gradient(to right, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0));
+/* Dark mode gradient adjustments */
+.dark-mode .scroll-gradient-left {
+    background: linear-gradient(to right, rgba(31, 41, 55, 1), rgba(31, 41, 55, 0));
 }
 
-.dark-mode .activity-types-wrapper .scroll-gradient-right {
-    background: linear-gradient(to left, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0));
-}
-
-.dark-mode .activity-types-wrapper .scroll-arrow {
-    background: rgba(75, 85, 99, 0.8);
+.dark-mode .scroll-gradient-right {
+    background: linear-gradient(to left, rgba(31, 41, 55, 1), rgba(31, 41, 55, 0));
 }
 
 /* Search Bar Small */

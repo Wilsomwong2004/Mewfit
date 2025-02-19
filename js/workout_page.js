@@ -277,92 +277,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultSelection = document.getElementById('default-selection');
 
     function setupActivityTypesScroll() {
-        const activityTypesSection = document.querySelector('.activity-types');
-        if (!activityTypesSection) return;
-
-        const cardContainer = activityTypesSection.querySelector('.activity-cards-container');
+        const cardContainer = document.querySelector('.activity-cards-container');
         if (!cardContainer) return;
 
-        // Create wrapper for the activity types
-        const wrapper = document.createElement('div');
-        wrapper.className = 'activity-types-wrapper';
-        cardContainer.parentNode.insertBefore(wrapper, cardContainer);
-        wrapper.appendChild(cardContainer);
+        let isDown = false;
+        let startX;
+        let scrollLeft;
 
-        // Create arrows and gradients
-        const gradientLeft = document.createElement('div');
-        gradientLeft.className = 'scroll-gradient scroll-gradient-left';
-        const gradientRight = document.createElement('div');
-        gradientRight.className = 'scroll-gradient scroll-gradient-right';
-
-        const leftArrow = document.createElement('div');
-        leftArrow.className = 'scroll-arrow scroll-arrow-left';
-        leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
-
-        const rightArrow = document.createElement('div');
-        rightArrow.className = 'scroll-arrow scroll-arrow-right';
-        rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
-
-        // Add elements to wrapper
-        wrapper.appendChild(gradientLeft);
-        wrapper.appendChild(gradientRight);
-        wrapper.appendChild(leftArrow);
-        wrapper.appendChild(rightArrow);
-
-        // Update arrow visibility based on dark mode
-        function updateArrowStyles(isDark) {
-            const arrowColor = isDark ? '#E5E7EB' : '#000000';
-            [leftArrow, rightArrow].forEach(arrow => {
-                arrow.style.color = arrowColor;
-            });
-        }
-
-        // Update initial arrow styles
-        updateArrowStyles(document.documentElement.classList.contains('dark-mode'));
-
-        // Listen for dark mode changes
-        window.addEventListener('darkModeChange', (event) => {
-            updateArrowStyles(event.detail.isDarkMode);
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            cardContainer.style.cursor = 'grabbing';
+            startX = e.pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+            e.preventDefault();
         });
 
-        const updateArrowVisibility = () => {
-            const isAtStart = cardContainer.scrollLeft <= 0;
-            const isAtEnd = cardContainer.scrollLeft + cardContainer.clientWidth >= cardContainer.scrollWidth - 1;
-            const hasOverflow = cardContainer.scrollWidth > cardContainer.clientWidth;
-
-            // Only show arrows and gradients if there's overflow
-            const showControls = hasOverflow && cardContainer.children.length > 0;
-
-            gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
-            leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
-
-            gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
-            rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
-        };
-
-        // Handle arrow clicks
-        leftArrow.addEventListener('click', (e) => {
-            e.stopPropagation();
-            cardContainer.scrollBy({
-                left: -200,
-                behavior: 'smooth'
-            });
+        cardContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
         });
 
-        rightArrow.addEventListener('click', (e) => {
-            e.stopPropagation();
-            cardContainer.scrollBy({
-                left: 200,
-                behavior: 'smooth'
-            });
+        cardContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
         });
 
-        // Update arrow visibility on various events
-        cardContainer.addEventListener('scroll', updateArrowVisibility);
-        window.addEventListener('resize', updateArrowVisibility);
+        cardContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5; // Scroll speed multiplier
+            cardContainer.scrollLeft = scrollLeft - walk;
+        });
 
-        // Initial check
-        updateArrowVisibility();
+        // Touch events
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDown = true;
+            startX = e.touches[0].pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+        });
+
+        cardContainer.addEventListener('touchend', () => {
+            isDown = false;
+        });
+
+        cardContainer.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            cardContainer.scrollLeft = scrollLeft - walk;
+            e.preventDefault();
+        });
     }
 
     function applyDarkMode(isDarkMode) {
@@ -647,10 +612,10 @@ const createWorkoutCard = (workout, index) => {
 };
 
 
-const filterWorkouts = (type) => {
+function filterWorkouts(type) {
     if (type === 'All') return workouts;
     return workouts.filter(workout => workout.type.includes(type));
-};
+}
 
 const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
@@ -668,26 +633,19 @@ function updatePopupLevel(level) {
     const meterContainer = document.createElement('div');
     meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
 
+    // Create three bars for the difficulty meter
     for (let i = 0; i < 3; i++) {
         const bar = document.createElement('div');
         bar.className = 'difficulty-bar';
         meterContainer.appendChild(bar);
     }
 
-    let activeBars = 0;
-    switch (level.toLowerCase()) {
-        case 'beginner':
-            activeBars = 1;
-            break;
-        case 'intermediate':
-            activeBars = 2;
-            break;
-        case 'advanced':
-            activeBars = 3;
-            break;
-    }
-
+    // Set active bars based on level
     const bars = meterContainer.querySelectorAll('.difficulty-bar');
+    const activeBars = level.toLowerCase() === 'beginner' ? 1
+        : level.toLowerCase() === 'intermediate' ? 2
+            : 3;
+
     for (let i = 0; i < activeBars; i++) {
         bars[i].classList.add('active');
     }
@@ -701,49 +659,60 @@ function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
         card.addEventListener('click', () => {
             const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
-            const workout = workouts[workoutIndex]; // Get the actual workout object
-
-            selectedWorkout = workout;
-
-            // const workout = workouts.find(w => w.title === workoutTitle);
+            const workout = workouts[workoutIndex];
 
             if (!workout) {
-                console.error('Workout not found:', workoutTitle);
+                console.error('Workout not found for index:', workoutIndex);
                 return;
             }
 
+            // Store the selected workout
             selectedWorkout = workout;
 
-            // Update popup content
-            const workoutImage = document.getElementById('popup-workout-image');
-            workoutImage.src = workout.image || './assets/icons/error.svg';
-            workoutImage.alt = `${workout.title} Image`;
+            // Update popup content with the correct workout data
+            const popup = document.getElementById('popup-container');
 
-            if (workoutImage.src = './assets/icons/error.svg') {
-                console.error('Workout image not found:', workout.image);
+            // Update title
+            document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+
+            // Update description
+            document.getElementById('popup-desc').textContent = workout.description;
+
+            // Update duration (extract numbers only)
+            const durationNum = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            // Update calories (extract numbers only)
+            const caloriesNum = workout.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
+            // Update difficulty level
+            updatePopupLevel(workout.level);
+
+            // Update image
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+                workoutImage.style.objectFit = 'cover';
+            } else {
+                workoutImage.src = './assets/icons/error.svg';
                 workoutImage.alt = 'Workout Image Not Found';
-                workoutImage.style.objectFit = 'fill';
+                workoutImage.style.objectFit = 'contain';
                 workoutImage.style.width = '60%';
                 workoutImage.style.height = 'auto';
             }
 
-            // Set other details
-            document.getElementById('popup-title').textContent = workout.title.toUpperCase();
-            document.getElementById('popup-desc').textContent = workout.description;
-            document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
-            document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
-
-            updatePopupLevel(workout.level);
-
             // Show popup
-            document.getElementById('popup-container').classList.add('active');
+            popup.classList.add('active');
         });
     });
 
     // Setup popup close handlers
-    document.getElementById('popup-container').addEventListener('click', (e) => {
-        if (e.target.classList.contains('popup-close') || e.target === document.getElementById('popup-container')) {
-            document.getElementById('popup-container').classList.remove('active');
+    const popup = document.getElementById('popup-container');
+    popup.addEventListener('click', (e) => {
+        if (e.target.classList.contains('popup-close') || e.target === popup) {
+            popup.classList.remove('active');
             selectedWorkout = null;
         }
     });
@@ -879,6 +848,9 @@ document.querySelectorAll('.activity-card').forEach(card => {
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
 
+        let displayedWorkouts = [];
+        let currentIndex = 0;
+
         document.querySelectorAll('section.workout-body').forEach(section => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
             const workoutGrid = section.querySelector('.workout-grid');
@@ -901,9 +873,20 @@ document.querySelectorAll('.activity-card').forEach(card => {
 
                 const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
-                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
-                    createWorkoutCard(workout, index)
-                ).join('');
+
+                filteredWorkouts.forEach(workout => {
+                    displayedWorkouts.push({
+                        workout: workout,
+                        globalIndex: currentIndex
+                    });
+                    currentIndex++;
+                });
+
+                // Create workout cards with correct indices
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) => {
+                    const globalIndex = displayedWorkouts.findIndex(w => w.workout === workout);
+                    return createWorkoutCard(workout, globalIndex);
+                }).join('');
 
                 setupScrollArrows(workoutGrid);
             } else {
@@ -911,8 +894,56 @@ document.querySelectorAll('.activity-card').forEach(card => {
             }
         });
 
-        // Make sure to call setupWorkoutCardClick after updating the content
-        setupWorkoutCardClick();
+        // Modified setupWorkoutCardClick to use the displayed workouts array
+        document.querySelectorAll('.workout-card-content').forEach(card => {
+            card.addEventListener('click', () => {
+                const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+                const workoutData = displayedWorkouts.find(w => w.globalIndex === workoutIndex);
+
+                if (!workoutData) {
+                    console.error('Workout not found for index:', workoutIndex);
+                    return;
+                }
+
+                const workout = workoutData.workout;
+                selectedWorkout = workout;
+
+                // Update popup content
+                const popup = document.getElementById('popup-container');
+
+                // Update title
+                document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+
+                // Update description
+                document.getElementById('popup-desc').textContent = workout.description;
+
+                // Update duration
+                document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
+
+                // Update calories
+                document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+
+                // Update difficulty level
+                updatePopupLevel(workout.level);
+
+                // Update image
+                const workoutImage = document.getElementById('popup-workout-image');
+                if (workout.image) {
+                    workoutImage.src = workout.image;
+                    workoutImage.alt = `${workout.title} Image`;
+                    workoutImage.style.objectFit = 'cover';
+                } else {
+                    workoutImage.src = './assets/icons/error.svg';
+                    workoutImage.alt = 'Workout Image Not Found';
+                    workoutImage.style.objectFit = 'contain';
+                    workoutImage.style.width = '60%';
+                    workoutImage.style.height = 'auto';
+                }
+
+                // Show popup
+                popup.classList.add('active');
+            });
+        });
     });
 });
 
@@ -922,25 +953,27 @@ class SearchImplementation {
     constructor() {
         this.searchInput = document.querySelector('.search-bar input');
         this.searchBarSmall = document.querySelector('.search-bar-small');
+        this.searchBar = document.querySelector('.search-bar');
+        this.searchIcon = document.querySelector('.search-bar .search-icon');
         this.searchBarCloseIcon = document.getElementById('search-close-btn');
         this.dropdownContainer = null;
         this.workoutSections = document.querySelectorAll('section.workout-body');
         this.isDropdownVisible = false;
         this.searchBackdrop = document.querySelector('.search-backdrop');
         this.isMobile = window.innerWidth <= 768;
+        this.isSearchOpen = false;
+        this.isNavigating = false;
 
-        this.currentQuery = ''; // Cache the current query
-        this.cachedResults = []; // Cache the search results
+        this.currentQuery = '';
+        this.cachedResults = [];
 
         this.init();
-
-        window.addEventListener('resize', this.handleResize.bind(this));
     }
 
     init() {
         this.createDropdownContainer();
         this.bindEvents();
-        this.handleResize(); // Ensure initial setup is correct
+        this.handleResize();
     }
 
     createDropdownContainer() {
@@ -950,55 +983,107 @@ class SearchImplementation {
             this.dropdownContainer.style.maxHeight = '300px';
             this.dropdownContainer.style.overflowY = 'auto';
             this.searchInput.parentElement.appendChild(this.dropdownContainer);
-
             this.dropdownContainer.style.display = 'none';
         }
     }
 
     handleResize() {
+        const wasSearchOpen = this.isSearchOpen;
+        const wasMobile = this.isMobile;
         this.isMobile = window.innerWidth <= 768;
+
+        if (wasMobile !== this.isMobile) {
+            if (this.isMobile) {
+                // Switching to mobile
+                this.searchBar.classList.remove('show-search');
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+                this.hideDropdown();
+                
+                if (!wasSearchOpen) {
+                    this.searchBarSmall.style.display = 'block';
+                }
+            } else {
+                // Switching to desktop
+                if (wasSearchOpen) {
+                    // If search was open in mobile, keep it visible in desktop
+                    this.searchBar.classList.remove('show-search');
+                    this.searchBarSmall.style.display = 'none';
+                    if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                        this.updateDropdown(this.cachedResults);
+                    }
+                } else {
+                    // Normal desktop view
+                    this.searchBarSmall.style.display = 'none';
+                    this.searchBar.classList.remove('show-search');
+                }
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+            }
+        } else if (this.isMobile) {
+            if (wasSearchOpen) {
+                this.searchBarSmall.style.display = 'none';
+                this.searchBar.classList.add('show-search');
+                this.searchBarCloseIcon.style.display = 'block';
+                if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                    this.updateDropdown(this.cachedResults);
+                }
+            } else {
+                this.searchBarSmall.style.display = 'block';
+                this.searchBar.classList.remove('show-search');
+            }
+        }
+    
+    }
+
+    updateDropdownPosition() {
         if (this.isMobile) {
-            this.searchBarSmall.style.display = 'block';
+            const inputRect = this.searchInput.getBoundingClientRect();
+            this.dropdownContainer.style.position = 'fixed';
+            this.dropdownContainer.style.top = `${inputRect.bottom + 10}px`;
+            this.dropdownContainer.style.left = '20px';
+            this.dropdownContainer.style.right = '20px';
+            this.dropdownContainer.style.maxHeight = 'calc(100vh - 150px)';
         } else {
-            this.searchBarSmall.style.display = 'none';
+            this.dropdownContainer.style.position = 'absolute';
+            this.dropdownContainer.style.top = '100%';
+            this.dropdownContainer.style.left = '0';
+            this.dropdownContainer.style.right = '0';
+            this.dropdownContainer.style.maxHeight = '300px';
         }
     }
 
     bindEvents() {
         let debounceTimeout;
+
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+
         this.searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(() => {
-                this.currentQuery = e.target.value; // Cache the query
+                this.currentQuery = e.target.value;
                 this.handleSearch(e.target.value);
             }, 300);
         });
 
         this.searchInput.addEventListener('focus', () => {
             if (this.currentQuery.trim() && this.cachedResults.length > 0) {
-                this.updateDropdown(this.cachedResults); // Restore cached results
+                this.updateDropdown(this.cachedResults);
             }
         });
 
         this.searchBarSmall.addEventListener('click', () => {
-            const searchBar = document.querySelector('.search-bar');
-            searchBar.classList.toggle('show-search');
-            searchBar.querySelector('input').focus();
+            this.openMobileSearch();
         });
 
         document.addEventListener('click', (e) => {
-            if (!this.searchInput.parentElement.contains(e.target)) {
-                this.hideDropdown();
+            const navLink = e.target.closest('a[href]');
+            if (navLink && navLink.getAttribute('href') !== '#') {
+                this.isNavigating = true;
+                this.handleNavigation();
             }
-        });
-
-        this.searchBarSmall.addEventListener('click', () => {
-            const searchBar = document.querySelector('.search-bar');
-            searchBar.classList.add('show-search');
-            this.searchBackdrop.style.display = 'block';
-            this.searchBarSmall.style.display = 'none';
-            this.searchBarCloseIcon.style.display = 'block';
-            searchBar.querySelector('input').focus();
         });
 
         this.searchBarCloseIcon.addEventListener('click', () => {
@@ -1012,9 +1097,35 @@ class SearchImplementation {
         });
     }
 
+    handleNavigation() {
+        // Hide search elements during navigation
+        this.searchBarSmall.style.display = 'none';
+        this.searchBar.classList.remove('show-search');
+        this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
+        this.hideDropdown();
+
+        // Reset after navigation
+        setTimeout(() => {
+            this.isNavigating = false;
+            if (this.isMobile && !this.isSearchOpen) {
+                this.searchBarSmall.style.display = 'block';
+            }
+        }, 100);
+    }
+
+    openMobileSearch() {
+        this.isSearchOpen = true;
+        this.searchBar.classList.add('show-search');
+        this.searchBackdrop.style.display = 'block';
+        this.searchBarSmall.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'block';
+        this.searchInput.focus();
+    }
+
     closeMobileSearch() {
-        const searchBar = document.querySelector('.search-bar');
-        searchBar.classList.remove('show-search');
+        this.isSearchOpen = false;
+        this.searchBar.classList.remove('show-search');
         this.searchBackdrop.style.display = 'none';
         this.searchBarCloseIcon.style.display = 'none';
         this.hideDropdown();
@@ -1117,6 +1228,7 @@ class SearchImplementation {
     showDropdown() {
         this.dropdownContainer.style.display = 'block';
         this.isDropdownVisible = true;
+        this.updateDropdownPosition();
     }
 
     hideDropdown() {
