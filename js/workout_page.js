@@ -13,7 +13,7 @@ class WorkoutCarousel {
             },
             {
                 title: "10 Minute Cardio",
-                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in just 10 minutes.",
+                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in 10 minutes.",
                 duration: "10 Minutes",
                 calories: "150 kcal",
                 image: "./assets/workout_pics/workout11.jpg"
@@ -270,89 +270,145 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
-document.querySelectorAll('.activity-card').forEach(card => {
+document.addEventListener('DOMContentLoaded', () => {
+    // Dark mode initialization
+    const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
+    const cards = document.querySelectorAll('.activity-card');
     const defaultSelection = document.getElementById('default-selection');
 
-    function checkDarkMode() {
-        const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
-        if (darkModeToggle) {
-            // Set initial state based on localStorage
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            darkModeToggle.checked = isDarkMode;
-            document.documentElement.classList.toggle('dark-mode', isDarkMode);
-        }
+    function setupActivityTypesScroll() {
+        const cardContainer = document.querySelector('.activity-cards-container');
+        if (!cardContainer) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            cardContainer.style.cursor = 'grabbing';
+            startX = e.pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+            e.preventDefault();
+        });
+
+        cardContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5; // Scroll speed multiplier
+            cardContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDown = true;
+            startX = e.touches[0].pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+        });
+
+        cardContainer.addEventListener('touchend', () => {
+            isDown = false;
+        });
+
+        cardContainer.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            cardContainer.scrollLeft = scrollLeft - walk;
+            e.preventDefault();
+        });
     }
 
-    function updateCardStyles(card, isDefault = false) {
+    function applyDarkMode(isDarkMode) {
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+
+        cards.forEach(card => {
+            updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
+        });
+
+        // Dispatch a custom event to notify changes
+        const event = new CustomEvent('darkModeChange', { detail: { isDarkMode } });
+        window.dispatchEvent(event);
+    }
+
+    function checkDarkMode() {
+        return document.documentElement.classList.contains('dark-mode');
+    }
+
+    function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        darkModeToggle.checked = isDarkMode;
+        applyDarkMode(isDarkMode);
+    }
+
+    function updateCardStyles(card, isActive = false) {
         const isDark = checkDarkMode();
 
         if (isDark) {
-            card.style.background = isDefault ? '#F97316' : '#4d4d4e';
-            card.style.color = '#E5E7EB';
-            card.style.border = isDefault ? '1px solid #F97316' : '1px solid #374151';
+            card.style.background = isActive ? '#ffa07a' : '#4d4d4e';
+            card.style.color = isActive ? '#ffffff' : '#E5E7EB';
+            card.style.border = isActive ? '2px solid#ea8b47' : '1px solid #374151';
         } else {
-            card.style.background = isDefault ? '#FFAD84' : 'white';
-            card.style.color = isDefault ? 'white' : 'black';
-            card.style.border = '1px solid #E5E7EB';
+            card.style.background = isActive ? '#FFAD84' : '#ffffff';
+            card.style.color = isActive ? '#ffffff' : '#000000';
+            card.style.border = isActive ? '2px solid #FFAD84' : '1px solid #E5E7EB';
         }
         card.style.transition = 'all 0.3s ease';
     }
 
-    updateCardStyles(card, card === defaultSelection);
-
-    card.addEventListener('mouseover', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        if (!isActive) {
-            card.style.background = isDark ? '#374151' : '#FFE4D2';
-        }
+    // Toggle dark mode when the checkbox changes
+    darkModeToggle.addEventListener('change', (event) => {
+        const isDarkMode = event.target.checked;
+        localStorage.setItem('darkMode', isDarkMode);
+        applyDarkMode(isDarkMode);
     });
 
-    card.addEventListener('mouseout', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
+    // Add event handlers to all cards
+    cards.forEach(card => {
+        updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
 
-        if (!isActive) {
-            updateCardStyles(card);
-        }
-    });
-
-    // Handle click states
-    card.addEventListener('click', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        document.querySelectorAll('.activity-card').forEach(c => {
-            updateCardStyles(c);
+        // Click to toggle active state
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            cards.forEach(c => updateCardStyles(c, c.classList.contains('active')));
         });
 
-        if (!isActive) {
-            if (isDark) {
-                card.style.background = '#F97316';
-                card.style.border = '1px solid #F97316';
-                card.style.color = 'white';
-            } else {
-                card.style.background = '#FFAD84';
-                card.style.color = 'white';
+        // Mouseover (hover) to temporarily highlight the card
+        card.addEventListener('mouseover', () => {
+            const isDark = checkDarkMode();
+            if (!card.classList.contains('active')) {
+                card.style.background = isDark ? '#cc916a' : '#FFE4D2';
             }
-        }
+        });
+
+        // Mouseout to revert the card's style
+        card.addEventListener('mouseout', () => {
+            if (!card.classList.contains('active')) {
+                updateCardStyles(card);
+            }
+        });
+
+        // Update card styles on dark mode change
+        window.addEventListener('darkModeChange', () => {
+            updateCardStyles(card, card.classList.contains('active'));
+        });
     });
 
-    window.addEventListener('darkModeChange', (event) => {
-        const isDefault = card === defaultSelection;
-        updateCardStyles(card, isDefault);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateCardStyles(card, card === defaultSelection);
-    });
+    // Initialize dark mode and activity types scroll
+    initializeDarkMode();
+    setupActivityTypesScroll();
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
@@ -536,10 +592,12 @@ const workouts = [
 
 // Helper function to create a workout card
 const createWorkoutCard = (workout, index) => {
+    const image = workout.image ? `./assets/workouts/${workout.image}` : './assets/icons/error.svg';
+
     return `
         <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
             <div class="workout-image">
-                <img src="${workout.image || './assets/default-workout.jpg'}" alt="${workout.title}">
+                <img src="${image}" alt="${workout.title}">
             </div>
             <div class="workout-info">
                 <h3 class="workout-title">${workout.title}</h3>
@@ -554,48 +612,107 @@ const createWorkoutCard = (workout, index) => {
 };
 
 
-const filterWorkouts = (type) => {
+function filterWorkouts(type) {
     if (type === 'All') return workouts;
     return workouts.filter(workout => workout.type.includes(type));
-};
+}
 
 const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
+// Function to update the popup level display
+function updatePopupLevel(level) {
+    const popupLevel = document.getElementById('popup-level');
+    const currentMeter = popupLevel.querySelector('.difficulty-meter');
+
+    if (currentMeter) {
+        currentMeter.remove();
+    }
+
+    const meterContainer = document.createElement('div');
+    meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
+
+    // Create three bars for the difficulty meter
+    for (let i = 0; i < 3; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'difficulty-bar';
+        meterContainer.appendChild(bar);
+    }
+
+    // Set active bars based on level
+    const bars = meterContainer.querySelectorAll('.difficulty-bar');
+    const activeBars = level.toLowerCase() === 'beginner' ? 1
+        : level.toLowerCase() === 'intermediate' ? 2
+            : 3;
+
+    for (let i = 0; i < activeBars; i++) {
+        bars[i].classList.add('active');
+    }
+
+    popupLevel.innerHTML = '';
+    popupLevel.appendChild(meterContainer);
+}
+
+// Modify your existing setupWorkoutCardClick function
 function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
         card.addEventListener('click', () => {
             const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
-            const workoutTitle = card.getAttribute('data-workout-title');
-            const workout = workouts.find(w => w.title === workoutTitle);
+            const workout = workouts[workoutIndex];
 
             if (!workout) {
-                console.error('Workout not found:', workoutTitle);
+                console.error('Workout not found for index:', workoutIndex);
                 return;
             }
 
+            // Store the selected workout
             selectedWorkout = workout;
 
-            // Update popup content
-            const workoutImage = document.getElementById('popup-workout-image');
-            workoutImage.src = workout.image || './assets/default-workout.jpg';
-            workoutImage.alt = `${workout.title} Image`;
+            // Update popup content with the correct workout data
+            const popup = document.getElementById('popup-container');
 
-            // Set other details
+            // Update title
             document.getElementById('popup-title').textContent = workout.title.toUpperCase();
-            document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
-            document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+
+            // Update description
+            document.getElementById('popup-desc').textContent = workout.description;
+
+            // Update duration (extract numbers only)
+            const durationNum = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            // Update calories (extract numbers only)
+            const caloriesNum = workout.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
+            // Update difficulty level
+            updatePopupLevel(workout.level);
+
+            // Update image
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+                workoutImage.style.objectFit = 'cover';
+            } else {
+                workoutImage.src = './assets/icons/error.svg';
+                workoutImage.alt = 'Workout Image Not Found';
+                workoutImage.style.objectFit = 'contain';
+                workoutImage.style.width = '60%';
+                workoutImage.style.height = 'auto';
+            }
 
             // Show popup
-            document.getElementById('popup-container').classList.add('active');
+            popup.classList.add('active');
         });
     });
 
     // Setup popup close handlers
-    document.getElementById('popup-container').addEventListener('click', (e) => {
-        if (e.target.classList.contains('popup-close') || e.target === document.getElementById('popup-container')) {
-            document.getElementById('popup-container').classList.remove('active');
+    const popup = document.getElementById('popup-container');
+    popup.addEventListener('click', (e) => {
+        if (e.target.classList.contains('popup-close') || e.target === popup) {
+            popup.classList.remove('active');
             selectedWorkout = null;
         }
     });
@@ -616,82 +733,217 @@ function initializeWorkoutSections() {
         const workoutGrid = section.querySelector('.workout-grid');
 
         if (workoutGrid) {
-            workoutGrid.classList.add('scroll-layout');
+            // Clear 'Top Picks' and 'Recently Workout' sections initially
+            if (sectionTitle === 'Top Picks For You' || sectionTitle === 'Recently Workout') {
+                workoutGrid.innerHTML = '';
+                return;
+            }
+
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
             const filteredWorkouts = filterWorkouts(sectionType);
-            workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
-                createWorkoutCard(workout, index)
-            ).join('');
+
+            // Only add scroll layout for non-empty sections
+            if (filteredWorkouts.length > 0) {
+                workoutGrid.classList.add('scroll-layout');
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
+                    createWorkoutCard(workout, index)
+                ).join('');
+                setupScrollArrows(workoutGrid);
+            }
         }
     });
 
+    // Make sure to call setupWorkoutCardClick after creating cards
     setupWorkoutCardClick();
 }
 
-document.querySelectorAll('.activity-card').forEach(card => {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeWorkoutSections();
-
-        const defaultCard = document.querySelector('.activity-card-all');
-        if (defaultCard) {
-            defaultCard.click();
+function setupScrollArrows(grid) {
+    // Remove any existing wrapper and arrows
+    const existingWrapper = grid.parentElement.querySelector('.grid-wrapper');
+    if (existingWrapper) {
+        const originalGrid = existingWrapper.querySelector('.workout-grid');
+        if (originalGrid) {
+            existingWrapper.replaceWith(originalGrid);
         }
+    }
+
+    // Create new wrapper and elements
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'grid-wrapper';
+    grid.parentNode.insertBefore(gridWrapper, grid);
+    gridWrapper.appendChild(grid);
+
+    const gradientLeft = document.createElement('div');
+    gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+    const gradientRight = document.createElement('div');
+    gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'scroll-arrow scroll-arrow-left';
+    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'scroll-arrow scroll-arrow-right';
+    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+    gridWrapper.appendChild(gradientLeft);
+    gridWrapper.appendChild(gradientRight);
+    gridWrapper.appendChild(leftArrow);
+    gridWrapper.appendChild(rightArrow);
+
+    const updateArrowVisibility = () => {
+        const isAtStart = grid.scrollLeft <= 0;
+        const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+        const hasOverflow = grid.scrollWidth > grid.clientWidth;
+
+        // Only show arrows and gradients if there's overflow
+        const showControls = hasOverflow && grid.children.length > 0;
+
+        gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+        leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+        gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+        rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+    };
+
+    // Handle arrow clicks with stopPropagation
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: -300,
+            behavior: 'smooth'
+        });
     });
 
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: 300,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update arrow visibility on various events
+    grid.addEventListener('scroll', updateArrowVisibility);
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Initial check
+    updateArrowVisibility();
+
+    // Add mutation observer to watch for content changes
+    const observer = new MutationObserver(updateArrowVisibility);
+    observer.observe(grid, { childList: true, subtree: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWorkoutSections();
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
+});
+
+document.querySelectorAll('.activity-card').forEach(card => {
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
+
+        let displayedWorkouts = [];
+        let currentIndex = 0;
 
         document.querySelectorAll('section.workout-body').forEach(section => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
             const workoutGrid = section.querySelector('.workout-grid');
 
-            if (selectedType === 'All') {
-                section.style.display = '';
-                if (workoutGrid) {
-                    workoutGrid.classList.add('scroll-layout');
-                    workoutGrid.classList.remove('grid-layout');
-                }
-            } else {
-                if (['Activity Types', 'Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                    section.style.display = '';
-                    if (workoutGrid && ['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                        workoutGrid.classList.add('scroll-layout');
-                        workoutGrid.classList.remove('grid-layout');
-                    }
-                } else if (sectionTitle.includes(selectedType)) {
-                    section.style.display = '';
-                    if (workoutGrid) {
-                        workoutGrid.classList.add('grid-layout');
-                        workoutGrid.classList.remove('scroll-layout');
-                    }
-                } else {
-                    section.style.display = 'none';
-                }
+            if (!workoutGrid) return;
+
+            // Clear special sections when filter is applied
+            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
+                workoutGrid.innerHTML = '';
+                section.style.display = selectedType === 'All' ? '' : 'none';
+                return;
             }
-            setupWorkoutCardClick();
-        });
 
-        document.querySelectorAll('.workout-grid').forEach(grid => {
-            const section = grid.closest('section');
-            const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
-            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
+            // Handle visibility and layout based on selection
+            if (selectedType === 'All' || sectionTitle.includes(selectedType)) {
+                section.style.display = '';
+                const layout = selectedType === 'All' ? 'scroll-layout' : 'grid-layout';
+                workoutGrid.classList.add(layout);
+                workoutGrid.classList.remove(layout === 'scroll-layout' ? 'grid-layout' : 'scroll-layout');
 
-            // Only update content if section is relevant
-            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle) ||
-                sectionTitle.includes(selectedType) ||
-                selectedType === 'All') {
-
+                const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
 
-                // Use the enhanced createWorkoutCard with proper indexing
-                grid.innerHTML = filteredWorkouts.map((workout, index) =>
-                    createWorkoutCard(workout, index)
-                ).join('');
+                filteredWorkouts.forEach(workout => {
+                    displayedWorkouts.push({
+                        workout: workout,
+                        globalIndex: currentIndex
+                    });
+                    currentIndex++;
+                });
+
+                // Create workout cards with correct indices
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) => {
+                    const globalIndex = displayedWorkouts.findIndex(w => w.workout === workout);
+                    return createWorkoutCard(workout, globalIndex);
+                }).join('');
+
+                setupScrollArrows(workoutGrid);
+            } else {
+                section.style.display = 'none';
             }
         });
 
-        // Reattach click handlers to newly created workout cards
-        setupWorkoutCardClick();
+        // Modified setupWorkoutCardClick to use the displayed workouts array
+        document.querySelectorAll('.workout-card-content').forEach(card => {
+            card.addEventListener('click', () => {
+                const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+                const workoutData = displayedWorkouts.find(w => w.globalIndex === workoutIndex);
+
+                if (!workoutData) {
+                    console.error('Workout not found for index:', workoutIndex);
+                    return;
+                }
+
+                const workout = workoutData.workout;
+                selectedWorkout = workout;
+
+                // Update popup content
+                const popup = document.getElementById('popup-container');
+
+                // Update title
+                document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+
+                // Update description
+                document.getElementById('popup-desc').textContent = workout.description;
+
+                // Update duration
+                document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
+
+                // Update calories
+                document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+
+                // Update difficulty level
+                updatePopupLevel(workout.level);
+
+                // Update image
+                const workoutImage = document.getElementById('popup-workout-image');
+                if (workout.image) {
+                    workoutImage.src = workout.image;
+                    workoutImage.alt = `${workout.title} Image`;
+                    workoutImage.style.objectFit = 'cover';
+                } else {
+                    workoutImage.src = './assets/icons/error.svg';
+                    workoutImage.alt = 'Workout Image Not Found';
+                    workoutImage.style.objectFit = 'contain';
+                    workoutImage.style.width = '60%';
+                    workoutImage.style.height = 'auto';
+                }
+
+                // Show popup
+                popup.classList.add('active');
+            });
+        });
     });
 });
 
@@ -701,9 +953,19 @@ class SearchImplementation {
     constructor() {
         this.searchInput = document.querySelector('.search-bar input');
         this.searchBarSmall = document.querySelector('.search-bar-small');
+        this.searchBar = document.querySelector('.search-bar');
+        this.searchIcon = document.querySelector('.search-bar .search-icon');
+        this.searchBarCloseIcon = document.getElementById('search-close-btn');
         this.dropdownContainer = null;
         this.workoutSections = document.querySelectorAll('section.workout-body');
         this.isDropdownVisible = false;
+        this.searchBackdrop = document.querySelector('.search-backdrop');
+        this.isMobile = window.innerWidth <= 768;
+        this.isSearchOpen = false;
+        this.isNavigating = false;
+
+        this.currentQuery = '';
+        this.cachedResults = [];
 
         this.init();
     }
@@ -711,6 +973,7 @@ class SearchImplementation {
     init() {
         this.createDropdownContainer();
         this.bindEvents();
+        this.handleResize();
     }
 
     createDropdownContainer() {
@@ -720,31 +983,156 @@ class SearchImplementation {
             this.dropdownContainer.style.maxHeight = '300px';
             this.dropdownContainer.style.overflowY = 'auto';
             this.searchInput.parentElement.appendChild(this.dropdownContainer);
-
             this.dropdownContainer.style.display = 'none';
+        }
+    }
+
+    handleResize() {
+        const wasSearchOpen = this.isSearchOpen;
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 768;
+
+        if (wasMobile !== this.isMobile) {
+            if (this.isMobile) {
+                // Switching to mobile
+                this.searchBar.classList.remove('show-search');
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+                this.hideDropdown();
+                
+                if (!wasSearchOpen) {
+                    this.searchBarSmall.style.display = 'block';
+                }
+            } else {
+                // Switching to desktop
+                if (wasSearchOpen) {
+                    // If search was open in mobile, keep it visible in desktop
+                    this.searchBar.classList.remove('show-search');
+                    this.searchBarSmall.style.display = 'none';
+                    if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                        this.updateDropdown(this.cachedResults);
+                    }
+                } else {
+                    // Normal desktop view
+                    this.searchBarSmall.style.display = 'none';
+                    this.searchBar.classList.remove('show-search');
+                }
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+            }
+        } else if (this.isMobile) {
+            if (wasSearchOpen) {
+                this.searchBarSmall.style.display = 'none';
+                this.searchBar.classList.add('show-search');
+                this.searchBarCloseIcon.style.display = 'block';
+                if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                    this.updateDropdown(this.cachedResults);
+                }
+            } else {
+                this.searchBarSmall.style.display = 'block';
+                this.searchBar.classList.remove('show-search');
+            }
+        }
+    
+    }
+
+    updateDropdownPosition() {
+        if (this.isMobile) {
+            const inputRect = this.searchInput.getBoundingClientRect();
+            this.dropdownContainer.style.position = 'fixed';
+            this.dropdownContainer.style.top = `${inputRect.bottom + 10}px`;
+            this.dropdownContainer.style.left = '20px';
+            this.dropdownContainer.style.right = '20px';
+            this.dropdownContainer.style.maxHeight = 'calc(100vh - 150px)';
+        } else {
+            this.dropdownContainer.style.position = 'absolute';
+            this.dropdownContainer.style.top = '100%';
+            this.dropdownContainer.style.left = '0';
+            this.dropdownContainer.style.right = '0';
+            this.dropdownContainer.style.maxHeight = '300px';
         }
     }
 
     bindEvents() {
         let debounceTimeout;
+
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+
         this.searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(() => {
+                this.currentQuery = e.target.value;
                 this.handleSearch(e.target.value);
             }, 300);
         });
 
+        this.searchInput.addEventListener('focus', () => {
+            if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                this.updateDropdown(this.cachedResults);
+            }
+        });
+
         this.searchBarSmall.addEventListener('click', () => {
-            const searchBar = document.querySelector('.search-bar');
-            searchBar.classList.toggle('show-search');
-            searchBar.querySelector('input').focus();
+            this.openMobileSearch();
         });
 
         document.addEventListener('click', (e) => {
-            if (!this.searchInput.parentElement.contains(e.target)) {
-                this.hideDropdown();
+            const navLink = e.target.closest('a[href]');
+            if (navLink && navLink.getAttribute('href') !== '#') {
+                this.isNavigating = true;
+                this.handleNavigation();
             }
         });
+
+        this.searchBarCloseIcon.addEventListener('click', () => {
+            this.closeMobileSearch();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeMobileSearch();
+            }
+        });
+    }
+
+    handleNavigation() {
+        // Hide search elements during navigation
+        this.searchBarSmall.style.display = 'none';
+        this.searchBar.classList.remove('show-search');
+        this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
+        this.hideDropdown();
+
+        // Reset after navigation
+        setTimeout(() => {
+            this.isNavigating = false;
+            if (this.isMobile && !this.isSearchOpen) {
+                this.searchBarSmall.style.display = 'block';
+            }
+        }, 100);
+    }
+
+    openMobileSearch() {
+        this.isSearchOpen = true;
+        this.searchBar.classList.add('show-search');
+        this.searchBackdrop.style.display = 'block';
+        this.searchBarSmall.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'block';
+        this.searchInput.focus();
+    }
+
+    closeMobileSearch() {
+        this.isSearchOpen = false;
+        this.searchBar.classList.remove('show-search');
+        this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
+        this.hideDropdown();
+
+        if (this.isMobile) {
+            this.searchBarSmall.style.display = 'block';
+        }
     }
 
     handleSearch(query) {
@@ -754,11 +1142,11 @@ class SearchImplementation {
         }
 
         const searchResults = [];
-        this.workoutSections.forEach(section => {
+        this.workoutSections.forEach((section) => {
             const sectionTitle = section.querySelector('.section-title')?.textContent;
             const workoutCards = section.querySelectorAll('.workout-card-content');
 
-            workoutCards.forEach(card => {
+            workoutCards.forEach((card) => {
                 const title = card.querySelector('.workout-title')?.textContent;
                 const duration = card.querySelector('.workout-stats span:first-child')?.textContent;
                 const calories = card.querySelector('.workout-stats span:last-child')?.textContent;
@@ -767,9 +1155,18 @@ class SearchImplementation {
                 if (this.startsWithSearch(query, title)) {
                     searchResults.push({ title, duration, calories, image, section: sectionTitle });
                 }
+
+                if (this.isMobile) {
+                    const inputRect = this.searchInput.getBoundingClientRect();
+                    this.dropdownContainer.style.top = `${inputRect.bottom + 10}px`;
+                    this.dropdownContainer.style.left = '20px';
+                    this.dropdownContainer.style.right = '20px';
+                    this.dropdownContainer.style.maxHeight = 'calc(100vh - 150px)';
+                }
             });
         });
 
+        this.cachedResults = searchResults; // Cache the results
         this.updateDropdown(searchResults);
     }
 
@@ -791,13 +1188,16 @@ class SearchImplementation {
 
             this.dropdownContainer.innerHTML = `
                 <div class="visible-results">
-                    ${visibleResults.map(result => this.createResultItem(result)).join('')}
+                    ${visibleResults.map((result) => this.createResultItem(result)).join('')}
                 </div>
-                ${remainingResults.length > 0 ? `
+                ${remainingResults.length > 0
+                    ? `
                     <div class="remaining-results">
-                        ${remainingResults.map(result => this.createResultItem(result)).join('')}
+                        ${remainingResults.map((result) => this.createResultItem(result)).join('')}
                     </div>
-                ` : ''}
+                `
+                    : ''
+                }
             `;
         }
 
@@ -814,12 +1214,10 @@ class SearchImplementation {
                     <h3 class="workout-title">${result.title}</h3>
                     <div class="result-meta">
                         <span class="duration">
-                            
                             <i class="fas fa-clock"></i> ${result.duration}
                         </span>
                         <span class="calories">
-                            <i class="fas fa-fire"></i>
-                            ${result.calories}
+                            <i class="fas fa-fire"></i> ${result.calories}
                         </span>
                     </div>
                 </div>
@@ -830,6 +1228,7 @@ class SearchImplementation {
     showDropdown() {
         this.dropdownContainer.style.display = 'block';
         this.isDropdownVisible = true;
+        this.updateDropdownPosition();
     }
 
     hideDropdown() {
@@ -842,3 +1241,5 @@ class SearchImplementation {
 document.addEventListener('DOMContentLoaded', () => {
     new SearchImplementation();
 });
+
+window.workouts = workouts;

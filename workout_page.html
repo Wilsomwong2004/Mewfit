@@ -15,11 +15,11 @@
         <div class="no-select">
             <nav class="navbar" id="navbar">
                 <div class="nav-links" id="nav-links">
-                    <span class="workout-home"><a href="#">HOME</a></span>
+                    <span class="workout-home"><a href="homepage.html">HOME</a></span>
                     <span class="workout-navbar"><a href="#" class="active">WORKOUT</a></span>
                     <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-                    <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
-                    <span class="workout-settings"><a href="#">SETTINGS</a></span>
+                    <span class="workout-dietplan"><a href="diet_page.html">DIET PLAN</a></span>
+                    <span class="workout-settings"><a href="settings_page.html">SETTINGS</a></span>
                 </div>
                 <div class="header-right">
                     <button id="hamburger-menu" aria-label="Menu">
@@ -60,11 +60,14 @@
                     <div class="content-title">
                         <h2 class="content-logo-name">MEWFIT</h2><h2 class="content-title-name">Workout Plan</h2>
                     </div>
+                    <div class="search-backdrop"></div>
+                    <i id="search-close-btn" class="fa-solid fa-xmark"></i>
                     <div class="search-bar">
                         <i class="fas fa-search"></i>
                         <input type="text" placeholder="Search">
+                        <div class="search-dropdown"></div>
                     </div>
-                    <div class="search-bar-small">
+                    <div class="search-bar-small" id="search-bar-small">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
@@ -160,7 +163,11 @@
                                 </div>
                                 <div class="popup-stat-item">
                                     <div class="popup-stat-value" id="popup-calories"></div>
-                                    <div class="popup-stat-label">kcal</div>
+                                    <div class="popup-stat-label">Kcal</div>
+                                </div>
+                                <div class ="popup-stat-item">
+                                    <div class="popup-stat-value" id="popup-level"></div>
+                                    <div class="popup-stat-label">Level</div>
                                 </div>
                             </div>
                             <button class="popup-start-button">Start Workout</button>
@@ -196,4 +203,5 @@
     <script src="./js/workout_page.js"></script>
     <script src="./js/navigation_bar.js"></script>
     <script src="./js/gemini_chatbot.js"></script>
+    <script src="./js/darkmode.js"></script>
 </html>
