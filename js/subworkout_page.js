@@ -3,13 +3,27 @@ let videoElement;
 let canvasElement;
 let canvasContext;
 let isRunning = false;
-let cameras = []; // Store available cameras
+let cameras = [];
 let animationFrameId;
 let isInitialized = false;
-let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
-let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-let skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
-let isCameraEnabled = localStorage.getItem('cameraEnabled') !== 'false';
+const DEFAULT_SETTINGS = {
+    mewtrackEnabled: true,
+    notificationsEnabled: true,
+    skeletonStyle: 'both',
+    cameraEnabled: true,
+};
+
+// Load settings from local storage
+let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') !== null
+    ? localStorage.getItem('mewtrackEnabled') === 'true'
+    : DEFAULT_SETTINGS.mewtrackEnabled;
+let notificationsEnabled = localStorage.getItem('notificationsEnabled') !== null
+    ? localStorage.getItem('notificationsEnabled') === 'true'
+    : DEFAULT_SETTINGS.notificationsEnabled;
+let skeletonStyle = localStorage.getItem('skeletonStyle') || DEFAULT_SETTINGS.skeletonStyle;
+let isCameraEnabled = localStorage.getItem('cameraEnabled') !== null
+    ? localStorage.getItem('cameraEnabled') === 'true'
+    : DEFAULT_SETTINGS.cameraEnabled;
 
 // Initialize TensorFlow backend
 async function initializeTF() {
@@ -29,35 +43,36 @@ async function initializeTF() {
 
 // Modified init function
 async function init() {
+    console.log('Initializing pose detection...');
     const workoutUser = document.querySelector('.workout-user');
 
     try {
-        // Initialize TensorFlow first
         const tfInitialized = await initializeTF();
+        console.log('TensorFlow initialized:', tfInitialized);
+
         if (!tfInitialized) {
             throw new Error('Could not initialize TensorFlow. Please check if your browser supports WebGL.');
         }
 
-        // Initialize pose detector
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
                 modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
             }
         );
+        console.log('Detector created:', !!detector);
 
-        // Proceed with camera initialization
         await requestCameraPermission();
+        console.log('Camera permission granted, MewTrack enabled:', isMewTrackEnabled);
+
     } catch (error) {
         console.error('Initialization error:', error);
         showErrorModal(error.message);
     }
 }
 
-
 // Update the window load event handler
 window.addEventListener('load', async () => {
-    // Wait a moment to ensure all scripts are loaded
     setTimeout(async () => {
         await init();
     }, 1000);
@@ -121,7 +136,7 @@ async function requestCameraPermission() {
                 if (stream) break; // Successfully got a stream
             } catch (err) {
                 console.log(`Failed to get stream from camera ${camera.deviceId}:`, err);
-                continue; // Try next camera
+                continue;
             }
         }
 
@@ -242,27 +257,19 @@ async function initializeVideoElements(stream) {
                 const rect = videoContainer.getBoundingClientRect();
                 canvasElement.width = rect.width;
                 canvasElement.height = rect.height;
+
+                canvasElement.scaleX = canvasElement.width / videoElement.videoWidth;
+                canvasElement.scaleY = canvasElement.height / videoElement.videoHeight;
+                canvasElement.offsetX = 0;
+                canvasElement.offsetY = 0;
             };
 
-            // Initial size update
             updateCanvasSize();
-
-            // Update size on window resize
             window.addEventListener('resize', updateCanvasSize);
 
-            // Start detection only if MewTrack is enabled
-            if (isMewTrackEnabled) {
-                startDetection();
-            }
+            isRunning = true;
+            startDetection();
         };
-
-        // Load pose detection model
-        detector = await poseDetection.createDetector(
-            poseDetection.SupportedModels.MoveNet,
-            {
-                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-            }
-        );
 
     } catch (error) {
         console.error('Error in video initialization:', error);
@@ -273,8 +280,8 @@ async function initializeVideoElements(stream) {
 
 // Initialize the pose detection system
 async function initPoseDetection() {
-    // Start with permission request
-    await requestCameraPermission();
+    console.log('Starting pose detection initialization...', { isCameraEnabled });
+
     if (!isCameraEnabled) {
         showCameraOffMessage('Camera is currently turned off');
         return;
@@ -290,7 +297,7 @@ async function initPoseDetection() {
             audio: false
         });
 
-        // Load pose detection model with correct configuration
+        // Load pose detection model
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
@@ -319,8 +326,6 @@ async function initPoseDetection() {
             </div>
         `;
     }
-
-    await requestCameraPermission();
 }
 
 // Modify the camera settings handler
@@ -541,9 +546,11 @@ window.addEventListener('load', async () => {
     // Wait a moment to ensure all scripts are loaded
     setTimeout(async () => {
         if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
-            // Check the saved camera state
-            const savedCameraState = localStorage.getItem('cameraEnabled');
-            isCameraEnabled = savedCameraState !== 'false'; // Default to true if not set
+            console.log('Libraries loaded, initializing with settings:', {
+                isCameraEnabled,
+                isMewTrackEnabled,
+                skeletonStyle
+            });
 
             if (isCameraEnabled) {
                 await init();
@@ -597,29 +604,44 @@ function showErrorModal(errorMessage) {
 
 // Detect poses and draw them
 async function detectPose() {
-    if (!isRunning || !detector || !isMewTrackEnabled) return;
+    if (!isRunning || !detector || !isMewTrackEnabled) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        console.log('Pose detection stopped:', { isRunning, hasDetector: !!detector, isMewTrackEnabled });
+        return;
+    }
 
     try {
         const poses = await detector.estimatePoses(videoElement);
+
+        // Clear previous frame
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
 
-            // Draw skeleton
-            drawSkeleton(keypoints);
+            // Use canvas scale factors for correct drawing
+            const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
+            const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
+            const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-            // Add form validation warnings
+            // Draw skeleton with proper scaling
+            drawSkeleton(keypoints, scale, offsetX, offsetY);
+            drawKeypoints(keypoints, scale, offsetX, offsetY);
+
+            // Form validation if enabled
             if (this.repCounter) {
                 const formFeedback = validateForm(keypoints, this.repCounter.exerciseType);
                 showFormFeedback(formFeedback);
             }
         }
 
-        animationFrameId = requestAnimationFrame(detectPose);
+        animationFrameId = requestAnimationFrame(() => detectPose());
     } catch (error) {
         console.error('Detection error:', error);
-        animationFrameId = requestAnimationFrame(detectPose);
+        // Continue the detection loop even if there's an error
+        animationFrameId = requestAnimationFrame(() => detectPose());
     }
 }
 
@@ -842,12 +864,10 @@ pauseBtn.addEventListener('click', () => {
     const pauseText = document.querySelector('.pause-text');
 
     if (isRunning) {
-        stopDetection();
         pauseIcon.classList.remove('fa-pause');
         pauseIcon.classList.add('fa-play');
         pauseText.textContent = 'Resume';
     } else {
-        startDetection();
         pauseIcon.classList.remove('fa-play');
         pauseIcon.classList.add('fa-pause');
         pauseText.textContent = 'Pause';
@@ -892,7 +912,6 @@ function createSettingsPopup() {
 
         const options = [
             { icon: 'fa-camera', label: 'Camera Settings' },
-            { icon: 'fa-users', label: 'Change Instructor' },
             { icon: 'fa-chart-line', label: 'MewTrack' },
             { icon: 'fa-table-cells-large', label: 'Layout' }
         ];
@@ -950,13 +969,10 @@ function createSettingsPopup() {
                     case 0: // Camera Settings
                         handleCameraSettings();
                         break;
-                    case 1: // Change Instructor
-                        handleInstructorChange();
-                        break;
-                    case 2: // MewTrack
+                    case 1: // MewTrack
                         handleMewTrack();
                         break;
-                    case 3: // Layout
+                    case 2: // Layout
                         handleLayout();
                         break;
                 }
@@ -994,10 +1010,6 @@ function createSettingsPopup() {
 
 function handleCameraSettings() {
     console.log('Camera Settings clicked');
-}
-
-function handleInstructorChange() {
-    console.log('Change instructor clicked');
 }
 
 function handleMewTrack() {
@@ -1841,51 +1853,45 @@ function calculateAngle(kp1, kp2, kp3) {
 
 //.........................................................................................//
 // Music Function (pop up window)
-
 document.addEventListener('DOMContentLoaded', function () {
     const popupContainer = document.getElementById('popup-container');
     const popupTitle = document.getElementById('popup-title');
     const popupBody = document.getElementById('popup-body');
     const closeBtn = document.getElementById('close-btn');
 
-    function showPopup(title, content) {
-        popupTitle.textContent = title;
-        popupBody.innerHTML = content;
-        popupContainer.style.display = 'flex';
-    }
-
-    function closePopup() {
-        popupContainer.style.display = 'none';
-    }
+    // Sample music tracks (replace with your actual music files)
+    const musicTracks = [
+        {
+            title: "Pump It Up",
+            artist: "Workout Jams",
+            duration: "3:30",
+            url: "https://cdn.pixabay.com/download/audio/2022/02/22/audio_325d6d5431.mp3",
+            cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
+        },
+        {
+            title: "Energy Boost",
+            artist: "Gym Motivation",
+            duration: "4:15",
+            url: "https://cdn.pixabay.com/download/audio/2021/11/11/audio_5a0d1a9c9c.mp3",
+            cover: "https://images.unsplash.com/photo-1574680096145-d05b474e2155"
+        }
+    ];
 
     class WorkoutMusicPlayer {
         constructor() {
             this.audio = new Audio();
-            this.playlist = [];
+            this.playlist = musicTracks;
             this.currentTrackIndex = 0;
             this.isPlaying = false;
             this.volume = 0.7;
+            this.progressUpdateInterval = null;
         }
 
-        async initializeMusicPlayer() {
-            // Sample playlist - Replace with your actual music files
-            this.playlist = [
-                {
-                    title: "Workout Energy",
-                    artist: "Fitness Beats",
-                    duration: "3:45",
-                    url: "/path/to/music1.mp3"
-                },
-                {
-                    title: "Power Up",
-                    artist: "Gym Tracks",
-                    duration: "4:20",
-                    url: "/path/to/music2.mp3"
-                }
-            ];
-
+        initializeMusicPlayer() {
             this.createMusicInterface();
             this.setupEventListeners();
+            this.loadTrack();
+            this.audio.volume = this.volume;
         }
 
         createMusicInterface() {
@@ -1913,7 +1919,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </button>
                         <div class="volume-control">
                             <i class="fas fa-volume-up"></i>
-                            <input type="range" min="0" max="100" value="70" class="volume-slider">
+                            <input type="range" min="0" max="100" value="${this.volume * 100}" class="volume-slider">
                         </div>
                     </div>
                     
@@ -1924,9 +1930,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
 
-            // Add the music player to your workout interface
-            const workoutContainer = document.querySelector('.workout-container');
-            workoutContainer.appendChild(musicContainer);
+            document.body.appendChild(musicContainer);
         }
 
         setupEventListeners() {
@@ -1934,15 +1938,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const nextBtn = document.querySelector('.next-track');
             const prevBtn = document.querySelector('.previous-track');
             const volumeSlider = document.querySelector('.volume-slider');
-            const progressBar = document.querySelector('.progress-container');
+            const progressContainer = document.querySelector('.progress-container');
 
             playPauseBtn.addEventListener('click', () => this.togglePlay());
             nextBtn.addEventListener('click', () => this.nextTrack());
             prevBtn.addEventListener('click', () => this.previousTrack());
             volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
-            progressBar.addEventListener('click', (e) => this.seekTo(e));
+            progressContainer.addEventListener('click', (e) => this.seekTo(e));
 
-            // Update progress bar
+            this.audio.addEventListener('ended', () => this.nextTrack());
             this.audio.addEventListener('timeupdate', () => this.updateProgress());
         }
 
@@ -1966,6 +1970,34 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('.play-pause i').className = 'fas fa-play';
         }
 
+        loadTrack() {
+            const track = this.playlist[this.currentTrackIndex];
+            this.audio.src = track.url;
+            document.querySelector('.track-title').textContent = track.title;
+            document.querySelector('.track-artist').textContent = track.artist;
+            document.querySelector('.track-duration').textContent = track.duration;
+            
+            if (this.isPlaying) {
+                this.audio.play();
+            }
+        }
+
+        updateProgress() {
+            const progress = (this.audio.currentTime / this.audio.duration) * 100 || 0;
+            document.querySelector('.progress-current').style.width = `${progress}%`;
+        }
+
+        seekTo(e) {
+            const rect = e.target.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            this.audio.currentTime = pos * this.audio.duration;
+        }
+
+        setVolume(value) {
+            this.audio.volume = value;
+            document.querySelector('.volume-slider').value = value * 100;
+        }
+
         nextTrack() {
             this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
             this.loadTrack();
@@ -1975,78 +2007,114 @@ document.addEventListener('DOMContentLoaded', function () {
             this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
             this.loadTrack();
         }
-
-        loadTrack() {
-            const track = this.playlist[this.currentTrackIndex];
-            this.audio.src = track.url;
-            document.querySelector('.track-title').textContent = track.title;
-            document.querySelector('.track-artist').textContent = track.artist;
-            if (this.isPlaying) {
-                this.play();
-            }
-        }
-
-        setVolume(value) {
-            this.volume = value;
-            this.audio.volume = value;
-        }
-
-        updateProgress() {
-            const progress = (this.audio.currentTime / this.audio.duration) * 100;
-            document.querySelector('.progress-current').style.width = `${progress}%`;
-        }
-
-        seekTo(event) {
-            const progressBar = document.querySelector('.progress-container');
-            const percent = event.offsetX / progressBar.offsetWidth;
-            this.audio.currentTime = percent * this.audio.duration;
-        }
     }
 
     // Initialize music player
-    document.addEventListener('DOMContentLoaded', () => {
-        const musicPlayer = new WorkoutMusicPlayer();
-        musicPlayer.initializeMusicPlayer();
-    });
+    const musicPlayer = new WorkoutMusicPlayer();
+    musicPlayer.initializeMusicPlayer();
 
-    // Show music player popup
-    document.getElementById('music').addEventListener('click', function (e) {
+    // Music popup functionality
+    document.getElementById('music').addEventListener('click', function(e) {
         e.preventDefault();
-        showPopup('Music', `
-            <div>
-                <p>Select a music track to play:</p>
-                <div class="music-list">
-                    <div class="music-item">
+        showPopup('Music Library', `
+            <div class="music-list">
+                ${musicTracks.map((track, index) => `
+                    <div class="music-item" data-index="${index}">
                         <div class="music-item-image">
-                            <img src="/path/to/music1.jpg" alt="Workout Energy">
+                            <img src="${track.cover}" alt="${track.title}">
                         </div>
                         <div class="music-item-details">
-                            <span class="music-item-title">Workout Energy</span>
-                            <span class="music-item-artist">Fitness Beats</span>
+                            <span class="music-item-title">${track.title}</span>
+                            <span class="music-item-artist">${track.artist}</span>
                         </div>
-                        <button class="play-btn">Play</button>
+                        <button class="play-btn">${index === musicPlayer.currentTrackIndex ? 'Playing' : 'Play'}</button>
                     </div>
-                    <div class="music-item">
-                        <div class="music-item-image">
-                            <img src="/path/to/music2.jpg" alt="Power Up">
-                        </div>
-                        <div class="music-item-details">
-                            <span class="music-item-title">Power Up</span>
-                            <span class="music-item-artist">Gym Tracks</span>
-                        </div>
-                        <button class="play-btn">Play</button>
-                    </div>
-                </div>
+                `).join('')}
             </div>
         `);
+
+        // Add event listeners to playlist items
+        document.querySelectorAll('.music-item').forEach(item => {
+            item.querySelector('.play-btn').addEventListener('click', () => {
+                musicPlayer.currentTrackIndex = parseInt(item.dataset.index);
+                musicPlayer.loadTrack();
+                musicPlayer.play();
+                popupContainer.style.display = 'none';
+            });
+        });
     });
 
-    //.........................................................................................//
-    // Close button Function (pop up window)
+    // Popup handling functions
+    function showPopup(title, content) {
+        popupTitle.textContent = title;
+        popupBody.innerHTML = content;
+        popupContainer.style.display = 'flex';
+    }
 
-    document.getElementById('close-btn').addEventListener('click', function (e) {
+    closeBtn.addEventListener('click', () => {
+        popupContainer.style.display = 'none';
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const musicBtn = document.getElementById('music');
+    const musicPlayer = document.querySelector('.music-player');
+    const musicLibrary = document.querySelector('.music-library');
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    document.body.appendChild(overlay);
+
+    // Create wrapper for music button and player
+    const wrapper = document.createElement('div');
+    wrapper.className = 'music-control-wrapper';
+    musicBtn.parentNode.insertBefore(wrapper, musicBtn);
+    wrapper.appendChild(musicBtn);
+    wrapper.appendChild(musicPlayer);
+
+    let hideTimeout;
+
+    // Hover handlers for music button and player
+    wrapper.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+        musicPlayer.classList.add('show');
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+            if (!musicLibrary.classList.contains('show')) {
+                musicPlayer.classList.remove('show');
+            }
+        }, 2000);
+    });
+
+    // Click handler for music button
+    musicBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        showPopup('Music', `
+        musicPlayer.classList.remove('show');
+        musicLibrary.classList.add('show');
+        overlay.classList.add('show');
+    });
+
+    // Close library when clicking overlay
+    overlay.addEventListener('click', () => {
+        musicLibrary.classList.remove('show');
+        overlay.classList.remove('show');
+    });
+
+    // Close button handler
+    const closeBtn = document.getElementById('close-btn');
+    closeBtn.addEventListener('click', () => {
+        musicLibrary.classList.remove('show');
+        overlay.classList.remove('show');
+    });
+});
+
+//.........................................................................................//
+// Close button Function (pop up window)
+
+document.getElementById('close-btn').addEventListener('click', function (e) {
+    e.preventDefault();
+    showPopup('Music', `
             <div>
                 <p>Do you really want to end the workout?</p>
                 <p>The progress of workout will not be saved.</p>
@@ -2054,16 +2122,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button onclick="closePopup()">No</button>
             </div>
         `);
-    });
+});
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const workoutManager = new WorkoutManager();
-        workoutManager.init();
+document.addEventListener('DOMContentLoaded', () => {
+    const workoutManager = new WorkoutManager();
+    workoutManager.init();
 
-        // Existing initialization code...
-        createSettingsPopup();
-        if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
-            init();
-        }
-    });
+    // Existing initialization code...
+    createSettingsPopup();
+    if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+        init();
+    }
 });
