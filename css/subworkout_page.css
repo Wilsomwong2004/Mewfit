@@ -193,6 +193,8 @@ body {
     margin: auto;
 }
 
+/* ......................................................................................... */
+/* More function */
 .more {
     width: 50px;
     height: 50px;
@@ -238,7 +240,7 @@ body {
     align-items: center;
     padding: 12px;
     margin: 4px 0;
-    width: 100%;
+    width: 90%;
     border: none;
     background: none;
     cursor: pointer;
@@ -339,7 +341,6 @@ h2#popup-title {
         transform: translateY(0);
     }
 }
-
 
 /* ......................................................................................... */
 /* Countdown*/
@@ -806,6 +807,7 @@ input:checked+.slider:before {
     transform: scale(0.98);
 }
 
+/* -------------------------------------------------------------------------------------------------- */
 /* Posture Notification */
 .posture-notification {
     position: fixed;
@@ -828,32 +830,46 @@ input:checked+.slider:before {
     font-size: 18px;
 }
 
+/* -------------------------------------------------------------------------------------------------- */
 /* Music Player Styles */
 .music-player-container {
     position: absolute;
-    bottom: 100%;
-    right: 0;
-    margin-bottom: 15px;
+    top: -145px;
+    right: 0px;
     transform: scale(0.95);
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
     transform-origin: bottom right;
-    z-index: 100;
-    width: 350px;
-    background: linear-gradient(145deg, #2c3e50, #3498db);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    width: 350px;
-    margin: 20px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
 }
 
 .music-player-container.show {
     transform: scale(1);
     opacity: 1;
     pointer-events: all;
+}
+
+.music-btn {
+    position: relative;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.player-card {
+    background: linear-gradient(145deg, #1e3a5c, #2a5788);
+    padding: 15px;
+    border-radius: 12px;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .music-library-modal {
@@ -870,7 +886,7 @@ input:checked+.slider:before {
     pointer-events: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .music-library-modal.show {
@@ -904,7 +920,7 @@ input:checked+.slider:before {
 
 .music-player {
     margin: 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .music-info {
@@ -912,6 +928,74 @@ input:checked+.slider:before {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+}
+
+.track-info .title {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.track-info .artist {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volume-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    width: 30%;
+    background-color: #e74c3c;
+    border-radius: 2px;
 }
 
 .track-details span {
@@ -947,7 +1031,7 @@ input:checked+.slider:before {
 }
 
 .music-controls button:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .music-controls i {
@@ -956,7 +1040,7 @@ input:checked+.slider:before {
 
 .progress-container {
     height: 4px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
     cursor: pointer;
     margin: 15px 0;
@@ -970,28 +1054,6 @@ input:checked+.slider:before {
     transition: width 0.1s linear;
 }
 
-.volume-control {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.volume-slider {
-    width: 80px;
-    height: 4px;
-    -webkit-appearance: none;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    background: #fff;
-    border-radius: 50%;
-}
-
 .music-list {
     max-height: 400px;
     overflow-y: auto;
@@ -1002,13 +1064,13 @@ input:checked+.slider:before {
     align-items: center;
     padding: 10px;
     margin: 10px 0;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     transition: all 0.3s;
 }
 
 .music-item:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .music-item-image img {
@@ -1036,6 +1098,7 @@ input:checked+.slider:before {
     background: #c0392b;
 }
 
+/* -------------------------------------------------------------------------------------------------- */
 /* Notification Animations */
 @keyframes slideDown {
     from {
