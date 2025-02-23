@@ -25,7 +25,43 @@
         <div class="profile-table">
             <h2>WORKOUT <span>LIST</span></h2>
             <input type="text" class="search-bar" placeholder="Search">
-            <div class="box"></div>
+            <div class="box">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Email Address</th>
+                        <th>Phone Number</th>
+                    </tr>
+                    <?php
+                        include "conn.php";
+                        
+                        $sql="SELECT * FROM administrator";
+                        $result=mysqli_query($dbConn,$sql);
+                        if(mysqli_num_rows($result)<=0){
+                            die("<script>alert('No data from database')</script>");
+                        }
+
+                        while($rows = mysqli_fetch_array($result)){
+                            echo "<tr>";
+                            echo "<td>".$rows['workout_id']."</td>";
+                            echo "<td>".$rows['workout_name']."</td>";
+                            echo "<td>".$rows['workout_type']."</td>";
+                            echo "<td>".$rows['calories']."</td>";
+                            echo "<td>".$rows['duration']."</td>";
+                            echo "<td>".$rows['thumbnail']."</td>";
+                            echo "<td>".$rows['video']."</td>";
+                            echo "<td>".$rows['description']."</td>";
+                            echo "<td>".$rows['muscle_diagram']."</td>";
+                            echo "<td>".$rows['workout_step_checklist']."</td>";
+                            echo "<tr>";
+                        }
+                    ?>
+                </table>
+            </div>
         </div>
 
         <!-- Add New Workout Form -->
