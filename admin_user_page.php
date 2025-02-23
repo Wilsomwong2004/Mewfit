@@ -32,7 +32,7 @@
             <center>
             <h2>Add New <span>Profile</span></h2> 
             </center>
-            <form method="post" action="insert.php">
+            <form method="post" action="">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
                 
@@ -42,12 +42,23 @@
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" required>
 
-                <label for="user-type">User Type</label>
-                <button type="submit" name="gender" value="Male">Male</button>
-                <button type="submit" name="gender" value="Female">Female</button>
+                <label for="gender">Gender</label>
+                <div style="display:flex;justify-content: space-around;">
+                    <label id="custom-label">
+                        <input type="radio" name="gender" value="Female" onclick="changeColor(this)" style="display:none;">
+                        Female
+                    </label>
+                    <label id="custom-label">
+                        <input type="radio" name="gender" value="Male" onclick="changeColor(this)" style="display:none;">
+                        Male
+                    </label>
+                </div>
 
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required>
+
+                <label for="phonenum">Phone Number</label>
+                <input type="text" id="phonenum" name="phonenum" required>
 
                 <center>
                 <button type="submit" class="add-profile">Create New</button>
@@ -55,6 +66,35 @@
             </form>
         </div>
     </div>
+    <script>
+    document.querySelectorAll('.option-button input').forEach(input => {
+        input.addEventListener('change', function() {
+            document.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
+            this.parentElement.classList.add('selected');
+        });
+    });
+    </script>
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $name = $_POST['name'];
+        $gender = $_POST['gender'];
+        $email = $_POST['email'];
+        $phone_num = $_POST ['phonenum'];
+    }
+
+    include "conn.php";
+
+    $sql = "INSERT INTO administrator(username, password, name, gender, email_address, phone_number) VALUES('$username','$password','$name','$gender', '$email', '$phone_num');";
+
+    if (!$dbConn->query($sql)) {
+        die("Failed to update Laptop table");
+    }
+    $dbConn->close();
+
+    echo "<script>alert('Sucessfully insert data')</script>"
+?>
 </body>
 
 </html>

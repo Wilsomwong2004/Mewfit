@@ -13,6 +13,10 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
 /* Navigation Bar */
 nav {
     display: flex;
@@ -116,6 +120,7 @@ table, th, td {
 .add-profile h2 {
     margin-top: 0;
     color: black;
+    
 }
 
 .add-profile span {
@@ -125,10 +130,9 @@ table, th, td {
 .add-profile label {
     font-weight: bold;
     display: block;
-    margin-top: 10px;
+    margin-top: 100px;
 }
 
-.add-profile input,
 .add-profile select {
     width: 95%;
     padding: 6px;
@@ -202,4 +206,18 @@ table, th, td {
     .add-profile {
         padding: 15px;
     }
+}
+
+.custom-label {
+    font-weight: bold; 
+    color: #FFAD84;
+    margin-top: 15px; 
+    font-size: 16px; 
+}
+
+/* Selected State */
+.custom-label.selected {
+    background-color: #FFAD84;
+    color: white;
+    border-color: darkorange;
 }

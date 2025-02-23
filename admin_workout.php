@@ -83,5 +83,30 @@
             </form>
         </div>
     </div>
+    <?php
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $name = $_POST['name'];
+            $type = $_POST['workout_type'];
+            $calories = $_POST['calories'];
+            $duration = $_POST['duration'];
+            $thumbnail = $_POST['thumbnail'];
+            $video = $_POST ['video'];
+            $description = $_POST['description'];
+            $muscle_diagram = $_POST['muscle_diagram'];
+            $workout_step_checklist = $_POST['steps'];
+        }
+
+        include "conn.php";
+
+        $sql = "INSERT INTO workout(workout_name, workout_type, calories, duration, thumbnail, video, description. muscle_diagram, workout_step_checklist) 
+        VALUES('$name','$type','$calories','$duration', '$thumbnail', '$video','$description','$muscle_diagram','$workout_step_checklist');";
+
+        if (!$dbConn->query($sql)) {
+            die("Failed to update Laptop table");
+        }
+        $dbConn->close();
+
+        echo "<script>alert('Sucessfully insert data')</script>"
+    ?>
 </body>
 </html>
