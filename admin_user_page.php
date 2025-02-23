@@ -62,6 +62,7 @@
         </div>
     </div>
     <?php
+    ini_set('display_errors', 0);
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $username = $_POST['username'];
         $password = $_POST['password'];
