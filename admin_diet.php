@@ -74,5 +74,50 @@
             </form>
         </div>
     </div>
+
+    <?php
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $name = $_POST['meal-name'];
+            $type = $_POST['meal_type'];
+            $duration = $_POST['minutes'];
+            $thumbnail = $_POST['thumbnail'];
+            $description = $_POST['description'];
+            $directions = $_POST['directions'];
+        }
+
+        include "conn.php";
+
+        $sql = "INSERT INTO diet(meal_name, description, meal_type, preparation_min, picture,directions) 
+        VALUES('$name','$description','$type','$duration', '$thumbnail', '$directions');";
+
+        if (!$dbConn->query($sql)) {
+            die("Failed to update Laptop table");
+        }
+        $dbConn->close();
+
+        echo "<script>alert('Sucessfully insert data')</script>"
+    ?>
+
+    <!-- <?php
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $name = $_POST['nutrition-name'];
+            $calorie = $_POST['calorie'];
+            $fat = $_POST['fat'];
+            $protein = $_POST['protein'];
+            $carbohydrate = $_POST['carbohydrate'];
+        }
+
+        include "conn.php";
+
+        $sql = "INSERT INTO nutrition(nutrition_name, calorie, fat, protein, carbohydrate) 
+        VALUES('$name','$calorie','$fat','$protein', '$carbohydrate');";
+
+        if (!$dbConn->query($sql)) {
+            die("Failed to update Laptop table");
+        }
+        $dbConn->close();
+
+        echo "<script>alert('Sucessfully insert data')</script>"
+    ?> -->
 </body>
 </html>
