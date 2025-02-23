@@ -22,7 +22,7 @@
     <div class="container">
         <!-- User Profile Table -->
         <div class="profile-table">
-            <h2> USER <span>PROFILE</span></h2><!--add button for user n admin-->
+            <h2> USER <span>PROFILE</span></h2>
             <input type="text" class="search-bar" placeholder="Search">
                 <div class="box"></div>
         </div>
@@ -43,16 +43,11 @@
                 <input type="text" id="name" name="name" required>
 
                 <label for="gender">Gender</label>
-                <div style="display:flex;justify-content: space-around;">
-                    <label id="custom-label">
-                        <input type="radio" name="gender" value="Female" onclick="changeColor(this)" style="display:none;">
-                        Female
-                    </label>
-                    <label id="custom-label">
-                        <input type="radio" name="gender" value="Male" onclick="changeColor(this)" style="display:none;">
-                        Male
-                    </label>
-                </div>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                </select>
 
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required>
@@ -66,14 +61,6 @@
             </form>
         </div>
     </div>
-    <script>
-    document.querySelectorAll('.option-button input').forEach(input => {
-        input.addEventListener('change', function() {
-            document.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
-            this.parentElement.classList.add('selected');
-        });
-    });
-    </script>
     <?php
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $username = $_POST['username'];
@@ -86,7 +73,8 @@
 
     include "conn.php";
 
-    $sql = "INSERT INTO administrator(username, password, name, gender, email_address, phone_number) VALUES('$username','$password','$name','$gender', '$email', '$phone_num');";
+    $sql = "INSERT INTO administrator(username, password, name, gender, email_address, phone_number) 
+    VALUES('$username','$password','$name','$gender', '$email', '$phone_num');";
 
     if (!$dbConn->query($sql)) {
         die("Failed to update Laptop table");
