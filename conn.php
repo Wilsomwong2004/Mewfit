@@ -1,3 +1,4 @@
+<?php
 $localhost = 'localhost';
 $user = 'root';
 $pass = "";
@@ -10,3 +11,4 @@ if(mysqli_connect_errno()){
 }
 
 echo "<script>alert("Successfully connect")</script>"
+?>

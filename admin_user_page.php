@@ -32,7 +32,7 @@
             <center>
             <h2>Add New <span>Profile</span></h2> 
             </center>
-            <form>
+            <form method="post" action="insert.php">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
                 
@@ -43,16 +43,19 @@
                 <input type="text" id="name" name="name" required>
 
                 <label for="user-type">User Type</label>
-                <input type="user-type" id="user-type" name="user-type" required>
+                <button type="submit" name="gender" value="Male">Male</button>
+                <button type="submit" name="gender" value="Female">Female</button>
 
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required>
 
                 <center>
-                <button type="submit">Create New</button>
+                <button type="submit" class="add-profile">Create New</button>
                 </center>
             </form>
         </div>
     </div>
 </body>
+
 </html>
+
