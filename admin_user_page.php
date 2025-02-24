@@ -5,7 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link rel="stylesheet" href="css/admin_user_page.css">
+    <style>
+        th:hover {background-color: white !important;}
+        th{background-color: white;}
+        th:nth-child(1), td:nth-child(1) { width: 10%; }
+        th:nth-child(2), td:nth-child(2) { width: 20%; }
+        th:nth-child(3), td:nth-child(3) { width: 20%; }
+        th:nth-child(4), td:nth-child(4) { width: 20%; }
+        th:nth-child(5), td:nth-child(5) { width: 10%; }
+        th:nth-child(6), td:nth-child(6) { width: 20%; }
+        th:nth-child(7), td:nth-child(7) { width: 20%; }
+    </style>
 </head>
+<?php
+    include "conn.php";
+
+    
+    
+?>
 <body>
     <nav>
         <div class="logo-space"> <div class="logo-and-title"></div>
@@ -36,26 +53,23 @@
                         <th>Phone Number</th>
                     </tr>
                     <?php
-                        //display data
-                        // ini_set('display_errors', 0);
-                        include "conn.php";
-                        
-                        $sql="SELECT * FROM administrator";
-                        $result=mysqli_query($dbConn,$sql);
-                        if(mysqli_num_rows($result)<=0){
-                            die("<script>alert('No data from database')</script>");
-                        }
-
-                        while($rows = mysqli_fetch_array($result)){
-                            echo "<tr>";
-                            echo "<td>".$rows['admin_id']."</td>";
-                            echo "<td>".$rows['username']."</td>";
-                            echo "<td>".$rows['password']."</td>";
-                            echo "<td>".$rows['name']."</td>";
-                            echo "<td>".$rows['gender']."</td>";
-                            echo "<td>".$rows['email_address']."</td>";
-                            echo "<td>".$rows['phone_number']."</td>";
-                            echo "<tr>";
+                        $sql = "SELECT * FROM administrator";
+                        $result = mysqli_query($dbConn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($rows = mysqli_fetch_array($result)) {
+                                echo "<tr>";
+                                echo "<td>".$rows['admin_id']."</td>";
+                                echo "<td>".$rows['username']."</td>";
+                                echo "<td>".$rows['password']."</td>";
+                                echo "<td>".$rows['name']."</td>";
+                                echo "<td>".$rows['gender']."</td>";
+                                echo "<td>".$rows['email_address']."</td>";
+                                echo "<td>".$rows['phone_number']."</td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='7' style='border:none;text-align:center;margin:50px'>No data available</td></tr>";
+                            $sql="TRUNCATE TABLE administrator";
                         }
                     ?>
                 </table>
@@ -96,29 +110,46 @@
             </form>
         </div>
     </div>
-    <?php
-    
-    // enter new data
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-        $name = $_POST['name'];
-        $gender = $_POST['gender'];
-        $email = $_POST['email'];
-        $phone_num = $_POST ['phonenum'];
+</body>
+</html>
+<?php
+// enter new data
+function validateInput($username, $phone_num) {
+    $errors = [];
 
+    if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
+        $errors[] = "Username must be between 3 and 20 characters.";
+    }
+
+    if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
+        $errors[] = "Phone number must be 10 digits.";
+    }
+
+    return $errors;
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+    $name = trim($_POST['name']);
+    $gender = trim($_POST['gender']);
+    $email = trim($_POST['email']);
+    $phone_num = trim($_POST['phonenum']);
+
+    $errors = validateInput($username,  $phone_num);
+    echo $errors;
+    
+    if (empty($errors)){
         $sql = "INSERT INTO administrator(username, password, name, gender, email_address, phone_number) 
         VALUES('$username','$password','$name','$gender', '$email', '$phone_num');";
 
         if (!$dbConn->query($sql)) {
-            die("Failed to update Laptop table");
+            die("Failed to update admin table");
         }
-        $dbConn->close();
-
+    
         echo "<script>alert('Sucessfully insert data')</script>";
+        
     }
+    
+}
 ?>
-</body>
-
-</html>
-

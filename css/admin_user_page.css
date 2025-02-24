@@ -5,13 +5,6 @@ body {
     background-color: #ffffff;
 }
 
-.box {
-    height: 700px;
-    border: 3px solid #FFAD84;
-    border-radius: 10px;
-    overflow-y: auto;
-    border-collapse: collapse;
-}
 /* Navigation Bar */
 nav {
     display: flex;
@@ -65,8 +58,6 @@ nav {
     padding: 20px;
     border-radius: 10px;
     height: auto; 
-    display: flex;
-    flex-direction: column;
 } 
 
 .profile-table h1 {
@@ -91,20 +82,27 @@ nav {
     border-radius: 15px;
 }
 
+.box {
+    height: 700px;
+    border: 3px solid #FFAD84;
+    border-radius: 10px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%; 
+    border-collapse: collapse;
+    table-layout: fixed;
+}
 
 th, td {
-    padding: 10px;
-    text-align: left;
-    color:black;
-    width:100%;
-    text-overflow: ellipsis;
+    padding: 10px; 
+    text-align: center; 
+    border: 1px solid #ddd; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
     white-space: nowrap;
-    border-bottom: 3px solid #FFAD84;
 }
-tr:hover{
-    background-color: #ffe8d6;
-}
-
 
 /* Add Profile Section */
 .add-profile {
@@ -115,6 +113,7 @@ tr:hover{
     position: relative;
     top: 20px; 
     height:700px;
+    display:block;
 }
 
 .add-profile h2 {
