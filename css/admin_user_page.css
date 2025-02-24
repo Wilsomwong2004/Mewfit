@@ -42,7 +42,7 @@ nav {
 }
 
 /* Main Container */
-.container {
+.admin-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start; 
@@ -52,15 +52,14 @@ nav {
 }
 
 /* Profile Table */
-.profile-table {
+.section1 {
     width: 60%;
-    background: white;
     padding: 20px;
     border-radius: 10px;
     height: auto; 
 } 
 
-.profile-table h1 {
+.section1 h1 {
     margin: 0;
     padding-bottom: 0px;
 }
@@ -68,6 +67,7 @@ nav {
 .title {
     padding-top: 30px;
     padding-left: 50px;
+    padding-right: 50px;
     font-size: 30px;
     margin: 0;
 }
@@ -80,6 +80,7 @@ nav {
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 15px;
+    width:98%;
 }
 
 .box {
@@ -87,21 +88,28 @@ nav {
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
+    border-collapse: collapse;
 }
 
 table {
-    width: 100%; 
+    width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    margin-top: 10px;
 }
 
-th, td {
+
+.box th, td {
     padding: 10px; 
     text-align: center; 
-    border: 1px solid #ddd; 
+    border-bottom: 1px solid #FFAD84; 
     overflow: hidden; 
     text-overflow: ellipsis; 
     white-space: nowrap;
+    
+}
+
+tr:hover{
+    background-color: #ffe8d6;
 }
 
 /* Add Profile Section */
@@ -160,12 +168,12 @@ th, td {
 
 /* 📌 Responsive Design */
 @media (max-width: 1024px) {
-    .container {
+    .admin-container {
         flex-direction: column;
         align-items: center;
     }
 
-    .profile-table, .add-profile {
+    .section1, .add-profile {
         width: 100%;
         margin-bottom: 20px;
     }
@@ -180,7 +188,7 @@ th, td {
         margin-bottom: 10px;
     }
 
-    .profile-table, .add-profile {
+    .section1, .add-profile {
         width: 100%;
     }
 }
@@ -195,7 +203,7 @@ th, td {
         flex-direction: column;
     }
 
-    .container {
+    .admin-container {
         flex-direction: column;
         padding: 10px;
     }
@@ -204,3 +212,51 @@ th, td {
         padding: 15px;
     }
 }
+
+.user-section {
+    border: 2px solid #ffc6aa; 
+    display: flex;
+    border-radius: 10px;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top:25px;
+}
+
+.user-section li {
+    margin: 0;
+    flex: 1;
+}
+
+.user-section a {
+    display: block; 
+    text-decoration: none;
+    transition: background-color 0.3s;
+    color: black;
+    padding: 10px; 
+    padding-left:40px;
+    padding-right:40px;
+    text-align: center;
+    font-weight:bold;
+}
+
+.user-section a.active{
+    background-color: #ffc6aa;
+}
+
+.member-container {
+    display: none;
+}
+
+.admin-container {
+    display: none; 
+}
+
+.box th:hover {background-color: white !important;}
+.box th{background-color: white;}
+.box th:nth-child(1), td:nth-child(1) { width: 10%; }
+.box th:nth-child(2), td:nth-child(2) { width: 20%; }
+.box th:nth-child(3), td:nth-child(3) { width: 20%; }
+.box th:nth-child(4), td:nth-child(4) { width: 20%; }
+.box th:nth-child(5), td:nth-child(5) { width: 10%; }
+.box th:nth-child(6), td:nth-child(6) { width: 20%; }
+.box th:nth-child(7), td:nth-child(7) { width: 20%; }
