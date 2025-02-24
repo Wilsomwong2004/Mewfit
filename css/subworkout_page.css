@@ -28,7 +28,7 @@ html.dark-mode {
 
 body {
     font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
+    overflow: hidden;
     margin: 0;
     padding: 0;
 }
@@ -80,7 +80,7 @@ body {
     color: #000000;
     border: none;
     border-radius: 20px;
-    padding: 15px 20px;
+    padding: 15px 23px;
     font-size: 18px;
     cursor: pointer;
     margin: 0 20px;
@@ -99,7 +99,7 @@ body {
     gap: 20px;
     height: calc(100vh - 180px);
     transition: all 0.3s ease;
-
+    margin-bottom: 10px;
 }
 
 .workout-guide {
@@ -111,6 +111,8 @@ body {
 }
 
 .workout-user {
+    position: relative !important;
+    overflow: hidden;
     background-color: #EADFC9;
     border-radius: 16px;
     width: 50%;
@@ -365,24 +367,25 @@ h2#popup-title {
 
 .ready-text {
     font-size: 2.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     color: #ffb089;
 }
 
 .count-circle {
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     border: 4px solid #ffb089;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 5rem;
+    font-size: 4rem;
     margin: 2rem auto;
     animation: pulse 1s infinite;
 }
 
 .warmup-text {
+    margin-top: 50px;
     font-size: 1.5rem;
     color: #ccc;
 }
@@ -423,10 +426,19 @@ h2#popup-title {
     margin: 20px 0;
 }
 
+.rest-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    max-width: 90%;
+}
+
 .rest-controls {
     display: flex;
-    gap: 10px;
+    gap: 1rem;
     justify-content: center;
+    margin-top: 1rem;
 }
 
 .add-time {
@@ -456,6 +468,44 @@ h2#popup-title {
 .rep-counter {
     font-size: 36px !important;
     color: #FF9967 !important;
+}
+
+.rest-overlay {
+    position: fixed;
+    top: 50%;
+    left: 75%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: calc(100vh - 180px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    display: none;
+}
+
+.rest-overlay.active {
+    display: flex !important;
+}
+
+.rest-image {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 16px;
+}
+
+.add-time {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #FFE5DC;
+    color: #FF6B6B;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-time:hover {
+    background-color: #FFD6CC;
 }
 
 /* ......................................................................................... */

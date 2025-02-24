@@ -537,7 +537,6 @@ async function initPoseDetection() {
         return;
     }
 
-    // Rest of the existing initPoseDetection code...
     await requestCameraPermission();
 }
 
@@ -751,95 +750,74 @@ function drawSkeleton(keypoints, scale, offsetX, offsetY) {
     }
 }
 
-function startWorkoutCountdown(workoutName, onCompleteCallback) {
-    // Set initial count
-    let currentCount = 3;
-    let countdownInterval;
+// function startWorkoutCountdown(workoutName, onCompleteCallback) {
+//     let currentCount = 3;
+//     let countdownInterval;
 
-    // Create countdown content
-    const countdownContent = `
-        <div class="header">
-            <div class="timer">
-                <div class="timer-text">0:20</div>
-            </div>
-            <div class="workout-details">
-                <div class="workout-name">${workoutName}</div>
-                <div class="workout-round">1/13</div>
-            </div>
-            <div id="countdown-close" class="close-btn">
-                <i class="fa-solid fa-xmark"></i>
-            </div>
-        </div>
-        <div class="countdown-main">
-            <h1 class="ready-text">READY TO GO</h1>
-            <div class="count-circle">${currentCount}</div>
-            <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
-        </div>
-        <div class="bottom">
-            <div class="control-panel">
-                <div class="pause" id="countdown-pause">
-                    <i class="fa-solid fa-pause"></i>
-                    <p class="pause-text">Pause</p>
-                </div>
-            </div>
-        </div>
-    `;
+//     // Create countdown content
+//     const countdownContent = `
+//         <div class="countdown-main">
+//             <h1 class="ready-text">READY TO GO</h1>
+//             <div class="count-circle">${currentCount}</div>
+//             <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
+//         </div>
+//     `;
 
-    // Create overlay div
-    const overlay = document.createElement('div');
-    overlay.className = 'countdown-overlay';
-    overlay.innerHTML = countdownContent;
-    document.body.appendChild(overlay);
+//     // Create overlay div
+//     const overlay = document.createElement('div');
+//     overlay.className = 'countdown-overlay';
+//     overlay.innerHTML = countdownContent;
+//     document.body.appendChild(overlay);
 
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
+//     const styleSheet = document.createElement('style');
+//     styleSheet.textContent = styles;
+//     document.head.appendChild(styleSheet);
 
-    // Start countdown
-    let isPaused = false;
-    countdownInterval = setInterval(() => {
-        if (!isPaused) {
-            currentCount--;
-            const countCircle = overlay.querySelector('.count-circle');
-            if (countCircle) {
-                countCircle.textContent = currentCount;
-            }
+//     // Start countdown
+//     let isPaused = false;
+//     countdownInterval = setInterval(() => {
+//         if (!isPaused) {
+//             currentCount--;
+//             const countCircle = overlay.querySelector('.count-circle');
+//             if (countCircle) {
+//                 countCircle.textContent = currentCount;
+//             }
 
-            if (currentCount <= 0) {
-                clearInterval(countdownInterval);
-                overlay.remove();
-                styleSheet.remove();
-                if (onCompleteCallback) {
-                    onCompleteCallback();
-                }
-            }
-        }
-    }, 1000);
+//             if (currentCount <= 0) {
+//                 clearInterval(countdownInterval);
+//                 overlay.remove();
+//                 styleSheet.remove();
+//                 if (onCompleteCallback) {
+//                     onCompleteCallback();
+//                 }
+//             }
+//         }
+//     }, 1000);
 
-    // Add event listeners
-    const pauseBtn = overlay.querySelector('#countdown-pause');
-    const closeBtn = overlay.querySelector('#countdown-close');
+//     // Add event listeners
+//     const pauseBtn = overlay.querySelector('#countdown-pause');
+//     const closeBtn = overlay.querySelector('#countdown-close');
 
-    pauseBtn.addEventListener('click', () => {
-        isPaused = !isPaused;
-        const pauseIcon = pauseBtn.querySelector('i');
-        const pauseText = pauseBtn.querySelector('.pause-text');
+//     pauseBtn.addEventListener('click', () => {
+//         isPaused = !isPaused;
+//         const pauseIcon = pauseBtn.querySelector('i');
+//         const pauseText = pauseBtn.querySelector('.pause-text');
 
-        if (isPaused) {
-            pauseIcon.className = 'fa-solid fa-play';
-            pauseText.textContent = 'Resume';
-        } else {
-            pauseIcon.className = 'fa-solid fa-pause';
-            pauseText.textContent = 'Pause';
-        }
-    });
+//         if (isPaused) {
+//             pauseIcon.className = 'fa-solid fa-play';
+//             pauseText.textContent = 'Resume';
+//         } else {
+//             pauseIcon.className = 'fa-solid fa-pause';
+//             pauseText.textContent = 'Pause';
+//         }
+//     });
 
-    closeBtn.addEventListener('click', () => {
-        clearInterval(countdownInterval);
-        overlay.remove();
-        styleSheet.remove();
-    });
-}
+//     closeBtn.addEventListener('click', () => {
+//         clearInterval(countdownInterval);
+//         overlay.remove();
+//         styleSheet.remove();
+//     });
+// }
 
 // Start detection
 function startDetection() {
@@ -1565,187 +1543,398 @@ document.addEventListener('DOMContentLoaded', () => {
 
 class WorkoutManager {
     constructor() {
-        // Get workout data from localStorage
-        const workoutData = JSON.parse(localStorage.getItem('currentWorkout')) || [];
-        this.workout = workoutData[0]; // Get the first workout
-        this.exercises = this.workout?.exercises || [];
-        this.currentSet = 1;
-        this.totalSets = this.workout?.sets || 1;
-        this.currentExerciseIndex = 0;
-        this.isResting = false;
-        this.timer = null;
-        this.repCount = 0;
-        this.repCounter = null;
+        // Initialize state
+        this.initializeState();
+        // Get DOM elements
+        this.initializeDOMElements();
+        // Setup rest overlay
+        this.initializeRestOverlay();
+        // Setup countdown overlay
+        this.initializeCountdownOverlay();
+    }
 
-        // DOM Elements
+    initializeState() {
+        try {
+            const workoutData = JSON.parse(localStorage.getItem('currentWorkout')) || [];
+            this.workout = workoutData[0];
+            this.exercises = this.workout?.exercises || [];
+            this.currentSet = 1;
+            this.totalSets = this.workout?.sets || 1;
+            this.currentExerciseIndex = 0;
+            this.isResting = false;
+            this.timer = null;
+            this.repCount = 0;
+            this.repCounter = null;
+            this.timeLeft = 0;
+            this.endRestTimeout = null;
+        } catch (error) {
+            console.error('Error initializing state:', error);
+            this.exercises = [];
+        }
+    }
+
+    initializeDOMElements() {
         this.timerElement = document.querySelector('.timer-text');
         this.workoutNameElement = document.querySelector('.workout-name');
         this.roundElement = document.querySelector('.workout-round');
         this.workoutUser = document.querySelector('.workout-user');
         this.workoutGuide = document.querySelector('.workout-guide');
+
+        if (!this.timerElement || !this.workoutNameElement || !this.roundElement) {
+            console.error('Required DOM elements not found');
+        }
     }
 
     init() {
-        if (!this.workout || this.exercises.length === 0) return;
-        this.showCurrentExercise();
-        this.startExercise();
+        if (!this.workout || this.exercises.length === 0) {
+            console.error('No workout data available');
+            this.endWorkout();
+            return;
+        }
+
+        this.startCountdown();
     }
 
     showCurrentExercise() {
-        const currentExercise = this.exercises[this.currentExerciseIndex];
+        if (!this.exercises[this.currentExerciseIndex]) return;
 
-        // Update UI
+        const currentExercise = this.exercises[this.currentExerciseIndex];
         this.workoutNameElement.textContent = currentExercise.exercise;
         this.roundElement.textContent = `${this.currentSet}/${this.totalSets}`;
 
-        // Check if it's a rep-based or duration-based exercise
         if (currentExercise.reps) {
             this.timerElement.textContent = '0';
             this.timerElement.classList.add('rep-counter');
         } else if (currentExercise.duration) {
             const duration = parseInt(currentExercise.duration);
-            this.timerElement.textContent = `0:${duration.toString().padStart(2, '0')}`;
+            this.timerElement.textContent = duration ? `0:${duration.toString().padStart(2, '0')}` : '0:00';
             this.timerElement.classList.remove('rep-counter');
         }
     }
 
     startExercise() {
         const currentExercise = this.exercises[this.currentExerciseIndex];
+        if (!currentExercise) return;
 
         if (currentExercise.reps) {
             this.setupRepCounter(currentExercise.reps);
         } else if (currentExercise.duration) {
-            const duration = parseInt(currentExercise.duration);
+            let duration = currentExercise.duration;
+            if (typeof duration === 'string') {
+                const match = duration.match(/\d+/);
+                duration = match ? parseInt(match[0]) : 0;
+            }
             this.startTimer(duration);
         }
     }
 
     setupRepCounter(targetReps) {
+        if (!targetReps || targetReps <= 0) return;
+
         const currentExercise = this.exercises[this.currentExerciseIndex].exercise;
         this.repCounter = new RepCounter(currentExercise);
         this.repCount = 0;
 
-        // Connect to pose detection
-        const originalDetectPose = detectPose.bind(this);
-        detectPose = async () => {
-            await originalDetectPose();
+        if (typeof detectPose === 'function' && typeof videoElement !== 'undefined') {
+            const originalDetectPose = detectPose.bind(this);
+            detectPose = async () => {
+                try {
+                    await originalDetectPose();
 
-            if (this.repCounter && detector) {
-                const poses = await detector.estimatePoses(videoElement);
-                if (poses.length > 0) {
-                    const countedReps = this.repCounter.analyzePose(poses[0].keypoints);
-                    if (countedReps > this.repCount) {
-                        this.repCount = countedReps;
-                        this.timerElement.textContent = this.repCount;
+                    if (this.repCounter && detector) {
+                        const poses = await detector.estimatePoses(videoElement);
+                        if (poses.length > 0) {
+                            const countedReps = this.repCounter.analyzePose(poses[0].keypoints);
+                            if (countedReps > this.repCount) {
+                                this.repCount = countedReps;
+                                this.timerElement.textContent = this.repCount;
 
-                        if (this.repCount >= targetReps) {
-                            this.nextExercise();
+                                if (this.repCount >= targetReps) {
+                                    this.nextExercise();
+                                }
+                            }
                         }
                     }
+                } catch (error) {
+                    console.error('Error in pose detection:', error);
                 }
-            }
-        };
+            };
 
-        if (!isRunning) startDetection();
+            if (typeof isRunning !== 'undefined' && !isRunning && typeof startDetection === 'function') {
+                startDetection();
+            }
+        }
+    }
+
+    startTimer(seconds) {
+        if (!seconds || seconds <= 0) return;
+
+        this.clearAllTimers();
+        let timeLeft = seconds;
+
+        this.timer = setInterval(() => {
+            timeLeft--;
+            if (this.timerElement) {
+                this.timerElement.textContent = `0:${timeLeft.toString().padStart(2, '0')}`;
+            }
+
+            if (timeLeft <= 0) {
+                this.clearAllTimers();
+                this.nextExercise();
+            }
+        }, 1000);
     }
 
     nextExercise() {
         this.repCounter = null;
-        clearInterval(this.timer);
+        this.clearAllTimers();
 
-        // Check if we need to move to next set
         if (this.currentExerciseIndex >= this.exercises.length - 1) {
             if (this.currentSet >= this.totalSets) {
                 this.endWorkout();
                 return;
             }
-            // Start next set
             this.currentSet++;
             this.currentExerciseIndex = 0;
         } else {
-            // Move to next exercise
             this.currentExerciseIndex++;
         }
 
         this.showRestScreen();
     }
 
-    showRestScreen() {
-        this.isResting = true;
-        const nextExercise = this.exercises[this.currentExerciseIndex];
+    initializeRestOverlay() {
+        const existingOverlay = document.querySelector('.rest-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
 
-        // Hide camera view
-        this.workoutUser.style.display = 'none';
+        this.restOverlay = document.createElement('div');
+        this.restOverlay.className = 'rest-overlay';
 
-        // Show rest screen
-        this.workoutGuide.innerHTML = `
-            <div class="rest-screen">
-                <h2>Next: ${nextExercise.exercise}</h2>
-                <video src="${this.workout.video}" autoplay muted loop></video>
-                <div class="rest-timer">20</div>
-                <div class="rest-controls">
-                    <button class="add-time" data-seconds="10">+10s</button>
-                    <button class="add-time" data-seconds="20">+20s</button>
-                    <button class="add-time" data-seconds="30">+30s</button>
+        this.restOverlay.innerHTML = `
+            <div class="rest-card">
+                <img src="./assets/icons/pause_workout.svg" alt="Rest" style="max-width: 150px; margin-bottom: 1rem;" />
+                <h3>Rest</h3>
+                <p>Take a break and have a meow</p>
+                <div class="rest-timer" style="font-size: 2rem; margin: 1rem 0;">20</div>
+                <div class="rest-controls" style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="add-time" data-seconds="10">+ 10s</button>
+                    <button class="add-time" data-seconds="20">+ 20s</button>
+                    <button class="add-time" data-seconds="30">+ 30s</button>
                 </div>
             </div>
         `;
 
-        this.startRestTimer(20); // Default 20 seconds rest
+        document.body.appendChild(this.restOverlay);
+        this.setupRestControls();
     }
 
-    startRestTimer(seconds) {
-        let timeLeft = seconds;
-        const timerElement = this.workoutGuide.querySelector('.rest-timer');
+    setupRestControls() {
+        this.restOverlay.querySelectorAll('.add-time').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!this.isResting) return;
 
-        this.timer = setInterval(() => {
-            timeLeft--;
-            timerElement.textContent = timeLeft;
+                const seconds = parseInt(btn.dataset.seconds);
+                this.updateRestTimer(this.timeLeft + seconds);
 
-            if (timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.endRest();
-            }
-        }, 1000);
-
-        // Add time buttons
-        this.workoutGuide.querySelectorAll('.add-time').forEach(btn => {
-            btn.addEventListener('click', () => {
-                timeLeft += parseInt(btn.dataset.seconds);
-                timerElement.textContent = timeLeft;
+                this.startRestTimer();
             });
         });
     }
 
-    startTimer(seconds) {
-        let timeLeft = seconds;
+    showRestScreen() {
+        this.clearAllTimers();
+        this.isResting = true;
+
+        const nextExercise = this.exercises[this.currentExerciseIndex];
+        if (nextExercise) {
+            this.workoutNameElement.textContent = `Next: ${nextExercise.exercise}`;
+        }
+
+        this.restOverlay.style.display = 'flex';
+        if (this.workoutUser) {
+            this.workoutUser.style.visibility = 'hidden';
+        }
+
+        this.updateRestTimer(20);
+        this.startRestTimer();
+    }
+
+    startRestTimer() {
+        this.clearAllTimers();
 
         this.timer = setInterval(() => {
-            timeLeft--;
-            this.timerElement.textContent = `0:${timeLeft.toString().padStart(2, '0')}`;
-
-            if (timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.nextExercise();
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+                this.updateRestTimer(this.timeLeft);
+            } else {
+                this.clearAllTimers();
+                this.endRest();
             }
         }, 1000);
     }
 
+    updateRestTimer(newTime) {
+        this.timeLeft = Math.max(0, newTime);
+        const timerDisplay = this.restOverlay.querySelector('.rest-timer');
+        if (timerDisplay) {
+            timerDisplay.textContent = this.timeLeft;
+        }
+    }
+
     endRest() {
+        this.clearAllTimers();
         this.isResting = false;
-        this.workoutUser.style.display = 'block';
-        this.workoutGuide.innerHTML = 'Demo';
+        this.timeLeft = 0;
+
+        if (this.restOverlay) {
+            this.restOverlay.style.display = 'none';
+        }
+        if (this.workoutUser) {
+            this.workoutUser.style.visibility = 'visible';
+        }
+
         this.showCurrentExercise();
         this.startExercise();
     }
 
+    initializeCountdownOverlay() {
+        const existingOverlay = document.querySelector('.countdown-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+
+        this.countdownOverlay = document.createElement('div');
+        this.countdownOverlay.className = 'countdown-overlay';
+        this.countdownOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        `;
+
+        this.countdownOverlay.innerHTML = `
+            <div id="countdown-close" class="close-btn" style="position: absolute; top: 25px; right: 0px; cursor: pointer;">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div class="countdown-main" style="text-align: center;">
+                <h1 class="ready-text">READY TO GO</h1>
+                <div class="count-circle">3</div>
+                <div class="warmup-text">Warm-up Exercise: ${this.getFirstExerciseName()}</div>
+            </div>
+        `;
+
+        document.body.appendChild(this.countdownOverlay);
+
+        // Add event listener for the close button
+        const closeBtn = this.countdownOverlay.querySelector('#countdown-close');
+        closeBtn.addEventListener('click', () => {
+            // Show a confirmation dialog
+            const userConfirmed = confirm('Are you sure you want to stop the exercise?');
+
+            if (userConfirmed) {
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                }
+                this.countdownOverlay.style.display = 'none';
+                this.endWorkout();
+                window.location.href = 'workout_page.html';
+            }
+        });
+    }
+
+    getExerciseDuration() {
+        if (!this.exercises[0]) return '00';
+
+        if (this.exercises[0].duration) {
+            let duration = this.exercises[0].duration;
+            if (typeof duration === 'string') {
+                const match = duration.match(/\d+/);
+                duration = match ? parseInt(match[0]) : 0;
+            }
+            return duration.toString().padStart(2, '0');
+        }
+        return '00';
+    }
+
+    getFirstExerciseName() {
+        return this.exercises[0]?.exercise || this.workout?.title || 'Workout';
+    }
+
+    startCountdown() {
+        // Display the countdown overlay
+        this.countdownOverlay.style.display = 'flex';
+
+        // Set initial count
+        let currentCount = 3;
+
+        // Start countdown
+        this.startCountdownTimer = () => {
+            if (this.countdownTimer) {
+                clearInterval(this.countdownTimer);
+            }
+
+            this.countdownTimer = setInterval(() => {
+                currentCount--;
+                const countCircle = this.countdownOverlay.querySelector('.count-circle');
+                if (countCircle) {
+                    countCircle.textContent = currentCount;
+                }
+
+                if (currentCount <= 0) {
+                    // Clear timer and hide overlay
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                    this.countdownOverlay.style.display = 'none';
+
+                    // Start the actual workout
+                    this.showCurrentExercise();
+                    this.startExercise();
+                }
+            }, 1000);
+        };
+
+        // Start the countdown timer
+        this.startCountdownTimer();
+    }
+
+    clearAllTimers() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.endRestTimeout) {
+            clearTimeout(this.endRestTimeout);
+            this.endRestTimeout = null;
+        }
+        if (this.countdownTimer) {
+            clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+        }
+    }
+
     endWorkout() {
-        localStorage.removeItem('currentWorkout');
-        window.location.href = 'subworkout_done_page.html';
+        try {
+            localStorage.removeItem('currentWorkout');
+            window.location.href = 'subworkout_done_page.html';
+        } catch (error) {
+            console.error('Error ending workout:', error);
+        }
     }
 }
 
-// Initialize workout manager when page loads
+// Initialize workout manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const workoutManager = new WorkoutManager();
     workoutManager.init();
@@ -2125,21 +2314,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
 document.getElementById('close-btn').addEventListener('click', function (e) {
     e.preventDefault();
-    showPopup('Music', `
-            <div>
-                <p>Do you really want to end the workout?</p>
-                <p>The progress of workout will not be saved.</p>
-                <button onclick="closePopup()">Yes</button>
-                <button onclick="closePopup()">No</button>
-            </div>
-        `);
+
+    // Get popup elements
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    // Show the confirmation popup
+    popupTitle.textContent = 'Confirm Close';
+    popupBody.innerHTML = `
+        <p>Are you sure you want to close the workout?</p>
+        <div class="popup-btn-container">
+            <button id="confirm-yes" class="popup-btn yes">Yes</button>
+            <button id="confirm-no" class="popup-btn no">No</button>
+        </div>
+    `;
+    popupContainer.style.display = 'block';
+
+    // Add click handlers for popup buttons
+    document.getElementById('confirm-yes').addEventListener('click', () => {
+        const workoutManager = new WorkoutManager();
+        workoutManager.clearAllTimers();
+        workoutManager.endWorkout();
+
+        // Navigate to workout_page.html
+        window.location.href = 'workout_page.html';
+    });
+
+    document.getElementById('confirm-no').addEventListener('click', () => {
+        popupContainer.style.display = 'none';
+    });
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const workoutManager = new WorkoutManager();
     workoutManager.init();
 
-    // Existing initialization code...
     createSettingsPopup();
     if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
         init();

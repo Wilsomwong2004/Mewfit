@@ -425,10 +425,10 @@ const workouts = [
         type: ['All', 'Cardio'],
         sets: 1,
         exercises: [
-            { exercise: 'March in Place', duration: '3 minutes' },
-            { exercise: 'Side Steps', duration: '3 minutes' },
-            { exercise: 'Low Impact Jumping Jacks', duration: '3 minutes' },
-            { exercise: 'Cool Down Stretches', duration: '1 minute' }
+            { exercise: 'March in Place', duration: '180 seconds' },
+            { exercise: 'Side Steps', duration: '180 minutes' },
+            { exercise: 'Low Impact Jumping Jacks', duration: '180 minutes' },
+            { exercise: 'Cool Down Stretches', duration: '60 minute' }
         ]
     },
     {
