@@ -430,24 +430,22 @@ async function handleCameraSettings() {
         const newCameraEnabled = document.getElementById('camera-toggle').checked;
         const selectedDeviceId = document.getElementById('cameraSelect').value;
 
-        try {
-            if (newCameraEnabled) {
-                await initializeCamera(selectedDeviceId);
-                isCameraEnabled = true;
-                localStorage.setItem('cameraEnabled', 'true');
+        // First stop any existing camera
+        stopCamera();
 
-                if (isMewTrackEnabled) {
+        if (newCameraEnabled) {
+            try {
+                await initializeCamera(selectedDeviceId);
+                // Add a small delay before starting detection
+                setTimeout(() => {
                     startDetection();
-                }
-            } else {
-                stopCamera();
-                isCameraEnabled = false;
-                localStorage.setItem('cameraEnabled', 'false');
-                showCameraOffMessage('Camera is currently turned off');
+                }, 1000);
+            } catch (error) {
+                console.error('Failed to start camera:', error);
+                showCameraOffMessage('Failed to start camera. Please check permissions and try again.');
             }
-        } catch (error) {
-            console.error('Failed to apply camera settings:', error);
-            showErrorModal('Failed to apply camera settings. Please try again.');
+        } else {
+            showCameraOffMessage('Camera is currently turned off');
         }
 
         popupContainer.style.display = 'none';
@@ -608,6 +606,13 @@ async function detectPose() {
             cancelAnimationFrame(animationFrameId);
         }
         console.log('Pose detection stopped:', { isRunning, hasDetector: !!detector, isMewTrackEnabled });
+        return;
+    }
+
+    // Check if video is ready and has valid dimensions
+    if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight || videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+        console.log('Video not ready or has invalid dimensions, retrying...');
+        animationFrameId = requestAnimationFrame(() => detectPose());
         return;
     }
 
@@ -820,11 +825,15 @@ function drawSkeleton(keypoints, scale, offsetX, offsetY) {
 // }
 
 // Start detection
-function startDetection() {
-    if (!isRunning) {
-        isRunning = true;
-        detectPose();
+async function startDetection() {
+    if (!videoElement || !videoElement.srcObject || videoElement.readyState < 2) {
+        console.warn('Video not ready, delaying pose detection start');
+        setTimeout(startDetection, 500);
+        return;
     }
+
+    isRunning = true;
+    detectPose();
 }
 
 // Stop detection
@@ -1257,8 +1266,14 @@ async function initializeCamera(deviceId) {
 
         // Wait for video to be ready
         await new Promise((resolve) => {
-            videoElement.onloadedmetadata = () => resolve();
+            videoElement.onloadedmetadata = () => {
+                videoElement.play(); // Ensure video is playing
+                resolve();
+            };
         });
+
+        // Add an additional delay to ensure video is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Update canvas size
         const videoContainer = videoElement.parentElement;
@@ -1290,7 +1305,7 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Enable MewTrack</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-mewtrack" ${isRunning ? 'checked' : ''}>
+                        <input type="checkbox" id="enable-mewtrack" ${isMewTrackEnabled ? 'checked' : ''}>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1305,7 +1320,7 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Posture Notifications</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-notifications" checked>
+                        <input type="checkbox" id="enable-notifications" ${notificationsEnabled ? 'checked' : ''}>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1378,25 +1393,53 @@ function updateMewTrackSettings(enableMewTrack, enableNotifications, style) {
     isMewTrackEnabled = enableMewTrack;
     notificationsEnabled = enableNotifications;
     skeletonStyle = style;
+    console.log('MewTrack Enabled:', enableMewTrack, 'Running:', isRunning);
 
     // Update detection state based on MewTrack setting
     if (enableMewTrack && !isRunning) {
         startDetection();
+        isRunning = true; // Ensure isRunning reflects the state
     } else if (!enableMewTrack && isRunning) {
         stopDetection();
+        isRunning = false; // Ensure isRunning reflects the state
+    } else if (enableMewTrack && isRunning){
+        startDetection();
+        isRunning = true;
     }
 
-    // Clear canvas if MewTrack is disabled
-    if (!enableMewTrack) {
+    // Clear canvas if MewTrack is disabled, but only if canvas is initialized
+    if (!enableMewTrack && canvasElement && canvasContext) {
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize MewTrack settings from localStorage or defaults
-    isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
-    notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-    skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
+    // Initialize canvas element and context
+    canvasElement = document.getElementById('mewtrack-canvas');
+    canvasContext = canvasElement ? canvasElement.getContext('2d') : null;
+
+    console.log('Stored MewTrackEnabled:', localStorage.getItem('mewtrackEnabled'));
+
+    // Load settings from localStorage
+    const storedMewTrackEnabled = localStorage.getItem('mewtrackEnabled');
+    const storedNotificationsEnabled = localStorage.getItem('notificationsEnabled');
+    const storedSkeletonStyle = localStorage.getItem('skeletonStyle');
+
+    isMewTrackEnabled = storedMewTrackEnabled !== null ? storedMewTrackEnabled === 'true' : false;
+    notificationsEnabled = storedNotificationsEnabled !== null ? storedNotificationsEnabled === 'true' : true;
+    skeletonStyle = storedSkeletonStyle || 'both';
+
+    // Correctly initialize isRunning and trigger detection if enabled
+    if (isMewTrackEnabled) {
+        isRunning = true;
+        startDetection(); // Ensure detection starts if enabled
+    } else {
+        isRunning = false;
+    }
+
+    // Update settings
+    updateMewTrackSettings(isMewTrackEnabled, notificationsEnabled, skeletonStyle);
 });
 
 //.........................................................................................//
