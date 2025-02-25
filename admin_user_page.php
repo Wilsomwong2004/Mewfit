@@ -52,26 +52,39 @@
                             <th>Phone Number</th>
                         </tr>
                         <?php
-                            $sql = "SELECT * FROM administrator";
-                            $result = mysqli_query($dbConn, $sql);
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($rows = mysqli_fetch_array($result)) {
-                                    echo "<tr>";
-                                    echo "<td>".$rows['admin_id']."</td>";
-                                    echo "<td>".$rows['username']."</td>";
-                                    echo "<td>".$rows['password']."</td>";
-                                    echo "<td>".$rows['name']."</td>";
-                                    echo "<td>".$rows['gender']."</td>";
-                                    echo "<td>".$rows['email_address']."</td>";
-                                    echo "<td>".$rows['phone_number']."</td>";
-                                    echo "</tr>";
-                                }
-                            } else {
-                                echo "<tr><td colspan='7' style='border:none;text-align:center;margin:50px'>No data available</td></tr>";
-                                $sql="TRUNCATE TABLE administrator";
+                        $sql = "SELECT * FROM administrator";
+                        $result = mysqli_query($dbConn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($rows = mysqli_fetch_array($result)) {
+                                echo "<tr admin-id='".$rows['admin_id']."'>";
+                                echo "<td>".$rows['admin_id']."</td>";
+                                echo "<td>".$rows['username']."</td>";
+                                echo "<td>".$rows['password']."</td>";
+                                echo "<td>".$rows['name']."</td>";
+                                echo "<td>".$rows['gender']."</td>";
+                                echo "<td>".$rows['email_address']."</td>";
+                                echo "<td>".$rows['phone_number']."</td>";
+                                echo "</tr>";
                             }
+                        } else {
+                            echo "<tr class='no-data'><td colspan='7'>No data available</td></tr>";
+                            $sql="TRUNCATE TABLE administrator";
+                        }
                         ?>
                     </table>
+                </div>
+                <div class="table-option">
+                    <button id="edit-btn" disabled>Edit</button>
+                    <button id="delete-btn" disabled>Delete</button>
+                </div>
+
+                <div class="popup" id="popup">
+                    <div class="popup-content">
+                        <h2>Confirm Deletion</h2>
+                        <p>Are you sure you want to delete this record?</p>
+                        <button id="confirmDelete">Yes, Delete</button>
+                        <button id="cancelDelete">Cancel</button>
+                    </div>
                 </div>
             </div>
 
@@ -81,6 +94,7 @@
                 <h2>Add New <span>Profile</span></h2> 
                 </center>
                 <form method="post" action="">
+                    <label id="id" ></label>
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
                     
@@ -103,14 +117,55 @@
                     <label for="phonenum">Phone Number</label>
                     <input type="text" id="phonenum" name="phonenum" required>
 
-                    <center>
-                    <button type="submit" class="add-profile">Create New</button>
-                    </center>
+                    <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
+                        <button type="button" class="discard-btn">Discard Changes</button>
+                        <button type="submit" class="add-profile-btn">Create New</button>
+                    </div>
                 </form>
             </div>
         </div>
         <div class="member-container">
-            <h2>hi</h2>
+            <input type="text" class="search-bar" placeholder="Search">
+            <div class="member-box">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Level</th>
+                        <th>Weight</th>
+                        <th>Age</th>
+                        <th>Fitness Goal</th>
+                        <th>Target Weight</th>
+                        <th>Gender</th>
+                        <th>Day Streak Starting Date</th>
+                    </tr>
+                    
+                    <?php
+                            $sql = "SELECT * FROM member";
+                            $result = mysqli_query($dbConn, $sql);
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($rows = mysqli_fetch_array($result)) {
+                                    echo "<tr>";
+                                    echo "<td>".$rows['member_id']."</td>";
+                                    echo "<td>".$rows['username']."</td>";
+                                    echo "<td>".$rows['password']."</td>";
+                                    echo "<td>".$rows['level']."</td>";
+                                    echo "<td>".$rows['weight']."</td>";
+                                    echo "<td>".$rows['age']."</td>";
+                                    echo "<td>".$rows['fitness_goal']."</td>";
+                                    echo "<td>".$rows['target_weight']."</td>";
+                                    echo "<td>".$rows['gender']."</td>";
+                                    echo "<td>".$rows['day_streak_starting_date']."</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr class='no-data'><td colspan='10'>No data available</td></tr>";
+                                $sql="TRUNCATE TABLE member";
+                            }
+                        ?>
+                </table>
+            </div>
         </div>
     </div>
     
