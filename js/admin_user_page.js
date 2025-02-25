@@ -24,6 +24,19 @@ document.addEventListener('DOMContentLoaded', function() {
         adminLink.classList.add('active');
     });
 
+    //retain information
+    let form = document.querySelector(".add-profile form");
+
+    form.querySelectorAll("input, select").forEach(input => {
+        if (sessionStorage.getItem(input.name)) {
+            input.value = sessionStorage.getItem(input.name);
+        }
+
+        input.addEventListener("input", function () {
+            sessionStorage.setItem(input.name, this.value);
+        });
+    });
+
     //select row
     const rows = document.querySelectorAll('table tr:not(:first-child)'); 
     const editBtn = document.getElementById("edit-btn");
@@ -58,10 +71,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true);
 
     // Edit Button Functionality
+    const discardBtn = document.querySelector(".discard-btn");
+    const confirmBtn = document.querySelector(".confirm-btn");
+    const addProfileBtn = document.querySelector(".add-profile-btn");
     editBtn.addEventListener("click", function () {
         if (!selectedRow) return;
-        const discardBtn = document.querySelector(".discard-btn");
-        
+
         const cells = selectedRow.getElementsByTagName("td");
         document.getElementById("username").value = cells[1].textContent;
         document.getElementById("password").value = cells[2].textContent;
@@ -69,17 +84,20 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("gender").value = cells[4].textContent;
         document.getElementById("email").value = cells[5].textContent;
         document.getElementById("phonenum").value = cells[6].textContent;
-        document.getElementById("id").value = selectedRow.getAttribute("member-id");
+        document.getElementById("admin-id").value = selectedRow.getAttribute("admin-id");
 
-        document.querySelector(".add-profile-btn").innerText = "Update Changes";
+        addProfileBtn.style.display = "none";
+        confirmBtn.style.display = "block";
         discardBtn.style.display = "block";
     });
 
     //discard changes button
     document.querySelector(".discard-btn").addEventListener("click", function () {
         document.querySelector(".add-profile form").reset();
-        document.getElementById("id").value = ""; // Reset hidden ID field if exists
-        document.querySelector(".add-profile-btn").innerText = "Create New"; // Reset button text
+        document.getElementById("id").value = ""; 
+        addProfileBtn.style.display = "block";
+        confirmBtn.style.display = "none";
+        discardBtn.style.display = "none";
     });
 
     // Delete Button Functionality
@@ -110,6 +128,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById("cancelDelete").addEventListener("click", () => {
         document.getElementById("popup").style.display = "none"; 
+    });
+
+    //search
+    document.querySelector(".search-bar").addEventListener("keyup", function() {
+        const searchValue = this.value.toLowerCase();
+    
+        rows.forEach(row => {
+            const nameCell = row.cells[1].textContent.toLowerCase(); 
+            if (nameCell.includes(searchValue)) {
+                row.style.display = ""; 
+            } else {
+                row.style.display = "none"; 
+            }
+        });
     });
 
 });

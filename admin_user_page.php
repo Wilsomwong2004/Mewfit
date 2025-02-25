@@ -6,10 +6,6 @@
     <title>User Profile</title>
     <link rel="stylesheet" href="css/admin_user_page.css">
     <script src="js/admin_user_page.js" defer></script>
-    <style>
-        
-        
-    </style>
 </head>
 <?php
     include "conn.php";   
@@ -77,15 +73,6 @@
                     <button id="edit-btn" disabled>Edit</button>
                     <button id="delete-btn" disabled>Delete</button>
                 </div>
-
-                <div class="popup" id="popup">
-                    <div class="popup-content">
-                        <h2>Confirm Deletion</h2>
-                        <p>Are you sure you want to delete this record?</p>
-                        <button id="confirmDelete">Yes, Delete</button>
-                        <button id="cancelDelete">Cancel</button>
-                    </div>
-                </div>
             </div>
 
             <!--Add New Profile Form -->
@@ -94,7 +81,6 @@
                 <h2>Add New <span>Profile</span></h2> 
                 </center>
                 <form method="post" action="">
-                    <label id="id" ></label>
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
                     
@@ -119,9 +105,18 @@
 
                     <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
                         <button type="button" class="discard-btn">Discard Changes</button>
+                        <button type="button" class="confirm-btn">Update Changes</button>
                         <button type="submit" class="add-profile-btn">Create New</button>
                     </div>
                 </form>
+            </div>
+            <div class="popup" id="popup">
+                <div class="popup-content">
+                    <h2>Confirm Deletion</h2>
+                    <p>Are you sure you want to delete this record?</p>
+                    <button id="confirmDelete">Yes, Delete</button>
+                    <button id="cancelDelete">Cancel</button>
+                </div>
             </div>
         </div>
         <div class="member-container">
@@ -173,16 +168,16 @@
 </html>
 <?php
 // enter new data
-function validateInput($dbConn,$count,$username, $email, $phone_num) {
+function validateInput($dbConn, $username, $email, $phone_num) {
     $errors = [];
 
-    if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
-        $errors[] = "Username must be between 3 and 20 characters.";
-    }
+    // if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
+    //     $errors[] = "Username must be between 3 and 20 characters.";
+    // }
 
-    if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
-        $errors[] = "Phone number must be 10 digits.";
-    }
+    // if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
+    //     $errors[] = "Phone number must be 10 digits.";
+    // }
 
     $fields = ['username' => $username, 'email_address' => $email, 'phone_number' => $phone_num];
     foreach ($fields as $field => $value) {
@@ -192,7 +187,8 @@ function validateInput($dbConn,$count,$username, $email, $phone_num) {
             $stmt->execute();
             $stmt->bind_result($count);
             $stmt->fetch();
-            if (isset($count) && $count > 0) {
+            
+            if ($count > 0) {
                 $errors[] = ucfirst(str_replace('_', ' ', $field)) . " already exists.";
             }
             $stmt->close();
@@ -214,21 +210,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $errors = validateInput($dbConn,$count,$username,$email,  $phone_num);
     
-    if (empty($errors)){
-        $sql = "INSERT INTO administrator(username, password, name, gender, email_address, phone_number) 
-        VALUES('$username','$password','$name','$gender', '$email', '$phone_num');";
+    if (empty($errors)) {
+        $sql = "INSERT INTO administrator (username, password, name, gender, email_address, phone_number) 
+                VALUES ('$username', '$password', '$name', '$gender', '$email', '$phone_num')";
 
         if (!$dbConn->query($sql)) {
             die("Failed to update admin table");
         }
-    
-        echo "<script>alert('Sucessfully insert data')</script>";
-        
-    }else {
+    } else {
         foreach ($errors as $error) {
-            echo "<script>alert('$error')</script>";
+            echo "<script>alert('$error');</script>";
         }
     }
-    
 }
 ?>

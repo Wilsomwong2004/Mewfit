@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    overflow: hidden;
 }
 
 /* Navigation Bar */
@@ -88,6 +89,7 @@ nav {
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
+    overflow-x: auto;
     border-collapse: collapse;
 }
 
@@ -149,7 +151,7 @@ tr:hover{
     border-radius: 16px;
 }
 
-.add-profile-btn {
+.add-profile-btn, .confirm-btn {
     margin-top: 30px;
     width: 35%;
     height:40px;
@@ -161,6 +163,10 @@ tr:hover{
     cursor: pointer;
     border-radius: 15px;
     
+}
+
+.confirm-btn{
+    display:none;
 }
 
 .add-profile-btn:hover {
