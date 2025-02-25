@@ -1,30 +1,25 @@
 <?php
-    $header = "location: ./";
+    include "conn.php";
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $data = $_POST['data'];
+        $table = $_POST['table'];
         $id = $_POST['id'];
-        switch ($data) {
-            case 'member':
-                $sql = "DELETE FROM member WHERE member_ID = '$id'";
-                break;
-            case 'admin':
-                $sql = "DELETE FROM administrator WHERE admin_ID = '$id'";
-                break;
-            case 'nutrition':
-                $sql = "DELETE FROM nutrition WHERE nutrition_ID = '$id'";
-                break;
-            case 'diet':
-                $sql = "DELETE FROM nutrition WHERE diet_ID = '$id'";
-                break;
-            case 'workout':
-                $sql = "DELETE FROM workout WHERE workout_ID = '$id'";
-                break;
+        $validTables = [
+            "member" => "member_id",
+            "administrator" => "admin_id",
+            "nutrition" => "nutrition_id",
+            "diet" => "diet_id",
+            "workout" => "workout_id"
+        ];
+    
+        if (!isset($validTables[$table])) {
+            die("Invalid table name.");
         }
-        $header .= "?data=$data";
-        require "./dbConn.php";
-        if (!$dbConn -> query($sql)) {
-            die("Error Deleting");
+    
+        $sql = "DELETE FROM $table WHERE {$validTables[$table]} = '$id'";
+        
+        if (!$dbConn->query($sql)) {
+            die("Error Deleting: " . $dbConn->error);
         }
+        
+        echo "Record deleted successfully!";
     }
-    header($header);
-    die();
