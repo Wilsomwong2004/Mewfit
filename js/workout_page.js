@@ -421,14 +421,13 @@ const workouts = [
         level: 'Beginner',
         description: 'A quick and easy cardio workout to get started.',
         image: '',
-        video: '',
         type: ['All', 'Cardio'],
         sets: 1,
         exercises: [
-            { exercise: 'March in Place', duration: '180 seconds' },
-            { exercise: 'Side Steps', duration: '180 minutes' },
-            { exercise: 'Low Impact Jumping Jacks', duration: '180 minutes' },
-            { exercise: 'Cool Down Stretches', duration: '60 minute' }
+            { exercise: 'March in Place', duration: '3 minutes', video: '' },
+            { exercise: 'Side Steps', duration: '3 minutes', video: '' },
+            { exercise: 'Low Impact Jumping Jacks', duration: '3 minutes', video: '' },
+            { exercise: 'Cool Down Stretches', duration: '1 minutes', video: '' }
         ]
     },
     {
@@ -442,10 +441,10 @@ const workouts = [
         type: ['All', 'Weightfree'],
         sets: 3,
         exercises: [
-            { exercise: 'Knee Push-ups', reps: 12 },
-            { exercise: 'Incline Push-ups', reps: 10 },
-            { exercise: 'Wide Arm Push-ups', reps: 8 },
-            { exercise: 'Rest', duration: '2 minutes' }
+            { exercise: 'Knee Push-ups', reps: 12, video: '' },
+            { exercise: 'Incline Push-ups', reps: 10, video: '' },
+            { exercise: 'Wide Arm Push-ups', reps: 8, video: '' },
+            { exercise: 'Rest', duration: '2 minutes', video: '' }
         ]
     },
     {
@@ -459,10 +458,10 @@ const workouts = [
         type: ['All', 'Yoga'],
         sets: 1,
         exercises: [
-            { pose: 'Child’s Pose', duration: '5 minutes' },
-            { pose: 'Cat-Cow Stretch', duration: '5 minutes' },
-            { pose: 'Seated Forward Bend', duration: '5 minutes' },
-            { pose: 'Corpse Pose', duration: '5 minutes' }
+            { pose: 'Child’s Pose', duration: '5 minutes', video: '' },
+            { pose: 'Cat-Cow Stretch', duration: '5 minutes', video: '' },
+            { pose: 'Seated Forward Bend', duration: '5 minutes', video: '' },
+            { pose: 'Corpse Pose', duration: '5 minutes', video: '' }
         ]
     },
     {
@@ -476,9 +475,9 @@ const workouts = [
         type: ['All', 'Meditation'],
         sets: 1,
         exercises: [
-            { activity: 'Breathing Exercise', duration: '5 minutes' },
-            { activity: 'Body Awareness Meditation', duration: '5 minutes' },
-            { activity: 'Closing Reflection', duration: '5 minutes' }
+            { activity: 'Breathing Exercise', duration: '5 minutes', video: '' },
+            { activity: 'Body Awareness Meditation', duration: '5 minutes', video: '' },
+            { activity: 'Closing Reflection', duration: '5 minutes', video: '' }
         ]
     },
     {
@@ -492,11 +491,11 @@ const workouts = [
         type: ['All', 'Weightfree'],
         sets: 3,
         exercises: [
-            { exercise: 'Plank Hold', duration: '1 minute' },
-            { exercise: 'Bicycle Crunches', reps: 20 },
-            { exercise: 'Leg Raises', reps: 15 },
-            { exercise: 'Side Planks', duration: '30 seconds each side' },
-            { exercise: 'Rest', duration: '2 minutes' }
+            { exercise: 'Plank Hold', duration: '1 minute', video: '' },
+            { exercise: 'Bicycle Crunches', reps: 20, video: '' },
+            { exercise: 'Leg Raises', reps: 15, video: '' },
+            { exercise: 'Side Planks', duration: '30 seconds each side', video: '' },
+            { exercise: 'Rest', duration: '2 minutes', video: '' }
         ]
     },
     {
@@ -510,11 +509,11 @@ const workouts = [
         type: ['All', 'Weighted'],
         sets: 3,
         exercises: [
-            { exercise: 'Assisted Pull-ups', reps: 10 },
-            { exercise: 'Chin-ups', reps: 8 },
-            { exercise: 'Negative Pull-ups', reps: 6 },
-            { exercise: 'Wide-grip Pull-ups', reps: 6 },
-            { exercise: 'Rest', duration: '2 minutes' }
+            { exercise: 'Assisted Pull-ups', reps: 10, video: '' },
+            { exercise: 'Chin-ups', reps: 8, video: '' },
+            { exercise: 'Negative Pull-ups', reps: 6, video: '' },
+            { exercise: 'Wide-grip Pull-ups', reps: 6, video: '' },
+            { exercise: 'Rest', duration: '2 minutes', video: '' }
         ]
     },
     {
@@ -528,10 +527,10 @@ const workouts = [
         type: ['All', 'Yoga'],
         sets: 1,
         exercises: [
-            { pose: 'Sun Salutations', duration: '10 minutes' },
-            { pose: 'Warrior I and II', duration: '5 minutes' },
-            { pose: 'Triangle Pose', duration: '5 minutes' },
-            { pose: 'Pigeon Pose', duration: '5 minutes' }
+            { pose: 'Sun Salutations', duration: '10 minutes', video: '' },
+            { pose: 'Warrior I and II', duration: '5 minutes', video: '' },
+            { pose: 'Triangle Pose', duration: '5 minutes', video: '' },
+            { pose: 'Pigeon Pose', duration: '5 minutes', video: '' }
         ]
     },
     {
@@ -545,11 +544,11 @@ const workouts = [
         type: ['All', 'Cardio'],
         sets: 3,
         exercises: [
-            { exercise: 'Sprint Intervals', duration: '4 minutes' },
-            { exercise: 'Burpees', duration: 'llenge' },
-            { exercise: 'Jump Squats', duration: '4 minutes' },
-            { exercise: 'Mountain Climbers', duration: '4 minutes' },
-            { exercise: 'Cool Down', duration: '4 minutes' }
+            { exercise: 'Sprint Intervals', duration: '4 minutes', video: '' },
+            { exercise: 'Burpees', duration: 'llenge', video: '' },
+            { exercise: 'Jump Squats', duration: '4 minutes', video: '' },
+            { exercise: 'Mountain Climbers', duration: '4 minutes', video: '' },
+            { exercise: 'Cool Down', duration: '4 minutes', video: '' }
         ]
     },
     {
@@ -563,11 +562,11 @@ const workouts = [
         type: ['All', 'Weighted'],
         sets: 3,
         exercises: [
-            { exercise: 'Deadlifts', reps: 10 },
-            { exercise: 'Barbell Squats', reps: 10 },
-            { exercise: 'Bench Press', reps: 8 },
-            { exercise: 'Pull-ups', reps: 10 },
-            { exercise: 'Rest', duration: '3 minutes' }
+            { exercise: 'Deadlifts', reps: 10, video: '' },
+            { exercise: 'Barbell Squats', reps: 10, video: '' },
+            { exercise: 'Bench Press', reps: 8, video: '' },
+            { exercise: 'Pull-ups', reps: 10, video: '' },
+            { exercise: 'Rest', duration: '3 minutes', video: '' }
         ]
     },
     {
@@ -581,10 +580,10 @@ const workouts = [
         type: ['All', 'Yoga'],
         sets: 1,
         exercises: [
-            { pose: 'Handstand Practice', duration: '10 minutes' },
-            { pose: 'Crow Pose', duration: '5 minutes' },
-            { pose: 'Wheel Pose', duration: '10 minutes' },
-            { pose: 'Savasana', duration: '5 minutes' }
+            { pose: 'Handstand Practice', duration: '10 minutes', video: '' },
+            { pose: 'Crow Pose', duration: '5 minutes', video: '' },
+            { pose: 'Wheel Pose', duration: '10 minutes', video: '' },
+            { pose: 'Savasana', duration: '5 minutes', video: '' }
         ]
     }
 ];
@@ -999,7 +998,7 @@ class SearchImplementation {
                 this.searchBackdrop.style.display = 'none';
                 this.searchBarCloseIcon.style.display = 'none';
                 this.hideDropdown();
-                
+
                 if (!wasSearchOpen) {
                     this.searchBarSmall.style.display = 'block';
                 }
@@ -1033,7 +1032,7 @@ class SearchImplementation {
                 this.searchBar.classList.remove('show-search');
             }
         }
-    
+
     }
 
     updateDropdownPosition() {
