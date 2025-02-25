@@ -37,6 +37,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    //clear all rows
+    function clearForm() {
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("gender").selectedIndex = 0;
+        document.getElementById("email").value = "";
+        document.getElementById("phonenum").value = "";
+        sessionStorage.clear();
+        window.location.href = window.location.href;
+    }
+    
+    window.onload = function() {
+        if (sessionStorage.getItem("clearForm") === "true") {
+            clearForm();
+            sessionStorage.removeItem("clearForm"); 
+        }
+    };
+
     //select row
     const rows = document.querySelectorAll('table tr:not(:first-child)'); 
     const editBtn = document.getElementById("edit-btn");

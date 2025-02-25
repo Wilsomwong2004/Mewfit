@@ -171,30 +171,37 @@
 function validateInput($dbConn, $username, $email, $phone_num) {
     $errors = [];
 
-    // if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
-    //     $errors[] = "Username must be between 3 and 20 characters.";
-    // }
+    if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
+        $errors[] = "Username must be between 3 and 20 characters.";
+    }
+    if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
+        $errors[] = "Phone number must be 10 digits.";
+    }
 
-    // if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
-    //     $errors[] = "Phone number must be 10 digits.";
-    // }
+    $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE username = ? OR email_address = ? OR phone_number = ?");
+    
+    if ($stmt) {
+        $stmt->bind_param("sss", $username, $email, $phone_num);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    $fields = ['username' => $username, 'email_address' => $email, 'phone_number' => $phone_num];
-    foreach ($fields as $field => $value) {
-        $stmt = $dbConn->prepare("SELECT COUNT(*) FROM administrator WHERE $field = ?");
-        if ($stmt) {
-            $stmt->bind_param("s", $value);
-            $stmt->execute();
-            $stmt->bind_result($count);
-            $stmt->fetch();
-            
-            if ($count > 0) {
-                $errors[] = ucfirst(str_replace('_', ' ', $field)) . " already exists.";
+        while ($row = $result->fetch_assoc()) {
+            if ($row['username'] === $username) {
+                $errors[] = "Username already exists.";
+                break;
             }
-            $stmt->close();
-        } else {
-            $errors[] = "Database error: Unable to prepare statement.";
+            if ($row['email_address'] === $email) {
+                $errors[] = "Email already exists.";
+                break;
+            }
+            if ($row['phone_number'] === $phone_num) {
+                $errors[] = "Phone number already exists.";
+                break;
+            }
         }
+        $stmt->close();
+    } else {
+        $errors[] = "Database error: Unable to prepare statement.";
     }
 
     return $errors;
@@ -208,18 +215,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $phone_num = trim($_POST['phonenum']);
 
-    $errors = validateInput($dbConn,$count,$username,$email,  $phone_num);
+    if (!empty($username)){
+        $errors = validateInput($dbConn,$username,$email,  $phone_num);
+        if (empty($errors)) {
+            $sql = "INSERT INTO administrator (username, password, name, gender, email_address, phone_number) 
+                    VALUES ('$username', '$password', '$name', '$gender', '$email', '$phone_num')";
     
-    if (empty($errors)) {
-        $sql = "INSERT INTO administrator (username, password, name, gender, email_address, phone_number) 
-                VALUES ('$username', '$password', '$name', '$gender', '$email', '$phone_num')";
-
-        if (!$dbConn->query($sql)) {
-            die("Failed to update admin table");
-        }
-    } else {
-        foreach ($errors as $error) {
-            echo "<script>alert('$error');</script>";
+            if (!$dbConn->query($sql)) {
+                die("Failed to update admin table");
+            }else{
+                echo "<script>sessionStorage.setItem('clearForm', 'true');</script>";
+            }
+        } else {
+            foreach ($errors as $error) {
+                echo "<script>alert('$error');</script>";
+            }
         }
     }
 }
