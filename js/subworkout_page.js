@@ -3,13 +3,34 @@ let videoElement;
 let canvasElement;
 let canvasContext;
 let isRunning = false;
-let cameras = []; // Store available cameras
+let cameras = [];
 let animationFrameId;
 let isInitialized = false;
-let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
-let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-let skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
-let isCameraEnabled = localStorage.getItem('cameraEnabled') !== 'false';
+const DEFAULT_SETTINGS = {
+    mewtrackEnabled: true,
+    notificationsEnabled: true,
+    skeletonStyle: 'both',
+    cameraEnabled: true,
+};
+
+// Load settings from local storage
+let isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') !== null
+    ? localStorage.getItem('mewtrackEnabled') === 'true'
+    : DEFAULT_SETTINGS.mewtrackEnabled;
+let notificationsEnabled = localStorage.getItem('notificationsEnabled') !== null
+    ? localStorage.getItem('notificationsEnabled') === 'true'
+    : DEFAULT_SETTINGS.notificationsEnabled;
+let skeletonStyle = localStorage.getItem('skeletonStyle') || DEFAULT_SETTINGS.skeletonStyle;
+let isCameraEnabled = localStorage.getItem('cameraEnabled') !== null
+    ? localStorage.getItem('cameraEnabled') === 'true'
+    : DEFAULT_SETTINGS.cameraEnabled;
+
+const pauseBtn = document.querySelector('.pause');
+const closeBtn = document.getElementById('close-btn');
+const skipBtn = document.querySelector('.skip');
+const popupContainer = document.getElementById('popup-container');
+const popupTitle = document.getElementById('popup-title');
+const popupBody = document.getElementById('popup-body');
 
 // Initialize TensorFlow backend
 async function initializeTF() {
@@ -29,35 +50,36 @@ async function initializeTF() {
 
 // Modified init function
 async function init() {
+    console.log('Initializing pose detection...');
     const workoutUser = document.querySelector('.workout-user');
 
     try {
-        // Initialize TensorFlow first
         const tfInitialized = await initializeTF();
+        console.log('TensorFlow initialized:', tfInitialized);
+
         if (!tfInitialized) {
             throw new Error('Could not initialize TensorFlow. Please check if your browser supports WebGL.');
         }
 
-        // Initialize pose detector
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
                 modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
             }
         );
+        console.log('Detector created:', !!detector);
 
-        // Proceed with camera initialization
         await requestCameraPermission();
+        console.log('Camera permission granted, MewTrack enabled:', isMewTrackEnabled);
+
     } catch (error) {
         console.error('Initialization error:', error);
         showErrorModal(error.message);
     }
 }
 
-
 // Update the window load event handler
 window.addEventListener('load', async () => {
-    // Wait a moment to ensure all scripts are loaded
     setTimeout(async () => {
         await init();
     }, 1000);
@@ -121,7 +143,7 @@ async function requestCameraPermission() {
                 if (stream) break; // Successfully got a stream
             } catch (err) {
                 console.log(`Failed to get stream from camera ${camera.deviceId}:`, err);
-                continue; // Try next camera
+                continue;
             }
         }
 
@@ -242,27 +264,19 @@ async function initializeVideoElements(stream) {
                 const rect = videoContainer.getBoundingClientRect();
                 canvasElement.width = rect.width;
                 canvasElement.height = rect.height;
+
+                canvasElement.scaleX = canvasElement.width / videoElement.videoWidth;
+                canvasElement.scaleY = canvasElement.height / videoElement.videoHeight;
+                canvasElement.offsetX = 0;
+                canvasElement.offsetY = 0;
             };
 
-            // Initial size update
             updateCanvasSize();
-
-            // Update size on window resize
             window.addEventListener('resize', updateCanvasSize);
 
-            // Start detection only if MewTrack is enabled
-            if (isMewTrackEnabled) {
-                startDetection();
-            }
+            isRunning = true;
+            startDetection();
         };
-
-        // Load pose detection model
-        detector = await poseDetection.createDetector(
-            poseDetection.SupportedModels.MoveNet,
-            {
-                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-            }
-        );
 
     } catch (error) {
         console.error('Error in video initialization:', error);
@@ -273,8 +287,8 @@ async function initializeVideoElements(stream) {
 
 // Initialize the pose detection system
 async function initPoseDetection() {
-    // Start with permission request
-    await requestCameraPermission();
+    console.log('Starting pose detection initialization...', { isCameraEnabled });
+
     if (!isCameraEnabled) {
         showCameraOffMessage('Camera is currently turned off');
         return;
@@ -290,7 +304,7 @@ async function initPoseDetection() {
             audio: false
         });
 
-        // Load pose detection model with correct configuration
+        // Load pose detection model
         detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,
             {
@@ -319,8 +333,6 @@ async function initPoseDetection() {
             </div>
         `;
     }
-
-    await requestCameraPermission();
 }
 
 // Modify the camera settings handler
@@ -425,24 +437,22 @@ async function handleCameraSettings() {
         const newCameraEnabled = document.getElementById('camera-toggle').checked;
         const selectedDeviceId = document.getElementById('cameraSelect').value;
 
-        try {
-            if (newCameraEnabled) {
-                await initializeCamera(selectedDeviceId);
-                isCameraEnabled = true;
-                localStorage.setItem('cameraEnabled', 'true');
+        // First stop any existing camera
+        stopCamera();
 
-                if (isMewTrackEnabled) {
+        if (newCameraEnabled) {
+            try {
+                await initializeCamera(selectedDeviceId);
+                // Add a small delay before starting detection
+                setTimeout(() => {
                     startDetection();
-                }
-            } else {
-                stopCamera();
-                isCameraEnabled = false;
-                localStorage.setItem('cameraEnabled', 'false');
-                showCameraOffMessage('Camera is currently turned off');
+                }, 1000);
+            } catch (error) {
+                console.error('Failed to start camera:', error);
+                showCameraOffMessage('Failed to start camera. Please check permissions and try again.');
             }
-        } catch (error) {
-            console.error('Failed to apply camera settings:', error);
-            showErrorModal('Failed to apply camera settings. Please try again.');
+        } else {
+            showCameraOffMessage('Camera is currently turned off');
         }
 
         popupContainer.style.display = 'none';
@@ -532,7 +542,6 @@ async function initPoseDetection() {
         return;
     }
 
-    // Rest of the existing initPoseDetection code...
     await requestCameraPermission();
 }
 
@@ -541,9 +550,11 @@ window.addEventListener('load', async () => {
     // Wait a moment to ensure all scripts are loaded
     setTimeout(async () => {
         if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
-            // Check the saved camera state
-            const savedCameraState = localStorage.getItem('cameraEnabled');
-            isCameraEnabled = savedCameraState !== 'false'; // Default to true if not set
+            console.log('Libraries loaded, initializing with settings:', {
+                isCameraEnabled,
+                isMewTrackEnabled,
+                skeletonStyle
+            });
 
             if (isCameraEnabled) {
                 await init();
@@ -597,29 +608,51 @@ function showErrorModal(errorMessage) {
 
 // Detect poses and draw them
 async function detectPose() {
-    if (!isRunning || !detector || !isMewTrackEnabled) return;
+    if (!isRunning || !detector || !isMewTrackEnabled) {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        console.log('Pose detection stopped:', { isRunning, hasDetector: !!detector, isMewTrackEnabled });
+        return;
+    }
+
+    // Check if video is ready and has valid dimensions
+    if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight || videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+        console.log('Video not ready or has invalid dimensions, retrying...');
+        animationFrameId = requestAnimationFrame(() => detectPose());
+        return;
+    }
 
     try {
         const poses = await detector.estimatePoses(videoElement);
+
+        // Clear previous frame
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
 
-            // Draw skeleton
-            drawSkeleton(keypoints);
+            // Use canvas scale factors for correct drawing
+            const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
+            const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
+            const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-            // Add form validation warnings
+            // Draw skeleton with proper scaling
+            drawSkeleton(keypoints, scale, offsetX, offsetY);
+            drawKeypoints(keypoints, scale, offsetX, offsetY);
+
+            // Form validation if enabled
             if (this.repCounter) {
                 const formFeedback = validateForm(keypoints, this.repCounter.exerciseType);
                 showFormFeedback(formFeedback);
             }
         }
 
-        animationFrameId = requestAnimationFrame(detectPose);
+        animationFrameId = requestAnimationFrame(() => detectPose());
     } catch (error) {
         console.error('Detection error:', error);
-        animationFrameId = requestAnimationFrame(detectPose);
+        // Continue the detection loop even if there's an error
+        animationFrameId = requestAnimationFrame(() => detectPose());
     }
 }
 
@@ -729,102 +762,85 @@ function drawSkeleton(keypoints, scale, offsetX, offsetY) {
     }
 }
 
-function startWorkoutCountdown(workoutName, onCompleteCallback) {
-    // Set initial count
-    let currentCount = 3;
-    let countdownInterval;
+// function startWorkoutCountdown(workoutName, onCompleteCallback) {
+//     let currentCount = 3;
+//     let countdownInterval;
 
-    // Create countdown content
-    const countdownContent = `
-        <div class="header">
-            <div class="timer">
-                <div class="timer-text">0:20</div>
-            </div>
-            <div class="workout-details">
-                <div class="workout-name">${workoutName}</div>
-                <div class="workout-round">1/13</div>
-            </div>
-            <div id="countdown-close" class="close-btn">
-                <i class="fa-solid fa-xmark"></i>
-            </div>
-        </div>
-        <div class="countdown-main">
-            <h1 class="ready-text">READY TO GO</h1>
-            <div class="count-circle">${currentCount}</div>
-            <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
-        </div>
-        <div class="bottom">
-            <div class="control-panel">
-                <div class="pause" id="countdown-pause">
-                    <i class="fa-solid fa-pause"></i>
-                    <p class="pause-text">Pause</p>
-                </div>
-            </div>
-        </div>
-    `;
+//     // Create countdown content
+//     const countdownContent = `
+//         <div class="countdown-main">
+//             <h1 class="ready-text">READY TO GO</h1>
+//             <div class="count-circle">${currentCount}</div>
+//             <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
+//         </div>
+//     `;
 
-    // Create overlay div
-    const overlay = document.createElement('div');
-    overlay.className = 'countdown-overlay';
-    overlay.innerHTML = countdownContent;
-    document.body.appendChild(overlay);
+//     // Create overlay div
+//     const overlay = document.createElement('div');
+//     overlay.className = 'countdown-overlay';
+//     overlay.innerHTML = countdownContent;
+//     document.body.appendChild(overlay);
 
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
+//     const styleSheet = document.createElement('style');
+//     styleSheet.textContent = styles;
+//     document.head.appendChild(styleSheet);
 
-    // Start countdown
-    let isPaused = false;
-    countdownInterval = setInterval(() => {
-        if (!isPaused) {
-            currentCount--;
-            const countCircle = overlay.querySelector('.count-circle');
-            if (countCircle) {
-                countCircle.textContent = currentCount;
-            }
+//     // Start countdown
+//     let isPaused = false;
+//     countdownInterval = setInterval(() => {
+//         if (!isPaused) {
+//             currentCount--;
+//             const countCircle = overlay.querySelector('.count-circle');
+//             if (countCircle) {
+//                 countCircle.textContent = currentCount;
+//             }
 
-            if (currentCount <= 0) {
-                clearInterval(countdownInterval);
-                overlay.remove();
-                styleSheet.remove();
-                if (onCompleteCallback) {
-                    onCompleteCallback();
-                }
-            }
-        }
-    }, 1000);
+//             if (currentCount <= 0) {
+//                 clearInterval(countdownInterval);
+//                 overlay.remove();
+//                 styleSheet.remove();
+//                 if (onCompleteCallback) {
+//                     onCompleteCallback();
+//                 }
+//             }
+//         }
+//     }, 1000);
 
-    // Add event listeners
-    const pauseBtn = overlay.querySelector('#countdown-pause');
-    const closeBtn = overlay.querySelector('#countdown-close');
+//     // Add event listeners
+//     const pauseBtn = overlay.querySelector('#countdown-pause');
+//     const closeBtn = overlay.querySelector('#countdown-close');
 
-    pauseBtn.addEventListener('click', () => {
-        isPaused = !isPaused;
-        const pauseIcon = pauseBtn.querySelector('i');
-        const pauseText = pauseBtn.querySelector('.pause-text');
+//     pauseBtn.addEventListener('click', () => {
+//         isPaused = !isPaused;
+//         const pauseIcon = pauseBtn.querySelector('i');
+//         const pauseText = pauseBtn.querySelector('.pause-text');
 
-        if (isPaused) {
-            pauseIcon.className = 'fa-solid fa-play';
-            pauseText.textContent = 'Resume';
-        } else {
-            pauseIcon.className = 'fa-solid fa-pause';
-            pauseText.textContent = 'Pause';
-        }
-    });
+//         if (isPaused) {
+//             pauseIcon.className = 'fa-solid fa-play';
+//             pauseText.textContent = 'Resume';
+//         } else {
+//             pauseIcon.className = 'fa-solid fa-pause';
+//             pauseText.textContent = 'Pause';
+//         }
+//     });
 
-    closeBtn.addEventListener('click', () => {
-        clearInterval(countdownInterval);
-        overlay.remove();
-        styleSheet.remove();
-    });
-}
+//     closeBtn.addEventListener('click', () => {
+//         clearInterval(countdownInterval);
+//         overlay.remove();
+//         styleSheet.remove();
+//     });
+// }
 
 // Start detection
-function startDetection() {
-    if (!isRunning) {
-        isRunning = true;
-        detectPose();
+async function startDetection() {
+    if (!videoElement || !videoElement.srcObject || videoElement.readyState < 2) {
+        console.warn('Video not ready, delaying pose detection start');
+        setTimeout(startDetection, 500);
+        return;
     }
+
+    isRunning = true;
+    detectPose();
 }
 
 // Stop detection
@@ -834,32 +850,6 @@ function stopDetection() {
         cancelAnimationFrame(animationFrameId);
     }
 }
-
-// Handle pause button
-const pauseBtn = document.querySelector('.pause');
-pauseBtn.addEventListener('click', () => {
-    const pauseIcon = document.getElementById('pause-btn-icon');
-    const pauseText = document.querySelector('.pause-text');
-
-    if (isRunning) {
-        stopDetection();
-        pauseIcon.classList.remove('fa-pause');
-        pauseIcon.classList.add('fa-play');
-        pauseText.textContent = 'Resume';
-    } else {
-        startDetection();
-        pauseIcon.classList.remove('fa-play');
-        pauseIcon.classList.add('fa-pause');
-        pauseText.textContent = 'Pause';
-    }
-});
-
-// Handle close button
-const closeBtn = document.querySelector('.close-btn');
-closeBtn.addEventListener('click', () => {
-    stopDetection();
-    // Add your close/exit logic here
-});
 
 // Initialize when page loads
 window.addEventListener('load', () => {
@@ -881,135 +871,125 @@ function areLibrariesLoaded() {
 //.........................................................................................//
 // More Function (pop up window)
 
-function createSettingsPopup() {
-    const popupContainer = document.getElementById('popup-container-more');
-    const moreButton = document.getElementById('more');
-    let popup = null;
-
-    function createPopup() {
-        const popupElement = document.createElement('div');
-        popupElement.className = 'popup-settings';
-
-        const options = [
-            { icon: 'fa-camera', label: 'Camera Settings' },
-            { icon: 'fa-users', label: 'Change Instructor' },
-            { icon: 'fa-chart-line', label: 'MewTrack' },
-            { icon: 'fa-table-cells-large', label: 'Layout' }
-        ];
-
-        const optionsHTML = options.map(option => `
-            <button class="settings-option">
-                <i class="fa-solid ${option.icon}"></i>
-                <span>${option.label}</span>
-                <span class="icon-right"><i class="fa-solid fa-chevron-right"></i></span>
-            </button>
-        `).join('');
-
-        popupElement.innerHTML = optionsHTML;
-        return popupElement;
+document.addEventListener('DOMContentLoaded', function () {
+    let popupContainer = document.getElementById('popup-container-more');
+    if (!popupContainer) {
+        popupContainer = document.createElement('div');
+        popupContainer.id = 'popup-container-more';
+        document.body.appendChild(popupContainer);
     }
 
-    function updatePopupPosition() {
-        if (!popup) return;
-
-        const buttonRect = moreButton.getBoundingClientRect();
-        const popupRect = popup.getBoundingClientRect();
-
-        // Position popup above the button
-        let top = buttonRect.top - popupRect.height - 20;
-        let left = buttonRect.left - (popupRect.width - buttonRect.width) / 2;
-
-        // Ensure popup stays within viewport
-        if (left + popupRect.width > window.innerWidth) {
-            left = window.innerWidth - popupRect.width - 40;
-        }
-        if (left < 20) {
-            left = 20;
-        }
-        if (top < 20) {
-            top = buttonRect.bottom + 10; // Show below if not enough space above
+    const createSettingsPopup = () => {
+        const moreButton = document.getElementById('more');
+        if (!moreButton) {
+            console.error('More button not found');
+            return;
         }
 
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
-    }
+        let popup = null;
 
-    function showPopup() {
-        if (!popup) {
-            popup = createPopup();
-            popupContainer.appendChild(popup);
+        function createPopup() {
+            const popupElement = document.createElement('div');
+            popupElement.className = 'popup-settings';
+
+            const options = [
+                { icon: 'fa-camera', label: 'Camera Settings' },
+                { icon: 'fa-chart-line', label: 'MewTrack' },
+                { icon: 'fa-table-cells-large', label: 'Layout' }
+            ];
+
+            const optionsHTML = options.map(option => `
+                <div class="settings-option">
+                    <i class="fas ${option.icon}"></i>
+                    <span>${option.label}</span>
+                </div>
+            `).join('');
+
+            popupElement.innerHTML = optionsHTML;
+            return popupElement;
         }
 
-        popupContainer.style.display = 'block';
-        updatePopupPosition();
+        function updatePopupPosition() {
+            if (!popup) return;
 
-        // Add click handlers for options
-        popup.querySelectorAll('.settings-option').forEach((option, index) => {
-            option.onclick = () => {
-                switch (index) {
-                    case 0: // Camera Settings
-                        handleCameraSettings();
-                        break;
-                    case 1: // Change Instructor
-                        handleInstructorChange();
-                        break;
-                    case 2: // MewTrack
-                        handleMewTrack();
-                        break;
-                    case 3: // Layout
-                        handleLayout();
-                        break;
-                }
+            const buttonRect = moreButton.getBoundingClientRect();
+            const popupRect = popup.getBoundingClientRect();
+
+            // Position popup above the button
+            let top = buttonRect.top - popupRect.height - 12;
+            let left = buttonRect.left - (popupRect.width - buttonRect.width) / 2;
+
+            // Ensure popup stays within viewport
+            if (left + popupRect.width > window.innerWidth) {
+                left = window.innerWidth - popupRect.width - 40;
+            }
+            if (left < 10) {
+                left = 10;
+            }
+            if (top < 10) {
+                top = buttonRect.bottom + 10; // Show below if not enough space above
+            }
+
+            popup.style.top = `${top}px`;
+            popup.style.left = `${left}px`;
+        }
+
+        function showPopup() {
+            if (!popup) {
+                popup = createPopup();
+                popupContainer.appendChild(popup);
+            }
+
+            popupContainer.style.display = 'block';
+            updatePopupPosition();
+
+            // Add click handlers for options
+            popup.querySelectorAll('.settings-option').forEach((option, index) => {
+                option.onclick = () => {
+                    switch (index) {
+                        case 0:
+                            handleCameraSettings();
+                            break;
+                        case 1:
+                            handleMewTrack();
+                            break;
+                        case 2:
+                            handleLayout();
+                            break;
+                    }
+                    hidePopup();
+                };
+            });
+        }
+
+        function hidePopup() {
+            popupContainer.style.display = 'none';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', updatePopupPosition);
+
+        // Toggle popup on more button click
+        moreButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (popupContainer.style.display === 'block') {
                 hidePopup();
-            };
+            } else {
+                showPopup();
+            }
         });
-    }
 
-    function hidePopup() {
-        popupContainer.style.display = 'none';
-    }
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (popupContainer.style.display === 'block' &&
+                !popup?.contains(e.target) &&
+                e.target !== moreButton) {
+                hidePopup();
+            }
+        });
+    };
 
-    // Handle window resize
-    window.addEventListener('resize', updatePopupPosition);
-
-    // Toggle popup on more button click
-    moreButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (popupContainer.style.display === 'block') {
-            hidePopup();
-        } else {
-            showPopup();
-        }
-    });
-
-    // Close popup when clicking outside
-    document.addEventListener('click', (e) => {
-        if (popupContainer.style.display === 'block' &&
-            !popup.contains(e.target) &&
-            e.target !== moreButton) {
-            hidePopup();
-        }
-    });
-}
-
-function handleCameraSettings() {
-    console.log('Camera Settings clicked');
-}
-
-function handleInstructorChange() {
-    console.log('Change instructor clicked');
-}
-
-function handleMewTrack() {
-    console.log('MewTrack clicked');
-}
-
-function handleLayout() {
-    console.log('Layout clicked');
-}
-
-// Initialize settings popup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+    // Initialize settings popup
     createSettingsPopup();
 });
 
@@ -1269,8 +1249,14 @@ async function initializeCamera(deviceId) {
 
         // Wait for video to be ready
         await new Promise((resolve) => {
-            videoElement.onloadedmetadata = () => resolve();
+            videoElement.onloadedmetadata = () => {
+                videoElement.play(); // Ensure video is playing
+                resolve();
+            };
         });
+
+        // Add an additional delay to ensure video is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Update canvas size
         const videoContainer = videoElement.parentElement;
@@ -1302,7 +1288,7 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Enable MewTrack</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-mewtrack" ${isRunning ? 'checked' : ''}>
+                        <input type="checkbox" id="enable-mewtrack" ${isMewTrackEnabled ? 'checked' : ''}>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1317,7 +1303,7 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Posture Notifications</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-notifications" checked>
+                        <input type="checkbox" id="enable-notifications" ${notificationsEnabled ? 'checked' : ''}>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1390,25 +1376,53 @@ function updateMewTrackSettings(enableMewTrack, enableNotifications, style) {
     isMewTrackEnabled = enableMewTrack;
     notificationsEnabled = enableNotifications;
     skeletonStyle = style;
+    console.log('MewTrack Enabled:', enableMewTrack, 'Running:', isRunning);
 
     // Update detection state based on MewTrack setting
     if (enableMewTrack && !isRunning) {
         startDetection();
+        isRunning = true; // Ensure isRunning reflects the state
     } else if (!enableMewTrack && isRunning) {
         stopDetection();
+        isRunning = false; // Ensure isRunning reflects the state
+    } else if (enableMewTrack && isRunning) {
+        startDetection();
+        isRunning = true;
     }
 
-    // Clear canvas if MewTrack is disabled
-    if (!enableMewTrack) {
+    // Clear canvas if MewTrack is disabled, but only if canvas is initialized
+    if (!enableMewTrack && canvasElement && canvasContext) {
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
     }
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize MewTrack settings from localStorage or defaults
-    isMewTrackEnabled = localStorage.getItem('mewtrackEnabled') === 'true';
-    notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
-    skeletonStyle = localStorage.getItem('skeletonStyle') || 'both';
+    // Initialize canvas element and context
+    canvasElement = document.getElementById('mewtrack-canvas');
+    canvasContext = canvasElement ? canvasElement.getContext('2d') : null;
+
+    console.log('Stored MewTrackEnabled:', localStorage.getItem('mewtrackEnabled'));
+
+    // Load settings from localStorage
+    const storedMewTrackEnabled = localStorage.getItem('mewtrackEnabled');
+    const storedNotificationsEnabled = localStorage.getItem('notificationsEnabled');
+    const storedSkeletonStyle = localStorage.getItem('skeletonStyle');
+
+    isMewTrackEnabled = storedMewTrackEnabled !== null ? storedMewTrackEnabled === 'true' : false;
+    notificationsEnabled = storedNotificationsEnabled !== null ? storedNotificationsEnabled === 'true' : true;
+    skeletonStyle = storedSkeletonStyle || 'both';
+
+    // Correctly initialize isRunning and trigger detection if enabled
+    if (isMewTrackEnabled) {
+        isRunning = true;
+        startDetection(); // Ensure detection starts if enabled
+    } else {
+        isRunning = false;
+    }
+
+    // Update settings
+    updateMewTrackSettings(isMewTrackEnabled, notificationsEnabled, skeletonStyle);
 });
 
 //.........................................................................................//
@@ -1555,178 +1569,731 @@ document.addEventListener('DOMContentLoaded', () => {
 
 class WorkoutManager {
     constructor() {
-        this.workouts = JSON.parse(localStorage.getItem('currentWorkout')) || [];
-        this.currentIndex = 0;
-        this.isResting = false;
-        this.timer = null;
-        this.repCount = 0;
-        this.repCounter = null;
+        // Initialize state
+        this.initializeState();
+        // Get DOM elements
+        this.initializeDOMElements();
+        // Setup rest overlay
+        this.initializeRestOverlay();
+        // Setup countdown overlay
+        this.initializeCountdownOverlay();
 
-        // DOM Elements
+        // Add these lines:
+        this.setupPauseButton();
+        this.setupCloseButton();
+        this.setupSkipButton();
+        // this.setupMoreOptions();
+    }
+
+    initializeState() {
+        try {
+            const workoutData = JSON.parse(localStorage.getItem('currentWorkout')) || [];
+            this.workout = workoutData[0];
+            this.exercises = this.workout?.exercises || [];
+            this.currentSet = 1;
+            this.totalSets = this.workout?.sets || 1;
+            this.currentExerciseIndex = 0;
+            this.isResting = false;
+            this.timer = null;
+            this.repCount = 0;
+            this.repCounter = null;
+            this.timeLeft = 0;
+            this.endRestTimeout = null;
+        } catch (error) {
+            console.error('Error initializing state:', error);
+            this.exercises = [];
+        }
+    }
+
+    initializeDOMElements() {
         this.timerElement = document.querySelector('.timer-text');
         this.workoutNameElement = document.querySelector('.workout-name');
         this.roundElement = document.querySelector('.workout-round');
         this.workoutUser = document.querySelector('.workout-user');
         this.workoutGuide = document.querySelector('.workout-guide');
-    }
 
-    init() {
-        if (this.workouts.length === 0) return;
-
-        this.showCurrentWorkout();
-        this.startWorkout();
-    }
-
-    showCurrentWorkout() {
-        const current = this.workouts[this.currentIndex];
-        const [duration] = current.duration.split(' ');
-        const isReps = current.duration.includes('reps');
-
-        // Update UI
-        this.workoutNameElement.textContent = current.title;
-        this.roundElement.textContent = `${this.currentIndex + 1}/${this.workouts.length}`;
-
-        // Show/hide rep counter
-        if (isReps) {
-            this.timerElement.textContent = duration;
-            this.timerElement.classList.add('rep-counter');
-        } else {
-            this.timerElement.textContent = `0:${duration.padStart(2, '0')}`;
-            this.timerElement.classList.remove('rep-counter');
+        if (!this.timerElement || !this.workoutNameElement || !this.roundElement) {
+            console.error('Required DOM elements not found');
         }
     }
 
-    startWorkout() {
-        const current = this.workouts[this.currentIndex];
-        const [duration] = current.duration.split(' ');
-        const isReps = current.duration.includes('reps');
+    init() {
+        if (!this.workout || this.exercises.length === 0) {
+            console.error('No workout data available');
+            this.endWorkout();
+            return;
+        }
 
-        if (isReps) {
-            this.setupRepCounter(parseInt(duration));
-        } else {
-            this.startTimer(parseInt(duration));
+        this.startCountdown();
+    }
+
+    showCurrentExercise() {
+        if (!this.exercises[this.currentExerciseIndex]) return;
+    
+        const currentExercise = this.exercises[this.currentExerciseIndex];
+        this.workoutNameElement.textContent = currentExercise.exercise || currentExercise.pose;
+        this.roundElement.textContent = `${this.currentSet}/${this.totalSets}`;
+    
+        if (currentExercise.reps) {
+            this.timerElement.textContent = '0';
+            this.timerElement.classList.add('rep-counter');
+        } else if (currentExercise.duration) {
+            // Parse the duration properly
+            let durationInSeconds = this.parseDuration(currentExercise.duration);
+            // Display in minutes:seconds format
+            this.updateTimerDisplay(durationInSeconds);
+            this.timerElement.classList.remove('rep-counter');
+        }
+    }
+    
+    // Add this helper function to parse duration strings
+    parseDuration(duration) {
+        if (typeof duration === 'number') return duration;
+        
+        if (typeof duration === 'string') {
+            // Check if duration contains 'minutes' or 'min'
+            if (duration.includes('minute') || duration.includes('min')) {
+                // Extract number of minutes
+                const match = duration.match(/(\d+)/);
+                if (match) {
+                    // Convert minutes to seconds
+                    return parseInt(match[1]) * 60;
+                }
+            } else {
+                // Handle seconds format
+                const match = duration.match(/(\d+)/);
+                return match ? parseInt(match[1]) : 0;
+            }
+        }
+        return 0;
+    }
+
+    startExercise() {
+        const currentExercise = this.exercises[this.currentExerciseIndex];
+        if (!currentExercise) return;
+    
+        if (currentExercise.reps) {
+            this.setupRepCounter(currentExercise.reps);
+        } else if (currentExercise.duration) {
+            const durationInSeconds = this.parseDuration(currentExercise.duration);
+            this.startTimer(durationInSeconds);
+        }
+    }
+
+    setupRepCounter(targetReps) {
+        if (!targetReps || targetReps <= 0) return;
+
+        const currentExercise = this.exercises[this.currentExerciseIndex].exercise;
+        this.repCounter = new RepCounter(currentExercise);
+        this.repCount = 0;
+
+        if (typeof detectPose === 'function' && typeof videoElement !== 'undefined') {
+            const originalDetectPose = detectPose.bind(this);
+            detectPose = async () => {
+                try {
+                    await originalDetectPose();
+
+                    if (this.repCounter && detector) {
+                        const poses = await detector.estimatePoses(videoElement);
+                        if (poses.length > 0) {
+                            const countedReps = this.repCounter.analyzePose(poses[0].keypoints);
+                            if (countedReps > this.repCount) {
+                                this.repCount = countedReps;
+                                this.timerElement.textContent = this.repCount;
+
+                                if (this.repCount >= targetReps) {
+                                    this.nextExercise();
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in pose detection:', error);
+                }
+            };
+
+            if (typeof isRunning !== 'undefined' && !isRunning && typeof startDetection === 'function') {
+                startDetection();
+            }
         }
     }
 
     startTimer(seconds) {
+        if (!seconds || seconds <= 0) return;
+    
+        this.clearAllTimers();
         let timeLeft = seconds;
-
+    
+        // Update timer display immediately
+        this.updateTimerDisplay(timeLeft);
+    
         this.timer = setInterval(() => {
             timeLeft--;
-            this.timerElement.textContent = `0:${timeLeft.toString().padStart(2, '0')}`;
-
+            this.updateTimerDisplay(timeLeft);
+    
             if (timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.nextWorkout();
+                this.clearAllTimers();
+                this.nextExercise();
             }
         }, 1000);
     }
-
-    setupRepCounter(targetReps) {
-        const currentExercise = this.workouts[this.currentIndex].title;
-        this.repCounter = new RepCounter(currentExercise);
-
-        // Connect to pose detection
-        const originalDetectPose = detectPose.bind(this);
-        detectPose = async () => {
-            await originalDetectPose();
-
-            if (this.repCounter && detector) {
-                const poses = await detector.estimatePoses(videoElement);
-                if (poses.length > 0) {
-                    const countedReps = this.repCounter.analyzePose(poses[0].keypoints);
-                    this.timerElement.textContent = countedReps;
-
-                    if (countedReps >= targetReps) {
-                        this.nextWorkout();
-                    }
-                }
-            }
-        };
-
-        if (!isRunning) startDetection();
+    
+    updateTimerDisplay(timeInSeconds) {
+        if (this.timerElement) {
+            const minutes = Math.floor(timeInSeconds / 60);
+            const seconds = timeInSeconds % 60;
+            this.timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
     }
 
-    nextWorkout() {
+    nextExercise() {
         this.repCounter = null;
-        clearInterval(this.timer);
-        this.currentIndex++;
+        this.clearAllTimers();
 
-        if (this.currentIndex >= this.workouts.length) {
-            this.endWorkout();
-            return;
+        if (this.currentExerciseIndex >= this.exercises.length - 1) {
+            if (this.currentSet >= this.totalSets) {
+                this.endWorkout();
+                return;
+            }
+            this.currentSet++;
+            this.currentExerciseIndex = 0;
+        } else {
+            this.currentExerciseIndex++;
         }
 
         this.showRestScreen();
     }
 
-    showRestScreen() {
-        this.isResting = true;
-        const nextWorkout = this.workouts[this.currentIndex];
+    // Handle pause button click
+    setupPauseButton() {
+        const pauseBtn = document.querySelector('.pause');
+        const pauseIcon = document.getElementById('pause-btn-icon');
+        const pauseText = document.querySelector('.pause-text');
 
-        // Hide camera view
-        this.workoutUser.style.display = 'none';
+        if (!pauseBtn || !pauseIcon || !pauseText) {
+            console.error('Pause button elements not found');
+            return;
+        }
 
-        // Show rest screen
-        this.workoutGuide.innerHTML = `
-            <div class="rest-screen">
-                <h2>Next: ${nextWorkout.title}</h2>
-                <video src="${nextWorkout.video}" autoplay muted loop></video>
-                <div class="rest-timer">10</div>
-                <div class="rest-controls">
-                    <button class="add-time" data-seconds="10">+10s</button>
-                    <button class="add-time" data-seconds="20">+20s</button>
-                    <button class="add-time" data-seconds="30">+30s</button>
+        let isPaused = false;
+
+        pauseBtn.addEventListener('click', () => {
+            isPaused = !isPaused;
+
+            if (isPaused) {
+                // Pause workout
+                pauseIcon.classList.remove('fa-pause');
+                pauseIcon.classList.add('fa-play');
+                pauseText.textContent = 'Resume';
+
+                // Stop all active processes
+                this.clearAllTimers();
+                if (typeof stopDetection === 'function') {
+                    stopDetection();
+                }
+                if (typeof isRunning !== 'undefined') {
+                    isRunning = false;
+                }
+
+                // Show a pause overlay to make it clear the workout is paused
+                this.showPauseOverlay();
+            } else {
+                // Resume workout
+                pauseIcon.classList.remove('fa-play');
+                pauseIcon.classList.add('fa-pause');
+                pauseText.textContent = 'Pause';
+
+                // Hide pause overlay
+                this.hidePauseOverlay();
+
+                // Resume appropriate timers based on state
+                if (this.isResting) {
+                    this.startRestTimer();
+                } else {
+                    // Resume exercise timer if it exists
+                    const currentExercise = this.exercises[this.currentExerciseIndex];
+                    if (currentExercise && currentExercise.duration) {
+                        // Extract current time left from the timer display
+                        let timeString = this.timerElement.textContent;
+                        let timeLeft = 0;
+
+                        if (timeString.includes(':')) {
+                            timeLeft = parseInt(timeString.split(':')[1]);
+                        } else {
+                            timeLeft = parseInt(timeString);
+                        }
+
+                        if (!isNaN(timeLeft) && timeLeft > 0) {
+                            this.startTimer(timeLeft);
+                        }
+                    }
+
+                    // Resume pose detection
+                    if (typeof startDetection === 'function') {
+                        startDetection();
+                    }
+                    if (typeof isRunning !== 'undefined') {
+                        isRunning = true;
+                    }
+                }
+            }
+
+            // Dispatch a custom event that can be listened for by other components
+            const pauseEvent = new CustomEvent('workoutPauseStateChange', {
+                detail: { isPaused: isPaused }
+            });
+            document.dispatchEvent(pauseEvent);
+        });
+    }
+
+    // Add these new methods to show/hide a pause overlay
+    showPauseOverlay() {
+        // Create pause overlay if it doesn't exist
+        let pauseOverlay = document.getElementById('pause-overlay');
+        if (!pauseOverlay) {
+            pauseOverlay = document.createElement('div');
+            pauseOverlay.id = 'pause-overlay';
+            pauseOverlay.className = 'pause-overlay';
+            pauseOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 950;
+                color: white;
+            `;
+
+            pauseOverlay.innerHTML = `
+                <div class="pause-message" style="text-align: center; padding: 20px;">
+                    <h2>Workout Paused</h2>
+                    <p>Press the Resume button to continue your workout</p>
+                </div>
+            `;
+
+            document.body.appendChild(pauseOverlay);
+        }
+
+        // Show the overlay
+        pauseOverlay.style.display = 'flex';
+    }
+
+    hidePauseOverlay() {
+        const pauseOverlay = document.getElementById('pause-overlay');
+        if (pauseOverlay) {
+            pauseOverlay.style.display = 'none';
+        }
+    }
+
+    // Handle close button (cancel workout)
+    setupCloseButton() {
+        const closeBtn = document.getElementById('close-btn');
+        if (!closeBtn) return;
+
+        closeBtn.addEventListener('click', () => {
+            // Always show confirmation popup when X button is clicked
+            this.showConfirmationPopup(
+                'Exit Workout',
+                'Do you really want to exit the workout?',
+                () => {
+                    // Clear all timers and stop detection before exiting
+                    this.clearAllTimers();
+                    if (typeof stopDetection === 'function') stopDetection();
+                    window.location.href = 'workout_page.html';
+                }
+            );
+        });
+    }
+
+    // Handle skip button
+    setupSkipButton() {
+        const skipBtn = document.querySelector('.skip');
+        if (!skipBtn) return;
+
+        skipBtn.addEventListener('click', () => {
+            this.skipCurrentExercise();
+        });
+    }
+
+    skipCurrentExercise() {
+        // Clear timers and rep counter
+        this.repCounter = null;
+        this.clearAllTimers();
+
+        // If we're already resting, end the rest and go to next exercise
+        if (this.isResting) {
+            this.endRest();
+            return;
+        }
+
+        // Move to the next exercise
+        this.nextExercise();
+    }
+
+    showConfirmationPopup(title, message, onConfirm) {
+        // Check if popup container exists, create it if not
+        let popupContainer = document.getElementById('popup-container');
+        if (!popupContainer) {
+            popupContainer = document.createElement('div');
+            popupContainer.id = 'popup-container';
+            popupContainer.className = 'popup-container';
+            popupContainer.style.cssText = `
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            document.body.appendChild(popupContainer);
+        }
+
+        // Create popup content
+        popupContainer.innerHTML = `
+            <div class="popup-content" style="background-color: white; padding: 20px; border-radius: 10px; max-width: 80%; text-align: center;">
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+                    <button id="popup-yes" style="padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; background-color: #ff5757; color: white;">Yes</button>
+                    <button id="popup-no" style="padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; background-color: #4caf50; color: white;">No</button>
                 </div>
             </div>
         `;
 
-        this.startRestTimer(10);
+        // Show popup
+        popupContainer.style.display = 'flex';
+
+        // Add event listeners
+        document.getElementById('popup-yes').addEventListener('click', () => {
+            popupContainer.style.display = 'none';
+            if (typeof onConfirm === 'function') onConfirm();
+        });
+
+        document.getElementById('popup-no').addEventListener('click', () => {
+            popupContainer.style.display = 'none';
+        });
     }
 
-    startRestTimer(seconds) {
-        let timeLeft = seconds;
-        const timerElement = this.workoutGuide.querySelector('.rest-timer');
+    // Setup more options button
+    // setupMoreOptions() {
+    //     const moreBtn = document.getElementById('more');
+    //     if (!moreBtn) return;
 
-        this.timer = setInterval(() => {
-            timeLeft--;
-            timerElement.textContent = timeLeft;
+    //     moreBtn.addEventListener('click', () => {
+    //         // Create or get popup container
+    //         let morePopup = document.getElementById('popup-container-more');
+    //         if (!morePopup) {
+    //             morePopup = document.createElement('div');
+    //             morePopup.id = 'popup-container-more';
+    //             morePopup.className = 'popup-container-more';
+    //             morePopup.style.cssText = `
+    //                 display: none;
+    //                 position: fixed;
+    //                 bottom: 70px;
+    //                 right: 20px;
+    //                 z-index: 900;
+    //             `;
+    //             document.body.appendChild(morePopup);
+    //         }
 
-            if (timeLeft <= 0) {
-                clearInterval(this.timer);
-                this.endRest();
-            }
-        }, 1000);
+    //         // Create popup content
+    //         morePopup.innerHTML = `
+    //             <div style="background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);">
+    //                 <div id="restart-workout" style="padding: 15px; cursor: pointer;">Restart Workout</div>
+    //                 <div id="change-settings" style="padding: 15px; cursor: pointer;">Settings</div>
+    //                 <div id="exit-workout" style="padding: 15px; cursor: pointer;">Exit Workout</div>
+    //             </div>
+    //         `;
 
-        // Add time buttons
-        this.workoutGuide.querySelectorAll('.add-time').forEach(btn => {
-            btn.addEventListener('click', () => {
-                timeLeft += parseInt(btn.dataset.seconds);
-                timerElement.textContent = timeLeft;
+    //         // Show popup
+    //         morePopup.style.display = 'block';
+
+    //         // Add event listeners
+    //         document.getElementById('restart-workout').addEventListener('click', () => {
+    //             this.restartWorkout();
+    //             morePopup.style.display = 'none';
+    //         });
+
+    //         document.getElementById('change-settings').addEventListener('click', () => {
+    //             // Show settings popup (to be implemented)
+    //             morePopup.style.display = 'none';
+    //         });
+
+    //         document.getElementById('exit-workout').addEventListener('click', () => {
+    //             morePopup.style.display = 'none';
+    //             // Trigger cancel workout confirmation
+    //             const closeBtn = document.getElementById('close-btn');
+    //             if (closeBtn) closeBtn.click();
+    //         });
+
+    //         // Close more popup when clicking outside
+    //         document.addEventListener('click', (event) => {
+    //             if (!event.target.closest('#more') && !event.target.closest('#popup-container-more')) {
+    //                 morePopup.style.display = 'none';
+    //             }
+    //         }, { once: true });
+    //     });
+    // }
+
+    // Restart workout
+    restartWorkout() {
+        this.clearAllTimers();
+        this.repCounter = null;
+        this.currentExerciseIndex = 0;
+        this.currentSet = 1;
+        this.isResting = false;
+
+        if (typeof stopDetection === 'function') stopDetection();
+
+        // Restart countdown
+        this.startCountdown();
+    }
+
+    initializeRestOverlay() {
+        const existingOverlay = document.querySelector('.rest-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+
+        this.restOverlay = document.createElement('div');
+        this.restOverlay.className = 'rest-overlay';
+
+        this.restOverlay.innerHTML = `
+            <div class="rest-card">
+                <img src="./assets/icons/pause_workout.svg" alt="Rest" style="max-width: 150px; margin-bottom: 1rem;" />
+                <h3>Rest</h3>
+                <p>Take a break and have a meow</p>
+                <div class="rest-timer" style="font-size: 2rem; margin: 1rem 0;">20</div>
+                <div class="rest-controls" style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="add-time" data-seconds="10">+ 10s</button>
+                    <button class="add-time" data-seconds="20">+ 20s</button>
+                    <button class="add-time" data-seconds="30">+ 30s</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(this.restOverlay);
+        this.setupRestControls();
+    }
+
+    setupRestControls() {
+        this.restOverlay.querySelectorAll('.add-time').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!this.isResting) return;
+
+                const seconds = parseInt(btn.dataset.seconds);
+                this.updateRestTimer(this.timeLeft + seconds);
+
+                this.startRestTimer();
             });
         });
     }
 
+    showRestScreen() {
+        this.clearAllTimers();
+        this.isResting = true;
+
+        const nextExercise = this.exercises[this.currentExerciseIndex];
+        if (nextExercise) {
+            this.workoutNameElement.textContent = `Next: ${nextExercise.exercise}`;
+        }
+
+        this.restOverlay.style.display = 'flex';
+        if (this.workoutUser) {
+            this.workoutUser.style.visibility = 'hidden';
+        }
+
+        this.updateRestTimer(20);
+        this.startRestTimer();
+    }
+
+    startRestTimer() {
+        this.clearAllTimers();
+
+        this.timer = setInterval(() => {
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+                this.updateRestTimer(this.timeLeft);
+            } else {
+                this.clearAllTimers();
+                this.endRest();
+            }
+        }, 1000);
+    }
+
+    updateRestTimer(newTime) {
+        this.timeLeft = Math.max(0, newTime);
+        const timerDisplay = this.restOverlay.querySelector('.rest-timer');
+        if (timerDisplay) {
+            timerDisplay.textContent = this.timeLeft;
+        }
+    }
+
     endRest() {
+        this.clearAllTimers();
         this.isResting = false;
-        this.workoutUser.style.display = 'block';
-        this.workoutGuide.innerHTML = 'Demo';
-        this.showCurrentWorkout();
-        this.startWorkout();
+        this.timeLeft = 0;
+
+        if (this.restOverlay) {
+            this.restOverlay.style.display = 'none';
+        }
+        if (this.workoutUser) {
+            this.workoutUser.style.visibility = 'visible';
+        }
+
+        this.showCurrentExercise();
+        this.startExercise();
+    }
+
+    initializeCountdownOverlay() {
+        const existingOverlay = document.querySelector('.countdown-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+
+        this.countdownOverlay = document.createElement('div');
+        this.countdownOverlay.className = 'countdown-overlay';
+        this.countdownOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        `;
+
+        this.countdownOverlay.innerHTML = `
+            <div id="countdown-close" class="close-btn" style="position: absolute; top: 25px; right: 0px; cursor: pointer;">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div class="countdown-main" style="text-align: center;">
+                <h1 class="ready-text">READY TO GO</h1>
+                <div class="count-circle">3</div>
+                <div class="warmup-text">Warm-up Exercise: ${this.getFirstExerciseName()}</div>
+            </div>
+        `;
+
+        document.body.appendChild(this.countdownOverlay);
+
+        // Add event listener for the close button
+        const closeBtn = this.countdownOverlay.querySelector('#countdown-close');
+        closeBtn.addEventListener('click', () => {
+            // Show a confirmation dialog
+            const userConfirmed = confirm('Are you sure you want to stop the exercise?');
+
+            if (userConfirmed) {
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                }
+                this.countdownOverlay.style.display = 'none';
+                this.endWorkout();
+                window.location.href = 'workout_page.html';
+            }
+        });
+    }
+
+    getExerciseDuration() {
+        if (!this.exercises[0]) return '00';
+
+        if (this.exercises[0].duration) {
+            let duration = this.exercises[0].duration;
+            if (typeof duration === 'string') {
+                const match = duration.match(/\d+/);
+                duration = match ? parseInt(match[0]) : 0;
+            }
+            return duration.toString().padStart(2, '0');
+        }
+        return '00';
+    }
+
+    getFirstExerciseName() {
+        return this.exercises[0]?.exercise || this.workout?.title || 'Workout';
+    }
+
+    startCountdown() {
+        // Display the countdown overlay
+        this.countdownOverlay.style.display = 'flex';
+
+        // Set initial count
+        let currentCount = 3;
+
+        // Start countdown
+        this.startCountdownTimer = () => {
+            if (this.countdownTimer) {
+                clearInterval(this.countdownTimer);
+            }
+
+            this.countdownTimer = setInterval(() => {
+                currentCount--;
+                const countCircle = this.countdownOverlay.querySelector('.count-circle');
+                if (countCircle) {
+                    countCircle.textContent = currentCount;
+                }
+
+                if (currentCount <= 0) {
+                    // Clear timer and hide overlay
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                    this.countdownOverlay.style.display = 'none';
+
+                    // Start the actual workout
+                    this.showCurrentExercise();
+                    this.startExercise();
+                }
+            }, 1000);
+        };
+
+        // Start the countdown timer
+        this.startCountdownTimer();
+    }
+
+    clearAllTimers() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        if (this.endRestTimeout) {
+            clearTimeout(this.endRestTimeout);
+            this.endRestTimeout = null;
+        }
+        if (this.countdownTimer) {
+            clearInterval(this.countdownTimer);
+            this.countdownTimer = null;
+        }
     }
 
     endWorkout() {
-        // Show completion screen
-        this.workoutGuide.innerHTML = `
-            <div class="workout-complete">
-                <h2>Workout Complete!</h2>
-                <p>Great job completing all exercises!</p>
-                <button onclick="window.location.href='workout_page.html'">Return Home</button>
-            </div>
-        `;
-        localStorage.removeItem('currentWorkout');
+        try {
+            localStorage.removeItem('currentWorkout');
+            window.location.href = 'subworkout_done_page.html';
+        } catch (error) {
+            console.error('Error ending workout:', error);
+        }
     }
 }
+
+// Initialize workout manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const workoutManager = new WorkoutManager();
+    workoutManager.init();
+});
 
 //.........................................................................................//
 // Pose detection algorithm
@@ -1841,109 +2408,96 @@ function calculateAngle(kp1, kp2, kp3) {
 
 //.........................................................................................//
 // Music Function (pop up window)
-
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize required elements
     const popupContainer = document.getElementById('popup-container');
     const popupTitle = document.getElementById('popup-title');
     const popupBody = document.getElementById('popup-body');
     const closeBtn = document.getElementById('close-btn');
+    const musicBtn = document.querySelector('.music-btn');
+    const musicLibrary = document.querySelector('.music-library');
 
-    function showPopup(title, content) {
-        popupTitle.textContent = title;
-        popupBody.innerHTML = content;
-        popupContainer.style.display = 'flex';
-    }
-
-    function closePopup() {
-        popupContainer.style.display = 'none';
-    }
+    const musicTracks = [
+        {
+            title: "Pump It Up",
+            artist: "Momot Music",
+            duration: "1:49",
+            url: "./assets/workout_music/workout-by-MomotMusic.mp3",
+            cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
+        },
+        {
+            title: "Energy Boost",
+            artist: "HitsLab",
+            duration: "2:31",
+            url: "./assets/workout_music/workout-motivation.mp3",
+            cover: "https://images.unsplash.com/photo-1574680096145-d05b474e2155"
+        }
+    ];
 
     class WorkoutMusicPlayer {
         constructor() {
             this.audio = new Audio();
-            this.playlist = [];
+            this.playlist = musicTracks;
             this.currentTrackIndex = 0;
             this.isPlaying = false;
             this.volume = 0.7;
-        }
+            this.progressUpdateInterval = null;
 
-        async initializeMusicPlayer() {
-            // Sample playlist - Replace with your actual music files
-            this.playlist = [
-                {
-                    title: "Workout Energy",
-                    artist: "Fitness Beats",
-                    duration: "3:45",
-                    url: "/path/to/music1.mp3"
-                },
-                {
-                    title: "Power Up",
-                    artist: "Gym Tracks",
-                    duration: "4:20",
-                    url: "/path/to/music2.mp3"
-                }
-            ];
-
-            this.createMusicInterface();
-            this.setupEventListeners();
+            // Initialize audio properties
+            this.audio.volume = this.volume;
+            this.audio.addEventListener('timeupdate', () => this.updateProgress());
+            this.audio.addEventListener('ended', () => this.nextTrack());
+            this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
         }
 
         createMusicInterface() {
-            const musicContainer = document.createElement('div');
-            musicContainer.className = 'music-player';
-            musicContainer.innerHTML = `
-                <div class="music-player-container">
-                    <div class="music-info">
-                        <div class="track-details">
-                            <span class="track-title">${this.playlist[this.currentTrackIndex].title}</span>
-                            <span class="track-artist">${this.playlist[this.currentTrackIndex].artist}</span>
+            const container = document.createElement('div');
+            container.className = 'music-player-container';
+            container.innerHTML = `
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="track-info">
+                            <div class="title">${this.playlist[this.currentTrackIndex].title}</div>
+                            <div class="artist">${this.playlist[this.currentTrackIndex].artist}</div>
                         </div>
-                        <div class="track-duration">${this.playlist[this.currentTrackIndex].duration}</div>
+                        <div class="duration" id="time-display">0:00 / ${this.playlist[this.currentTrackIndex].duration}</div>
                     </div>
-                    
-                    <div class="music-controls">
-                        <button class="previous-track">
+                    <div class="player-controls">
+                        <button class="control-btn prev">
                             <i class="fas fa-backward"></i>
                         </button>
-                        <button class="play-pause">
+                        <button class="control-btn play">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="next-track">
+                        <button class="control-btn next">
                             <i class="fas fa-forward"></i>
                         </button>
                         <div class="volume-control">
                             <i class="fas fa-volume-up"></i>
-                            <input type="range" min="0" max="100" value="70" class="volume-slider">
+                            <input type="range" class="volume-slider" min="0" max="100" value="${this.volume * 100}">
                         </div>
                     </div>
-                    
-                    <div class="progress-container">
-                        <div class="progress-bar"></div>
-                        <div class="progress-current"></div>
+                    <div class="progress-bar">
+                        <div class="progress"></div>
                     </div>
                 </div>
             `;
-
-            // Add the music player to your workout interface
-            const workoutContainer = document.querySelector('.workout-container');
-            workoutContainer.appendChild(musicContainer);
+            return container;
         }
 
-        setupEventListeners() {
-            const playPauseBtn = document.querySelector('.play-pause');
-            const nextBtn = document.querySelector('.next-track');
-            const prevBtn = document.querySelector('.previous-track');
-            const volumeSlider = document.querySelector('.volume-slider');
-            const progressBar = document.querySelector('.progress-container');
+        initializeControls() {
+            const playerCard = document.querySelector('.player-card');
+            const playBtn = playerCard.querySelector('.play');
+            const prevBtn = playerCard.querySelector('.prev');
+            const nextBtn = playerCard.querySelector('.next');
+            const volumeSlider = playerCard.querySelector('.volume-slider');
+            const progressBar = playerCard.querySelector('.progress-bar');
 
-            playPauseBtn.addEventListener('click', () => this.togglePlay());
-            nextBtn.addEventListener('click', () => this.nextTrack());
+            playBtn.addEventListener('click', () => this.togglePlay());
             prevBtn.addEventListener('click', () => this.previousTrack());
+            nextBtn.addEventListener('click', () => this.nextTrack());
             volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
             progressBar.addEventListener('click', (e) => this.seekTo(e));
-
-            // Update progress bar
-            this.audio.addEventListener('timeupdate', () => this.updateProgress());
         }
 
         togglePlay() {
@@ -1957,13 +2511,56 @@ document.addEventListener('DOMContentLoaded', function () {
         play() {
             this.audio.play();
             this.isPlaying = true;
-            document.querySelector('.play-pause i').className = 'fas fa-pause';
+            document.querySelector('.play i').className = 'fas fa-pause';
         }
 
         pause() {
             this.audio.pause();
             this.isPlaying = false;
-            document.querySelector('.play-pause i').className = 'fas fa-play';
+            document.querySelector('.play i').className = 'fas fa-play';
+        }
+
+        updateProgress() {
+            const progress = (this.audio.currentTime / this.audio.duration) * 100 || 0;
+            document.querySelector('.progress').style.width = `${progress}%`;
+            this.updateTimeDisplay();
+        }
+
+        updateTimeDisplay() {
+            const timeDisplay = document.getElementById('time-display');
+            const currentTime = this.formatTime(this.audio.currentTime);
+            const duration = this.formatTime(this.audio.duration);
+            timeDisplay.textContent = `${currentTime} / ${duration}`;
+        }
+
+        formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        seekTo(e) {
+            const progressBar = e.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            this.audio.currentTime = pos * this.audio.duration;
+        }
+
+        setVolume(value) {
+            this.volume = value;
+            this.audio.volume = value;
+            document.querySelector('.volume-slider').value = value * 100;
+        }
+
+        loadTrack() {
+            const track = this.playlist[this.currentTrackIndex];
+            this.audio.src = track.url;
+            document.querySelector('.title').textContent = track.title;
+            document.querySelector('.artist').textContent = track.artist;
+
+            if (this.isPlaying) {
+                this.play();
+            }
         }
 
         nextTrack() {
@@ -1976,94 +2573,141 @@ document.addEventListener('DOMContentLoaded', function () {
             this.loadTrack();
         }
 
-        loadTrack() {
-            const track = this.playlist[this.currentTrackIndex];
-            this.audio.src = track.url;
-            document.querySelector('.track-title').textContent = track.title;
-            document.querySelector('.track-artist').textContent = track.artist;
-            if (this.isPlaying) {
-                this.play();
-            }
-        }
-
-        setVolume(value) {
-            this.volume = value;
-            this.audio.volume = value;
-        }
-
-        updateProgress() {
-            const progress = (this.audio.currentTime / this.audio.duration) * 100;
-            document.querySelector('.progress-current').style.width = `${progress}%`;
-        }
-
-        seekTo(event) {
-            const progressBar = document.querySelector('.progress-container');
-            const percent = event.offsetX / progressBar.offsetWidth;
-            this.audio.currentTime = percent * this.audio.duration;
+        updateDuration() {
+            const duration = this.formatTime(this.audio.duration);
+            document.getElementById('time-display').textContent = `0:00 / ${duration}`;
         }
     }
 
-    // Initialize music player
-    document.addEventListener('DOMContentLoaded', () => {
-        const musicPlayer = new WorkoutMusicPlayer();
-        musicPlayer.initializeMusicPlayer();
+    // Initialize player
+    const player = new WorkoutMusicPlayer();
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+
+    // Setup player container
+    const playerContainer = player.createMusicInterface();
+    wrapper.appendChild(playerContainer);
+
+    // Insert wrapper into DOM
+    if (musicBtn) {
+        musicBtn.parentNode.insertBefore(wrapper, musicBtn);
+        wrapper.appendChild(musicBtn);
+    }
+
+    // Initialize controls
+    player.initializeControls();
+    player.loadTrack();
+
+    // Setup hover behavior
+    let hideTimeout;
+    wrapper.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+        playerContainer.classList.add('show');
     });
 
-    // Show music player popup
-    document.getElementById('music').addEventListener('click', function (e) {
-        e.preventDefault();
-        showPopup('Music', `
-            <div>
-                <p>Select a music track to play:</p>
-                <div class="music-list">
-                    <div class="music-item">
+    wrapper.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+            playerContainer.classList.remove('show');
+        }, 2000);
+    });
+
+    // Music library popup functionality
+    if (musicBtn) {
+        musicBtn.addEventListener('click', (e) => {
+            if (e.target.closest('.music-player-container')) return;
+
+            playerContainer.classList.remove('show');
+            showMusicLibrary();
+        });
+    }
+
+    function showMusicLibrary() {
+        showPopup('Music Library', `
+            <div class="music-list">
+                ${musicTracks.map((track, index) => `
+                    <div class="music-item" data-index="${index}">
                         <div class="music-item-image">
-                            <img src="/path/to/music1.jpg" alt="Workout Energy">
+                            <img src="${track.cover}" alt="${track.title}">
                         </div>
                         <div class="music-item-details">
-                            <span class="music-item-title">Workout Energy</span>
-                            <span class="music-item-artist">Fitness Beats</span>
+                            <span class="music-item-title">${track.title}</span>
+                            <span class="music-item-artist">${track.artist}</span>
                         </div>
-                        <button class="play-btn">Play</button>
+                        <button class="play-btn">
+                            ${index === player.currentTrackIndex && player.isPlaying ? 'Playing' : 'Play'}
+                        </button>
                     </div>
-                    <div class="music-item">
-                        <div class="music-item-image">
-                            <img src="/path/to/music2.jpg" alt="Power Up">
-                        </div>
-                        <div class="music-item-details">
-                            <span class="music-item-title">Power Up</span>
-                            <span class="music-item-artist">Gym Tracks</span>
-                        </div>
-                        <button class="play-btn">Play</button>
-                    </div>
-                </div>
+                `).join('')}
             </div>
         `);
+
+        // Add click handlers for playlist items
+        document.querySelectorAll('.music-item').forEach(item => {
+            item.querySelector('.play-btn').addEventListener('click', () => {
+                player.currentTrackIndex = parseInt(item.dataset.index);
+                player.loadTrack();
+                player.play();
+                popupContainer.style.display = 'none';
+            });
+        });
+    }
+
+    function showPopup(title, content) {
+        popupTitle.textContent = title;
+        popupBody.innerHTML = content;
+        popupContainer.style.display = 'flex';
+    }
+
+    // Setup close handlers
+    closeBtn.addEventListener('click', () => {
+        popupContainer.style.display = 'none';
     });
+});
 
-    //.........................................................................................//
-    // Close button Function (pop up window)
+//.........................................................................................//
+// Close button Function (pop up window)
 
-    document.getElementById('close-btn').addEventListener('click', function (e) {
-        e.preventDefault();
-        showPopup('Music', `
-            <div>
-                <p>Do you really want to end the workout?</p>
-                <p>The progress of workout will not be saved.</p>
-                <button onclick="closePopup()">Yes</button>
-                <button onclick="closePopup()">No</button>
-            </div>
-        `);
-    });
+document.getElementById('close-btn').addEventListener('click', function (e) {
+    e.preventDefault();
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Get popup elements
+    const popupContainer = document.getElementById('popup-container');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBody = document.getElementById('popup-body');
+
+    // Show the confirmation popup
+    popupTitle.textContent = 'Confirm Close';
+    popupBody.innerHTML = `
+        <p>Are you sure you want to close the workout?</p>
+        <div class="popup-btn-container">
+            <button id="confirm-yes" class="popup-btn yes">Yes</button>
+            <button id="confirm-no" class="popup-btn no">No</button>
+        </div>
+    `;
+    popupContainer.style.display = 'block';
+
+    // Add click handlers for popup buttons
+    document.getElementById('confirm-yes').addEventListener('click', () => {
         const workoutManager = new WorkoutManager();
-        workoutManager.init();
+        workoutManager.clearAllTimers();
+        workoutManager.endWorkout();
 
-        // Existing initialization code...
-        createSettingsPopup();
-        if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
-            init();
-        }
+        // Navigate to workout_page.html
+        window.location.href = 'workout_page.html';
     });
+
+    document.getElementById('confirm-no').addEventListener('click', () => {
+        popupContainer.style.display = 'none';
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const workoutManager = new WorkoutManager();
+    workoutManager.init();
+
+    createSettingsPopup();
+    if (typeof tf !== 'undefined' && typeof poseDetection !== 'undefined') {
+        init();
+    }
 });

@@ -63,6 +63,8 @@ scrollText2.classList.add("content-style");
 const img = document.getElementById("image");
 img.classList.add("image-style");
 
+isAnimating = false;
+
 window.addEventListener("wheel", (event) => {
     const rect = scrollableSection.getBoundingClientRect();
     const sectionHeight = scrollableSection.clientHeight;
@@ -73,26 +75,22 @@ window.addEventListener("wheel", (event) => {
         rect.top >= -sectionHeight * 0.15 &&
         rect.bottom <= viewportHeight + sectionHeight * 0.15;
 
-    if (!isFullyVisible) {
+    if (!isFullyVisible|| isAnimating) {
         return; 
     }
     
     const direction = event.deltaY > 0 ? 1 : -1;
-    const newProgress = Math.min(Math.max(scrollProgress + direction, 0), 3);
+    const newProgress = scrollProgress + direction;
 
-
-    if (newProgress !== scrollProgress) {
+    if (newProgress >= 0 && newProgress <= 3 && Math.abs(newProgress - scrollProgress) === 1) {
         scrollProgress = newProgress;
         handleTextUpdate(scrollProgress);
 
-        // Temporarily disable scrolling
         document.body.style.overflow = "hidden";
+        
     }
-
-    if (scrollProgress < 2 && scrollProgress > 0) {
-        event.preventDefault();
-    } else{
-        document.body.style.overflow = "auto"; 
+    if (scrollProgress >3 && scrollProgress < 0) {
+            document.body.style.overflow = "auto";
     }
 });
 
@@ -118,8 +116,11 @@ function handleTextUpdate(progress) {
             break;
     }
 
+    isAnimating = true; // Set the flag to true
     fixedContent.style.opacity = 0;
     setTimeout(() => {
         fixedContent.style.opacity = 1; 
-    }, 900); 
+        isAnimating = false; 
+        document.body.style.overflow = "auto"; 
+    }, 900);
 }
