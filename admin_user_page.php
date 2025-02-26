@@ -103,10 +103,44 @@
                     <label for="phonenum">Phone Number</label>
                     <input type="text" id="phonenum" name="phonenum" required>
 
+                    <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+                        <button type="submit" id="add-profile-btn">Create New</button>
+                    </div>
+                </form>
+            </div>
+            <div class="edit-profile">
+                <center>
+                <h2>Edit <span>Profile</span></h2> 
+                </center>
+                
+                <form method="post" action="edit.php" id="administrator">
+                <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $selectedAdminId; ?>">
+                <input type="hidden" id="table" name="table" value="administrator">
+                <label for="username">Username</label>
+                    <input type="text" id="eusername" name="username" required>
+                    
+                    <label for="password">Password</label>
+                    <input type="password" id="epassword" name="password" required>
+
+                    <label for="name">Name</label>
+                    <input type="text" id="ename" name="name" required>
+
+                    <label for="gender">Gender</label>
+                    <select id="egender" name="gender" required style="width:98%;">
+                        <option value="">Select Gender</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                    </select>
+
+                    <label for="email">Email Address</label>
+                    <input type="email" id="eemail" name="email" required>
+
+                    <label for="phonenum">Phone Number</label>
+                    <input type="text" id="ephonenum" name="phonenum" required>
+
                     <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
-                        <button type="button" class="discard-btn">Discard Changes</button>
-                        <button type="button" class="confirm-btn">Update Changes</button>
-                        <button type="submit" class="add-profile-btn">Create New</button>
+                        <button type="button" id="discard-btn">Discard Changes</button>
+                        <button type="submit" id="confirm-btn">Update Changes</button>
                     </div>
                 </form>
             </div>
@@ -208,6 +242,7 @@ function validateInput($dbConn, $username, $email, $phone_num) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
     $name = trim($_POST['name']);
@@ -234,3 +269,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+

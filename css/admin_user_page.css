@@ -90,15 +90,20 @@ nav {
     border-radius: 10px;
     overflow-y: auto;
     overflow-x: auto;
-    border-collapse: collapse;
+    position: relative;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    display:block;
 }
 
+th{
+    position:sticky;
+    top: 0;
+    z-index: 3;
+}
 
 th, td {
     padding: 10px; 
@@ -114,8 +119,10 @@ tr:hover{
     background-color: #ffe8d6;
 }
 
+
+
 /* Add Profile Section */
-.add-profile {
+.add-profile,.edit-profile {
     width: 35%;
     background: #ffe8d6;
     padding: 25px;
@@ -126,23 +133,22 @@ tr:hover{
     display:block;
 }
 
-.add-profile h2 {
+.add-profile h2,.edit-profile h2 {
     margin-top: 0;
     color: black;
 }
 
-.add-profile span {
+.add-profile span,.edit-profile span{
     color: #FFAD84;
 }
 
-.add-profile label {
+.add-profile label,.edit-profile label {
     font-weight: bold;
     display: block;
     margin-top: 23px;
 }
 
-.add-profile input,
-.add-profile select {
+.add-profile input,.add-profile select,.edit-profile input,.edit-profile select {
     width: 95%;
     padding: 6px;
     margin-top: 10px;
@@ -151,7 +157,7 @@ tr:hover{
     border-radius: 16px;
 }
 
-.add-profile-btn, .confirm-btn {
+#add-profile-btn, #confirm-btn {
     margin-top: 30px;
     width: 35%;
     height:40px;
@@ -165,11 +171,8 @@ tr:hover{
     
 }
 
-.confirm-btn{
-    display:none;
-}
 
-.add-profile-btn:hover {
+#add-profile-btn:hover {
     background-color: rgb(247, 135, 69);
 }
 
@@ -180,7 +183,7 @@ tr:hover{
         align-items: center;
     }
 
-    .section1, .add-profile {
+    .section1, .add-profile,.edit-profile {
         width: 100%;
         margin-bottom: 20px;
     }
@@ -195,7 +198,7 @@ tr:hover{
         margin-bottom: 10px;
     }
 
-    .section1, .add-profile {
+    .section1, .add-profile,.edit-profile {
         width: 100%;
     }
 }
@@ -215,7 +218,7 @@ tr:hover{
         padding: 10px;
     }
 
-    .add-profile {
+    .add-profile,.edit-profile {
         padding: 15px;
     }
 }
@@ -318,7 +321,7 @@ table tr.selected {
     display:none;
 }
 
-.discard-btn {
+#discard-btn {
     margin-top: 30px;
     width: 37%;
     height: 40px;
@@ -330,10 +333,9 @@ table tr.selected {
     cursor: pointer;
     border-radius: 15px;
     margin-left: 10px;
-    display:none;
 }
 
-.discard-btn:hover {
+#discard-btn:hover {
     background-color: #b93232;
 }
 
@@ -347,6 +349,7 @@ table tr.selected {
     background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
     justify-content: center;
     align-items: center;
+    z-index:5;
 }
 
 .popup-content {
@@ -370,4 +373,8 @@ table tr.selected {
 
 #cancelDelete{
     background-color: #e84242;
+}
+
+.edit-profile{
+    display:none;
 }
