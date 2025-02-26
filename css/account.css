@@ -133,13 +133,14 @@ button {
   border: 3px black solid;
   border-radius: 20px;
   opacity: 0;
-  scale: 0;
   position: fixed;
-  transition: 200ms ease-in-out;
+  display: none;
+  transition: 500ms ease-in-out;
   z-index: 10;
 }
 
 .forget-password-modal.active {
+  display: block;
   opacity: 1;
   scale: 1;
 }
@@ -167,9 +168,57 @@ button {
 }
 
 .modal-body {
+  min-height: 200px;
   background-color: white;
+  box-sizing: border-box;
   border-radius: 0px 0px 20px 20px;
-  padding: 20px;
+  width: 100%;
+}
+
+.otp-input-wrapper {
+  padding: 10px;
+}
+
+.verify-email-wrapper,
+.otp-wrapper {
+  width: 100%;
+  margin: 10px 0px;
+}
+
+.verify-email-wrapper input,
+.otp-wrapper input {
+  width: 100%;
+  padding: 10px;
+  border: #ff946e 2px solid;
+  border-radius: 8px;
+  border-color: #ff946e;
+  box-sizing: border-box;
+  font-family: "poppins";
+}
+
+.otp-wrapper,
+.otp-button {
+  display: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-buttons button {
+  width: 48%;
+  background-color: #ff946e;
+  border: none;
+  border-radius: 5px;
+  font-family: "poppins";
+  font-weight: bold;
+  padding: 10px;
+  transition: all 0.5s;
+}
+
+.modal-buttons button:active {
+  background-color: rgb(20, 195, 20);
 }
 
 #overlay {
