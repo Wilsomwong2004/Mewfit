@@ -15,6 +15,7 @@
     />
     <!-- add defer attribute to make sure it run after the body -->
     <script defer src="js/forget_password.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
   </head>
   <body>
     <div class="login-box">
@@ -63,13 +64,28 @@
         <button data-close-button class="close-button">&times;</button>
       </div>
       <div class="modal-body">
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Animi sapiente
-        exercitationem beatae voluptatum soluta sunt minima quaerat sequi! Sequi
-        fugit autem ab molestias, beatae accusantium dicta asperiores dolorem
-        mollitia magni, consectetur cum odit? Repudiandae quis quos aspernatur
-        explicabo maiores iusto fugit minima aliquid, ducimus, deleniti est.
-        Nisi labore quia veniam.
+        <div class="otp-input-wrapper">
+          <div class="verify-email-wrapper">
+            <input
+              type="email"
+              id="email-verify"
+              placeholder="Enter your member email"
+            />
+          </div>
+          <div class="otp-wrapper">
+            <input
+              type="number"
+              id="email-otp"
+              placeholder="Enter your otp that was sent to your email"
+            />
+          </div>
+          <div class="modal-buttons">
+            <button>Verify</button>
+            <button class="otp-button">Send OTP</button>
+          </div>
+        </div>
       </div>
+      <script src="email-otp.js"></script>
     </div>
     <div id="overlay"></div>
   </body>

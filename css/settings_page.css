@@ -64,7 +64,6 @@ html.dark-mode .nav-links a {
     cursor: pointer;
     font-size: 80%;
 }
-
 .workout-settings a {
     margin-top: 5px;
     display: flex;
@@ -315,6 +314,8 @@ html.dark-mode .profile-section h2 {
     color: #2c2c2c;
     transition: color 0.3s;
 }
+
+
 
 @media screen and (max-width: 1200px) {
     .right-frame {

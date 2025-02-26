@@ -53,23 +53,40 @@ nav {
 /* Main Container */
 .container {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* Align at the top */
-    padding: 1px 25px;
-    gap: 20px; /* Ensure spacing between sections */
+    min-height: 100vh;
+    align-items: stretch; 
+    gap: 20px;
+    padding: 25px;
 }
 
-/* Profile Table */
 .profile-table {
-    width: 60%;
+    flex: 0 0 60%; 
     background: white;
     padding: 20px;
     border-radius: 10px;
-    height: auto; 
     display: flex;
     flex-direction: column;
-} 
+}
 
+
+.box {
+    flex: 1;
+    min-height: 400px; 
+    overflow-y: auto; 
+    margin-top: 15px;
+    position: relative;
+}
+
+.add-profile {
+    flex: 1;
+    background: #ffe8d6;
+    padding: 25px;
+    border-radius: 20px;
+    position: sticky;
+    top: 50px;
+    height: fit-content;
+    align-self: flex-start; 
+}
 .profile-table h1 {
     margin: 0;
     padding-bottom: 0px;
@@ -137,7 +154,7 @@ table, th, td {
 }
 
 .add-profile {
-    width: 40%;
+    width: 60%;
 }
 
 .add-profile textarea {
@@ -190,12 +207,18 @@ table, th, td {
 
 .add-profile input,
 .add-profile select {
-    width: 95%;
+    width: calc(100% - 30px);
     padding: 6px;
     margin-top: 10px;
     background-color: white;
-    border: 3px solid #FFAD84;  ;
+    border: 3px solid #FFAD84;
     border-radius: 16px;
+    box-sizing: border-box; /* 新增 */
+}
+
+.form-columns .column {
+    flex: 1;
+    box-sizing: border-box; /* 新增 */
 }
 
 .add-profile button {
@@ -227,6 +250,18 @@ table, th, td {
     .profile-table, .add-profile {
         width: 100%;
         margin-bottom: 20px;
+    }
+
+    .profile-table {
+        height: 500px;
+    }
+    
+    .box {
+        height: 400px; 
+    }
+    
+    .add-profile {
+        position: static; 
     }
 }
 
@@ -263,4 +298,3 @@ table, th, td {
         padding: 15px;
     }
 }
-
