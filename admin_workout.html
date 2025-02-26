@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Management</title>
     <link rel="stylesheet" href="css/admin_workout.css">
+    </style>
 </head>
 <body>
     <nav>
