@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link rel="stylesheet" href="css/admin_user_page.css">
+    <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
+    <script src="js/navigation_bar.js"></script>
 </head>
-<?php
-    include "conn.php";   
-
+<?php 
+    include "conn.php";
     session_start();
 
     // Retrieve errors and old input data from the session
@@ -17,22 +18,33 @@
     $old_data = $_SESSION['old_data'] ?? [];
     $showEditForm = $_SESSION['show_edit_form'] ?? false;
 
-    // Clear session data after use
-    unset($_SESSION['admin_errors']);
-    unset($_SESSION['old_data']);
-    unset($_SESSION['show_edit_form']);
+    // Only clear session data if we've actually used it
+    if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
+        // Store in local variables first
+        unset($_SESSION['admin_errors']);
+        unset($_SESSION['old_data']);
+        unset($_SESSION['show_edit_form']);
+    }
 ?>
 <body>
-    <nav>
-        <div class="logo-space"> <div class="logo-and-title"></div>
+    <nav class="navbar" id="navbar">
+        <!-- <div class="logo-space"> <div class="logo-and-title"></div>
             <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
+        </div> -->
+        <div class="nav-links" id="nav-links">
+            <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
+            <span class="admin-dashboard"><a href="homepage.html">DASHBOARD</a></span>
+            <span class="admin-user"><a href="#" class="active">USER</a></span>
+            <span class="admin-workout"><a href="diet_page.html">WORKOUT</a></span>
+            <span class="admin-meals"><a href="settings_page.html">MEALS</a></span>
         </div>
-        <ul class="nav-links">
-            <li><a href="#">DASHBOARD</a></li>
-            <li><a href="#" class="active">USER</a></li>
-            <li><a href="#">WORKOUT</a></li>
-            <li><a href="#">MEALS</a></li>
-        </ul>
+        <div class="header-right">
+            <button id="hamburger-menu" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
     </nav>
 
     <div style="display:flex;">
@@ -134,37 +146,37 @@
                     
                 }
                 ?>
-                <form method="post" action="edit.php" id="administrator">
-                <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $selectedAdminId; echo htmlspecialchars($old_data['eusername'] ?? '');?>">
+                <form method="POST" action="edit.php" id="administrator">
+                <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
                 <input type="hidden" id="table" name="table" value="administrator">
                     
                 <label for="eusername">Username</label>
                 <input type="text" id="eusername" name="eusername" value="<?php echo htmlspecialchars($old_data['eusername'] ?? ''); ?>" required>
 
-                    <label for="epassword">Password</label>
-                    <input type="epassword" id="epassword" name="epassword" value="<?php echo htmlspecialchars($old_data['epassword'] ?? ''); ?>" required>
+                <label for="epassword">Password</label>
+                <input type="text" id="epassword" name="epassword" value="<?php echo htmlspecialchars($old_data['epassword'] ?? ''); ?>" required>
 
-                    <label for="ename">Name</label>
-                    <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
+                <label for="ename">Name</label>
+                <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
 
-                    <label for="egender">Gender</label>
-                    <select id="egender" name="egender" required style="width:98%;">
-                        <option value="">Select Gender</option>
-                        <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
-                        <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
-                    </select>
+                <label for="egender">Gender</label>
+                <select id="egender" name="egender" required style="width:98%;">
+                    <option value="">Select Gender</option>
+                    <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
+                    <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
+                </select>
 
-                    <label for="eemail">Email Address</label>
-                    <input type="email" id="eemail" name="eemail" value="<?php echo htmlspecialchars($old_data['eemail'] ?? ''); ?>" required>
+                <label for="eemail">Email Address</label>
+                <input type="email" id="eemail" name="eemail" value="<?php echo htmlspecialchars($old_data['eemail'] ?? ''); ?>" required>
 
-                    <label for="ephonenum">Phone Number</label>
-                    <input type="text" id="ephonenum" name="ephonenum" value="<?php echo htmlspecialchars($old_data['ephonenum'] ?? ''); ?>" required>
+                <label for="ephonenum">Phone Number</label>
+                <input type="text" id="ephonenum" name="ephonenum" value="<?php echo htmlspecialchars($old_data['ephonenum'] ?? ''); ?>" required>
 
-                    <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
-                        <button type="button" id="discard-btn">Discard Changes</button>
-                        <button type="submit" id="confirm-btn">Update Changes</button>
-                    </div>
-                </form>
+                <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
+                    <button type="button" id="discard-btn">Discard Changes</button>
+                    <button type="submit" id="confirm-btn">Update Changes</button>
+                </div>
+            </form>
             </div>
             <div class="popup" id="popup">
                 <div class="popup-content">

@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "Form data is missing.";
         exit();
     }
+
     switch ($table) {
-        
         case 'administrator':
             $errors = [];
             $username = trim($_POST['eusername']);
@@ -20,14 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = trim($_POST['eemail']);
             $phone_num = trim($_POST['ephonenum']);
 
-            //detect errors
-            if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
-                $errors[] = "Username must be between 3 and 20 characters.";
-            }
-            if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
-                $errors[] = "Phone number must be 10 digits.";
-            }
-
+            // Check if username already exists but exclude the current admin
             $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE admin_id = ?");
             $stmt->bind_param("i", $selectedAdminId);
             $stmt->execute();
@@ -37,9 +30,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if (!$currentAdminData) {
                 $_SESSION['admin_errors'][] = "Selected admin does not exist.";
+                header("Location: admin_user_page.php");
                 exit();
             }
             
+            //detect validation errors
+            if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
+                $errors[] = "Username must be between 3 and 20 characters.";
+            }
+            if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
+                $errors[] = "Phone number must be 10 digits.";
+            }
+            
+            // Check for duplicate values (excluding the current admin)
             $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE (username = ? OR email_address = ? OR phone_number = ?) AND admin_id != ?");
             $stmt->bind_param("sssi", $username, $email, $phone_num, $selectedAdminId);
             $stmt->execute();
@@ -58,23 +61,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             $stmt->close();
 
-            // errors or no errors
+            // Handle errors
             if (!empty($errors)) {
                 $_SESSION['admin_errors'] = $errors;
                 $_SESSION['old_data'] = $_POST;
                 $_SESSION['show_edit_form'] = true;
-                header("location: admin_user_page.php?admin_id=$selectedAdminId");
+                header("Location: admin_user_page.php?admin_id=" . urlencode($selectedAdminId));
                 exit();
             }
             
-                if ($dbConn->query("UPDATE administrator SET username = '$username', password ='$password', name = '$name', gender ='$gender', email_address ='$email', phone_number = '$phone_num' WHERE admin_id = '$selectedAdminId';") === TRUE) {
-                    header("location: admin_user_page.php");
-                    exit();
-                } else {
-                    $_SESSION['admin_errors'][] = "Error updating admin: " . $dbConn->error;
-                    header("location: admin_user_page.php?admin_id=$selectedAdminId");
-                    exit();
-                }
+            // If no errors, update the database
+            $updateStmt = $dbConn->prepare("UPDATE administrator SET username = ?, password = ?, name = ?, gender = ?, email_address = ?, phone_number = ? WHERE admin_id = ?");
+            $updateStmt->bind_param("ssssssi", $username, $password, $name, $gender, $email, $phone_num, $selectedAdminId);
+            
+            if ($updateStmt->execute()) {
+                $_SESSION['success_message'] = "Admin updated successfully!";
+                header("Location: admin_user_page.php");
+                exit();
+            } else {
+                $_SESSION['admin_errors'][] = "Error updating admin: " . $dbConn->error;
+                $_SESSION['old_data'] = $_POST;
+                $_SESSION['show_edit_form'] = true;
+                header("Location: admin_user_page.php?admin_id=" . urlencode($selectedAdminId));
+                exit();
+            }
+            $updateStmt->close();
+            break;
             
             // if (empty($errors)) {
             //     if ($dbConn->query("UPDATE administrator SET username = '$username', password ='$password', name = '$name', gender ='$gender', email_address ='$email', phone_number = '$phone_num' WHERE admin_id = '$selectedAdminId';") === TRUE) {
@@ -197,6 +209,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $dbConn -> close();
     
 } else {
-    
-    die();
+    header("Location: admin_user_page.php");
+    exit();
 }
