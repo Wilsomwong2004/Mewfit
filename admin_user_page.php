@@ -35,7 +35,7 @@
         </ul>
     </nav>
 
-    <div style="display:flex;">
+    <div id="heading">
         <h2 class="title"> USER <span>PROFILE</span></h2>
         <ul class="user-section">
             <li><a href="#member" class="member-link">MEMBER</a></li>
@@ -47,7 +47,7 @@
     <div class="content">
         <div class="admin-container">
             <div class="section1">
-                <input type="text" class="search-bar" placeholder="Search">
+                <input type="text" class="search-bar" placeholder="Search Username..">
                 <div class="box">
                     <table>
                         <tr>
@@ -220,6 +220,11 @@
         </div>
     </div>
     <script>
+        window.onresize = function() {
+            if (window.innerWidth > 1200) {
+                window.scrollTo(0, 0); 
+            }
+        };
         document.addEventListener("DOMContentLoaded", function() {
             var addProfile = document.querySelector('.add-profile');
             var editProfile = document.querySelector('.edit-profile');

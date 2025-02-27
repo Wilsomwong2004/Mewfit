@@ -43,18 +43,22 @@ nav {
 }
 
 /* Main Container */
+#heading{
+    display:flex;
+}
+
 .admin-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start; 
-    padding: 1px 25px;
-    gap: 20px; 
+    padding-left: 25px;
+    padding-right: 40px;
     height:1000px;
 }
 
 /* Profile Table */
 .section1 {
-    width: 60%;
+    width: 55%;
     padding: 20px;
     border-radius: 10px;
     height: auto; 
@@ -81,7 +85,7 @@ nav {
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 15px;
-    width:98%;
+    width:96%;
 }
 
 .box, .member-box {
@@ -123,9 +127,9 @@ tr:hover{
 
 /* Add Profile Section */
 .add-profile,.edit-profile {
-    width: 35%;
+    width: 37%;
     background: #ffe8d6;
-    padding: 25px;
+    padding: 30px;
     border-radius: 20px;
     position: relative;
     top: 20px; 
@@ -174,53 +178,6 @@ tr:hover{
 
 #add-profile-btn:hover {
     background-color: rgb(247, 135, 69);
-}
-
-/* 📌 Responsive Design */
-@media (max-width: 1024px) {
-    .admin-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .section1, .add-profile,.edit-profile {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .nav-links {
-        flex-direction: column;
-    }
-
-    .nav-links li {
-        margin-bottom: 10px;
-    }
-
-    .section1, .add-profile,.edit-profile {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    nav {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .nav-links {
-        flex-direction: column;
-    }
-
-    .admin-container {
-        flex-direction: column;
-        padding: 10px;
-    }
-
-    .add-profile,.edit-profile {
-        padding: 15px;
-    }
 }
 
 .user-section {
@@ -377,4 +334,87 @@ table tr.selected {
 
 .edit-profile{
     display:none;
+}
+
+/* 📌 Responsive Design */
+@media (max-width: 1200px) {
+    body{
+        overflow: auto;
+    }
+    .admin-container {
+        flex-direction: column;
+        align-items: center;
+        height: 1500px;
+        margin-bottom: 60px;
+        padding: 1px;
+    }
+
+    .section1{
+        width: 95%;
+        margin-bottom: 0px;
+        padding: 0px;
+    }
+
+    .add-profile,.edit-profile {
+        width:90%;
+    }
+
+    .add-profile label,.edit-profile label {
+        font-weight: bold;
+        display: block;
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links {
+        flex-direction: column;
+    }
+
+    .nav-links li {
+        margin-bottom: 10px;
+    }
+
+    #heading{
+        flex-direction: column;
+        align-items: center; 
+    }
+
+    .admin-container{
+        height:1200px;
+        gap:0px;
+        padding-bottom:0px;
+        margin-bottom: 50px;
+        width:90vw;
+        padding-left: 20px;
+        padding-right: 30px;
+    }
+
+    .title{
+        text-align: center;
+    }
+
+    .add-profile,.edit-profile {
+        width: 78%;
+    }
+
+    .user-section{
+        width:80vw;
+    }
+
+    .box{
+        height:450px
+    }
+
+}
+
+@media (max-width: 480px) {
+    nav {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-direction: column;
+    }
 }
