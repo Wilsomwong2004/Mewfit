@@ -1,14 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
-    //select sections
+document.addEventListener('DOMContentLoaded', function () {
+    //--------------------select sections-----------------------
     const memberLink = document.querySelector('.member-link');
     const adminLink = document.querySelector('.admin-link');
     const memberContent = document.querySelector('.member-container');
     const adminContent = document.querySelector('.admin-container');
 
     adminContent.style.display = 'flex';
-    adminLink.classList.add('active'); 
+    adminLink.classList.add('active');
 
-    memberLink.addEventListener('click', function(event) {
+    memberLink.addEventListener('click', function (event) {
         event.preventDefault();
         adminContent.style.display = 'none';
         memberContent.style.display = 'block';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         memberLink.classList.add('active');
     });
 
-    adminLink.addEventListener('click', function(event) {
+    adminLink.addEventListener('click', function (event) {
         event.preventDefault();
         memberContent.style.display = 'none';
         adminContent.style.display = 'flex';
@@ -24,9 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
         adminLink.classList.add('active');
     });
 
-    //retain information
+    //-------------------retain information-----------------------------
     let form = document.querySelector(".add-profile form");
-
     form.querySelectorAll("input, select").forEach(input => {
         if (sessionStorage.getItem(input.name)) {
             input.value = sessionStorage.getItem(input.name);
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    //clear all rows
+    //---------------------clear all rows-------------------------
     function clearForm() {
         document.getElementById("username").value = "";
         document.getElementById("password").value = "";
@@ -48,22 +47,24 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.clear();
         window.location.href = window.location.href;
     }
-    
-    window.onload = function() {
+
+    window.onload = function () {
         if (sessionStorage.getItem("clearForm") === "true") {
             clearForm();
-            sessionStorage.removeItem("clearForm"); 
+            sessionStorage.removeItem("clearForm");
         }
     };
 
-    //select row
-    const rows = document.querySelectorAll('table tr:not(:first-child)'); 
+    //------------------------select row--------------------------
+    const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
-    
+    let isEditing = false;
     let selectedRow = null;
     rows.forEach(row => {
-        row.addEventListener('click', function(event) {
+        row.addEventListener('click', function (event) {
+            if (isEditing) return;
+            if (this.classList.contains('no-data')) return;
 
             event.stopPropagation();
             rows.forEach(r => r.classList.remove('selected'));
@@ -75,91 +76,109 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    //deselect
+    //------------------------------deselect------------------
     document.addEventListener("click", function (event) {
-        const table = document.querySelector(".box table"); 
+        const table = document.querySelector(".box table");
         const tableOption = document.querySelector('.table-option')
         if (!table.contains(event.target) && !tableOption.contains(event.target)) {
+            if (isEditing) return;
             if (selectedRow) {
-                selectedRow.classList.remove('selected'); 
-                selectedRow = null; 
+                selectedRow.classList.remove('selected');
+                selectedRow = null;
             }
-            editBtn.disabled = true;
-            deleteBtn.disabled = true;
         }
     }, true);
 
-    // Edit Button Functionality
-    const discardBtn = document.querySelector(".discard-btn");
-    const confirmBtn = document.querySelector(".confirm-btn");
-    const addProfileBtn = document.querySelector(".add-profile-btn");
+    //-----------------------------edit data-----------------------
+    let selectedAdminId = null;
+
+    const discardBtn = document.getElementById("discard-btn");
+    const confirmBtn = document.getElementById("confirm-btn");
+    const addProfile = document.querySelector(".add-profile");
+    const editProfile = document.querySelector(".edit-profile");
     editBtn.addEventListener("click", function () {
         if (!selectedRow) return;
+        isEditing = true;
+        addProfile.style.display = "none";
+        editProfile.style.display = "block";
+        editBtn.disabled = true;
+        deleteBtn.disabled = true;
+
 
         const cells = selectedRow.getElementsByTagName("td");
-        document.getElementById("username").value = cells[1].textContent;
-        document.getElementById("password").value = cells[2].textContent;
-        document.getElementById("name").value = cells[3].textContent;
-        document.getElementById("gender").value = cells[4].textContent;
-        document.getElementById("email").value = cells[5].textContent;
-        document.getElementById("phonenum").value = cells[6].textContent;
-        document.getElementById("admin-id").value = selectedRow.getAttribute("admin-id");
+        document.getElementById("selectedAdminId").value = cells[0].textContent;
+        document.getElementById("eusername").value = cells[1].textContent;
+        document.getElementById("epassword").value = cells[2].textContent;
+        document.getElementById("ename").value = cells[3].textContent;
+        document.getElementById("egender").value = cells[4].textContent;
+        document.getElementById("eemail").value = cells[5].textContent;
+        document.getElementById("ephonenum").value = cells[6].textContent;
 
-        addProfileBtn.style.display = "none";
-        confirmBtn.style.display = "block";
-        discardBtn.style.display = "block";
     });
 
     //discard changes button
-    document.querySelector(".discard-btn").addEventListener("click", function () {
+    discardBtn.addEventListener("click", function () {
         document.querySelector(".add-profile form").reset();
-        document.getElementById("id").value = ""; 
-        addProfileBtn.style.display = "block";
-        confirmBtn.style.display = "none";
-        discardBtn.style.display = "none";
+        addProfile.style.display = "block";
+        editProfile.style.display = "none";
+        isEditing = false;
     });
 
-    // Delete Button Functionality
+    confirmBtn.addEventListener("click", function () {
+        isEditing = false;
+        addProfile.style.display = "block";
+        editProfile.style.display = "none";
+    });
+
+    //----------------------delete data------------------------
     let id = null;
     let table = null;
     deleteBtn.addEventListener("click", () => {
         if (!selectedRow) return;
-    
-        document.getElementById("popup").style.display = "flex"; 
-        id = selectedRow.getAttribute("admin-id"); 
-        table = "administrator"; 
+
+        document.getElementById("popup").style.display = "flex";
+        id = selectedRow.getAttribute("admin-id");
+        table = "administrator";
     });
 
-    document.getElementById("confirmDelete").addEventListener("click", () =>  {
-        if (!id || !table) return; 
-    
+    document.getElementById("confirmDelete").addEventListener("click", () => {
+        if (!id || !table) return;
+
         fetch("delete.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `table=${table}&id=${id}`
         })
-        .then(res => res.text())
-        .then(() => location.reload())
-        .catch(console.error);
+            .then(res => res.text())
+            .then(() => location.reload())
+            .catch(console.error);
 
         document.getElementById("popup").style.display = "none";
     });
 
     document.getElementById("cancelDelete").addEventListener("click", () => {
-        document.getElementById("popup").style.display = "none"; 
+        document.getElementById("popup").style.display = "none";
     });
 
-    //search
-    document.querySelector(".search-bar").addEventListener("keyup", function() {
-        const searchValue = this.value.toLowerCase();
+    //-----------------------------search--------------------------
+    document.querySelectorAll(".search-bar").forEach(searchBar => {
+        searchBar.addEventListener("keyup", function () {
+            const searchValue = this.value.toLowerCase();
+
+            let table = this.closest("div").querySelector("table");
+            let rows = table.querySelectorAll("tr:not(:first-child)");
     
-        rows.forEach(row => {
-            const nameCell = row.cells[1].textContent.toLowerCase(); 
-            if (nameCell.includes(searchValue)) {
-                row.style.display = ""; 
-            } else {
-                row.style.display = "none"; 
-            }
+            rows.forEach(row => {
+                if (row.classList.contains("no-data")) return; // Skip "No data available" row
+    
+                const usernameCell = row.cells[1].textContent.toLowerCase(); // Assuming username is in the second column
+    
+                if (usernameCell.includes(searchValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
         });
     });
 
