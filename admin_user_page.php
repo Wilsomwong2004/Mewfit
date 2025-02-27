@@ -9,6 +9,18 @@
 </head>
 <?php
     include "conn.php";   
+
+    session_start();
+
+    // Retrieve errors and old input data from the session
+    $errors = $_SESSION['admin_errors'] ?? [];
+    $old_data = $_SESSION['old_data'] ?? [];
+    $showEditForm = $_SESSION['show_edit_form'] ?? false;
+
+    // Clear session data after use
+    unset($_SESSION['admin_errors']);
+    unset($_SESSION['old_data']);
+    unset($_SESSION['show_edit_form']);
 ?>
 <body>
     <nav>
