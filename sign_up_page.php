@@ -40,9 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $errorMessage = "Error: " . $conn->error;
     }
 
-    echo "echo('<script>alert('Account added');</script> ')";
-
-    header("location: login_page.html");
+    echo '<script>alert("Account added");</script>';
+    header("Refresh: 1; url=login_page.html");
     exit;
 }
 
