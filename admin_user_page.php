@@ -176,7 +176,7 @@
             </div>
         </div>
         <div class="member-container">
-            <input type="text" class="search-bar" placeholder="Search">
+            <input type="text" class="search-bar" placeholder="Search Username">
             <div class="member-box">
                 <table>
                     <tr>
@@ -193,28 +193,28 @@
                     </tr>
                     
                     <?php
-                            $sql = "SELECT * FROM member";
-                            $result = mysqli_query($dbConn, $sql);
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($rows = mysqli_fetch_array($result)) {
-                                    echo "<tr>";
-                                    echo "<td>".$rows['member_id']."</td>";
-                                    echo "<td>".$rows['username']."</td>";
-                                    echo "<td>".$rows['password']."</td>";
-                                    echo "<td>".$rows['level']."</td>";
-                                    echo "<td>".$rows['weight']."</td>";
-                                    echo "<td>".$rows['age']."</td>";
-                                    echo "<td>".$rows['fitness_goal']."</td>";
-                                    echo "<td>".$rows['target_weight']."</td>";
-                                    echo "<td>".$rows['gender']."</td>";
-                                    echo "<td>".$rows['day_streak_starting_date']."</td>";
-                                    echo "</tr>";
-                                }
-                            } else {
-                                echo "<tr class='no-data'><td colspan='10'>No data available</td></tr>";
-                                $sql="TRUNCATE TABLE member";
+                        $sql = "SELECT * FROM member";
+                        $result = mysqli_query($dbConn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($rows = mysqli_fetch_array($result)) {
+                                echo "<tr>";
+                                echo "<td>".$rows['member_id']."</td>";
+                                echo "<td>".$rows['username']."</td>";
+                                echo "<td>".$rows['password']."</td>";
+                                echo "<td>".$rows['level']."</td>";
+                                echo "<td>".$rows['weight']."</td>";
+                                echo "<td>".$rows['age']."</td>";
+                                echo "<td>".$rows['fitness_goal']."</td>";
+                                echo "<td>".$rows['target_weight']."</td>";
+                                echo "<td>".$rows['gender']."</td>";
+                                echo "<td>".$rows['day_streak_starting_date']."</td>";
+                                echo "</tr>";
                             }
-                        ?>
+                        } else {
+                            echo "<tr class='no-data'><td colspan='10' >No data available</td></tr>";
+                            $sql="TRUNCATE TABLE member";
+                        }
+                    ?>
                 </table>
             </div>
         </div>
