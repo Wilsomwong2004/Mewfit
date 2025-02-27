@@ -100,7 +100,7 @@ html.dark-mode .nav-links a {
 .workout-record {
   width: 95%;
   margin: 0 auto;
-  padding: 5px 0px;
+  padding: 10px 0px;
 }
 
 .search-date h2 {
@@ -110,7 +110,7 @@ html.dark-mode .nav-links a {
 .workout-record {
   font-family: "Inter";
   color: #4f4e4e;
-  border-bottom: 1px gray solid;
+  border-bottom: 2px gray solid;
   display: grid;
   grid-template-columns: 1fr 3fr 2fr 1fr 1fr;
   grid-gap: 10px 10px;
