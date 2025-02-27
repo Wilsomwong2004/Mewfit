@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     //--------------------select sections-----------------------
     const memberLink = document.querySelector('.member-link');
     const adminLink = document.querySelector('.admin-link');
@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const adminContent = document.querySelector('.admin-container');
 
     adminContent.style.display = 'flex';
-    adminLink.classList.add('active'); 
+    adminLink.classList.add('active');
 
-    memberLink.addEventListener('click', function(event) {
+    memberLink.addEventListener('click', function (event) {
         event.preventDefault();
         adminContent.style.display = 'none';
         memberContent.style.display = 'block';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         memberLink.classList.add('active');
     });
 
-    adminLink.addEventListener('click', function(event) {
+    adminLink.addEventListener('click', function (event) {
         event.preventDefault();
         memberContent.style.display = 'none';
         adminContent.style.display = 'flex';
@@ -47,22 +47,22 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.clear();
         window.location.href = window.location.href;
     }
-    
-    window.onload = function() {
+
+    window.onload = function () {
         if (sessionStorage.getItem("clearForm") === "true") {
             clearForm();
-            sessionStorage.removeItem("clearForm"); 
+            sessionStorage.removeItem("clearForm");
         }
     };
 
     //------------------------select row--------------------------
-    const rows = document.querySelectorAll('table tr:not(:first-child)'); 
+    const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
     let isEditing = false;
     let selectedRow = null;
     rows.forEach(row => {
-        row.addEventListener('click', function(event) {
+        row.addEventListener('click', function (event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
 
@@ -78,13 +78,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //------------------------------deselect------------------
     document.addEventListener("click", function (event) {
-        const table = document.querySelector(".box table"); 
+        const table = document.querySelector(".box table");
         const tableOption = document.querySelector('.table-option')
         if (!table.contains(event.target) && !tableOption.contains(event.target)) {
             if (isEditing) return;
             if (selectedRow) {
-                selectedRow.classList.remove('selected'); 
-                selectedRow = null; 
+                selectedRow.classList.remove('selected');
+                selectedRow = null;
             }
         }
     }, true);
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         isEditing = false;
     });
 
-    confirmBtn.addEventListener("click", function(){
+    confirmBtn.addEventListener("click", function () {
         isEditing = false;
         addProfile.style.display = "block";
         editProfile.style.display = "none";
@@ -135,29 +135,29 @@ document.addEventListener('DOMContentLoaded', function() {
     let table = null;
     deleteBtn.addEventListener("click", () => {
         if (!selectedRow) return;
-    
-        document.getElementById("popup").style.display = "flex"; 
-        id = selectedRow.getAttribute("admin-id"); 
-        table = "administrator"; 
+
+        document.getElementById("popup").style.display = "flex";
+        id = selectedRow.getAttribute("admin-id");
+        table = "administrator";
     });
 
-    document.getElementById("confirmDelete").addEventListener("click", () =>  {
-        if (!id || !table) return; 
-    
+    document.getElementById("confirmDelete").addEventListener("click", () => {
+        if (!id || !table) return;
+
         fetch("delete.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `table=${table}&id=${id}`
         })
-        .then(res => res.text())
-        .then(() => location.reload())
-        .catch(console.error);
+            .then(res => res.text())
+            .then(() => location.reload())
+            .catch(console.error);
 
         document.getElementById("popup").style.display = "none";
     });
 
     document.getElementById("cancelDelete").addEventListener("click", () => {
-        document.getElementById("popup").style.display = "none"; 
+        document.getElementById("popup").style.display = "none";
     });
 
     //-----------------------------search--------------------------
