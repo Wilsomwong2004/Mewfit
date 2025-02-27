@@ -161,16 +161,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     //-----------------------------search--------------------------
-    document.querySelector(".search-bar").addEventListener("keyup", function() {
-        const searchValue = this.value.toLowerCase();
+    document.querySelectorAll(".search-bar").forEach(searchBar => {
+        searchBar.addEventListener("keyup", function () {
+            const searchValue = this.value.toLowerCase();
+
+            let table = this.closest("div").querySelector("table");
+            let rows = table.querySelectorAll("tr:not(:first-child)");
     
-        rows.forEach(row => {
-            const nameCell = row.cells[1].textContent.toLowerCase(); 
-            if (nameCell.includes(searchValue)) {
-                row.style.display = ""; 
-            } else {
-                row.style.display = "none"; 
-            }
+            rows.forEach(row => {
+                if (row.classList.contains("no-data")) return; // Skip "No data available" row
+    
+                const usernameCell = row.cells[1].textContent.toLowerCase(); // Assuming username is in the second column
+    
+                if (usernameCell.includes(searchValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
         });
     });
 
