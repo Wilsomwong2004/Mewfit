@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    overflow: hidden;
 }
 
 /* Navigation Bar */
@@ -83,22 +84,28 @@ nav {
     width:98%;
 }
 
-.box {
-    height: 700px;
+.box, .member-box {
+    height: 650px;
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
-    border-collapse: collapse;
+    overflow-x: auto;
+    position: relative;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    display:block;
 }
 
+th{
+    position:sticky;
+    top: 0;
+    z-index: 3;
+}
 
-.box th, td {
+th, td {
     padding: 10px; 
     text-align: center; 
     border-bottom: 1px solid #FFAD84; 
@@ -112,8 +119,10 @@ tr:hover{
     background-color: #ffe8d6;
 }
 
+
+
 /* Add Profile Section */
-.add-profile {
+.add-profile,.edit-profile {
     width: 35%;
     background: #ffe8d6;
     padding: 25px;
@@ -124,23 +133,22 @@ tr:hover{
     display:block;
 }
 
-.add-profile h2 {
+.add-profile h2,.edit-profile h2 {
     margin-top: 0;
     color: black;
 }
 
-.add-profile span {
+.add-profile span,.edit-profile span{
     color: #FFAD84;
 }
 
-.add-profile label {
+.add-profile label,.edit-profile label {
     font-weight: bold;
     display: block;
     margin-top: 23px;
 }
 
-.add-profile input,
-.add-profile select {
+.add-profile input,.add-profile select,.edit-profile input,.edit-profile select {
     width: 95%;
     padding: 6px;
     margin-top: 10px;
@@ -149,20 +157,22 @@ tr:hover{
     border-radius: 16px;
 }
 
-.add-profile button {
+#add-profile-btn, #confirm-btn {
     margin-top: 30px;
-    width: 50%;
+    width: 35%;
     height:40px;
     padding: 9px;
     background-color: #FFAD84;
     border: none;
-    color: black;
+    color: white;
     font-weight: bold;
     cursor: pointer;
     border-radius: 15px;
+    
 }
 
-.add-profile button:hover {
+
+#add-profile-btn:hover {
     background-color: rgb(247, 135, 69);
 }
 
@@ -173,7 +183,7 @@ tr:hover{
         align-items: center;
     }
 
-    .section1, .add-profile {
+    .section1, .add-profile,.edit-profile {
         width: 100%;
         margin-bottom: 20px;
     }
@@ -188,7 +198,7 @@ tr:hover{
         margin-bottom: 10px;
     }
 
-    .section1, .add-profile {
+    .section1, .add-profile,.edit-profile {
         width: 100%;
     }
 }
@@ -208,7 +218,7 @@ tr:hover{
         padding: 10px;
     }
 
-    .add-profile {
+    .add-profile,.edit-profile {
         padding: 15px;
     }
 }
@@ -251,12 +261,120 @@ tr:hover{
     display: none; 
 }
 
-.box th:hover {background-color: white !important;}
-.box th{background-color: white;}
-.box th:nth-child(1), td:nth-child(1) { width: 10%; }
-.box th:nth-child(2), td:nth-child(2) { width: 20%; }
-.box th:nth-child(3), td:nth-child(3) { width: 20%; }
-.box th:nth-child(4), td:nth-child(4) { width: 20%; }
-.box th:nth-child(5), td:nth-child(5) { width: 10%; }
-.box th:nth-child(6), td:nth-child(6) { width: 20%; }
-.box th:nth-child(7), td:nth-child(7) { width: 20%; }
+.box th:hover, .member-box th:hover,.no-data  {background-color: white !important;}
+.box th, .member-box th{background-color: white;}
+.box th:nth-child(1), td:nth-child(1),.box th:nth-child(5), td:nth-child(5) { width: 10%; }
+.box th:nth-child(2), td:nth-child(2), .box th:nth-child(3), td:nth-child(3), .box th:nth-child(4), td:nth-child(4), .box th:nth-child(6), td:nth-child(6), .box th:nth-child(7), td:nth-child(7) { width: 20%; }
+
+.member-box th:nth-child(1), td:nth-child(1),.member-box th:nth-child(5), td:nth-child(5) { width: 5%; }
+.member-box th:nth-child(2), td:nth-child(2), .member-box th:nth-child(3), td:nth-child(3), .member-box th:nth-child(4), td:nth-child(4), .member-box th:nth-child(6), td:nth-child(6), .member-box th:nth-child(7), td:nth-child(7), .member-box th:nth-child(8), td:nth-child(8), .member-box th:nth-child(9), td:nth-child(9), .member-box th:nth-child(10), td:nth-child(10)   { width: 10%; }
+
+.member-container{
+    width: 98vw;
+    padding: 20px;
+    border-radius: 10px;
+    height: auto; 
+}
+
+.member-container input{
+    width:99%;
+}
+
+.no-data td{
+    color: grey;
+    vertical-align: middle;
+    border:none;
+    text-align:center;
+    margin:50px;
+    height:700px;
+    font-size:20px;
+}
+
+table tr.selected {
+    background-color: #ffbb99 !important;
+}
+
+.table-option{
+    display:flex;
+    justify-content: end;
+}
+
+.table-option button{
+    padding: 10px 20px;
+    margin-top:30px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FFAD84;
+    cursor: pointer;
+    font-size: 16px;
+    color:white;
+    font-weight: bold;
+}
+
+.table-option button:disabled {
+    background-color: #ffe8d6;
+    cursor: not-allowed;
+}
+
+#id{
+    display:none;
+}
+
+#discard-btn {
+    margin-top: 30px;
+    width: 37%;
+    height: 40px;
+    padding: 9px;
+    background-color: #e84242; 
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+    margin-left: 10px;
+}
+
+#discard-btn:hover {
+    background-color: #b93232;
+}
+
+.popup {
+    display: none; 
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
+    justify-content: center;
+    align-items: center;
+    z-index:5;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+}
+
+.popup-content button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+    background-color: #FFAD84;
+    color:white;
+    font-weight: bold;
+}
+
+#cancelDelete{
+    background-color: #e84242;
+}
+
+.edit-profile{
+    display:none;
+}
