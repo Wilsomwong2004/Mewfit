@@ -47,7 +47,7 @@
         </div>
     </nav>
 
-    <div style="display:flex;">
+    <div id="heading">
         <h2 class="title"> USER <span>PROFILE</span></h2>
         <ul class="user-section">
             <li><a href="#member" class="member-link">MEMBER</a></li>
@@ -59,7 +59,7 @@
     <div class="content">
         <div class="admin-container">
             <div class="section1">
-                <input type="text" class="search-bar" placeholder="Search">
+                <input type="text" class="search-bar" placeholder="Search Username..">
                 <div class="box">
                     <table>
                         <tr>
@@ -188,7 +188,7 @@
             </div>
         </div>
         <div class="member-container">
-            <input type="text" class="search-bar" placeholder="Search">
+            <input type="text" class="search-bar" placeholder="Search Username">
             <div class="member-box">
                 <table>
                     <tr>
@@ -205,33 +205,38 @@
                     </tr>
                     
                     <?php
-                            $sql = "SELECT * FROM member";
-                            $result = mysqli_query($dbConn, $sql);
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($rows = mysqli_fetch_array($result)) {
-                                    echo "<tr>";
-                                    echo "<td>".$rows['member_id']."</td>";
-                                    echo "<td>".$rows['username']."</td>";
-                                    echo "<td>".$rows['password']."</td>";
-                                    echo "<td>".$rows['level']."</td>";
-                                    echo "<td>".$rows['weight']."</td>";
-                                    echo "<td>".$rows['age']."</td>";
-                                    echo "<td>".$rows['fitness_goal']."</td>";
-                                    echo "<td>".$rows['target_weight']."</td>";
-                                    echo "<td>".$rows['gender']."</td>";
-                                    echo "<td>".$rows['day_streak_starting_date']."</td>";
-                                    echo "</tr>";
-                                }
-                            } else {
-                                echo "<tr class='no-data'><td colspan='10'>No data available</td></tr>";
-                                $sql="TRUNCATE TABLE member";
+                        $sql = "SELECT * FROM member";
+                        $result = mysqli_query($dbConn, $sql);
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($rows = mysqli_fetch_array($result)) {
+                                echo "<tr>";
+                                echo "<td>".$rows['member_id']."</td>";
+                                echo "<td>".$rows['username']."</td>";
+                                echo "<td>".$rows['password']."</td>";
+                                echo "<td>".$rows['level']."</td>";
+                                echo "<td>".$rows['weight']."</td>";
+                                echo "<td>".$rows['age']."</td>";
+                                echo "<td>".$rows['fitness_goal']."</td>";
+                                echo "<td>".$rows['target_weight']."</td>";
+                                echo "<td>".$rows['gender']."</td>";
+                                echo "<td>".$rows['day_streak_starting_date']."</td>";
+                                echo "</tr>";
                             }
-                        ?>
+                        } else {
+                            echo "<tr class='no-data'><td colspan='10' >No data available</td></tr>";
+                            $sql="TRUNCATE TABLE member";
+                        }
+                    ?>
                 </table>
             </div>
         </div>
     </div>
     <script>
+        window.onresize = function() {
+            if (window.innerWidth > 1200) {
+                window.scrollTo(0, 0); 
+            }
+        };
         document.addEventListener("DOMContentLoaded", function() {
             var addProfile = document.querySelector('.add-profile');
             var editProfile = document.querySelector('.edit-profile');

@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
     rows.forEach(row => {
         row.addEventListener('click', function (event) {
             if (isEditing) return;
+            if (this.classList.contains('no-data')) return;
 
             event.stopPropagation();
             rows.forEach(r => r.classList.remove('selected'));
