@@ -196,11 +196,6 @@ button {
   font-family: "poppins";
 }
 
-.otp-wrapper,
-.otp-button {
-  display: none;
-}
-
 .modal-buttons {
   display: flex;
   justify-content: space-between;
