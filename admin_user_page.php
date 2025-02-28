@@ -32,7 +32,7 @@
             <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
         </div> -->
         <div class="nav-links" id="nav-links">
-            <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
+            <img src="./assets/icons/logo admin.svg" alt="logo" class="nav-logo" id="nav-logo">
             <span class="admin-dashboard"><a href="homepage.html">DASHBOARD</a></span>
             <span class="admin-user"><a href="#" class="active">USER</a></span>
             <span class="admin-workout"><a href="diet_page.html">WORKOUT</a></span>
