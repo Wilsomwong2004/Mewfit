@@ -59,9 +59,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
+    const memberDeleteBtn = document.getElementById("member-delete-btn");
     let isEditing = false;
     let selectedRow = null;
-    rows.forEach(row => {
+    let mselectedRow = null;
+    document.querySelectorAll(".admin-container tr").forEach(row => {
         row.addEventListener('click', function (event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
@@ -76,16 +78,38 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    document.querySelectorAll(".member-container tr").forEach(row => {
+        row.addEventListener('click', function (event) {
+            if (isEditing) return;
+            if (this.classList.contains('no-data')) return;
+    
+            event.stopPropagation();
+            rows.forEach(r => r.classList.remove('selected'));
+            mselectedRow = this;
+            this.classList.add('selected');
+    
+            memberDeleteBtn.disabled = false;
+        });
+    });
+
     //------------------------------deselect------------------
     document.addEventListener("click", function (event) {
         const table = document.querySelector(".box table");
+        const table2 = document.querySelector(".member-box table");
         const tableOption = document.querySelector('.table-option')
-        if (!table.contains(event.target) && !tableOption.contains(event.target)) {
+        if (!table.contains(event.target) && !tableOption.contains(event.target) && !table2.contains(event.target)) {
             if (isEditing) return;
             if (selectedRow) {
                 selectedRow.classList.remove('selected');
                 selectedRow = null;
             }
+            if (mselectedRow) {
+                mselectedRow.classList.remove('selected');
+                mselectedRow = null;
+            }
+            editBtn.disabled = true;
+            deleteBtn.disabled = true;
+            memberDeleteBtn.disabled = true;
         }
     }, true);
 
@@ -136,28 +160,51 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteBtn.addEventListener("click", () => {
         if (!selectedRow) return;
 
-        document.getElementById("popup").style.display = "flex";
+        let popUp = document.getElementById("popup");
+        popUp.style.display = "flex";
         id = selectedRow.getAttribute("admin-id");
         table = "administrator";
+        console.log(`ID: ${id}, Table: ${table}`);
     });
 
-    document.getElementById("confirmDelete").addEventListener("click", () => {
-        if (!id || !table) return;
-
-        fetch("delete.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `table=${table}&id=${id}`
-        })
-            .then(res => res.text())
-            .then(() => location.reload())
-            .catch(console.error);
-
-        document.getElementById("popup").style.display = "none";
+    
+    document.getElementById("member-delete-btn").addEventListener("click", () => {
+        console.log("Selected row:", mselectedRow);
+        if (!mselectedRow) return;
+        console.log("Showing member delete popup");
+        let popUp = document.getElementById("mpopup");
+        
+        popUp.style.display = "flex";
+        id = mselectedRow.getAttribute("member-id");
+        table = "member";
+        console.log(`ID: ${id}, Table: ${table}`);
     });
 
-    document.getElementById("cancelDelete").addEventListener("click", () => {
-        document.getElementById("popup").style.display = "none";
+    document.querySelector(".content").addEventListener("click", function (event) {
+        if (event.target.classList.contains("confirmDelete")) {
+            console.log("confirmDelete button detected");
+
+            if (!id || !table) {
+                console.error("Missing data-id or data-table attribute");
+                return;
+            }
+
+            fetch("delete.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `table=${table}&id=${id}`
+            })
+                .then(res => res.text())
+                .then(() => location.reload()) 
+                .catch(console.error);
+    
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("mpopup").style.display = "none";
+        }
+        if (event.target.classList.contains("cancelDelete")) {
+            document.getElementById("mpopup").style.display = "none";
+            document.getElementById("popup").style.display = "none";
+        }
     });
 
     //-----------------------------search--------------------------
@@ -169,9 +216,9 @@ document.addEventListener('DOMContentLoaded', function () {
             let rows = table.querySelectorAll("tr:not(:first-child)");
     
             rows.forEach(row => {
-                if (row.classList.contains("no-data")) return; // Skip "No data available" row
+                if (row.classList.contains("no-data")) return;
     
-                const usernameCell = row.cells[1].textContent.toLowerCase(); // Assuming username is in the second column
+                const usernameCell = row.cells[1].textContent.toLowerCase(); 
     
                 if (usernameCell.includes(searchValue)) {
                     row.style.display = "";
