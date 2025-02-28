@@ -463,8 +463,6 @@ table tr.selected {
 }
 
 @media screen and (max-width: 832px) {
-
-
     .navbar {
         padding: 1.5rem 0 !important;
         margin-left: 30px;
@@ -473,6 +471,12 @@ table tr.selected {
     .header-right {
         margin-left: 15px;
     }
+
+    .nav-links {
+        margin-left: 0 !important;
+        left: 50% !important;
+    }
+
 
     .edit-profile {
         display: none;
