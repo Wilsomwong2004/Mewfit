@@ -4,9 +4,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include "conn.php";
     $table = $_POST['table'] ?? null; 
     $selectedAdminId = $_POST['selectedAdminId'] ?? null;
+    $selectedNutriId = $_POST['selectedNutriId']?? null;
 
-    if ($table === null || $selectedAdminId === null) {
-        echo "Form data is missing.";
+    if ($table === null) {
+        echo "table data is missing.";
         exit();
     }
 
@@ -85,8 +86,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: admin_user_page.php?admin_id=" . urlencode($selectedAdminId));
                 exit();
             }
+        case 'nutrition':
+            $nutritionName = $_POST['enutrition-name'];
+            $calories = $_POST['ecalories'];
+            $fat = $_POST['efat'];
+            $protein = $_POST['eprotein'];
+            $carb = $_POST['ecarb'];
+
+            $updateStmt = $dbConn->prepare("UPDATE nutrition SET nutrition_name = ?, calories = ?, fat = ?, protein = ?, carbohydrate = ? WHERE nutrition_id = ?");
+            
+            $updateStmt->bind_param("sddssi", $nutritionName, $calories, $fat, $protein, $carb, $selectedNutriId);
+
+            if ($updateStmt->execute()) {
+                header("Location: admin_diet.php");
+            } else {
+                echo "Error updating nutrition information: " . $dbConn->error;
+            }
+
             $updateStmt->close();
-            break;
+            exit();
+
             
             // if (empty($errors)) {
             //     if ($dbConn->query("UPDATE administrator SET username = '$username', password ='$password', name = '$name', gender ='$gender', email_address ='$email', phone_number = '$phone_num' WHERE admin_id = '$selectedAdminId';") === TRUE) {

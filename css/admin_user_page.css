@@ -328,9 +328,7 @@ table tr.selected {
     background-color: #e84242;
 }
 
-.edit-profile {
-    display: none;
-}
+
 
 /* Add Profile Section */
 .add-profile,
@@ -394,6 +392,10 @@ table tr.selected {
 
 #add-profile-btn:hover {
     background-color: rgb(247, 135, 69);
+}
+
+.edit-profile {
+    display: none;
 }
 
 /* 📌 Responsive Design */

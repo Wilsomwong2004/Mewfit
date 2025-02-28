@@ -27,10 +27,10 @@
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
             <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-            <span class="admin-dashboard"><a href="homepage.html">DASHBOARD</a></span>
-            <span class="admin-user"><a href="#" class="active">USER</a></span>
-            <span class="admin-workout"><a href="diet_page.html">WORKOUT</a></span>
-            <span class="admin-meals"><a href="settings_page.html">MEALS</a></span>
+            <span><a href="admin_homepage.php">DASHBOARD</a></span>
+            <span><a href="#" class="active">USER</a></span>
+            <span><a href="admin_workout.php">WORKOUT</a></span>
+            <span><a href="admin_diet.php" >MEALS</a></span>
         </div>
         <div class="header-right">
             <button id="hamburger-menu" aria-label="Menu">
@@ -44,8 +44,8 @@
     <div id="heading">
         <h2 class="title"> USER <span>PROFILE</span></h2>
         <ul class="user-section">
-            <li><a href="#member" class="member-link">MEMBER</a></li>
             <li><a href="#admin" class="admin-link">ADMIN</a></li>
+            <li><a href="#member" class="member-link">MEMBER</a></li>
         </ul>
     </div>
     
