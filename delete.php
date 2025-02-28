@@ -14,7 +14,7 @@
         if (!isset($validTables[$table])) {
             die("Invalid table name.");
         }
-    
+        
         $sql = "DELETE FROM $table WHERE {$validTables[$table]} = '$id'";
         
         if (!$dbConn->query($sql)) {

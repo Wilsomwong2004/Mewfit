@@ -1,3 +1,54 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "mewfit";
+
+$showAlert = false;
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+$showAlert = false;
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $first_name = $_POST['f-name'];
+    $last_name = $_POST['l-name'];
+    $member_name = $first_name . " " . $last_name; 
+    $username = $_POST['username'];
+    $email = $_POST['e-mail'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $age = $_POST['age'];
+    $gender = $_POST['gender'];
+    $weight = $_POST['weight'];
+    $weight_unit = $_POST['weight-unit'];
+    $height = $_POST['height'];
+    $height_unit = $_POST['height-unit'];
+    $target_weight = $_POST['target-weight'];
+    $target_weight_unit = $_POST['target-weight-unit'];
+    $start_streak = (new DateTime())->format('Y-m-d H:i:s');
+
+    $sql = "INSERT INTO member (`member_pic`, `username`, `password`, `level`, `weight`, `age`, `target_weight`, `gender`, `day_streak_starting_date`)
+    VALUES ('./assets/icons/Unknown_acc-removebg.png', '$username', '$password', 1, '$weight', '$age', '$target_weight', '$gender', '$start_streak')";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+      $errorMessage = "Error: " . $conn->error;
+    }
+
+    echo "echo('<script>alert('Account added');</script> ')";
+
+    header("location: login_page.html");
+    exit;
+}
+
+$conn->close();
+?> 
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -21,7 +72,7 @@
           <button class="previous"><i class="bx bxs-chevron-left"></i></button>
           <h2>Create an account</h2>
         </div>
-        <form action="#">
+        <form method="post">
           <div class="sign-in-steps">
             <div class="pages slide_page">
               <div class="sign-in-description">
@@ -58,7 +109,7 @@
                 </ul>
               </div>
               <div class="button-inputs next_button">
-                <button>Next</button>
+                <button type="button">Next</button>
               </div>
             </div>
 
@@ -134,5 +185,10 @@
       </div>
     </div>
     <script src="js/sign-in-steps.js"></script>
+    <script>
+      function calculateSum() {
+
+      }
+    </script>
   </body>
 </html>
