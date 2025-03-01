@@ -24,17 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
         dietLink.classList.add('active');
     });
 
-    if(window.location.hash) {
-        // If it's the nutrition section, show that tab
-        if(window.location.hash === "#nutrition") {
-            document.querySelector('.nutrition-container').style.display = 'block';
-            document.querySelector('.diet-container').style.display = 'none';
-            document.querySelector('.nutrition-link').classList.add('active');
-            document.querySelector('.diet-link').classList.remove('active');
-        }
-    }
-    
-
     //-------------------retain information-----------------------------
     let form = document.querySelector(".add-profile form");
     form.querySelectorAll("input, select").forEach(input => {
@@ -149,12 +138,16 @@ document.addEventListener('DOMContentLoaded', function () {
     nutriEditBtn.addEventListener("click", function () {
         if (!mselectedRow) return;
         isEditing = true;
+        document.getElementById("nutrition-name").value = "";
+        document.getElementById("calories").value = "";
+        document.getElementById("fat").value = "";
+        document.getElementById("protein").value = "";
+        document.getElementById("carb").value = "";
         naddProfile.style.display = "none";
         neditProfile.style.display = "block";
         nutriEditBtn.disabled = true;
         nutriDeleteBtn.disabled = true;
-
-
+        
         const cells = mselectedRow.getElementsByTagName("td");
         document.getElementById("selectedNutriId").value = cells[0].textContent;
         document.getElementById("enutrition-name").value = cells[1].textContent;

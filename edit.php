@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['admin_errors'] = $errors;
                 $_SESSION['old_data'] = $_POST;
                 $_SESSION['show_edit_form'] = true;
-                header("Location: admin_diet.php?nutrition_id=" . urlencode($selectedNutriId) . "#nutrition");
+                header("Location: admin_diet.php?nutrition_id=" . urlencode($selectedNutriId) . "#editnutrition");
                 exit();
             }
             

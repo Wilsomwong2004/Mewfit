@@ -9,9 +9,92 @@
     <script src="js/navigation_bar.js"></script>
     <script src="js/admin_diet.js"></script>
 </head>
+<script>
+        window.onresize = function() {
+            if (window.innerWidth > 1200) {
+                window.scrollTo(0, 0); 
+            }
+        };
+        document.addEventListener("DOMContentLoaded", function() {
+            if(window.location.hash) {
+                if(window.location.hash === "#editnutrition") {
+                    document.querySelector('.nutrition-container').style.display = 'flex';
+                    document.querySelector('.diet-container').style.display = 'none';
+                    document.querySelector('.nutrition-link').classList.add('active');
+                    document.querySelector('.diet-link').classList.remove('active');
+                    document.getElementById('nadd-profile').style.display = 'none';
+                    document.getElementById('nedit-profile').style.display = 'block';
+                }
+                if(window.location.hash === "#nutrition") {
+                    document.querySelector('.nutrition-container').style.display = 'flex';
+                    document.querySelector('.diet-container').style.display = 'none';
+                    document.querySelector('.nutrition-link').classList.add('active');
+                    document.querySelector('.diet-link').classList.remove('active');
+                }
+            }
+        });
+    </script>
 <?php 
     include "conn.php";
     session_start();
+    $nutrierrors = $_SESSION['nutri_errors'] ?? [];
+    $nutri_old_data = $_SESSION['nutri_old_data'] ?? [];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['nutrition-name'] ?? '';
+    $calories = $_POST['calories'] ?? 0;
+    $fat = $_POST['fat'] ?? 0;
+    $protein = $_POST['protein'] ?? 0;
+    $carbohydrate = $_POST['carb'] ?? 0;
+
+    $nutrierrors = [];
+
+    // Validate input
+    if ($calories <= 0) {
+        $nutrierrors[] = "Calories must be a positive number.";
+    }
+    if ($fat < 0) {
+        $nutrierrors[] = "Fat must be a non-negative number.";
+    }
+    if ($protein < 0) {
+        $nutrierrors[] = "Protein must be a non-negative number.";
+    }
+    if ($carbohydrate < 0) {
+        $nutrierrors[] = "Carbohydrate must be a non-negative number.";
+    }
+
+    // Check if nutrition name already exists
+    $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM nutrition WHERE nutrition_name = ?");
+    $checkStmt->bind_param("s", $name);
+    $checkStmt->execute();
+    $checkStmt->bind_result($count);
+    $checkStmt->fetch();
+    $checkStmt->close();
+
+    if ($count > 0) {
+        $nutrierrors[] = "Nutrition name already exists.";
+    }
+
+    if (empty($nutrierrors)) {
+        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?)");
+        $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
+
+        if ($insertStmt->execute()) {
+            $_SESSION['success_message'] = "Nutrition data added successfully!";
+            unset($_SESSION['nutri_errors']);
+            unset($_SESSION['nutri_old_data']);
+            header("Location: admin_diet.php#nutrition");
+            exit();
+        } else {
+            $errors[] = "Error adding nutrition data: " . $dbConn->error;
+        } 
+    } 
+    if (!empty($nutrierrors)) {
+        $_SESSION['nutri_errors'] = $nutrierrors;
+        $_SESSION['nutri_old_data'] = $_POST;
+        header("Location: admin_diet.php#nutrition");
+    }
+}
 ?>
 <body>
     <nav class="navbar" id="navbar">
@@ -46,32 +129,35 @@
                 <div class="box">
                     <table>
                         <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Password</th>
-                            <th>Name</th>
-                            <th>Gender</th>
-                            <th>Email Address</th>
-                            <th>Phone Number</th>
+                            <th>Diet ID</th>
+                            <th>Diet Name</th>
+                            <th>Description</th>
+                            <th>Diet Type</th>
+                            <th>Preparation Time (Min)</th>
+                            <th>Picture</th>
+                            <th>Directions</th>
+                            <th>Nutrition ID</th>
                         </tr>
                         <?php
-                        $sql = "SELECT * FROM administrator";
+                        include "conn.php";
+                        $sql = "SELECT * FROM diet";
                         $result = mysqli_query($dbConn, $sql);
+
                         if (mysqli_num_rows($result) > 0) {
                             while ($rows = mysqli_fetch_array($result)) {
-                                echo "<tr admin-id='".$rows['admin_id']."'>";
-                                echo "<td>".$rows['admin_id']."</td>";
-                                echo "<td>".$rows['username']."</td>";
-                                echo "<td>".$rows['password']."</td>";
-                                echo "<td>".$rows['name']."</td>";
-                                echo "<td>".$rows['gender']."</td>";
-                                echo "<td>".$rows['email_address']."</td>";
-                                echo "<td>".$rows['phone_number']."</td>";
+                                echo "<tr diet-id='".$rows['diet_id']."'>";
+                                echo "<td>".$rows['diet_id']."</td>";
+                                echo "<td>".$rows['diet_name']."</td>";
+                                echo "<td>".$rows['description']."</td>";
+                                echo "<td>".$rows['diet_type']."</td>";
+                                echo "<td>".$rows['preparation_min']."</td>";
+                                echo "<td><img src='".$rows['picture']."' alt='Diet Image' width='100'></td>";
+                                echo "<td>".$rows['directions']."</td>";
+                                echo "<td>".$rows['nutrition_id']."</td>";
                                 echo "</tr>";
                             }
                         } else {
-                            echo "<tr class='no-data'><td colspan='7'>No data available</td></tr>";
-                            $sql="TRUNCATE TABLE administrator";
+                            echo "<tr class='no-data'><td colspan='8'>No data available</td></tr>";
                         }
                         ?>
                     </table>
@@ -197,7 +283,6 @@
                         </tr>
 
                         <?php
-                        include "conn.php"; 
 
                         $sql = "SELECT * FROM nutrition";
                         $result = mysqli_query($dbConn, $sql);
@@ -216,8 +301,6 @@
                         } else {
                             echo "<tr class='no-data'><td colspan='6'>No data available</td></tr>";
                         }
-
-                        mysqli_close($dbConn);
                         ?>
                     </table>
                 </div>
@@ -231,26 +314,32 @@
             <center>
                 <h2>Add New <span>Nutrition</span></h2>
             </center>
+            <?php if (!empty($nutrierrors)): ?>
+                <script>
+                    <?php foreach ($nutrierrors as $error): ?>
+                        alert("<?php echo addslashes($error); ?>");
+                    <?php endforeach; ?>
+                </script>
+            <?php endif; ?>
             <form action="" method="POST">
-                <label for="nutrition-name">Nutrition Name</label>
-                <input type="text" id="nutrition-name" name="nutrition-name" required>
+            <label for="nutrition-name">Nutrition Name</label>
+            <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
 
-                <label for="calories">Calories</label>
-                <input type="number" id="calories" name="calories" required>
+            <label for="calories">Calories</label>
+            <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
 
-                <label for="fat">Fat (g)</label>
-                <input type="number" step="0.01" id="fat" name="fat" required>
+            <label for="fat">Fat (g)</label>
+            <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
 
+            <label for="protein">Protein (g)</label>
+            <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
 
-                <label for="protein">Protein (g)</label>
-                <input type="number" step="0.01" id="protein" name="protein" required>
+            <label for="carb">Carbohydrate (g)</label>
+            <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
 
-                <label for="carb">Carbohydrate (g)</label>
-                <input type="number" step="0.01" id="carb" name="carb" required>
-
-                <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
-                    <button type="submit" id="nadd-profile-btn">Create New</button>
-                </div>
+            <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+                <button type="submit" id="nadd-profile-btn">Create New</button>
+            </div>
             </form>
             </div>
             <div class="edit-profile" id="nedit-profile" style="height:540px;">
@@ -269,7 +358,7 @@
                             echo "<p style='color: red;'>$error</p>";
                         }
                         echo "</div>";
-                        unset($_SESSION['admin_errors']); // Clear errors after displaying
+                        unset($_SESSION['admin_errors']); 
                     }
                 ?>
                 
@@ -304,48 +393,17 @@
             }
             ?>
             </div>
+            <div class="mpopup" id="mpopup">
+                <div class="popup-content">
+                    <h2>Confirm Deletion</h2>
+                    <p>Are you sure you want to delete this record?</p>
+                    <button class="confirmDelete">Yes, Delete</button>
+                    <button class="cancelDelete">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
                           
     </div>
-    <script>
-        window.onresize = function() {
-            if (window.innerWidth > 1200) {
-                window.scrollTo(0, 0); 
-            }
-        };
-        document.addEventListener("DOMContentLoaded", function() {
-            if(window.location.hash) {
-                if(window.location.hash === "#nutrition") {
-                    document.querySelector('.nutrition-container').style.display = 'flex';
-                    document.querySelector('.diet-container').style.display = 'none';
-                    document.querySelector('.nutrition-link').classList.add('active');
-                    document.querySelector('.diet-link').classList.remove('active');
-                    document.getElementById('nadd-profile').style.display = 'none';
-                    document.getElementById('nedit-profile').style.display = 'block';
-                }
-            }
-        });
-    </script>
-    <?php
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $name = $_POST['nutrition-name'];
-            $calories = $_POST['calories']; 
-            $fat = $_POST['fat'];
-            $protein = $_POST['protein'];
-            $carbohydrate = $_POST['carb'];
-
-            include "conn.php";
-
-            $sql = "INSERT INTO nutrition(nutrition_name, calories, fat, protein, carbohydrate) 
-            VALUES('$name','$calories','$fat','$protein', '$carbohydrate');";
-
-            if (!$dbConn->query($sql)) {
-                die("Failed to update nutrition table");
-            }else{
-                echo "<script>sessionStorage.setItem('clearForm', 'true');</script>";
-            }
-        }
-    ?>
 </body>
 </html>
