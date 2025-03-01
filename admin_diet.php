@@ -11,17 +11,7 @@
 </head>
 <?php 
     include "conn.php";
-    // session_start();
-
-    // $errors = $_SESSION['admin_errors'] ?? [];
-    // $old_data = $_SESSION['old_data'] ?? [];
-    // $showEditForm = $_SESSION['show_edit_form'] ?? false;
-
-    // if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-    //     unset($_SESSION['admin_errors']);
-    //     unset($_SESSION['old_data']);
-    //     unset($_SESSION['show_edit_form']);
-    // }
+    session_start();
 ?>
 <body>
     <nav class="navbar" id="navbar">
@@ -153,7 +143,7 @@
                 ?>
                 <form method="POST" action="edit.php" id="administrator">
                 <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
-                <input type="hidden" id="table" name="table" value="administrator">
+                <input type="hidden" id="nutrition_table" name="table" value="administrator">
                     
                 <label for="eusername">Username</label>
                 <input type="text" id="eusername" name="eusername" value="<?php echo htmlspecialchars($old_data['eusername'] ?? ''); ?>" required>
@@ -237,7 +227,7 @@
                 </div>
                 
             </div>  
-            <div class="add-profile" id="nadd-profile">
+            <div class="add-profile" id="nadd-profile" style="height:540px;">
             <center>
                 <h2>Add New <span>Nutrition</span></h2>
             </center>
@@ -263,34 +253,56 @@
                 </div>
             </form>
             </div>
-            <div class="edit-profile" id="nedit-profile">
+            <div class="edit-profile" id="nedit-profile" style="height:540px;">
             <center>
                 <h2>Edit <span>Nutrition</span></h2>
             </center>
             <form action="edit.php" method="POST">
+                <?php
+                    $errors = $_SESSION['admin_errors'] ?? [];
+                    $old_data = $_SESSION['old_data'] ?? [];
+                    $showEditForm = $_SESSION['show_edit_form'] ?? false;
+
+                    if (isset($_SESSION['admin_errors']) && count($_SESSION['admin_errors']) > 0) {
+                        echo "<div class='error-messages'>";
+                        foreach ($_SESSION['admin_errors'] as $error) {
+                            echo "<p style='color: red;'>$error</p>";
+                        }
+                        echo "</div>";
+                        unset($_SESSION['admin_errors']); // Clear errors after displaying
+                    }
+                ?>
+                
                 <input type="hidden" id="selectedNutriId" name="selectedNutriId" value="<?php echo $_GET['nutrition_id'] ?? ''; ?>">
                 <input type="hidden" id="table" name="table" value="nutrition">
                 <label for="nutrition-name">Nutrition Name</label>
-                <input type="text" id="enutrition-name" name="enutrition-name" required>
+                <input type="text" id="enutrition-name" name="enutrition-name" value="<?php echo htmlspecialchars($old_data['enutrition-name'] ?? ''); ?>" required>
 
                 <label for="calories">Calories</label>
-                <input type="number" id="ecalories" name="ecalories" required>
+                <input type="number" id="ecalories" name="ecalories" value="<?php echo htmlspecialchars($old_data['ecalories'] ?? ''); ?>"required>
 
                 <label for="fat">Fat (g)</label>
-                <input type="number" step="0.01" id="efat" name="efat" required>
+                <input type="number" step="0.01" id="efat" name="efat" value="<?php echo htmlspecialchars($old_data['efat'] ?? ''); ?>" required>
 
 
                 <label for="protein">Protein (g)</label>
-                <input type="number" step="0.01" id="eprotein" name="eprotein" required>
+                <input type="number" step="0.01" id="eprotein" name="eprotein" value="<?php echo htmlspecialchars($old_data['eprotein'] ?? ''); ?>" required>
 
                 <label for="carb">Carbohydrate (g)</label>
-                <input type="number" step="0.01" id="ecarb" name="ecarb" required>
+                <input type="number" step="0.01" id="ecarb" name="ecarb" value="<?php echo htmlspecialchars($old_data['ecarb'] ?? ''); ?>" required>
 
                 <div class="table-option">
                     <button type="button" id="ndiscard-btn">Discard Changes</button>
                     <button type="submit" id="nconfirm-btn">Update Changes</button>
                 </div>
             </form>
+            <?php
+            if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
+                unset($_SESSION['admin_errors']);
+                unset($_SESSION['old_data']);
+                unset($_SESSION['show_edit_form']);
+            }
+            ?>
             </div>
         </div>
     </div>
@@ -303,16 +315,18 @@
             }
         };
         document.addEventListener("DOMContentLoaded", function() {
-            var addProfile = document.querySelector('.add-profile');
-            var editProfile = document.querySelector('.edit-profile');
-
-            <?php if ($showEditForm): ?>
-                addProfile.style.display = 'none';
-                editProfile.style.display = 'block';
-            <?php endif; ?>
+            if(window.location.hash) {
+                if(window.location.hash === "#nutrition") {
+                    document.querySelector('.nutrition-container').style.display = 'flex';
+                    document.querySelector('.diet-container').style.display = 'none';
+                    document.querySelector('.nutrition-link').classList.add('active');
+                    document.querySelector('.diet-link').classList.remove('active');
+                    document.getElementById('nadd-profile').style.display = 'none';
+                    document.getElementById('nedit-profile').style.display = 'block';
+                }
+            }
         });
     </script>
-
     <?php
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = $_POST['nutrition-name'];

@@ -41,6 +41,10 @@ body {
     z-index: 3;
     position: relative;
 }
+
+.nav-links a.active{
+    color: white;
+}
 /* user section */
 .meal-section {
     border: 2px solid #ffc6aa;

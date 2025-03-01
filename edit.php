@@ -87,24 +87,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 exit();
             }
         case 'nutrition':
+            $selectedNutriId = $_POST['selectedNutriId'] ?? null;
             $nutritionName = $_POST['enutrition-name'];
             $calories = $_POST['ecalories'];
             $fat = $_POST['efat'];
             $protein = $_POST['eprotein'];
             $carb = $_POST['ecarb'];
 
-            $updateStmt = $dbConn->prepare("UPDATE nutrition SET nutrition_name = ?, calories = ?, fat = ?, protein = ?, carbohydrate = ? WHERE nutrition_id = ?");
-            
-            $updateStmt->bind_param("sddssi", $nutritionName, $calories, $fat, $protein, $carb, $selectedNutriId);
+            // Check if nutrition name already exists (excluding the current record)
+            $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM nutrition WHERE nutrition_name = ? AND nutrition_id != ?");
+            $checkStmt->bind_param("si", $nutritionName, $selectedNutriId);
+            $checkStmt->execute();
+            $checkStmt->bind_result($count);
+            $checkStmt->fetch();
+            $checkStmt->close();
 
-            if ($updateStmt->execute()) {
-                header("Location: admin_diet.php");
-            } else {
-                echo "Error updating nutrition information: " . $dbConn->error;
+            $errors = [];
+
+            if ($count > 0) {
+                $errors[] = "Nutrition name already exists.";
             }
 
-            $updateStmt->close();
-            exit();
+            if (!empty($errors)) {
+                $_SESSION['admin_errors'] = $errors;
+                $_SESSION['old_data'] = $_POST;
+                $_SESSION['show_edit_form'] = true;
+                header("Location: admin_diet.php?nutrition_id=" . urlencode($selectedNutriId) . "#nutrition");
+                exit();
+            }
+            
+            // If no errors, update the database
+            $updateStmt = $dbConn->prepare("UPDATE nutrition SET nutrition_name = ?, calories = ?, fat = ?, protein = ?, carbohydrate = ? WHERE nutrition_id = ?");
+                $updateStmt->bind_param("sddssi", $nutritionName, $calories, $fat, $protein, $carb, $selectedNutriId);
+            
+                if ($updateStmt->execute()) {
+                    $_SESSION['success_message'] = "Nutrition data updated successfully!";
+                    header("Location: admin_diet.php");
+                    exit();
+                }
 
             
             // if (empty($errors)) {

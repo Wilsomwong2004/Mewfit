@@ -41,6 +41,7 @@ body {
     z-index: 3;
     position: relative;
 }
+
 /* user section */
 .user-section {
     border: 2px solid #ffc6aa;
@@ -397,6 +398,7 @@ table tr.selected {
 .edit-profile {
     display: none;
 }
+
 
 /* 📌 Responsive Design */
 @media (max-width: 1200px) {

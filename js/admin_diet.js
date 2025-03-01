@@ -24,6 +24,17 @@ document.addEventListener('DOMContentLoaded', function () {
         dietLink.classList.add('active');
     });
 
+    if(window.location.hash) {
+        // If it's the nutrition section, show that tab
+        if(window.location.hash === "#nutrition") {
+            document.querySelector('.nutrition-container').style.display = 'block';
+            document.querySelector('.diet-container').style.display = 'none';
+            document.querySelector('.nutrition-link').classList.add('active');
+            document.querySelector('.diet-link').classList.remove('active');
+        }
+    }
+    
+
     //-------------------retain information-----------------------------
     let form = document.querySelector(".add-profile form");
     form.querySelectorAll("input, select").forEach(input => {
