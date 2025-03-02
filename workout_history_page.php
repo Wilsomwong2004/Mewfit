@@ -182,16 +182,6 @@
         if (!$exist_record) {
           echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
         } 
-        
-        // if ($result -> num_rows > 0) {
-        //   while ($row = $result->fetch_assoc()) {
-        //     echo "something";
-        //   }
-        // } 
-        // else {
-        //   echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">This text moves left!</marquee>";
-        // }
-
       ?>
     </div>
   </body>
