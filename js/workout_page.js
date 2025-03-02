@@ -422,12 +422,12 @@ const workouts = [
         "level": "Beginner",
         "description": "Simple moves to get your heart pumping.",
         "type": ["All", "Cardio"],
-        "sets": 1,
+        "sets": 3,
         "exercises": [
-            { "exercise": "March On The Spot", "duration": "3 minutes", "video": " " },
-            { "exercise": "Side to Side Step", "duration": "3 minutes", "video": " " },
-            { "exercise": "Low Impact High Knee", "duration": "3 minutes", "video": " " },
-            { "exercise": "Twist & Reach", "duration": "3 minutes", "video": " " }
+            { "exercise": "March On The Spot", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_March_On_The_Spot_Joanna_Soh.mp4" },
+            { "exercise": "Side to Side Step", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Side_to_Side_Step_Joanna_Soh.mp4" },
+            { "exercise": "Low Impact High Knee", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Low_Impact_High_Knee_Joanna_Soh.mp4" },
+            { "exercise": "Twist & Reach", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Twist_Reach_Joanna_Soh.mp4" }
         ]
     },
     {

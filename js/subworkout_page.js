@@ -1629,11 +1629,11 @@ class WorkoutManager {
 
     showCurrentExercise() {
         if (!this.exercises[this.currentExerciseIndex]) return;
-    
+
         const currentExercise = this.exercises[this.currentExerciseIndex];
         this.workoutNameElement.textContent = currentExercise.exercise || currentExercise.pose;
         this.roundElement.textContent = `${this.currentSet}/${this.totalSets}`;
-    
+
         if (currentExercise.reps) {
             this.timerElement.textContent = '0';
             this.timerElement.classList.add('rep-counter');
@@ -1644,12 +1644,68 @@ class WorkoutManager {
             this.updateTimerDisplay(durationInSeconds);
             this.timerElement.classList.remove('rep-counter');
         }
+
+        // Show current exercise video
+        this.showExerciseVideo(currentExercise);
     }
-    
+
+    // Add this method to show exercise video
+    showExerciseVideo(exercise) {
+        if (!this.workoutGuide || !exercise.video) return;
+
+        // Create or update video element
+        let videoElement = this.workoutGuide.querySelector('video');
+
+        if (!videoElement) {
+            videoElement = document.createElement('video');
+            videoElement.classList.add('exercise-video');
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+            videoElement.style.borderRadius = '16px';
+            videoElement.style.objectFit = 'cover';
+            videoElement.style.border = 'solid 2px #feaf88';
+            videoElement.setAttribute('loop', 'true');
+            videoElement.setAttribute('autoplay', 'true');
+            videoElement.setAttribute('muted', 'true');
+            this.workoutGuide.innerHTML = '';
+            this.workoutGuide.appendChild(videoElement);
+        }
+
+        // Set video source
+        videoElement.src = exercise.video;
+        videoElement.load();
+        videoElement.play().catch(error => {
+            console.error('Error playing video:', error);
+        });
+    }
+
+    // Add this method to show next exercise video
+    showNextExerciseVideo() {
+        let nextIndex = this.currentExerciseIndex;
+        let nextSet = this.currentSet;
+
+        // Calculate the next exercise index
+        if (nextIndex >= this.exercises.length - 1) {
+            if (nextSet >= this.totalSets) {
+                // No next exercise (workout complete)
+                return;
+            }
+            nextIndex = 0;
+            nextSet++;
+        } else {
+            nextIndex++;
+        }
+
+        const nextExercise = this.exercises[nextIndex];
+        if (nextExercise && nextExercise.video) {
+            this.showExerciseVideo(nextExercise);
+        }
+    }
+
     // Add this helper function to parse duration strings
     parseDuration(duration) {
         if (typeof duration === 'number') return duration;
-        
+
         if (typeof duration === 'string') {
             // Check if duration contains 'minutes' or 'min'
             if (duration.includes('minute') || duration.includes('min')) {
@@ -1671,7 +1727,7 @@ class WorkoutManager {
     startExercise() {
         const currentExercise = this.exercises[this.currentExerciseIndex];
         if (!currentExercise) return;
-    
+
         if (currentExercise.reps) {
             this.setupRepCounter(currentExercise.reps);
         } else if (currentExercise.duration) {
@@ -1720,24 +1776,24 @@ class WorkoutManager {
 
     startTimer(seconds) {
         if (!seconds || seconds <= 0) return;
-    
+
         this.clearAllTimers();
         let timeLeft = seconds;
-    
+
         // Update timer display immediately
         this.updateTimerDisplay(timeLeft);
-    
+
         this.timer = setInterval(() => {
             timeLeft--;
             this.updateTimerDisplay(timeLeft);
-    
+
             if (timeLeft <= 0) {
                 this.clearAllTimers();
                 this.nextExercise();
             }
         }, 1000);
     }
-    
+
     updateTimerDisplay(timeInSeconds) {
         if (this.timerElement) {
             const minutes = Math.floor(timeInSeconds / 60);
@@ -1775,12 +1831,12 @@ class WorkoutManager {
             return;
         }
 
-        let isPaused = false;
+        this.isPaused = false; // Make isPaused a class property so other methods can access it
 
         pauseBtn.addEventListener('click', () => {
-            isPaused = !isPaused;
+            this.isPaused = !this.isPaused;
 
-            if (isPaused) {
+            if (this.isPaused) {
                 // Pause workout
                 pauseIcon.classList.remove('fa-pause');
                 pauseIcon.classList.add('fa-play');
@@ -1795,7 +1851,7 @@ class WorkoutManager {
                     isRunning = false;
                 }
 
-                // Show a pause overlay to make it clear the workout is paused
+                this.pauseExerciseVideo();
                 this.showPauseOverlay();
             } else {
                 // Resume workout
@@ -1805,6 +1861,7 @@ class WorkoutManager {
 
                 // Hide pause overlay
                 this.hidePauseOverlay();
+                this.resumeExerciseVideo();
 
                 // Resume appropriate timers based on state
                 if (this.isResting) {
@@ -1818,7 +1875,12 @@ class WorkoutManager {
                         let timeLeft = 0;
 
                         if (timeString.includes(':')) {
-                            timeLeft = parseInt(timeString.split(':')[1]);
+                            // Split the time string into minutes and seconds
+                            const timeParts = timeString.split(':');
+                            const minutes = parseInt(timeParts[0]);
+                            const seconds = parseInt(timeParts[1]);
+                            // Convert to total seconds
+                            timeLeft = (minutes * 60) + seconds;
                         } else {
                             timeLeft = parseInt(timeString);
                         }
@@ -1840,13 +1902,29 @@ class WorkoutManager {
 
             // Dispatch a custom event that can be listened for by other components
             const pauseEvent = new CustomEvent('workoutPauseStateChange', {
-                detail: { isPaused: isPaused }
+                detail: { isPaused: this.isPaused }
             });
             document.dispatchEvent(pauseEvent);
         });
     }
 
-    // Add these new methods to show/hide a pause overlay
+    // Add these methods to pause/resume video
+    pauseExerciseVideo() {
+        const videoElement = this.workoutGuide.querySelector('video');
+        if (videoElement) {
+            videoElement.pause();
+        }
+    }
+
+    resumeExerciseVideo() {
+        const videoElement = this.workoutGuide.querySelector('video');
+        if (videoElement) {
+            videoElement.play().catch(error => {
+                console.error('Error resuming video:', error);
+            });
+        }
+    }
+
     showPauseOverlay() {
         // Create pause overlay if it doesn't exist
         let pauseOverlay = document.getElementById('pause-overlay');
@@ -1867,10 +1945,12 @@ class WorkoutManager {
                 align-items: center;
                 z-index: 950;
                 color: white;
+                z-index: 999;
             `;
 
             pauseOverlay.innerHTML = `
                 <div class="pause-message" style="text-align: center; padding: 20px;">
+                    <img src="./assets/icons/pause_workout.svg" alt="Pause" style="max-width: 150px; margin-bottom: 1rem;" />
                     <h2>Workout Paused</h2>
                     <p>Press the Resume button to continue your workout</p>
                 </div>
@@ -1896,6 +1976,11 @@ class WorkoutManager {
         if (!closeBtn) return;
 
         closeBtn.addEventListener('click', () => {
+            this.clearAllTimers();
+            this.pauseExerciseVideo();
+            if (typeof isRunning !== 'undefined') {
+                isRunning = false;
+            }
             // Always show confirmation popup when X button is clicked
             this.showConfirmationPopup(
                 'Exit Workout',
@@ -1916,10 +2001,35 @@ class WorkoutManager {
         if (!skipBtn) return;
 
         skipBtn.addEventListener('click', () => {
+            // If the workout is paused, resume it first
+            if (this.isPaused) {
+                this.isPaused = false;
+
+                // Update UI
+                const pauseIcon = document.getElementById('pause-btn-icon');
+                const pauseText = document.querySelector('.pause-text');
+                if (pauseIcon && pauseText) {
+                    pauseIcon.classList.remove('fa-play');
+                    pauseIcon.classList.add('fa-pause');
+                    pauseText.textContent = 'Pause';
+                }
+
+                // Hide overlay
+                this.hidePauseOverlay();
+
+                // Resume detection
+                if (typeof startDetection === 'function') {
+                    startDetection();
+                }
+                if (typeof isRunning !== 'undefined') {
+                    isRunning = true;
+                }
+            }
+
+            // Skip to next exercise
             this.skipCurrentExercise();
         });
     }
-
     skipCurrentExercise() {
         // Clear timers and rep counter
         this.repCounter = null;
@@ -1959,12 +2069,12 @@ class WorkoutManager {
 
         // Create popup content
         popupContainer.innerHTML = `
-            <div class="popup-content" style="background-color: white; padding: 20px; border-radius: 10px; max-width: 80%; text-align: center;">
+            <div class="popup-content" style="background-color: white; padding: 30px; border-radius: 10px; max-width: 30%; text-align: center; z-index: 1001;">
                 <h2>${title}</h2>
                 <p>${message}</p>
-                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
-                    <button id="popup-yes" style="padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; background-color: #ff5757; color: white;">Yes</button>
-                    <button id="popup-no" style="padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; background-color: #4caf50; color: white;">No</button>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 35px; margin-bottom: 20px;">
+                    <button id="popup-yes" style="padding: 15px 50px; border: none; border-radius: 18px; cursor: pointer; background-color: #ff5757; color: white;">Yes</button>
+                    <button id="popup-no" style="padding: 15px 50px; border: none; border-radius: 18px; cursor: pointer; background-color: #ffb089; color: white;">No</button>
                 </div>
             </div>
         `;
@@ -1980,69 +2090,41 @@ class WorkoutManager {
 
         document.getElementById('popup-no').addEventListener('click', () => {
             popupContainer.style.display = 'none';
+            if (!this.isPaused) {
+                this.resumeExerciseVideo()
+
+                const currentExercise = this.exercises[this.currentExerciseIndex];
+                if (currentExercise && currentExercise.duration) {
+                    // Extract current time left from the timer display
+                    let timeString = this.timerElement.textContent;
+                    let timeLeft = 0;
+
+                    if (timeString.includes(':')) {
+                        // Split the time string into minutes and seconds
+                        const timeParts = timeString.split(':');
+                        const minutes = parseInt(timeParts[0]);
+                        const seconds = parseInt(timeParts[1]);
+                        // Convert to total seconds
+                        timeLeft = (minutes * 60) + seconds;
+                    } else {
+                        timeLeft = parseInt(timeString);
+                    }
+
+                    if (!isNaN(timeLeft) && timeLeft > 0) {
+                        this.startTimer(timeLeft);
+                    }
+                }
+
+                if (typeof startDetection === 'function') {
+                    startDetection();
+                }
+
+                if (typeof isRunning !== 'undefined') {
+                    isRunning = true;
+                }
+            }
         });
     }
-
-    // Setup more options button
-    // setupMoreOptions() {
-    //     const moreBtn = document.getElementById('more');
-    //     if (!moreBtn) return;
-
-    //     moreBtn.addEventListener('click', () => {
-    //         // Create or get popup container
-    //         let morePopup = document.getElementById('popup-container-more');
-    //         if (!morePopup) {
-    //             morePopup = document.createElement('div');
-    //             morePopup.id = 'popup-container-more';
-    //             morePopup.className = 'popup-container-more';
-    //             morePopup.style.cssText = `
-    //                 display: none;
-    //                 position: fixed;
-    //                 bottom: 70px;
-    //                 right: 20px;
-    //                 z-index: 900;
-    //             `;
-    //             document.body.appendChild(morePopup);
-    //         }
-
-    //         // Create popup content
-    //         morePopup.innerHTML = `
-    //             <div style="background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);">
-    //                 <div id="restart-workout" style="padding: 15px; cursor: pointer;">Restart Workout</div>
-    //                 <div id="change-settings" style="padding: 15px; cursor: pointer;">Settings</div>
-    //                 <div id="exit-workout" style="padding: 15px; cursor: pointer;">Exit Workout</div>
-    //             </div>
-    //         `;
-
-    //         // Show popup
-    //         morePopup.style.display = 'block';
-
-    //         // Add event listeners
-    //         document.getElementById('restart-workout').addEventListener('click', () => {
-    //             this.restartWorkout();
-    //             morePopup.style.display = 'none';
-    //         });
-
-    //         document.getElementById('change-settings').addEventListener('click', () => {
-    //             // Show settings popup (to be implemented)
-    //             morePopup.style.display = 'none';
-    //         });
-
-    //         document.getElementById('exit-workout').addEventListener('click', () => {
-    //             morePopup.style.display = 'none';
-    //             // Trigger cancel workout confirmation
-    //             const closeBtn = document.getElementById('close-btn');
-    //             if (closeBtn) closeBtn.click();
-    //         });
-
-    //         // Close more popup when clicking outside
-    //         document.addEventListener('click', (event) => {
-    //             if (!event.target.closest('#more') && !event.target.closest('#popup-container-more')) {
-    //                 morePopup.style.display = 'none';
-    //             }
-    //         }, { once: true });
-    //     });
-    // }
 
     // Restart workout
     restartWorkout() {
@@ -2103,9 +2185,16 @@ class WorkoutManager {
         this.clearAllTimers();
         this.isResting = true;
 
-        const nextExercise = this.exercises[this.currentExerciseIndex];
+        const nextExerciseIndex = (this.currentExerciseIndex >= this.exercises.length - 1) ?
+            (this.currentSet >= this.totalSets ? -1 : 0) :
+            this.currentExerciseIndex + 1;
+
+        const nextExercise = (nextExerciseIndex >= 0) ? this.exercises[nextExerciseIndex] : null;
+
         if (nextExercise) {
             this.workoutNameElement.textContent = `Next: ${nextExercise.exercise}`;
+            // Show next exercise video during rest
+            this.showNextExerciseVideo();
         }
 
         this.restOverlay.style.display = 'flex';
@@ -2230,6 +2319,18 @@ class WorkoutManager {
     startCountdown() {
         // Display the countdown overlay
         this.countdownOverlay.style.display = 'flex';
+
+        // Preload first exercise video
+        if (this.exercises[0] && this.exercises[0].video) {
+            const preloadVideo = document.createElement('video');
+            preloadVideo.src = this.exercises[0].video;
+            preloadVideo.style.display = 'none';
+            preloadVideo.preload = 'auto';
+            document.body.appendChild(preloadVideo);
+            setTimeout(() => {
+                document.body.removeChild(preloadVideo);
+            }, 3000);
+        }
 
         // Set initial count
         let currentCount = 3;
