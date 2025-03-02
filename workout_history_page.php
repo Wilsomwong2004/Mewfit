@@ -141,7 +141,6 @@
           die("Connection failed: " . $conn->connect_error);
         }
         
-        // connect the workout_history table and workout table
         $sql = "SELECT 
                 workout_history.workout_history_id,
                 workout_history.date,
@@ -150,38 +149,63 @@
                 workout.workout_name,
                 workout.workout_type,
                 workout.calories,
-                workout.duration
+                workout.duration,
+                workout.thumbnail
                 FROM workout_history 
                 INNER JOIN workout 
-                ON workout_history.workout_id = workout.workout_id"; 
+                ON workout_history.workout_id = workout.workout_id"; // connect the workout_history table and workout table
 
         $result = $conn->query($sql); // create a variable and store the sql query result inside it
         
 
         while ($row = $result->fetch_assoc()) { // check if there is any record related to the member
-          
-          if ($row['member_id'] === $member_id) {
-            $exist_record = true;
-            // prints out the record
-            echo "
-                  <div class=\"workout-record\">
-                    <img
-                      class=\"picture\"
-                      src=\"./assets/workout_pics/workout1.jpeg\"
-                      alt=\"dumbell raise\"
-                    />
-                    <p class=\"name\">HIITT Name</p>
-                    <p class=\"type\">Yoga</p>
-                    <p class=\"kcal\">150 kcal</p>
-                    <p class=\"time\">30 mins</p>
-                  </div>
-            ";
+
+          for ($i = 0; $i <= 10; $i++) {
+            $date = new DateTime();
+            $date->modify("-$i days");
+            $formattedDate = $date->format("Y-m-d");
+            
+            // // Check if it's today or yesterday
+            // if ($i == 0) {
+            //     echo "Today<br>";
+            // } elseif ($i == 1) {
+            //     echo "Yesterday<br>";
+            // } else {
+            //     echo $formattedDate . "<br>"; // Print normal date for older days
+            // }
+
+            if ($row['member_id'] == $member_id) {
+              $exist_record = true;
+              // prints out the record
+              echo "
+                    <div class=\"workout-record\">
+                      <img
+                        class=\"picture\"
+                        src=\"./assets/workout_pics/{$row['thumbnail']}\"
+                        alt=\"{$row['workout_name']}\"
+                      />
+                      <p class=\"name\">{$row['workout_name']}</p>
+                      <p class=\"type\">{$row['workout_type']}</p>
+                      <p class=\"kcal\">{$row['calories']}</p>
+                      <p class=\"time\">{$row['duration']}</p>
+                    </div>
+              ";
+
+            }
           }
         }
 
         if (!$exist_record) {
           echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
-        } 
+        }
+
+        // for ($i = 0; $i <= 10; $i++) {
+        //     $date = new DateTime();
+        //     $date->modify("-$i days");
+        //     echo $date->format("Y-m-d") . "<br>";
+        // }
+
+      $conn->close();
       ?>
     </div>
   </body>

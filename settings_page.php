@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
   <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -67,11 +67,36 @@
         <div class="main-container">
           <div class="left-frame">
             <div class="profile-section">
-              <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" class="profile-photo"/>
-              <div class="profile-info-settings">
-                <h2>Ariana Oliver</h2>
-                <button class="change-photo">Change profile photo</button>
-              </div>
+              <?php
+                $servername = "localhost";
+                $username = "root";
+                $password = "";
+                $dbname = "mewfit";
+                    
+                $conn = new mysqli($servername, $username, $password, $dbname);
+
+                $member_id = "1"; // replace with session variable later
+
+                if ($conn->connect_error) {
+                  die("Connection failed: " . $conn->connect_error);
+                }
+
+                $sql = "SELECT * FROM member";
+                $result = $conn->query($sql); // create a variable and store the sql query result inside it
+
+                while ($row = $result->fetch_assoc()) {
+                  if ($member_id == $row['member_id']) {
+                    echo "
+                      <img src=\"{$row['member_pic']}\" alt=\"Profile\" class=\"profile-photo\"/>
+                      <div class=\"profile-info-settings\">
+                      <h2>{$row['username']}</h2>
+                      <button class=\"change-photo\">Change profile photo</button>
+                      </div>
+                    ";
+                  }
+                }
+
+              ?>
             </div>
           </div>
 
