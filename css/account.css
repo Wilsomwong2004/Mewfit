@@ -104,14 +104,15 @@ button {
 
 .login-form .btn {
   width: 250px;
-  height: 40px;
+  height: 45px;
   color: #fff;
   background-color: #ff946e;
   border: none;
   border-radius: 30px;
   font-family: "Inter";
   font-weight: bold;
-  margin: 10px 0px;
+  font-size: 15px;
+  margin: 20px 10px 10px 10px;
   padding: 10px 5px;
   transition: all 0.5s;
 }
@@ -125,12 +126,12 @@ button {
   color: #ffbca5;
   font-family: "Inter";
   font-weight: bold;
+  font-size: 14px;
 }
 
 .forget-password-modal {
   width: 80%;
   max-width: 500px;
-  border: 3px black solid;
   border-radius: 20px;
   opacity: 0;
   position: fixed;
@@ -155,8 +156,10 @@ button {
 }
 
 .modal-header .modal-title {
+  color: white;
   font-size: 1.25rem;
   font-weight: bold;
+  margin-left: 10px;
 }
 
 .modal-header .close-button {
@@ -165,10 +168,11 @@ button {
   border: none;
   outline: none;
   background: none;
+  color: white;
 }
 
 .modal-body {
-  min-height: 200px;
+  /* min-height: 200px; */
   background-color: white;
   box-sizing: border-box;
   border-radius: 0px 0px 20px 20px;
@@ -176,7 +180,7 @@ button {
 }
 
 .otp-input-wrapper {
-  padding: 10px;
+  padding: 20px;
 }
 
 .verify-email-wrapper,
@@ -196,24 +200,34 @@ button {
   font-family: "poppins";
 }
 
+.otp-wrapper input{
+  display: none;
+}
+
 .modal-buttons {
   display: flex;
   justify-content: space-between;
 }
 
 .modal-buttons button {
-  width: 48%;
+  color: white;
+  width: 100%;
   background-color: #ff946e;
   border: none;
   border-radius: 5px;
   font-family: "poppins";
   font-weight: bold;
   padding: 10px;
+  margin-top: 20px;
   transition: all 0.5s;
 }
 
 .modal-buttons button:active {
   background-color: rgb(20, 195, 20);
+}
+
+.otp-verify {
+  display: none;
 }
 
 #overlay {
@@ -237,7 +251,7 @@ button {
   color: #4a9adb;
   font-family: "Inter";
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.9rem;
   border: none;
   background: none;
   outline: none;
