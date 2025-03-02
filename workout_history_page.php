@@ -106,12 +106,12 @@
           </div>
         </div>
       </nav>
-      <div class="page-header">
+      <header class="page-header">
         <button class="previous"><i class="bx bxs-chevron-left"></i></button>
         <h1>History</h1>
-      </div>
+      </header>
 
-      <div class="search-date">
+      <!-- <div class="search-date">
         <h2>2000B.C</h2>
       </div>
       <div class="workout-record">
@@ -124,7 +124,65 @@
         <p class="type">Yoga</p>
         <p class="kcal">150 kcal</p>
         <p class="time">30 mins</p>
-      </div>
+      </div> -->
+
+      <?php
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "mewfit";
+      
+        $conn = new mysqli($servername, $username, $password, $dbname);
+
+        $member_id = "1"; // replace with session variable later
+        $exist_record = false;
+
+        if ($conn->connect_error) {
+          die("Connection failed: " . $conn->connect_error);
+        }
+        
+        // connect the workout_history table and workout table
+        $sql = "SELECT 
+                workout_history.workout_history_id,
+                workout_history.date,
+                workout_history.member_id,
+                workout_history.workout_id,
+                workout.workout_name,
+                workout.workout_type,
+                workout.calories,
+                workout.duration
+                FROM workout_history 
+                INNER JOIN workout 
+                ON workout_history.workout_id = workout.workout_id"; 
+
+        $result = $conn->query($sql); // create a variable and store the sql query result inside it
+        
+
+        while ($row = $result->fetch_assoc()) { // check if there is any record related to the member
+          
+          if ($row['member_id'] === $member_id) {
+            $exist_record = true;
+            // prints out the record
+            echo "
+                  <div class=\"workout-record\">
+                    <img
+                      class=\"picture\"
+                      src=\"./assets/workout_pics/workout1.jpeg\"
+                      alt=\"dumbell raise\"
+                    />
+                    <p class=\"name\">HIITT Name</p>
+                    <p class=\"type\">Yoga</p>
+                    <p class=\"kcal\">150 kcal</p>
+                    <p class=\"time\">30 mins</p>
+                  </div>
+            ";
+          }
+        }
+
+        if (!$exist_record) {
+          echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
+        } 
+      ?>
     </div>
   </body>
   <script src="./js/navigation_bar.js"></script>
