@@ -97,11 +97,6 @@
                 }
 
               ?>
-              <!-- <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" class="profile-photo"/>
-              <div class="profile-info-settings">
-                <h2>Ariana Oliver</h2>
-                <button class="change-photo">Change profile photo</button>
-              </div> -->
             </div>
           </div>
 
