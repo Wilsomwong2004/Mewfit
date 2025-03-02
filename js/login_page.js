@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-close-button]').forEach(button => {
     button.addEventListener('click', function () {
       const modal = button.closest('.forget-password-modal');
-      resetFormCompletely(); /
+      resetFormCompletely();
     });
   });
 
