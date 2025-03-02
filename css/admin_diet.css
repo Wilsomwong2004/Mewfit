@@ -2,121 +2,385 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
 }
 
-.box {
-    width: 850px;
-    height: 550px;
-    background-color: white;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.content {
+    height: auto;
+    width: auto;
 }
 
 /* Navigation Bar */
-nav {
-    display: flex;
-    align-items: center;
-    background-color: white;
-    padding: 15px 20px;
-    padding-bottom: 1px;
+
+.navbar {
+    padding: 2.5rem 0 !important;
 }
 
 .logo-space {
-    width: 80px; /* Space for logo */
+    width: 80px;
+    /* Space for logo */
 }
 
 .nav-links {
-    list-style: none;
     display: flex;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-links li {
-    margin-right: 20px;
+    gap: 2.5rem;
+    align-items: center;
+    margin: 0 auto;
+    position: absolute;
+    left: 0 !important;
+    margin-left: 320px !important;
+    transform: translateX(-50%);
 }
 
 .nav-links a {
     text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
     color: black;
-    padding: 4px 30px;
-    border-radius: 15px;
+    white-space: nowrap;
+    z-index: 3;
+    position: relative;
 }
 
-.nav-links a.active {
-    background-color: #FFAD84;
+.nav-links a.active{
     color: white;
+}
+/* user section */
+.meal-section {
+    border: 2px solid #ffc6aa;
+    display: flex;
+    border-radius: 10px;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 25px;
+}
+
+.meal-section li {
+    margin: 0;
+    flex: 1;
+}
+
+.meal-section a {
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    color: black;
+    padding: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.meal-section a.active {
+    background-color: #ffc6aa;
 }
 
 /* Main Container */
-.container {
+#heading {
     display: flex;
-    min-height: 100vh; 
-    align-items: stretch;
 }
 
-.profile-table {
-    flex: 0 0 60%; 
-    background: white;
+.diet-container,.nutrition-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-left: 25px;
+    padding-right: 40px;
+    height: 1000px;
+}
+
+/* Profile Table */
+.section1 {
+    width: 55%;
     padding: 20px;
     border-radius: 10px;
-    position: relative;
-    margin-right: 20px; 
+    height: auto;
 }
 
-.add-profile {
-    flex: 1; 
-    background: #ffe8d6;
-    padding: 25px;
-    border-radius: 20px;
-    position: sticky;
-    top: 50px; 
-    align-self: flex-start; 
-}
-
-.box {
-    height: calc(100% - 60px); 
-    overflow-y: auto;
-}
-
-.profile-table h1 {
+.section1 h1 {
     margin: 0;
     padding-bottom: 0px;
 }
 
-.profile-table h2 {
+.title {
+    padding-top: 30px;
+    padding-left: 50px;
+    padding-right: 50px;
+    font-size: 30px;
     margin: 0;
-    padding-bottom: 10px;
 }
 
-.profile-table span {
+.title span {
     color: #FFAD84;
 }
 
 .search-bar {
-    width: 96%;
     padding: 10px;
     margin-bottom: 15px;
+    padding-right: 0px;
     border: 1px solid #ccc;
     border-radius: 15px;
+    width: 96%;
+}
+
+.box,
+.nutri-box {
+    height: 650px;
+    border: 3px solid #FFAD84;
+    border-radius: 10px;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    display: block;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
+th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+th,
+td {
     padding: 10px;
-    text-align: left;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-bottom: 1px solid #FFAD84;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
 }
 
-.drag-drop-box {
+tr:hover {
+    background-color: #ffe8d6;
+}
+
+.diet-container,.nutrition-container {
+    display: none;
+}
+
+.box th:hover,
+.nutri-box th:hover,
+.no-data {
+    background-color: white !important;
+}
+
+.box th,
+.nutri-box th {
+    background-color: white;
+}
+
+.box th:nth-child(1),
+td:nth-child(1),
+.box th:nth-child(5),
+td:nth-child(5) {
+    width: 10%;
+}
+
+.box th:nth-child(2),
+td:nth-child(2),
+.box th:nth-child(3),
+td:nth-child(3),
+.box th:nth-child(4),
+td:nth-child(4),
+.box th:nth-child(6),
+td:nth-child(6),
+.box th:nth-child(7),
+td:nth-child(7) {
+    width: 20%;
+}
+
+.nutri-box th:nth-child(1),
+td:nth-child(1),
+.nutri-box th:nth-child(5),
+td:nth-child(5) {
+    width: 5%;
+}
+
+.nutri-box th:nth-child(2),
+td:nth-child(2),
+.nutri-box th:nth-child(3),
+td:nth-child(3),
+.nutri-box th:nth-child(4),
+td:nth-child(4),
+.nutri-box th:nth-child(6),
+td:nth-child(6),
+.nutri-box th:nth-child(7),
+td:nth-child(7),
+.nutri-box th:nth-child(8),
+td:nth-child(8),
+.nutri-box th:nth-child(9),
+td:nth-child(9),
+.nutri-box th:nth-child(10),
+td:nth-child(10) {
+    width: 10%;
+}
+
+.no-data td {
+    color: grey;
+    vertical-align: middle;
+    border: none;
+    text-align: center;
+    margin: 50px;
+    height: 700px;
+    font-size: 20px;
+}
+
+table tr.selected {
+    background-color: #ffbb99 !important;
+}
+
+.table-option {
+    display: flex;
+    justify-content: end;
+}
+
+.table-option button {
+    padding: 10px 20px;
+    margin-top: 30px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FFAD84;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    font-weight: bold;
+}
+
+.table-option button:disabled {
+    background-color: #ffe8d6;
+    cursor: not-allowed;
+}
+
+#id {
+    display: none;
+}
+
+#discard-btn, #ndiscard-btn {
+    margin-top: 30px;
+    width: 37%;
+    height: 40px;
+    padding: 9px;
+    background-color: #e84242;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+    margin-left: 10px;
+}
+
+#discard-btn:hover, #ndiscard-btn:hover{
+    background-color: #b93232;
+}
+
+.popup, .mpopup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+}
+
+.popup-content button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+    background-color: #FFAD84;
+    color: white;
+    font-weight: bold;
+}
+
+#cancelDelete {
+    background-color: #e84242;
+}
+
+.edit-profile {
+    display: none;
+}
+
+/* Add Profile Section */
+
+.add-profile,
+.edit-profile {
+    width: 37%;
+    background: #ffe8d6;
+    padding: 30px;
+    border-radius: 20px;
+    position: relative;
+    top: 20px;
+    height: 700px;
+}
+
+.add-profile h2,
+.edit-profile h2 {
+    margin-top: 0;
+    color: black;
+}
+
+.add-profile span,
+.edit-profile span {
+    color: #FFAD84;
+}
+
+.add-profile label,
+.edit-profile label {
+    font-weight: bold;
+    display: block;
+    margin-top: 23px;
+}
+
+.add-profile input,
+.add-profile select,
+.edit-profile input,
+.edit-profile select {
+    width: 95%;
+    padding: 6px;
+    margin-top: 10px;
+    background-color: white;
+    border: 3px solid #FFAD84;
+    ;
+    border-radius: 16px;
+}
+
+#add-profile-btn,#nadd-profile-btn,
+#confirm-btn {
+    margin-top: 30px;
+    width: 35%;
+    height: 40px;
+    padding: 9px;
+    background-color: #FFAD84;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+
+}
+
+.picture {
     width: 95%;
     height: 100px;
     background: #ffffff;
@@ -130,11 +394,11 @@ table, th, td {
     transition: background 0.3s;
 }
 
-.drag-drop-box:hover {
+.picture:hover {
     background: #fff0e6;
 }
 
-.drag-drop-box p {
+.picture p {
     color: #666;
     text-align: center;
 }
@@ -161,36 +425,6 @@ table, th, td {
     resize: vertical;
 }
 
-.add-profile button {
-    background-color: #FFAD84;
-    padding: 12px;
-    font-size: 1.1em;
-}
-
-.add-profile {
-    width: 35%;
-    background: #ffe8d6;
-    padding: 25px;
-    border-radius: 20px;
-    position: relative;
-    top: 50px; 
-}
-
-.add-profile h2 {
-    margin-top: 0;
-    color: black;
-}
-
-.add-profile span {
-    color: #FFAD84;
-}
-
-.add-profile label {
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
-}
-
 .add-profile input,
 .add-profile select {
     width: calc(100% - 30px);
@@ -207,49 +441,75 @@ table, th, td {
     box-sizing: border-box; /* 新增 */
 }
 
-.add-profile button {
-    margin-top: 20px;
-    width: 50%;
-    padding: 9px;
-    background-color: #FFAD84;
-    border: none;
-    color: black;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 15px;
-    justify-content: center;
-    align-items: center;
-    padding: 7px;
-}
-
-.add-profile button:hover {
-    background-color: darkorange;
-}
 
 /* 📌 Responsive Design */
-@media (max-width: 1024px) {
-    .container {
+@media (max-width: 1200px) {
+    body {
+        overflow: auto;
+    }
+
+    .content {
+        margin: 0 auto;
+    }
+
+    .diet-container,.nutrition-container  {
         flex-direction: column;
         align-items: center;
+        height: 1500px;
+        margin-bottom: 60px;
+        padding: 1px;
     }
 
-    .profile-table, .add-profile {
+    .section1 {
+        width: 95%;
+        margin-bottom: 0px;
+        padding: 0px;
+    }
+
+    .add-profile,
+    .edit-profile {
+        width: 90%;
+    }
+
+    .add-profile label,
+    .edit-profile label {
+        font-weight: bold;
+        display: block;
+        margin-top: 16px;
+    }
+
+
+}
+
+@media screen and (max-width: 832px) {
+    .nav-links {
+        display: flex;
+        flex-direction: column;
         width: 100%;
-        margin-bottom: 20px;
+        height: 100%;
+        position: absolute;
+        top: 50px;
+        background: var(--background-color);
+        overflow: hidden;
+        transition: max-height 0.5sease-in-out, opacity 0.3sease-out;
+        opacity: 0;
+        visibility: hidden;
+        margin-top: 20px !important;
+        z-index: 11;
+        padding-top: 70px !important;
+        margin-left: 300px !important;
     }
 
-    .profile-table {
-        height: 500px; 
+    .navbar {
+        padding: 1.5rem 0 !important;
+        margin-left: 30px;
     }
-    
-    .box {
-        height: 400px; 
-    }
-    
-    .add-profile {
-        position: static; 
+
+    .edit-profile {
+        display: none;
     }
 }
+
 
 @media (max-width: 768px) {
     .nav-links {
@@ -260,9 +520,45 @@ table, th, td {
         margin-bottom: 10px;
     }
 
-    .profile-table, .add-profile {
-        width: 100%;
+    .navbar {
+        padding: 1.5rem 0 !important;
+        margin-left: 0px;
     }
+
+    #heading {
+        flex-direction: column;
+        align-items: center;
+        width: 100vw;
+    }
+
+    .diet-container,.nutrition-container {
+        height: 1200px;
+        gap: 0px;
+        padding-bottom: 0px;
+        margin-bottom: 50px;
+        width: 98%;
+        padding-left: 1vw;
+        padding-right: 0px;
+    }
+
+
+    .title {
+        text-align: center;
+    }
+
+    .add-profile,
+    .edit-profile {
+        width: 85%;
+    }
+
+    .meal-section {
+        width: 80vw;
+    }
+
+    .box {
+        height: 450px
+    }
+
 }
 
 @media (max-width: 480px) {
@@ -275,12 +571,14 @@ table, th, td {
         flex-direction: column;
     }
 
-    .container {
-        flex-direction: column;
-        padding: 10px;
+    .diet-container,.nutrition-container {
+        height: 1200px;
+        gap: 0px;
+        padding-bottom: 0px;
+        margin-bottom: 50px;
+        width: 98%;
+        padding-left: 1vw;
+        padding-right: 0px;
     }
 
-    .add-profile {
-        padding: 15px;
-    }
 }

@@ -11,13 +11,6 @@ body {
 }
 
 /* Navigation Bar */
-/* nav {
-    display: flex;
-    align-items: center;
-    background-color: white;
-    padding: 40px 20px;
-    padding-bottom: 1px
-} */
 
 .navbar {
     padding: 2.5rem 0 !important;
@@ -34,7 +27,7 @@ body {
     align-items: center;
     margin: 0 auto;
     position: absolute;
-    left: 0 !important;
+    left: auto !important;
     margin-left: 320px !important;
     transform: translateX(-50%);
 }
@@ -49,6 +42,7 @@ body {
     position: relative;
 }
 
+/* user section */
 .admin-dashboard,
 .admin-workout,
 .admin-meals {
@@ -69,6 +63,35 @@ body {
     cursor: pointer;
 }
 
+.user-section {
+    border: 2px solid #ffc6aa;
+    display: flex;
+    border-radius: 10px;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 25px;
+}
+
+.user-section li {
+    margin: 0;
+    flex: 1;
+}
+
+.user-section a {
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    color: black;
+    padding: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.user-section a.active {
+    background-color: #ffc6aa;
+}
 
 /* Main Container */
 #heading {
@@ -153,102 +176,6 @@ td {
 
 tr:hover {
     background-color: #ffe8d6;
-}
-
-
-
-/* Add Profile Section */
-.add-profile,
-.edit-profile {
-    width: 37%;
-    background: #ffe8d6;
-    padding: 30px;
-    border-radius: 20px;
-    position: relative;
-    top: 20px;
-    height: 700px;
-    display: block;
-}
-
-.add-profile h2,
-.edit-profile h2 {
-    margin-top: 0;
-    color: black;
-}
-
-.add-profile span,
-.edit-profile span {
-    color: #FFAD84;
-}
-
-.add-profile label,
-.edit-profile label {
-    font-weight: bold;
-    display: block;
-    margin-top: 23px;
-}
-
-.add-profile input,
-.add-profile select,
-.edit-profile input,
-.edit-profile select {
-    width: 95%;
-    padding: 6px;
-    margin-top: 10px;
-    background-color: white;
-    border: 3px solid #FFAD84;
-    ;
-    border-radius: 16px;
-}
-
-#add-profile-btn,
-#confirm-btn {
-    margin-top: 30px;
-    width: 35%;
-    height: 40px;
-    padding: 9px;
-    background-color: #FFAD84;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 15px;
-
-}
-
-
-#add-profile-btn:hover {
-    background-color: rgb(247, 135, 69);
-}
-
-.user-section {
-    border: 2px solid #ffc6aa;
-    display: flex;
-    border-radius: 10px;
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 25px;
-}
-
-.user-section li {
-    margin: 0;
-    flex: 1;
-}
-
-.user-section a {
-    display: block;
-    text-decoration: none;
-    transition: background-color 0.3s;
-    color: black;
-    padding: 10px;
-    padding-left: 40px;
-    padding-right: 40px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.user-section a.active {
-    background-color: #ffc6aa;
 }
 
 .member-container {
@@ -386,7 +313,8 @@ table tr.selected {
     background-color: #b93232;
 }
 
-.popup {
+.popup,
+.mpopup {
     display: none;
     position: fixed;
     top: 0;
@@ -394,7 +322,6 @@ table tr.selected {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Black background with transparency */
     justify-content: center;
     align-items: center;
     z-index: 5;
@@ -423,14 +350,85 @@ table tr.selected {
     background-color: #e84242;
 }
 
+
+
+/* Add Profile Section */
+.add-profile,
+.edit-profile {
+    width: 37%;
+    background: #ffe8d6;
+    padding: 30px;
+    border-radius: 20px;
+    position: relative;
+    top: 20px;
+    height: 700px;
+    display: block;
+}
+
+.add-profile h2,
+.edit-profile h2 {
+    margin-top: 0;
+    color: black;
+}
+
+.add-profile span,
+.edit-profile span {
+    color: #FFAD84;
+}
+
+.add-profile label,
+.edit-profile label {
+    font-weight: bold;
+    display: block;
+    margin-top: 23px;
+}
+
+.add-profile input,
+.add-profile select,
+.edit-profile input,
+.edit-profile select {
+    width: 95%;
+    padding: 6px;
+    margin-top: 10px;
+    background-color: white;
+    border: 3px solid #FFAD84;
+    ;
+    border-radius: 16px;
+}
+
+#add-profile-btn,
+#confirm-btn {
+    margin-top: 30px;
+    width: 35%;
+    height: 40px;
+    padding: 9px;
+    background-color: #FFAD84;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+
+}
+
+
+#add-profile-btn:hover {
+    background-color: rgb(247, 135, 69);
+}
+
 .edit-profile {
     display: none;
 }
+
 
 /* 📌 Responsive Design */
 @media (max-width: 1200px) {
     body {
         overflow: auto;
+    }
+
+    .content {
+        margin: 0 auto;
     }
 
     .admin-container {
@@ -466,28 +464,20 @@ table tr.selected {
 }
 
 @media screen and (max-width: 832px) {
-    .nav-links {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 50px;
-        background: var(--background-color);
-        overflow: hidden;
-        transition: max-height 0.5sease-in-out, opacity 0.3sease-out;
-        opacity: 0;
-        visibility: hidden;
-        margin-top: 20px !important;
-        z-index: 11;
-        padding-top: 70px !important;
-        margin-left: 300px !important;
-    }
-
     .navbar {
         padding: 1.5rem 0 !important;
         margin-left: 30px;
     }
+
+    .header-right {
+        margin-left: 15px;
+    }
+
+    .nav-links {
+        margin-left: 0 !important;
+        left: 50% !important;
+    }
+
 
     .edit-profile {
         display: none;
@@ -496,12 +486,17 @@ table tr.selected {
 
 
 @media (max-width: 768px) {
-    .nav-links {
+    /* .nav-links {
         flex-direction: column;
     }
 
     .nav-links li {
         margin-bottom: 10px;
+    } */
+
+    .navbar {
+        padding: 1.5rem 0 !important;
+        margin-left: 0px;
     }
 
     #heading {
@@ -515,13 +510,13 @@ table tr.selected {
         gap: 0px;
         padding-bottom: 0px;
         margin-bottom: 50px;
-        width: 93vw;
-        padding-left: 10px;
+        width: 98%;
+        padding-left: 1vw;
         padding-right: 0px;
     }
 
     .member-container {
-        width: 93%;
+        width: 96%;
         padding: 20px;
     }
 
@@ -545,12 +540,22 @@ table tr.selected {
 }
 
 @media (max-width: 480px) {
-    nav {
-        flex-direction: column;
-        text-align: center;
-    }
-
     .nav-links {
         flex-direction: column;
+    }
+
+    .admin-container {
+        height: 1200px;
+        gap: 0px;
+        padding-bottom: 0px;
+        margin-bottom: 50px;
+        width: 98%;
+        padding-left: 1vw;
+        padding-right: 0px;
+    }
+
+    .member-container {
+        width: 98%;
+        padding: 20px;
     }
 }

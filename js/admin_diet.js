@@ -1,27 +1,27 @@
 document.addEventListener('DOMContentLoaded', function () {
     //--------------------select sections-----------------------
-    const memberLink = document.querySelector('.member-link');
-    const adminLink = document.querySelector('.admin-link');
-    const memberContent = document.querySelector('.member-container');
-    const adminContent = document.querySelector('.admin-container');
+    const nutritionLink = document.querySelector('.nutrition-link');
+    const dietLink = document.querySelector('.diet-link');
+    const nutritionContent = document.querySelector('.nutrition-container');
+    const dietContent = document.querySelector('.diet-container');
 
-    adminContent.style.display = 'flex';
-    adminLink.classList.add('active');
+    dietContent.style.display = 'flex';
+    dietLink.classList.add('active');
 
-    memberLink.addEventListener('click', function (event) {
+    nutritionLink.addEventListener('click', function (event) {
         event.preventDefault();
-        adminContent.style.display = 'none';
-        memberContent.style.display = 'block';
-        adminLink.classList.remove('active');
-        memberLink.classList.add('active');
+        dietContent.style.display = 'none';
+        nutritionContent.style.display = 'flex';
+        dietLink.classList.remove('active');
+        nutritionLink.classList.add('active');
     });
 
-    adminLink.addEventListener('click', function (event) {
+    dietLink.addEventListener('click', function (event) {
         event.preventDefault();
-        memberContent.style.display = 'none';
-        adminContent.style.display = 'flex';
-        memberLink.classList.remove('active');
-        adminLink.classList.add('active');
+        nutritionContent.style.display = 'none';
+        dietContent.style.display = 'flex';
+        nutritionLink.classList.remove('active');
+        dietLink.classList.add('active');
     });
 
     //-------------------retain information-----------------------------
@@ -38,14 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //---------------------clear all rows-------------------------
     function clearForm() {
-        document.getElementById("username").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("gender").selectedIndex = 0;
-        document.getElementById("email").value = "";
-        document.getElementById("phonenum").value = "";
+        document.querySelector('form').reset();
         sessionStorage.clear();
-        window.location.href = window.location.href;
     }
 
     window.onload = function () {
@@ -59,11 +53,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
-    const memberDeleteBtn = document.getElementById("member-delete-btn");
+    const nutriDeleteBtn = document.getElementById("nutrition-delete-btn");
+    const nutriEditBtn = document.getElementById("nutrition-edit-btn");
     let isEditing = false;
     let selectedRow = null;
     let mselectedRow = null;
-    document.querySelectorAll(".admin-container tr").forEach(row => {
+    document.querySelectorAll(".diet-container tr").forEach(row => {
         row.addEventListener('click', function (event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
@@ -78,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll(".member-container tr").forEach(row => {
+    document.querySelectorAll(".nutrition-container tr").forEach(row => {
         row.addEventListener('click', function (event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
@@ -88,16 +83,17 @@ document.addEventListener('DOMContentLoaded', function () {
             mselectedRow = this;
             this.classList.add('selected');
     
-            memberDeleteBtn.disabled = false;
+            nutriDeleteBtn.disabled = false;
+            nutriEditBtn.disabled = false;
         });
     });
 
     //------------------------------deselect------------------
     document.addEventListener("click", function (event) {
         const table = document.querySelector(".box table");
-        const table2 = document.querySelector(".member-box table");
-        const tableOption = document.querySelector('.table-option')
-        if (!table.contains(event.target) && !tableOption.contains(event.target) && !table2.contains(event.target)) {
+        const table2 = document.querySelector(".nutri-box table");
+        const tableOption = document.querySelectorAll('.table-option')
+        if (table.contains(event.target) && tableOption.contains(event.target) && table2.contains(event.target)) {
             if (isEditing) return;
             if (selectedRow) {
                 selectedRow.classList.remove('selected');
@@ -109,17 +105,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             editBtn.disabled = true;
             deleteBtn.disabled = true;
-            memberDeleteBtn.disabled = true;
+            nutriDeleteBtn.disabled = true;
+            nutriEditBtn.disabled = true;
         }
     }, true);
 
     //-----------------------------edit data-----------------------
-    let selectedAdminId = null;
-
-    const discardBtn = document.getElementById("discard-btn");
-    const confirmBtn = document.getElementById("confirm-btn");
-    const addProfile = document.querySelector(".add-profile");
-    const editProfile = document.querySelector(".edit-profile");
+    const addProfile = document.getElementById("dadd-profile");
+    const editProfile = document.getElementById("dedit-profile");
+    const naddProfile = document.getElementById("nadd-profile");
+    const neditProfile = document.getElementById("nedit-profile");
     editBtn.addEventListener("click", function () {
         if (!selectedRow) return;
         isEditing = true;
@@ -140,18 +135,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    nutriEditBtn.addEventListener("click", function () {
+        if (!mselectedRow) return;
+        isEditing = true;
+        document.getElementById("nutrition-name").value = "";
+        document.getElementById("calories").value = "";
+        document.getElementById("fat").value = "";
+        document.getElementById("protein").value = "";
+        document.getElementById("carb").value = "";
+        naddProfile.style.display = "none";
+        neditProfile.style.display = "block";
+        nutriEditBtn.disabled = true;
+        nutriDeleteBtn.disabled = true;
+        
+        const cells = mselectedRow.getElementsByTagName("td");
+        document.getElementById("selectedNutriId").value = cells[0].textContent;
+        document.getElementById("enutrition-name").value = cells[1].textContent;
+        document.getElementById("ecalories").value = cells[2].textContent;
+        document.getElementById("efat").value = cells[3].textContent;
+        document.getElementById("eprotein").value = cells[4].textContent;
+        document.getElementById("ecarb").value = cells[5].textContent;
+
+    });
+
     //discard changes button
-    discardBtn.addEventListener("click", function () {
-        document.querySelector(".add-profile form").reset();
+    document.getElementById("discard-btn").addEventListener("click", () => {
         addProfile.style.display = "block";
         editProfile.style.display = "none";
         isEditing = false;
     });
 
-    confirmBtn.addEventListener("click", function () {
+    document.getElementById("ndiscard-btn").addEventListener("click", () => {
+        naddProfile.style.display = "block";
+        neditProfile.style.display = "none";
+        isEditing = false;
+    });
+
+    document.getElementById("confirm-btn").addEventListener("click", () => {
         isEditing = false;
         addProfile.style.display = "block";
         editProfile.style.display = "none";
+    });
+
+    document.getElementById("nconfirm-btn").addEventListener("click", () => {
+        isEditing = false;
+        naddProfile.style.display = "block";
+        neditProfile.style.display = "none";
     });
 
     //----------------------delete data------------------------
@@ -168,15 +197,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     
-    document.getElementById("member-delete-btn").addEventListener("click", () => {
+    document.getElementById("nutrition-delete-btn").addEventListener("click", () => {
         console.log("Selected row:", mselectedRow);
         if (!mselectedRow) return;
-        console.log("Showing member delete popup");
         let popUp = document.getElementById("mpopup");
         
         popUp.style.display = "flex";
-        id = mselectedRow.getAttribute("member-id");
-        table = "member";
+        id = mselectedRow.getAttribute("nutrition-id");
+        table = "nutrition";
         console.log(`ID: ${id}, Table: ${table}`);
     });
 

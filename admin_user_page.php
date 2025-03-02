@@ -13,14 +13,11 @@
     include "conn.php";
     session_start();
 
-    // Retrieve errors and old input data from the session
     $errors = $_SESSION['admin_errors'] ?? [];
     $old_data = $_SESSION['old_data'] ?? [];
     $showEditForm = $_SESSION['show_edit_form'] ?? false;
 
-    // Only clear session data if we've actually used it
     if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-        // Store in local variables first
         unset($_SESSION['admin_errors']);
         unset($_SESSION['old_data']);
         unset($_SESSION['show_edit_form']);
@@ -28,15 +25,12 @@
 ?>
 <body>
     <nav class="navbar" id="navbar">
-        <!-- <div class="logo-space"> <div class="logo-and-title"></div>
-            <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
-        </div> -->
         <div class="nav-links" id="nav-links">
-            <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-            <span class="admin-dashboard"><a href="homepage.html">DASHBOARD</a></span>
+            <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
+            <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
             <span class="admin-user"><a href="#" class="active">USER</a></span>
-            <span class="admin-workout"><a href="diet_page.html">WORKOUT</a></span>
-            <span class="admin-meals"><a href="settings_page.html">MEALS</a></span>
+            <span class="admin-workout"><a href="admin_workout.php">WORKOUT</a></span>
+            <span class="admin-meals"><a href="admin_diet.php" >MEALS</a></span>
         </div>
         <div class="header-right">
             <button id="hamburger-menu" aria-label="Menu">
@@ -50,11 +44,10 @@
     <div id="heading">
         <h2 class="title"> USER <span>PROFILE</span></h2>
         <ul class="user-section">
-            <li><a href="#member" class="member-link">MEMBER</a></li>
             <li><a href="#admin" class="admin-link">ADMIN</a></li>
+            <li><a href="#member" class="member-link">MEMBER</a></li>
         </ul>
     </div>
-    
     
     <div class="content">
         <div class="admin-container">
@@ -182,8 +175,8 @@
                 <div class="popup-content">
                     <h2>Confirm Deletion</h2>
                     <p>Are you sure you want to delete this record?</p>
-                    <button id="confirmDelete">Yes, Delete</button>
-                    <button id="cancelDelete">Cancel</button>
+                    <button class="confirmDelete">Yes, Delete</button>
+                    <button class="cancelDelete">Cancel</button>
                 </div>
             </div>
         </div>
@@ -209,7 +202,7 @@
                         $result = mysqli_query($dbConn, $sql);
                         if (mysqli_num_rows($result) > 0) {
                             while ($rows = mysqli_fetch_array($result)) {
-                                echo "<tr>";
+                                echo "<tr member-id='".$rows['member_id']."'>";
                                 echo "<td>".$rows['member_id']."</td>";
                                 echo "<td>".$rows['username']."</td>";
                                 echo "<td>".$rows['password']."</td>";
@@ -228,6 +221,17 @@
                         }
                     ?>
                 </table>
+            </div>
+            <div class="table-option">
+                <button id="member-delete-btn" disabled>Delete</button>
+            </div>
+            <div class="mpopup" id="mpopup">
+                <div class="popup-content">
+                    <h2>Confirm Deletion</h2>
+                    <p>Are you sure you want to delete this record?</p>
+                    <button class="confirmDelete">Yes, Delete</button>
+                    <button class="cancelDelete">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -318,4 +322,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
