@@ -414,178 +414,599 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Workout Cards
 const workouts = [
+    // Cardio
     {
-        title: 'Quick Cardio Starter',
-        duration: '10 minutes',
-        calories: '80Kcal',
-        level: 'Beginner',
-        description: 'A quick and easy cardio workout to get started.',
-        image: '',
-        type: ['All', 'Cardio'],
-        sets: 1,
-        exercises: [
-            { exercise: 'March in Place', duration: '3 minutes', video: '' },
-            { exercise: 'Side Steps', duration: '3 minutes', video: '' },
-            { exercise: 'Low Impact Jumping Jacks', duration: '3 minutes', video: '' },
-            { exercise: 'Cool Down Stretches', duration: '1 minutes', video: '' }
+        "title": "Jumpstart Cardio",
+        "duration": "12 minutes",
+        "calories": "130Kcal",
+        "level": "Beginner",
+        "description": "Simple moves to get your heart pumping.",
+        "type": ["All", "Cardio"],
+        "sets": 1,
+        "exercises": [
+            { "exercise": "March On The Spot", "duration": "3 minutes", "video": " " },
+            { "exercise": "Side to Side Step", "duration": "3 minutes", "video": " " },
+            { "exercise": "Low Impact High Knee", "duration": "3 minutes", "video": " " },
+            { "exercise": "Twist & Reach", "duration": "3 minutes", "video": " " }
         ]
     },
     {
-        title: 'Push-Up Basics',
-        duration: '15 minutes',
-        calories: '150Kcal',
-        level: 'Beginner',
-        description: 'Learn the basics of push-ups and build strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Weightfree'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Knee Push-ups', reps: 12, video: '' },
-            { exercise: 'Incline Push-ups', reps: 10, video: '' },
-            { exercise: 'Wide Arm Push-ups', reps: 8, video: '' },
-            { exercise: 'Rest', duration: '2 minutes', video: '' }
+        "title": "Power HIIT Cardio",
+        "duration": "20 minutes",
+        "calories": "220Kcal",
+        "level": "Advanced",
+        "description": "High-intensity intervals for explosive results.",
+        "type": ["All", "Cardio", "HIIT"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Burpee", "reps": 12, "video": " " },
+            { "exercise": "High Knees", "duration": "45 seconds", "video": " " },
+            { "exercise": "Mountain Climbers", "duration": "45 seconds", "video": " " },
+            { "exercise": "Jump Squat With Punches", "reps": 15, "video": " " }
         ]
     },
     {
-        title: 'Yoga for Relaxation',
-        duration: '20 minutes',
-        calories: '120Kcal',
-        level: 'Beginner',
-        description: 'A calming yoga session for flexibility and stress relief.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Child’s Pose', duration: '5 minutes', video: '' },
-            { pose: 'Cat-Cow Stretch', duration: '5 minutes', video: '' },
-            { pose: 'Seated Forward Bend', duration: '5 minutes', video: '' },
-            { pose: 'Corpse Pose', duration: '5 minutes', video: '' }
+        "title": "Stepper Cardio Blast",
+        "duration": "18 minutes",
+        "calories": "180Kcal",
+        "level": "Intermediate",
+        "description": "Use a stepper for dynamic movements.",
+        "type": ["All", "Cardio"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Step-Ups", "reps": 20, "video": " " },
+            { "exercise": "Step Hop Overs", "reps": 15, "video": " " },
+            { "exercise": "Wide to Narrow Step Jump", "reps": 12, "video": " " },
         ]
     },
     {
-        title: 'Mindful Breathing',
-        duration: '15 minutes',
-        calories: '50Kcal',
-        level: 'Beginner',
-        description: 'Focus on your breath to relax your body and mind.',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation'],
-        sets: 1,
-        exercises: [
-            { activity: 'Breathing Exercise', duration: '5 minutes', video: '' },
-            { activity: 'Body Awareness Meditation', duration: '5 minutes', video: '' },
-            { activity: 'Closing Reflection', duration: '5 minutes', video: '' }
+        "title": "Punch & Burn",
+        "duration": "15 minutes",
+        "calories": "150Kcal",
+        "level": "Intermediate",
+        "description": "Cardio with boxing-inspired moves.",
+        "type": ["All", "Cardio"],
+        "sets": 2,
+        "exercises": [
+            { "exercise": "Squat With Punches", "reps": 20, "video": " " },
+            { "exercise": "Cross High Punches", "reps": 15, "video": " " },
+            { "exercise": "Straight Punches", "reps": 30, "video": " " }
         ]
     },
     {
-        title: 'Core Strength Builder',
-        duration: '20 minutes',
-        calories: '200Kcal',
-        level: 'Intermediate',
-        description: 'Strengthen your core with targeted exercises.',
-        image: '',
-        video: '',
-        type: ['All', 'Weightfree'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Plank Hold', duration: '1 minute', video: '' },
-            { exercise: 'Bicycle Crunches', reps: 20, video: '' },
-            { exercise: 'Leg Raises', reps: 15, video: '' },
-            { exercise: 'Side Planks', duration: '30 seconds each side', video: '' },
-            { exercise: 'Rest', duration: '2 minutes', video: '' }
+        "title": "Low Impact Steady State",
+        "duration": "25 minutes",
+        "calories": "160Kcal",
+        "level": "Beginner",
+        "description": "Gentle cardio for joint-friendly sweating.",
+        "type": ["All", "Cardio"],
+        "sets": 1,
+        "exercises": [
+            { "exercise": "Shuffle Forward and Backward", "duration": "8 minutes", "video": " " },
+            { "exercise": "Ice Ski", "duration": "8 minutes", "video": " " },
+            { "exercise": "Side Step Shuffle", "duration": "8 minutes", "video": " " }
         ]
     },
     {
-        title: 'Pull-Up Progression',
-        duration: '25 minutes',
-        calories: '300Kcal',
-        level: 'Intermediate',
-        description: 'Improve your pull-up form and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Weighted'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Assisted Pull-ups', reps: 10, video: '' },
-            { exercise: 'Chin-ups', reps: 8, video: '' },
-            { exercise: 'Negative Pull-ups', reps: 6, video: '' },
-            { exercise: 'Wide-grip Pull-ups', reps: 6, video: '' },
-            { exercise: 'Rest', duration: '2 minutes', video: '' }
+        "title": "Full-Body Cardio Fusion",
+        "duration": "20 minutes",
+        "calories": "200Kcal",
+        "level": "Intermediate",
+        "description": "Mix of jumps and agility drills.",
+        "type": ["All", "Cardio"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Kangaroo Hops", "reps": 15, "video": " " },
+            { "exercise": "Sprint", "duration": "30 seconds", "video": " " },
+            { "exercise": "Ice Skater", "reps": 20, "video": " " },
         ]
     },
     {
-        title: 'Dynamic Yoga Flow',
-        duration: '25 minutes',
-        calories: '200Kcal',
-        level: 'Intermediate',
-        description: 'A more active yoga sequence for flexibility and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Sun Salutations', duration: '10 minutes', video: '' },
-            { pose: 'Warrior I and II', duration: '5 minutes', video: '' },
-            { pose: 'Triangle Pose', duration: '5 minutes', video: '' },
-            { pose: 'Pigeon Pose', duration: '5 minutes', video: '' }
+        "title": "Step-Up Challenge",
+        "duration": "15 minutes",
+        "calories": "140Kcal",
+        "level": "Intermediate",
+        "description": "Elevate your heart rate with step-ups.",
+        "type": ["All", "Cardio"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": " " },
+            { "exercise": "Step Jump", "reps": 12, "video": " " },
+            { "exercise": "Burpee Step-Up", "reps": 10, "video": " " }
         ]
     },
     {
-        title: 'Cardio Extreme',
-        duration: '20 minutes',
-        calories: '300Kcal',
-        level: 'Advanced',
-        description: 'A high-intensity cardio session for experienced athletes.',
-        image: '',
-        video: '',
-        type: ['All', 'Cardio'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Sprint Intervals', duration: '4 minutes', video: '' },
-            { exercise: 'Burpees', duration: 'llenge', video: '' },
-            { exercise: 'Jump Squats', duration: '4 minutes', video: '' },
-            { exercise: 'Mountain Climbers', duration: '4 minutes', video: '' },
-            { exercise: 'Cool Down', duration: '4 minutes', video: '' }
+        "title": "Dance Cardio Groove",
+        "duration": "20 minutes",
+        "calories": "180Kcal",
+        "level": "Beginner",
+        "description": "Fun moves to keep you moving.",
+        "type": ["All", "Cardio"],
+        "sets": 1,
+        "exercises": [
+            { "exercise": "Lateral Shuttle Steps", "duration": "5 minutes", "video": " " },
+            { "exercise": "Side to Side Step", "duration": "5 minutes", "video": " " },
+            { "exercise": "Twist & Reach", "duration": "5 minutes", "video": " " }
         ]
     },
     {
-        title: 'Strength Max',
-        duration: '30 minutes',
-        calories: '350Kcal',
-        level: 'Advanced',
-        description: 'Build maximum strength with a challenging routine.',
-        image: '',
-        video: '',
-        type: ['All', 'Weighted'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Deadlifts', reps: 10, video: '' },
-            { exercise: 'Barbell Squats', reps: 10, video: '' },
-            { exercise: 'Bench Press', reps: 8, video: '' },
-            { exercise: 'Pull-ups', reps: 10, video: '' },
-            { exercise: 'Rest', duration: '3 minutes', video: '' }
+        "title": "HIIT & Core Combo",
+        "duration": "25 minutes",
+        "calories": "240Kcal",
+        "level": "Advanced",
+        "description": "Blast fat while engaging your core.",
+        "type": ["All", "Cardio", "HIIT"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Plank Jacks", "reps": 20, "video": " " },
+            { "exercise": "Frogger To Squat", "reps": 15, "video": " " },
+            { "exercise": "Decline Mountain Climbers", "reps": 20, "video": " " },
+            { "exercise": "Rest", "duration": "1 minute", "video": " " }
         ]
     },
     {
-        title: 'Advanced Yoga Challenge',
-        duration: '30 minutes',
-        calories: '250Kcal',
-        level: 'Advanced',
-        description: 'A powerful yoga sequence for flexibility and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Handstand Practice', duration: '10 minutes', video: '' },
-            { pose: 'Crow Pose', duration: '5 minutes', video: '' },
-            { pose: 'Wheel Pose', duration: '10 minutes', video: '' },
-            { pose: 'Savasana', duration: '5 minutes', video: '' }
+        "title": "Quick Morning Cardio",
+        "duration": "10 minutes",
+        "calories": "90Kcal",
+        "level": "Beginner",
+        "description": "Fast routine to kickstart your day.",
+        "type": ["All", "Cardio"],
+        "sets": 1,
+        "exercises": [
+            { "exercise": "Jog On The Spot", "duration": "3 minutes", "video": " " },
+            { "exercise": "Butt Kicks", "duration": "3 minutes", "video": " " },
+            { "exercise": "High Punches", "duration": "3 minutes", "video": " " }
         ]
-    }
+    },
+    // Weighted
+    {
+        "title": "Full-Body Dumbbell Burn",
+        "duration": "30 minutes",
+        "calories": "250Kcal",
+        "level": "Intermediate",
+        "description": "Compound lifts for total strength.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Dumbbell Squat", "reps": 12, "video": " " },
+            { "exercise": "Shoulder Press", "reps": 10, "video": " " },
+            { "exercise": "Reverse Lunge to Shoulder Press", "reps": 10, "video": " " },
+            { "exercise": "Bicep Curls", "reps": 15, "video": " " }
+        ]
+    },
+    {
+        "title": "Upper Body Sculpt",
+        "duration": "25 minutes",
+        "calories": "200Kcal",
+        "level": "Intermediate",
+        "description": "Target arms, shoulders, and back.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Tricep Kickback", "reps": 12, "video": " " },
+            { "exercise": "Front Raise", "reps": 15, "video": " " },
+            { "exercise": "Single Arm Dumbbell Row", "reps": 10, "video": " " },
+            { "exercise": "Upright Dumbbell Row", "reps": 12, "video": " " }
+        ]
+    },
+    {
+        "title": "Leg Day Strength",
+        "duration": "25 minutes",
+        "calories": "220Kcal",
+        "level": "Intermediate",
+        "description": "Build lower body power.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Dumbbell Sumo Squat", "reps": 15, "video": " " },
+            { "exercise": "Walking Lunges", "reps": 12, "video": " " },
+            { "exercise": "Deadlift", "reps": 10, "video": " " },
+            { "exercise": "Goblet Squat", "reps": 12, "video": " " }
+        ]
+    },
+    {
+        "title": "Functional Strength",
+        "duration": "20 minutes",
+        "calories": "180Kcal",
+        "level": "Intermediate",
+        "description": "Real-world movement patterns.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Woodchop", "reps": 15, "video": " " },
+            { "exercise": "Snatch to Shoulder Press", "reps": 10, "video": " " },
+            { "exercise": "Dumbbell Swing", "reps": 12, "video": " " },
+            { "exercise": "Overhead Squat", "reps": 10, "video": " " }
+        ]
+    },
+    {
+        "title": "Back & Shoulders Focus",
+        "duration": "25 minutes",
+        "calories": "190Kcal",
+        "level": "Advanced",
+        "description": "Strengthen posterior chain.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Single Leg Deadlift", "reps": 12, "video": " " },
+            { "exercise": "Reverse Fly", "reps": 15, "video": " " },
+            { "exercise": "Plank Row", "reps": 10, "video": " " },
+            { "exercise": "Y to T Raises", "reps": 12, "video": " " }
+        ]
+    },
+    {
+        "title": "Stepper Strength",
+        "duration": "20 minutes",
+        "calories": "170Kcal",
+        "level": "Intermediate",
+        "description": "Use a stepper for resistance.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": " " },
+            { "exercise": "Alternate Elevated Lunge (With Stepper)", "reps": 12, "video": " " },
+            { "exercise": "Tricep Dips", "reps": 15, "video": " " }
+        ]
+    },
+    {
+        "title": "Total Body Dumbbell",
+        "duration": "30 minutes",
+        "calories": "240Kcal",
+        "level": "Advanced",
+        "description": "Full-body endurance with weights.",
+        "type": ["All", "Weighted"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Burpees with Dumbbell Press", "reps": 10, "video": " " },
+            { "exercise": "Dumbbells High Pulls", "reps": 12, "video": " " },
+            { "exercise": "Alternate Lunge & Twist", "reps": 12, "video": " " },
+            { "exercise": "Head Crusher", "reps": 10, "video": " " }
+        ]
+    },
+    {
+        "title": "Arm & Core Combo",
+        "duration": "20 minutes",
+        "calories": "160Kcal",
+        "level": "Intermediate",
+        "description": "Strengthen arms and abs.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Russian Twist (Dumbbell)", "reps": 20, "video": " " },
+            { "exercise": "Tricep Extension", "reps": 12, "video": " " },
+            { "exercise": "Bicep Curls to Outward Abductor", "reps": 15, "video": " " }
+        ]
+    },
+    {
+        "title": "Power Endurance",
+        "duration": "25 minutes",
+        "calories": "210Kcal",
+        "level": "Advanced",
+        "description": "Build stamina with weights.",
+        "type": ["All", "Weighted"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Squat to Shoulder Press", "reps": 12, "video": " " },
+            { "exercise": "Single Arm Snatch to Shoulder Press", "reps": 10, "video": " " },
+            { "exercise": "Pull Over", "reps": 12, "video": " " },
+            { "exercise": "Fly Hip Bridge", "reps": 15, "video": " " }
+        ]
+    },
+    {
+        "title": "Functional Mobility",
+        "duration": "20 minutes",
+        "calories": "150Kcal",
+        "level": "Intermediate",
+        "description": "Improve movement quality.",
+        "type": ["All", "Weighted"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Overhead Arm Circle", "reps": 12, "video": " " },
+            { "exercise": "L Rotation", "reps": 10, "video": " " },
+            { "exercise": "Side to Front Raise", "reps": 12, "video": " " }
+        ]
+    },
+    // Weight-Free
+    {
+        "title": "Core Crusher",
+        "duration": "20 minutes",
+        "calories": "150Kcal",
+        "level": "Intermediate",
+        "description": "Target abs with no equipment.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Plank", "duration": "1 minute", "video": " " },
+            { "exercise": "Russian Twist", "reps": 20, "video": " " },
+            { "exercise": "Leg Raise with Hip Thrust", "reps": 15, "video": " " },
+            { "exercise": "Side Plank Hip Dips", "reps": 12, "video": " " }
+        ]
+    },
+    {
+        "title": "Low Impact Strength",
+        "duration": "25 minutes",
+        "calories": "160Kcal",
+        "level": "Beginner",
+        "description": "Gentle moves for joint health.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Chair Squat", "reps": 15, "video": " " },
+            { "exercise": "Reverse Lunge", "reps": 12, "video": " " },
+            { "exercise": "Hip Bridge Hold", "duration": "45 seconds", "video": " " },
+            { "exercise": "Fire Hydrants", "reps": 15, "video": " " }
+        ]
+    },
+    {
+        "title": "Total Body Bodyweight",
+        "duration": "30 minutes",
+        "calories": "200Kcal",
+        "level": "Intermediate",
+        "description": "No equipment, full-body focus.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Push-Up", "reps": 12, "video": " " },
+            { "exercise": "Lunge Pulse", "reps": 15, "video": " " },
+            { "exercise": "Sumo Squat", "reps": 15, "video": " " },
+            { "exercise": "Superman", "duration": "1 minute", "video": " " }
+        ]
+    },
+    {
+        "title": "Dynamic Core",
+        "duration": "20 minutes",
+        "calories": "170Kcal",
+        "level": "Advanced",
+        "description": "Advanced ab challenges.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Windshield Wiper with Leg Extension", "reps": 10, "video": " " },
+            { "exercise": "Plank Up-Down", "reps": 15, "video": " " },
+            { "exercise": "Flutter Kicks", "duration": "1 minute", "video": " " }
+        ]
+    },
+    {
+        "title": "Lower Body Burn",
+        "duration": "25 minutes",
+        "calories": "180Kcal",
+        "level": "Intermediate",
+        "description": "Focus on legs and glutes.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Curtsy Lunge", "reps": 12, "video": " " },
+            { "exercise": "Squat Pulse", "reps": 15, "video": " " },
+            { "exercise": "Standing Side Leg Raise", "reps": 20, "video": " " },
+            { "exercise": "Calf Raises", "reps": 20, "video": " " }
+        ]
+    },
+    {
+        "title": "Mobility & Stability",
+        "duration": "20 minutes",
+        "calories": "140Kcal",
+        "level": "Beginner",
+        "description": "Improve balance and control.",
+        "type": ["All", "Weight-free"],
+        "sets": 2,
+        "exercises": [
+            { "exercise": "Assisted Standing Kickbacks", "reps": 15, "video": " " },
+            { "exercise": "Clock Lunge", "reps": 10, "video": " " },
+            { "exercise": "Hip Bridge Circle", "reps": 12, "video": " " }
+        ]
+    },
+    {
+        "title": "Push-Up Progression",
+        "duration": "20 minutes",
+        "calories": "160Kcal",
+        "level": "Intermediate",
+        "description": "Master push-up variations.",
+        "type": ["All", "Weight-free"],
+        "sets": 3,
+        "exercises": [
+            { "exercise": "Knee Push-Up", "reps": 12, "video": " " },
+            { "exercise": "Wide To Narrow Push-Up", "reps": 10, "video": " " },
+            { "exercise": "Spiderman Push-Up", "reps": 8, "video": " " }
+        ]
+    },
+    {
+        "title": "Functional Flexibility",
+        "duration": "25 minutes",
+        "calories": "150Kcal",
+        "level": "Beginner",
+        "description": "Enhance movement range.",
+        "type": ["All", "Weight-free"],
+        "sets": 2,
+        "exercises": [
+            { "exercise": "Forward To Back Lunge", "reps": 12, "video": " " },
+            { "exercise": "The Bird", "reps": 15, "video": " " },
+            { "exercise": "Bob Weave Circle", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Total Body Tone",
+        "duration": "30 minutes",
+        "calories": "220Kcal",
+        "level": "Advanced",
+        "description": "High-effort bodyweight moves.",
+        "type": ["All", "Weight-free"],
+        "sets": 4,
+        "exercises": [
+            { "exercise": "Burpee to Push-Up", "reps": 10, "video": " " },
+            { "exercise": "Split Jack Knife", "reps": 15, "video": " " },
+            { "exercise": "Sprinter Alternate Knee Tucks", "reps": 20, "video": " " }
+        ]
+    },
+    {
+        "title": "Balance & Coordination",
+        "duration": "20 minutes",
+        "calories": "130Kcal",
+        "level": "Beginner",
+        "description": "Improve stability.",
+        "type": ["All", "Weight-free"],
+        "sets": 2,
+        "exercises": [
+            { "exercise": "Single Leg Hip Bridge", "reps": 12, "video": " " },
+            { "exercise": "Assisted Lunge", "reps": 10, "video": " " },
+            { "exercise": "Standing Side Crunch", "reps": 15, "video": " " }
+        ]
+    },
+    // Yoga
+    {
+        "title": "Post-Workout Stretch",
+        "duration": "15 minutes",
+        "calories": "60Kcal",
+        "level": "Beginner",
+        "description": "Relax and recover.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Child Pose", "duration": "3 minutes", "video": " " },
+            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": " " },
+            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Flexibility Flow",
+        "duration": "20 minutes",
+        "calories": "80Kcal",
+        "level": "Intermediate",
+        "description": "Improve mobility and posture.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": " " },
+            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": " " },
+            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Hip Opener Routine",
+        "duration": "15 minutes",
+        "calories": "50Kcal",
+        "level": "Beginner",
+        "description": "Release tension in hips.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Pigeon Pose (modified)", "duration": "3 minutes", "video": " " },
+            { "pose": "Kneeling Hip Flexor", "duration": "3 minutes", "video": " " },
+            { "pose": "Inner Thigh Stretch", "duration": "3 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Spine & Back Relief",
+        "duration": "20 minutes",
+        "calories": "70Kcal",
+        "level": "Intermediate",
+        "description": "Ease back stiffness.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Cobra", "duration": "5 minutes", "video": " " },
+            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": " " },
+            { "pose": "Spinal Twist", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Neck & Shoulder Relaxation",
+        "duration": "10 minutes",
+        "calories": "30Kcal",
+        "level": "Beginner",
+        "description": "Release upper body tension.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Neck Stretches", "duration": "3 minutes", "video": " " },
+            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": " " },
+            { "pose": "Chest Stretch", "duration": "3 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Full-Body Stretch",
+        "duration": "25 minutes",
+        "calories": "90Kcal",
+        "level": "Intermediate",
+        "description": "Comprehensive flexibility session.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Split Side Stretch", "duration": "5 minutes", "video": " " },
+            { "pose": "Lying Glute Stretch", "duration": "5 minutes", "video": " " },
+            { "pose": "Seated Forward Bend", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Morning Mobility",
+        "duration": "15 minutes",
+        "calories": "40Kcal",
+        "level": "Beginner",
+        "description": "Wake up your body gently.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Arm Circle", "duration": "3 minutes", "video": " " },
+            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": " " },
+            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Deep Relaxation",
+        "duration": "20 minutes",
+        "calories": "50Kcal",
+        "level": "Beginner",
+        "description": "Calm mind and body.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Corpse Pose", "duration": "5 minutes", "video": " " },
+            { "pose": "Legs-Up-The-Wall", "duration": "5 minutes", "video": " " },
+            { "pose": "Breathing Exercise", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Active Stretch Flow",
+        "duration": "25 minutes",
+        "calories": "80Kcal",
+        "level": "Intermediate",
+        "description": "Dynamic stretching for athletes.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": " " },
+            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": " " },
+            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    {
+        "title": "Evening Wind-Down",
+        "duration": "15 minutes",
+        "calories": "40Kcal",
+        "level": "Beginner",
+        "description": "Unwind before bed.",
+        "type": ["All", "Yoga"],
+        "sets": 1,
+        "exercises": [
+            { "pose": "Child Pose", "duration": "5 minutes", "video": " " },
+            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": " " },
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": " " }
+        ]
+    },
+    //Meditation
+    {
+        "title": "Meditation",
+        "duration": "10 minutes",
+        "calories": "100Kcal",
+        "level": "Beginner",
+        "description": "Calm your mind and body.",
+        "type": ["All", "Meditation"],
+        "sets": 1,
+        "exercises": [
+            { "meditation": "Mindfulness", "duration": "5 minutes", "video": " " },
+            { "meditation": "Meditation", "duration": "5 minutes", "video": " " },
+            { "meditation": "Mindfulness", "duration": "5 minutes", "video": " " }
+        ]
+    },
 ];
 
 
