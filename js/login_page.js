@@ -38,7 +38,6 @@ function close_modal(modal) {
 
 // email-otp.js
 document.addEventListener('DOMContentLoaded', function () {
-  // Get DOM elements
   const modal = document.querySelector('.forget-password-modal');
   const overlay = document.getElementById('overlay');
   const emailInput = document.getElementById('email-verify');
@@ -54,18 +53,15 @@ document.addEventListener('DOMContentLoaded', function () {
   let countdownInterval; // Store countdown interval
   let timeLeft = 60; // Countdown time in seconds
 
-  // Function to validate email format
   function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Function to generate random 6-digit OTP
   function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Function to send OTP via email using Email.js
   function sendOTP() {
     const email = emailInput.value.trim();
 
@@ -74,21 +70,17 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Generate OTP
     otpValue = generateOTP();
     console.log("Generated OTP:", otpValue); // For testing purposes
 
-    // Disable email input
     emailInput.disabled = true;
     otpInput.style.display = "block";
 
-    // Hide Verify button, show OTP button
     verifyButton.style.display = 'none';
     otpButton.textContent = 'Verify';
     otpButton.style.display = 'block';
     otpButton.classList.remove('otp-button');
 
-    // Prepare template parameters for Email.js
     const templateParams = {
       to_email: email,
       verification_code: otpValue
@@ -108,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // Start countdown timer
   function startCountdown() {
     const countdownElement = document.querySelector('.countdown');
     if (!countdownElement) {
@@ -116,12 +107,10 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Ensure the countdown element is styled properly
     countdownElement.style.textAlign = 'center';
     countdownElement.style.marginTop = '10px';
     countdownElement.style.color = '#ff946e';
 
-    // Set the countdown timer
     let timeLeft = 60;
     updateCountdown();
 
@@ -132,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
 
-        // Replace the countdown with a resend button
         countdownElement.textContent = '';
         const resendButton = document.querySelector('.reset-vertification-btn');
         resendButton.textContent = 'Resend verification code';
@@ -147,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
         resendButton.style.transition = 'all 0.5s';
         resendButton.style.cursor = 'pointer';
 
-        // Handle resend button click
         resendButton.addEventListener('click', function () {
           countdownElement.textContent = '';
           resendButton.remove();
@@ -292,13 +279,11 @@ document.addEventListener('DOMContentLoaded', function () {
       showSuccessMessage();
     });
 
-    // Append all elements to form
     passwordResetForm.appendChild(emailDisplay);
     passwordResetForm.appendChild(newPasswordWrapper);
     passwordResetForm.appendChild(confirmPasswordWrapper);
     passwordResetForm.appendChild(submitButton);
 
-    // Add form to modal body
     modalBody.appendChild(passwordResetForm);
   }
 
@@ -322,37 +307,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.body.appendChild(successMessage);
 
-    // Slide down animation
     setTimeout(function () {
       successMessage.style.top = '20px';
     }, 100);
 
-    // Slide up after 3 seconds
     setTimeout(function () {
       successMessage.style.top = '-100px';
 
-      // Remove message and close modal after animation
       setTimeout(function () {
         successMessage.remove();
         close_modal(modal);
-        resetFormCompletely(); // Reset the form completely after password reset
+        resetFormCompletely();
       }, 500);
     }, 3000);
   }
 
   // Function to show notification
   function showNotification(message, type) {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.textContent = message;
 
-    // Set styles
     notification.style.padding = '15px';
     notification.style.textAlign = 'center';
     notification.style.borderRadius = '16px';
     notification.style.position = 'fixed';
-    notification.style.top = '-100px'; // Start off-screen above
+    notification.style.top = '-100px';
     notification.style.left = '50%';
     notification.style.transform = 'translateX(-50%)';
     notification.style.zIndex = '1000';
@@ -360,7 +340,6 @@ document.addEventListener('DOMContentLoaded', function () {
     notification.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
     notification.style.minWidth = '300px';
 
-    // Set color based on type
     if (type === 'error') {
       notification.style.backgroundColor = '#f44336';
       notification.style.color = 'white';
@@ -369,30 +348,24 @@ document.addEventListener('DOMContentLoaded', function () {
       notification.style.color = 'white';
     }
 
-    // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(note => note.remove());
 
-    // Add to document
     document.body.appendChild(notification);
 
-    // Slide down animation
     setTimeout(function () {
       notification.style.top = '20px';
     }, 100);
 
-    // Slide up after 3 seconds
     setTimeout(function () {
       notification.style.top = '-100px';
 
-      // Remove after animation completes
       setTimeout(function () {
         notification.remove();
       }, 500);
     }, 3000);
   }
 
-  // Function to reset the form (during active session)
   function resetForm() {
     emailInput.disabled = false;
     otpInput.style.display = 'none';
@@ -422,7 +395,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function resetFormCompletely() {
     resetForm();
     emailInput.value = '';
-    // Reset any other state variables
     otpValue = "";
     timeLeft = 60;
   }
@@ -437,20 +409,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   verifyButton.addEventListener('click', function () {
-    // Initial verification button - will be hidden after email is entered
     sendOTP();
   });
 
-  // Reset form when modal is closed
   document.querySelectorAll('[data-close-button]').forEach(button => {
     button.addEventListener('click', function () {
       const modal = button.closest('.forget-password-modal');
-      resetFormCompletely(); // Use the complete reset when closing modal
+      resetFormCompletely(); /
     });
   });
 
   // Reset form when overlay is clicked (modal closed)
   overlay.addEventListener('click', function () {
-    resetFormCompletely(); // Use the complete reset when closing modal
+    resetFormCompletely();
   });
 });
