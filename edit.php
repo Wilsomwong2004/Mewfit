@@ -107,6 +107,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($count > 0) {
                 $errors[] = "Nutrition name already exists.";
             }
+            if ($calories <= 0) {
+                $errors[] = "Calories must be a positive number.";
+            }
+            if ($fat < 0) {
+                $errors[] = "Fat must be a non-negative number.";
+            }
+            if ($protein < 0) {
+                $errors[] = "Protein must be a non-negative number.";
+            }
+            if ($carbohydrate < 0) {
+                $errors[] = "Carbohydrate must be a non-negative number.";
+            }
 
             if (!empty($errors)) {
                 $_SESSION['admin_errors'] = $errors;

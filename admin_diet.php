@@ -1,3 +1,7 @@
+<!-- NOTE FOR JS(dun ask me why this prevent bugs):
+- admin_diet.js: select sections, retain information, clear session
+- upper script: redirecting if got input errors
+- down script: everything else -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +20,7 @@
             }
         };
         document.addEventListener("DOMContentLoaded", function() {
+            
             if(window.location.hash) {
                 if(window.location.hash === "#editnutrition") {
                     document.querySelector('.nutrition-container').style.display = 'flex';
@@ -24,16 +29,18 @@
                     document.querySelector('.diet-link').classList.remove('active');
                     document.getElementById('nadd-profile').style.display = 'none';
                     document.getElementById('nedit-profile').style.display = 'block';
+                    exit();
                 }
                 if(window.location.hash === "#nutrition") {
                     document.querySelector('.nutrition-container').style.display = 'flex';
                     document.querySelector('.diet-container').style.display = 'none';
                     document.querySelector('.nutrition-link').classList.add('active');
                     document.querySelector('.diet-link').classList.remove('active');
+                    exit();
                 }
             }
         });
-    </script>
+</script>
 <?php 
     include "conn.php";
     session_start();
@@ -173,40 +180,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <center>
                 <h2>Add New <span>Meal</span></h2>
             </center>
-            <form>
+            <form action="insert_admin_diet.php" method="POST">
                 <label for="diet-name">Meal Name</label>
                 <input type="text" id="diet-name" name="diet-name" required>
-                
-                <label for="diet-type">Meal Type</label>
-                <select id="diet-type" name="diet-type" required>
-                    <option value="">Select Type</option>
-                    <option value="all">All</option>
-                    <option value="meat">Meat</option>
-                    <option value="vegetarian">Vegetarian</option>
-                    <option value="vegan">Vegan</option>
-                </select>
 
                 <div class="form-columns">
                     <div class="column">
-                        <label for="nutrition_id">Nutrition ID</label>
-                        <input type="number" id="nutrition_id" name="nutrition_id" required>
+                        <label for="diet-type">Meal Type</label>
+                        <select id="diet-type" name="diet-type" required>
+                            <option value="">Select Type</option>
+                            <option value="all">All</option>
+                            <option value="meat">Meat</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                        </select>
                     </div>
                     <div class="column">
-                        <label for="preparation_min">Preparation Time (minutes)</label>
+                        <label for="preparation_min">Preparation Time (min)</label>
                         <input type="number" id="preparation_min" name="preparation_min" required>
                     </div>
                 </div>
 
-                <div class="picture">
-                    <p>Drag and Drop Meal Picture Here</p>
-                    <input type="file" accept="image/*" hidden>
+                <label for="nutrition_id">Ingredients</label>
+                <div class="nutrition-select-container">
+                    <div class="custom-select">
+                        <div class="select-box">
+                            <input type="text" class="tags_input" name="nutrition_ids" hidden/>
+                            <div class="selected-options">
+                                <span class="placeholder">Select nutrition IDs</span>
+                            </div>
+                            <div class="arrow">
+                                <i class="fas fa-angle-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="options">
+                        <div class="option-search-tags">
+                            <input type="text" class="search-tags" placeholder="Search nutrition IDs..."/>
+                        </div>
+                        <div class="option all-tags" data-value="all">Select All</div>
+                    </div>
+                    <span class="tag_error_msg">This field is required</span>
                 </div>
 
-                <label for="ingredients">Ingredients</label>
-                <textarea id="ingredients" name="ingredients" rows="4" placeholder="List ingredients separated by commas" required></textarea>
+                <div class="form-columns">
+                    <div class="column">
+                        <label for="meal_picture">Meal Picture</label>
+                        <div class="picture" onclick="document.getElementById('meal_picture').click()">
+                            <p id="words">Click To Upload Meal Picture Here</p>
+                            <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
+                            <img id="imagePreview" src="" alt="Image Preview">
+                        </div>
+                    </div>
+                    <div class="column">
+                        <label for="desc">Description</label>
+                        <textarea id="desc" name="desc" rows="7" placeholder="Describe the diet.." required></textarea>
+                    </div>
+                </div>
 
                 <label for="directions">Directions</label>
-                <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step cooking directions" required></textarea>
+                <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required></textarea>
 
                 <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
                     <button type="" id="add-profile-btn">Create New</button>
@@ -407,3 +440,461 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </body>
 </html>
+<!-- below is for add diet profile -->
+<?php
+$sql = "SELECT * FROM nutrition";
+$result = mysqli_query($dbConn, $sql);
+
+$nutritionData = [];
+
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $nutritionData[] = $row;
+    }
+}
+
+$nutritionJson = json_encode($nutritionData);
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const customSelects = document.querySelectorAll(".custom-select");
+
+function updateSelectedOptions(customSelect) {
+    const optionsContainer = customSelect.parentNode.querySelector(".options");
+    const selectedOptions = Array.from(
+        optionsContainer.querySelectorAll(".option.active")
+    )
+        .filter(option => option !== optionsContainer.querySelector(".option.all-tags"))
+        .map(function(option) {
+            return {
+                value: option.getAttribute("data-value"),
+                text: option.textContent.trim()
+            };
+        });
+
+    // Update the hidden input with comma-separated values
+    const selectedValues = selectedOptions.map(function(option) {
+        return option.value;
+    });
+    customSelect.querySelector(".tags_input").value = selectedValues.join(",");
+
+    // Generate the HTML for displaying selected tags
+    let tagHTML = "";
+    if (selectedOptions.length === 0) {
+        tagHTML = '<span class="placeholder">Select nutrition IDs</span>';
+    } else {
+        const maxTagsToShow = 4;
+        let additionalTagsCount = 0;
+        
+        selectedOptions.forEach(function(option, index) {
+            if (index < maxTagsToShow) {
+                tagHTML += '<span class="tag">' + option.text + 
+                            '<span class="remove-tag" data-value="' + option.value + '">&times;</span></span>';
+            } else {
+                additionalTagsCount++;
+            }
+        });
+        
+        if (additionalTagsCount > 0) {
+            tagHTML += '<span class="tag">+' + additionalTagsCount + ' more</span>';
+        }
+    }
+    
+    customSelect.querySelector(".selected-options").innerHTML = tagHTML;
+}
+
+// Set up event listeners for each custom select
+customSelects.forEach(function(customSelect) {
+    const optionsContainer = customSelect.parentNode.querySelector(".options");
+    const searchInput = optionsContainer.querySelector(".search-tags");
+    const noResultMessage = optionsContainer.querySelector(".no-result-message");
+    const options = optionsContainer.querySelectorAll(".option");
+    const allTagsOption = optionsContainer.querySelector(".option.all-tags");
+
+    // Handle "Select All" functionality if allTagsOption exists
+    if (allTagsOption) {
+        allTagsOption.addEventListener("click", function(event) {
+            const isActive = allTagsOption.classList.contains("active");
+            allTagsOption.classList.toggle("active");
+            
+            options.forEach(function(option) {
+                if (option !== allTagsOption) {
+                    option.classList.toggle("active", !isActive);
+                }
+            });
+            
+            updateSelectedOptions(customSelect);
+            event.stopPropagation();
+        });
+    }
+
+
+    // Handle search functionality
+    if (searchInput) {
+        searchInput.addEventListener("input", function(event) {
+            const searchTerm = searchInput.value.toLowerCase();
+            let anyOptionsMatch = false;
+            
+            options.forEach(function(option) {
+                if (option === allTagsOption) return; // Don't filter the "Select All" option
+                
+                const optionText = option.textContent.trim().toLowerCase();
+                const shouldShow = optionText.includes(searchTerm);
+                option.style.display = shouldShow ? "block" : "none";
+                if (shouldShow) anyOptionsMatch = true;
+            });
+            
+            noResultMessage.style.display = anyOptionsMatch ? "none" : "block";
+            allTagsOption.style.display = searchTerm ? "none" : "block";
+            
+            event.stopPropagation();
+        });
+        
+        // Prevent closing dropdown when clicking on search
+        searchInput.addEventListener("click", function(event) {
+            event.stopPropagation();
+        });
+    }
+
+    // Handle option selection
+    options.forEach(function(option) {
+        option.addEventListener("click", function(event) {
+            if (option !== allTagsOption) {
+                option.classList.toggle("active");
+                
+                // Update "Select All" state
+                if (allTagsOption) {
+                    const allOptionsActive = Array.from(options)
+                        .filter(opt => opt !== allTagsOption)
+                        .every(opt => opt.classList.contains("active"));
+                        
+                    allTagsOption.classList.toggle("active", allOptionsActive);
+                }
+            }
+            
+            updateSelectedOptions(customSelect);
+            event.stopPropagation();
+        });
+    });
+
+    // Toggle dropdown when clicking the select box
+    const selectBox = customSelect.querySelector(".select-box");
+    selectBox.addEventListener("click", function(event) {
+        // Only toggle if not clicking on a tag's remove button
+        if (!event.target.closest(".remove-tag")) {
+            const wasOpen = customSelect.classList.contains("open");
+            
+            // Close all other dropdowns
+            customSelects.forEach(function(otherSelect) {
+                if (otherSelect !== customSelect) {
+                    otherSelect.classList.remove("open");
+                }
+            });
+            
+            // Toggle this dropdown
+            customSelect.classList.toggle("open");
+            
+            // Clear search when opening
+            if (!wasOpen && searchInput) {
+                searchInput.value = "";
+                options.forEach(function(option) {
+                    option.style.display = "block";
+                });
+                noResultMessage.style.display = "none";
+                
+                // Focus on search input
+                setTimeout(() => {
+                    searchInput.focus();
+                }, 10);
+            }
+        }
+    });
+});
+
+// Handle removing tags and closing dropdowns when clicking outside
+document.addEventListener("click", function(event) {
+    // Handle removing tags
+    const removeTag = event.target.closest(".remove-tag");
+    if (removeTag) {
+        const customSelect = removeTag.closest(".custom-select");
+        const valueToRemove = removeTag.getAttribute("data-value");
+        const optionsContainer = customSelect.parentNode.querySelector(".options");
+        const optionToRemove = optionsContainer.querySelector(`.option[data-value="${valueToRemove}"]`);
+        
+        if (optionToRemove) {
+            optionToRemove.classList.remove("active");
+            
+            // Update "Select All" state
+            const allTagsOption = optionsContainer.querySelector(".option.all-tags");
+            if (allTagsOption) {
+                allTagsOption.classList.remove("active");
+            }
+            
+            updateSelectedOptions(customSelect);
+        }
+        
+        event.stopPropagation();
+    } 
+    // Close dropdowns when clicking outside
+    else if (!event.target.closest(".custom-select") && !event.target.closest(".options")) {
+        customSelects.forEach(function(customSelect) {
+            customSelect.classList.remove("open");
+        });
+    }
+});
+
+// Initialize all custom selects
+customSelects.forEach(updateSelectedOptions);
+});
+ //------------------------select row--------------------------
+ const rows = document.querySelectorAll('table tr:not(:first-child)');
+    const editBtn = document.getElementById("edit-btn");
+    const deleteBtn = document.getElementById("delete-btn");
+    const nutriDeleteBtn = document.getElementById("nutrition-delete-btn");
+    const nutriEditBtn = document.getElementById("nutrition-edit-btn");
+    let isEditing = false;
+    let selectedRow = null;
+    let mselectedRow = null;
+    document.querySelectorAll(".diet-container tr").forEach(row => {
+        row.addEventListener('click', function (event) {
+            if (isEditing) return;
+            if (this.classList.contains('no-data')) return;
+
+            event.stopPropagation();
+            rows.forEach(r => r.classList.remove('selected'));
+            selectedRow = this;
+            this.classList.add('selected');
+
+            editBtn.disabled = false;
+            deleteBtn.disabled = false;
+        });
+    });
+
+    document.querySelectorAll(".nutrition-container tr").forEach(row => {
+        row.addEventListener('click', function (event) {
+            if (isEditing) return;
+            if (this.classList.contains('no-data')) return;
+    
+            event.stopPropagation();
+            rows.forEach(r => r.classList.remove('selected'));
+            mselectedRow = this;
+            this.classList.add('selected');
+    
+            nutriDeleteBtn.disabled = false;
+            nutriEditBtn.disabled = false;
+        });
+    });
+
+    //------------------------------deselect------------------
+    document.addEventListener("click", function (event) {
+        const table = document.querySelector(".box table");
+        const table2 = document.querySelector(".nutri-box table");
+        const tableOption = document.querySelectorAll('.table-option')
+        if (table.contains(event.target) && tableOption.contains(event.target) && table2.contains(event.target)) {
+            if (isEditing) return;
+            if (selectedRow) {
+                selectedRow.classList.remove('selected');
+                selectedRow = null;
+            }
+            if (mselectedRow) {
+                mselectedRow.classList.remove('selected');
+                mselectedRow = null;
+            }
+            editBtn.disabled = true;
+            deleteBtn.disabled = true;
+            nutriDeleteBtn.disabled = true;
+            nutriEditBtn.disabled = true;
+        }
+    }, true);
+
+    //-----------------------------edit data-----------------------
+    const addProfile = document.getElementById("dadd-profile");
+    const editProfile = document.getElementById("dedit-profile");
+    const naddProfile = document.getElementById("nadd-profile");
+    const neditProfile = document.getElementById("nedit-profile");
+    editBtn.addEventListener("click", function () {
+        if (!selectedRow) return;
+        isEditing = true;
+        addProfile.style.display = "none";
+        editProfile.style.display = "block";
+        editBtn.disabled = true;
+        deleteBtn.disabled = true;
+
+
+        const cells = selectedRow.getElementsByTagName("td");
+        document.getElementById("selectedAdminId").value = cells[0].textContent;
+        document.getElementById("eusername").value = cells[1].textContent;
+        document.getElementById("epassword").value = cells[2].textContent;
+        document.getElementById("ename").value = cells[3].textContent;
+        document.getElementById("egender").value = cells[4].textContent;
+        document.getElementById("eemail").value = cells[5].textContent;
+        document.getElementById("ephonenum").value = cells[6].textContent;
+
+    });
+
+    nutriEditBtn.addEventListener("click", function () {
+        if (!mselectedRow) return;
+        isEditing = true;
+        document.getElementById("nutrition-name").value = "";
+        document.getElementById("calories").value = "";
+        document.getElementById("fat").value = "";
+        document.getElementById("protein").value = "";
+        document.getElementById("carb").value = "";
+        naddProfile.style.display = "none";
+        neditProfile.style.display = "block";
+        nutriEditBtn.disabled = true;
+        nutriDeleteBtn.disabled = true;
+        
+        const cells = mselectedRow.getElementsByTagName("td");
+        document.getElementById("selectedNutriId").value = cells[0].textContent;
+        document.getElementById("enutrition-name").value = cells[1].textContent;
+        document.getElementById("ecalories").value = cells[2].textContent;
+        document.getElementById("efat").value = cells[3].textContent;
+        document.getElementById("eprotein").value = cells[4].textContent;
+        document.getElementById("ecarb").value = cells[5].textContent;
+
+    });
+
+    //discard changes button
+    document.getElementById("discard-btn").addEventListener("click", () => {
+        addProfile.style.display = "block";
+        editProfile.style.display = "none";
+        isEditing = false;
+    });
+
+    document.getElementById("ndiscard-btn").addEventListener("click", () => {
+        naddProfile.style.display = "block";
+        neditProfile.style.display = "none";
+        isEditing = false;
+    });
+
+    document.getElementById("confirm-btn").addEventListener("click", () => {
+        isEditing = false;
+        addProfile.style.display = "block";
+        editProfile.style.display = "none";
+    });
+
+    document.getElementById("nconfirm-btn").addEventListener("click", () => {
+        isEditing = false;
+        naddProfile.style.display = "block";
+        neditProfile.style.display = "none";
+    });
+
+//----------------------delete data------------------------
+ let id = null;
+    let table = null;
+    deleteBtn.addEventListener("click", () => {
+        if (!selectedRow) return;
+
+        let popUp = document.getElementById("popup");
+        popUp.style.display = "flex";
+        id = selectedRow.getAttribute("diet-id");
+        table = "diet";
+        console.log(`ID: ${id}, Table: ${table}`);
+    });
+
+    
+    document.getElementById("nutrition-delete-btn").addEventListener("click", () => {
+        console.log("Selected row:", mselectedRow);
+        if (!mselectedRow) return;
+        let popUp = document.getElementById("mpopup");
+        
+        popUp.style.display = "flex";
+        id = mselectedRow.getAttribute("nutrition-id");
+        table = "nutrition";
+        console.log(`ID: ${id}, Table: ${table}`);
+    });
+
+    document.querySelector(".content").addEventListener("click", function (event) {
+        if (event.target.classList.contains("confirmDelete")) {
+            console.log("confirmDelete button detected");
+
+            if (!id || !table) {
+                console.error("Missing data-id or data-table attribute");
+                return;
+            }
+
+            fetch("delete.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `table=${table}&id=${id}`
+            })
+                .then(res => res.text())
+                .then(() => location.reload()) 
+                .catch(console.error);
+    
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("mpopup").style.display = "none";
+        }
+        if (event.target.classList.contains("cancelDelete")) {
+            document.getElementById("mpopup").style.display = "none";
+            document.getElementById("popup").style.display = "none";
+        }
+    });
+
+//-----------------------------search--------------------------
+    document.querySelectorAll(".search-bar").forEach(searchBar => {
+        searchBar.addEventListener("keyup", function () {
+            const searchValue = this.value.toLowerCase();
+
+            let table = this.closest("div").querySelector("table");
+            let rows = table.querySelectorAll("tr:not(:first-child)");
+    
+            rows.forEach(row => {
+                if (row.classList.contains("no-data")) return;
+    
+                const usernameCell = row.cells[1].textContent.toLowerCase(); 
+    
+                if (usernameCell.includes(searchValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    });
+
+    //----------------------------tag--------------------------
+    const nutritionData = <?php echo $nutritionJson; ?>;
+
+    const optionsContainer = document.querySelector(".options");
+
+    function populateOptions(data) {
+
+        if (data.length > 0) {
+            // Create options for each nutrition item
+            data.forEach(nutrition => {
+                const option = document.createElement('div');
+                option.classList.add('option');
+                option.dataset.value = nutrition.nutrition_id;
+                option.textContent = `(${nutrition.nutrition_id}) ${nutrition.nutrition_name} `;
+                optionsContainer.appendChild(option);
+            });
+        } else {
+            const noData = document.createElement("div");
+            noData.classList.add("no-result-message");
+            noData.textContent = "No nutrition data found";
+            optionsContainer.appendChild(noData);
+        }
+    }
+    populateOptions(nutritionData);
+
+    document.getElementById("meal_picture").addEventListener("change", function (event) {
+    const file = event.target.files[0]; 
+    if (file) {
+        const reader = new FileReader(); 
+        reader.onload = function (e) {
+            console.log("image attached");
+            const img = document.getElementById("imagePreview");
+            img.src = e.target.result;
+            img.style.display = "block"; 
+
+            const words = document.getElementById("words");
+            words.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    
+});
+</script>  
