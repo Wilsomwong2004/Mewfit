@@ -135,6 +135,14 @@ html.dark-mode .nav-links a {
   font-weight: bold;
 }
 
+.no-record {
+  color: red; /* Change text color */
+  font-size: 20px; /* Adjust font size */
+  font-weight: bold; /* Make it bold */
+  background-color: yellow; /* Background color */
+  padding: 10px; /* Add some padding */
+}
+
 @media only screen and (max-width: 480px) {
   .workout-record {
     width: 100%;
