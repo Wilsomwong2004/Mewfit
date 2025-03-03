@@ -417,7 +417,7 @@ table tr.selected {
     width: 40%;
 }
 
-.add-profile textarea {
+textarea {
     width: 95%;
     padding: 10px;
     border: 3px solid #FFAD84;
@@ -703,7 +703,7 @@ table tr.selected {
 #dadd-profile{
     height:800px;
 }
-#imagePreview {
+#imagePreview,#eimagePreview {
     margin-top: 10px;
     max-width: 100%;
     max-height: 100px;
