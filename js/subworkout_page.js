@@ -1577,12 +1577,104 @@ class WorkoutManager {
         this.initializeRestOverlay();
         // Setup countdown overlay
         this.initializeCountdownOverlay();
+        // Initialize voice instructions
+        this.initializeVoiceInstructions();
 
         // Add these lines:
         this.setupPauseButton();
         this.setupCloseButton();
         this.setupSkipButton();
         // this.setupMoreOptions();
+    }
+
+    // Add this method to initialize voice instructions
+    initializeVoiceInstructions() {
+        // Check if ResponsiveVoice is available
+        if (typeof responsiveVoice === 'undefined') {
+            console.error('ResponsiveVoice not found. Make sure to include the ResponsiveVoice library.');
+            // Add fallback for voice functions
+            this.speakText = (text) => console.log('Voice would say:', text);
+            this.voiceEnabled = false;
+            return;
+        }
+
+        this.voiceEnabled = true;
+        this.voiceSettings = {
+            pitch: 1,
+            rate: 1,
+            volume: 1,
+            voice: 'UK English Female' // You can change the voice as needed
+        };
+
+        // Create a voice toggle button
+        this.createVoiceToggleButton();
+    }
+
+    // Create a toggle button for voice instructions
+    createVoiceToggleButton() {
+        const controlsContainer = document.querySelector('.controls-workout');
+        if (!controlsContainer) return;
+
+        const voiceButton = document.createElement('button');
+        voiceButton.className = 'voice-toggle';
+        voiceButton.innerHTML = `
+            <i id="voice-btn-icon" class="fas ${this.voiceEnabled ? 'fa-volume-up' : 'fa-volume-mute'}"></i>
+            <span class="voice-text">${this.voiceEnabled ? 'Voice On' : 'Voice Off'}</span>
+        `;
+        voiceButton.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        `;
+
+        voiceButton.addEventListener('click', () => {
+            this.voiceEnabled = !this.voiceEnabled;
+            const voiceIcon = document.getElementById('voice-btn-icon');
+            const voiceText = voiceButton.querySelector('.voice-text');
+
+            if (voiceIcon && voiceText) {
+                if (this.voiceEnabled) {
+                    voiceIcon.classList.remove('fa-volume-mute');
+                    voiceIcon.classList.add('fa-volume-up');
+                    voiceText.textContent = 'Voice On';
+                    this.speakText('Voice instructions enabled');
+                } else {
+                    voiceIcon.classList.remove('fa-volume-up');
+                    voiceIcon.classList.add('fa-volume-mute');
+                    voiceText.textContent = 'Voice Off';
+                    // One last message before turning off
+                    this.speakText('Voice instructions disabled');
+                }
+            }
+        });
+
+        // Add the button to the controls container
+        controlsContainer.appendChild(voiceButton);
+    }
+
+    // Method to speak text using ResponsiveVoice
+    speakText(text, onEndCallback = null) {
+        if (!this.voiceEnabled || typeof responsiveVoice === 'undefined') return;
+
+        responsiveVoice.speak(text, this.voiceSettings.voice, {
+            pitch: this.voiceSettings.pitch,
+            rate: this.voiceSettings.rate,
+            volume: this.voiceSettings.volume,
+            onend: onEndCallback
+        });
+    }
+
+    // Cancel any ongoing speech
+    cancelSpeech() {
+        if (typeof responsiveVoice !== 'undefined') {
+            responsiveVoice.cancel();
+        }
     }
 
     initializeState() {
@@ -1634,7 +1726,12 @@ class WorkoutManager {
         this.workoutNameElement.textContent = currentExercise.exercise || currentExercise.pose;
         this.roundElement.textContent = `${this.currentSet}/${this.totalSets}`;
 
+        // Announce current exercise
+        const exerciseName = currentExercise.exercise || currentExercise.pose;
+        let announcement = `${exerciseName}`;
+
         if (currentExercise.reps) {
+            announcement += `, ${currentExercise.reps} reps`;
             this.timerElement.textContent = '0';
             this.timerElement.classList.add('rep-counter');
         } else if (currentExercise.duration) {
@@ -1643,11 +1740,30 @@ class WorkoutManager {
             // Display in minutes:seconds format
             this.updateTimerDisplay(durationInSeconds);
             this.timerElement.classList.remove('rep-counter');
+
+            // Add duration to announcement
+            if (durationInSeconds >= 60) {
+                const minutes = Math.floor(durationInSeconds / 60);
+                const seconds = durationInSeconds % 60;
+                announcement += `, ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+                if (seconds > 0) {
+                    announcement += ` and ${seconds} second${seconds !== 1 ? 's' : ''}`;
+                }
+            } else {
+                announcement += `, ${durationInSeconds} second${durationInSeconds !== 1 ? 's' : ''}`;
+            }
         }
+
+        // Add set information
+        announcement += `, set ${this.currentSet} of ${this.totalSets}`;
+
+        // Speak the exercise information
+        this.speakText(announcement);
 
         // Show current exercise video
         this.showExerciseVideo(currentExercise);
     }
+
 
     // Add this method to show exercise video
     showExerciseVideo(exercise) {
@@ -1743,6 +1859,9 @@ class WorkoutManager {
         this.repCounter = new RepCounter(currentExercise);
         this.repCount = 0;
 
+        // Announce rep target
+        this.speakText(`Complete ${targetReps} reps`);
+
         if (typeof detectPose === 'function' && typeof videoElement !== 'undefined') {
             const originalDetectPose = detectPose.bind(this);
             detectPose = async () => {
@@ -1757,7 +1876,22 @@ class WorkoutManager {
                                 this.repCount = countedReps;
                                 this.timerElement.textContent = this.repCount;
 
+                                // Announce rep count every rep
+                                this.speakText(`${this.repCount}`);
+
+                                // Motivational messages
+                                if (this.repCount === Math.floor(targetReps / 2)) {
+                                    this.speakText('Halfway there!');
+                                } else if (targetReps - this.repCount === 5) {
+                                    this.speakText('Just 5 more reps!');
+                                } else if (targetReps - this.repCount === 3) {
+                                    this.speakText('Almost there! 3 more!');
+                                } else if (targetReps - this.repCount === 1) {
+                                    this.speakText('Last one, make it count!');
+                                }
+
                                 if (this.repCount >= targetReps) {
+                                    this.speakText('Great job! Exercise complete!');
                                     this.nextExercise();
                                 }
                             }
@@ -1779,6 +1913,9 @@ class WorkoutManager {
 
         this.clearAllTimers();
         let timeLeft = seconds;
+        let notifiedHalfway = false;
+        let notifiedTenSeconds = false;
+        let notifiedFiveSeconds = false;
 
         // Update timer display immediately
         this.updateTimerDisplay(timeLeft);
@@ -1787,8 +1924,28 @@ class WorkoutManager {
             timeLeft--;
             this.updateTimerDisplay(timeLeft);
 
+            // Halfway notification
+            if (!notifiedHalfway && timeLeft <= Math.floor(seconds / 2)) {
+                notifiedHalfway = true;
+                this.speakText('Halfway there, keep going!');
+            }
+
+            // 10 seconds remaining notification
+            if (!notifiedTenSeconds && timeLeft === 10) {
+                notifiedTenSeconds = true;
+                this.speakText('10 seconds remaining');
+            }
+
+            // 5 seconds countdown
+            if (timeLeft <= 5 && timeLeft > 0 && !notifiedFiveSeconds) {
+                notifiedFiveSeconds = true;
+                this.speakText(`${timeLeft}`);
+            }
+
             if (timeLeft <= 0) {
                 this.clearAllTimers();
+                // Exercise completed notification
+                this.speakText('Exercise complete!');
                 this.nextExercise();
             }
         }, 1000);
@@ -1842,6 +1999,9 @@ class WorkoutManager {
                 pauseIcon.classList.add('fa-play');
                 pauseText.textContent = 'Resume';
 
+                // Announce pause
+                this.speakText('Workout paused');
+
                 // Stop all active processes
                 this.clearAllTimers();
                 if (typeof stopDetection === 'function') {
@@ -1858,6 +2018,9 @@ class WorkoutManager {
                 pauseIcon.classList.remove('fa-play');
                 pauseIcon.classList.add('fa-pause');
                 pauseText.textContent = 'Pause';
+
+                // Announce resume
+                this.speakText('Resuming workout');
 
                 // Hide pause overlay
                 this.hidePauseOverlay();
@@ -1914,6 +2077,8 @@ class WorkoutManager {
         if (videoElement) {
             videoElement.pause();
         }
+        // Also pause any ongoing speech
+        this.cancelSpeech();
     }
 
     resumeExerciseVideo() {
@@ -2031,6 +2196,9 @@ class WorkoutManager {
         });
     }
     skipCurrentExercise() {
+        // Announce skipping exercise
+        this.speakText('Skipping to next exercise');
+
         // Clear timers and rep counter
         this.repCounter = null;
         this.clearAllTimers();
@@ -2092,6 +2260,7 @@ class WorkoutManager {
             popupContainer.style.display = 'none';
             if (!this.isPaused) {
                 this.resumeExerciseVideo()
+                this.startRestTimer()
 
                 const currentExercise = this.exercises[this.currentExerciseIndex];
                 if (currentExercise && currentExercise.duration) {
@@ -2191,8 +2360,16 @@ class WorkoutManager {
 
         const nextExercise = (nextExerciseIndex >= 0) ? this.exercises[nextExerciseIndex] : null;
 
+        // Announce rest period
+        this.speakText('Rest time. Take a break.');
+
         if (nextExercise) {
             this.workoutNameElement.textContent = `Next: ${nextExercise.exercise}`;
+            // Announce next exercise after a short delay
+            setTimeout(() => {
+                this.speakText(`Coming up next: ${nextExercise.exercise}`);
+            }, 2000);
+
             // Show next exercise video during rest
             this.showNextExerciseVideo();
         }
@@ -2208,11 +2385,26 @@ class WorkoutManager {
 
     startRestTimer() {
         this.clearAllTimers();
+        let notifiedHalfway = false;
+        let notifiedTenSeconds = false;
+        let notifiedFiveSeconds = false;
 
         this.timer = setInterval(() => {
             if (this.timeLeft > 0) {
                 this.timeLeft--;
                 this.updateRestTimer(this.timeLeft);
+
+                // Rest time notifications
+                if (!notifiedHalfway && this.timeLeft === 10) {
+                    notifiedHalfway = true;
+                    this.speakText('10 seconds of rest remaining');
+                } else if (!notifiedFiveSeconds && this.timeLeft === 5) {
+                    notifiedFiveSeconds = true;
+                    this.speakText('Get ready for the next exercise');
+                } else if (this.timeLeft <= 3 && this.timeLeft > 0) {
+                    this.speakText(`${this.timeLeft}`);
+                }
+
             } else {
                 this.clearAllTimers();
                 this.endRest();
@@ -2239,6 +2431,9 @@ class WorkoutManager {
         if (this.workoutUser) {
             this.workoutUser.style.visibility = 'visible';
         }
+
+        // Announce that rest is over
+        this.speakText('Rest time is over. Let\'s continue!');
 
         this.showCurrentExercise();
         this.startExercise();
@@ -2273,7 +2468,7 @@ class WorkoutManager {
             </div>
             <div class="countdown-main" style="text-align: center;">
                 <h1 class="ready-text">READY TO GO</h1>
-                <div class="count-circle">3</div>
+                <div class="count-circle">10</div>
                 <div class="warmup-text">Warm-up Exercise: ${this.getFirstExerciseName()}</div>
             </div>
         `;
@@ -2320,6 +2515,9 @@ class WorkoutManager {
         // Display the countdown overlay
         this.countdownOverlay.style.display = 'flex';
 
+        // Announce workout is about to begin
+        this.speakText(`Get ready for ${this.workout?.title || 'your workout'}. Starting in 3 seconds.`);
+
         // Preload first exercise video
         if (this.exercises[0] && this.exercises[0].video) {
             const preloadVideo = document.createElement('video');
@@ -2333,7 +2531,7 @@ class WorkoutManager {
         }
 
         // Set initial count
-        let currentCount = 3;
+        let currentCount = 10;
 
         // Start countdown
         this.startCountdownTimer = () => {
@@ -2348,11 +2546,19 @@ class WorkoutManager {
                     countCircle.textContent = currentCount;
                 }
 
+                // Announce the countdown number
+                if (currentCount > 0) {
+                    this.speakText(currentCount.toString());
+                }
+
                 if (currentCount <= 0) {
                     // Clear timer and hide overlay
                     clearInterval(this.countdownTimer);
                     this.countdownTimer = null;
                     this.countdownOverlay.style.display = 'none';
+
+                    // Announce beginning of workout
+                    this.speakText('Begin!');
 
                     // Start the actual workout
                     this.showCurrentExercise();
@@ -2382,10 +2588,15 @@ class WorkoutManager {
 
     endWorkout() {
         try {
-            localStorage.removeItem('currentWorkout');
-            window.location.href = 'subworkout_done_page.html';
+            // Announce workout completion
+            this.speakText('Congratulations! Workout complete.', () => {
+                localStorage.removeItem('currentWorkout');
+                window.location.href = 'subworkout_done_page.html';
+            });
         } catch (error) {
             console.error('Error ending workout:', error);
+            localStorage.removeItem('currentWorkout');
+            window.location.href = 'subworkout_done_page.html';
         }
     }
 }
