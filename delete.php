@@ -18,7 +18,7 @@
         $sql = "DELETE FROM $table WHERE {$validTables[$table]} = '$id'";
         
         if (!$dbConn->query($sql)) {
-            die("Error Deleting: " . $dbConn->error);
+            echo"<script>alert 'Nutrition ID is being used by some diets. Do not delete'</script>";
         }
         
         echo "Record deleted successfully!";

@@ -38,6 +38,11 @@
                     document.querySelector('.diet-link').classList.remove('active');
                     exit();
                 }
+                if(window.location.hash === "#diet") {
+                    document.getElementById('dadd-profile').style.display = 'none';
+                    document.getElementById('dedit-profile').style.display = 'block';
+                    exit();
+                }
             }
         });
 </script>
@@ -192,14 +197,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!--Add New Profile Form -->
             <div class="add-profile" id="dadd-profile">
                 <?php
-                
                 if (!empty($dieterrors)) {
                     echo '<div class="error-messages">';
                     foreach ($dieterrors as $eacherror) {
                         echo "<p style='color:red;'>$eacherror</p>";
                     }
                     echo '</div>';
-                    
                 }
                 ?>
             <center>
@@ -275,12 +278,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php
                 $editDiet_errors = $_SESSION['e_diet_errors'] ?? [];
                 $editDiet_old_data = $_SESSION['e_diet_old_data'] ?? [];
-                $showEditForm = $_SESSION['show_edit_form'] ?? false;
+                
 
-                if (isset($_SESSION['e_diet_errors'])) {
+                if (isset($_SESSION['e_diet_errors']) && count($_SESSION['e_diet_errors']) > 0) {
                     echo "<div class='error-messages'>";
-                    foreach ($_SESSION['e_diet_errors'] as $error) {
-                        echo "<p style='color: red;'>$error</p>";
+                    foreach ($_SESSION['e_diet_errors'] as $editDieterror) {
+                        echo "<p style='color: red;'>$editDieterror</p>";
                     }
                     echo "</div>";
                     unset($_SESSION['e_diet_errors']); 
@@ -291,22 +294,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="selectedDietId" name="selectedDietId" value="<?php echo $_GET['diet_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="diet">
                     <label for="ediet-name">Meal Name</label>
-                    <input type="text" id="ediet-name" name="ediet-name" value="<?php echo htmlspecialchars($diet_old_data['diet-name'] ?? ''); ?>" required>
+                    <input type="text" id="ediet-name" name="ediet-name" value="<?php echo htmlspecialchars($editDiet_old_data['ediet-name'] ?? ''); ?>" required>
 
                     <div class="form-columns">
                         <div class="column">
                             <label for="ediet-type">Meal Type</label>
                             <select id="ediet-type" name="ediet-type" required>
                                 <option value="">Select Type</option>
-                                <option value="all" <?php echo (isset($diet_old_data['ediet-type']) && $diet_old_data['ediet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
-                                <option value="meat" <?php echo (isset($diet_old_data['ediet-type']) && $diet_old_data['ediet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
-                                <option value="vegetarian" <?php echo (isset($diet_old_data['ediet-type']) && $diet_old_data['ediet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
-                                <option value="vegan" <?php echo (isset($diet_old_data['ediet-type']) && $diet_old_data['ediet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
+                                <option value="all" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
+                                <option value="meat" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
+                                <option value="vegetarian" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
+                                <option value="vegan" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
                             </select>
                         </div>
                         <div class="column">
                             <label for="epreparation_min">Preparation Time (min)</label>
-                            <input type="number" id="epreparation_min" name="epreparation_min" value="<?php echo htmlspecialchars($diet_old_data['preparation_min'] ?? ''); ?>" required>
+                            <input type="number" id="epreparation_min" name="epreparation_min" value="<?php echo htmlspecialchars($editDiet_old_data['epreparation_min'] ?? ''); ?>" required>
                         </div>
                     </div>
 
@@ -314,8 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="nutrition-select-container">
                         <div class="custom-select">
                             <div class="select-box">
-                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden required/>
-                                <div class="selected-options">
+                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden value="<?php echo htmlspecialchars($editDiet_old_data['edietnutrition_ids'] ?? ''); ?>" required/>                                <div class="selected-options">
                                     <span class="placeholder">Select nutrition IDs</span>
                                 </div>
                             </div>
@@ -330,28 +332,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <div class="form-columns">
-                        <div class="column">
-                            <label for="emeal_picture">Meal Picture</label>
-                            <div class="picture" onclick="document.getElementById('emeal_picture').click()">
-                                <p id="ewords">Click To Upload Meal Picture Here</p>
-                                <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" hidden>
+                    <div class="column">
+                        <label for="emeal_picture">Meal Picture</label>
+                        <div class="picture" onclick="document.getElementById('emeal_picture').click()">
+                            <p id="ewords">Click To Upload Meal Picture Here</p>
+                            <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" hidden>
+                            <?php if (!empty($editDiet_old_data['meal_picture'])): ?>
+                                <img id="eimagePreview" src="uploads/<?php echo htmlspecialchars($editDiet_old_data['meal_picture']); ?>" alt="Image Preview">
+                            <?php elseif (!empty($_SESSION['temp_image'])): ?>
+                                <img id="eimagePreview" src="data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>" alt="Image Preview">
+                            <?php else: ?>
                                 <img id="eimagePreview" src="" alt="Image Preview">
-                            </div>
+                            <?php endif; ?>
                         </div>
+                    </div>
                         <div class="column">
                             <label for="edesc">Description</label>
-                            <textarea id="edesc" name="edesc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
+                            <textarea id="edesc" name="edesc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($editDiet_old_data['edesc'] ?? ''); ?></textarea>
                         </div>
                     </div>
 
                     <label for="edirections">Directions</label>
-                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['edirections'] ?? ''); ?></textarea>
+                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($editDiet_old_data['edirections'] ?? ''); ?></textarea>
 
                     <div class="table-option">
-                    <button type="button" id="discard-btn">Discard Changes</button>
-                    <button type="submit" id="confirm-btn">Update Changes</button>
-                </div>
-            </form>
+                        <button type="button" id="discard-btn">Discard Changes</button>
+                        <button type="submit" id="confirm-btn">Update Changes</button>
+                    </div>
+                </form>
             </div>
             <div class="popup" id="popup">
                 <div class="popup-content">
@@ -537,6 +545,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set up image preview for both forms
     setupImagePreview('meal_picture', 'imagePreview', 'words');
     setupImagePreview('emeal_picture', 'eimagePreview', 'ewords');
+
+    <?php if (isset($_SESSION['temp_image'])): ?>
+        const imagePreview = document.getElementById('eimagePreview');
+        if (imagePreview) {
+            imagePreview.src = 'data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>';
+            imagePreview.style.display = 'block';
+            document.getElementById('ewords').style.display = 'none';
+        }
+        <?php unset($_SESSION['temp_image']); ?>
+        <?php endif; ?>
 });
 
 // Function to populate nutrition options in both forms
@@ -1107,7 +1125,21 @@ function setSelectedNutritionIds(nutritionIds) {
         };
         reader.readAsDataURL(file);
     }
-
     
+
+    const tagsInput = document.querySelector('.tags_input');
+    if (tagsInput && tagsInput.value) {
+        const selectedValues = tagsInput.value.split(',');
+        const optionsContainer = document.querySelector('.options');
+        if (optionsContainer) {
+            selectedValues.forEach(value => {
+                const option = optionsContainer.querySelector(`.option[data-value="${value}"]`);
+                if (option) {
+                    option.classList.add('active');
+                }
+            });
+            updateSelectedOptions(document.querySelector('.custom-select'));
+        }
+    }
 });
 </script>  
