@@ -635,15 +635,6 @@ table tr.selected {
     font-weight: bold;
 }
 
-.arrow {
-    margin-left: auto;
-    transition: transform 0.3s;
-}
-
-.custom-select.open .arrow i {
-    transform: rotate(180deg);
-}
-
 .options {
     position: absolute;
     width: 100%;

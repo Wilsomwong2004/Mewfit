@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     //-------------------retain information-----------------------------
-    let form = document.querySelector(".add-profile form");
-    form.querySelectorAll("input, select").forEach(input => {
+    let form = document.querySelectorAll(".add-profile form");
+    form.querySelector("input, select").forEach(input => {
         if (sessionStorage.getItem(input.name)) {
             input.value = sessionStorage.getItem(input.name);
         }
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     //---------------------clear all rows-------------------------
     function clearForm() {
-        document.querySelector('form').reset();
+        document.querySelector('.add-profile form').reset();
         sessionStorage.clear();
     }
 

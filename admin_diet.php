@@ -46,6 +46,8 @@
     session_start();
     $nutrierrors = $_SESSION['nutri_errors'] ?? [];
     $nutri_old_data = $_SESSION['nutri_old_data'] ?? [];
+    $dieterrors = $_SESSION['diet_errors'] ?? [];
+    $diet_old_data = $_SESSION['diet_old_data'] ?? [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['nutrition-name'] ?? '';
@@ -103,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <body>
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
@@ -134,40 +137,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="section1">
                 <input type="text" class="search-bar" placeholder="Search Diet Name..">
                 <div class="box">
-                    <table>
-                        <tr>
-                            <th>Diet ID</th>
-                            <th>Diet Name</th>
-                            <th>Description</th>
-                            <th>Diet Type</th>
-                            <th>Preparation Time (Min)</th>
-                            <th>Picture</th>
-                            <th>Directions</th>
-                            <th>Nutrition ID</th>
-                        </tr>
-                        <?php
-                        include "conn.php";
-                        $sql = "SELECT * FROM diet";
-                        $result = mysqli_query($dbConn, $sql);
+                <table>
+                    <tr>
+                        <th>Diet ID</th>
+                        <th>Diet Name</th>
+                        <th>Description</th>
+                        <th>Diet Type</th>
+                        <th>Preparation Time (Min)</th>
+                        <th>Picture</th>
+                        <th>Directions</th>
+                        <th>Nutrition IDs</th>
+                    </tr>
+                    <?php
+                    include "conn.php";
 
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($rows = mysqli_fetch_array($result)) {
-                                echo "<tr diet-id='".$rows['diet_id']."'>";
-                                echo "<td>".$rows['diet_id']."</td>";
-                                echo "<td>".$rows['diet_name']."</td>";
-                                echo "<td>".$rows['description']."</td>";
-                                echo "<td>".$rows['diet_type']."</td>";
-                                echo "<td>".$rows['preparation_min']."</td>";
-                                echo "<td><img src='".$rows['picture']."' alt='Diet Image' width='100'></td>";
-                                echo "<td>".$rows['directions']."</td>";
-                                echo "<td>".$rows['nutrition_id']."</td>";
-                                echo "</tr>";
+                    // SQL query to get diet information along with nutrition IDs
+                    $sql = "
+                        SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.picture, d.directions, 
+                            GROUP_CONCAT(n.nutrition_id) AS nutrition_ids
+                        FROM diet d
+                        LEFT JOIN diet_nutrition n ON d.diet_id = n.diet_id
+                        GROUP BY d.diet_id
+                    ";
+                    $result = mysqli_query($dbConn, $sql);
+
+                    if (mysqli_num_rows($result) > 0) {
+                        while ($rows = mysqli_fetch_array($result)) {
+                            echo "<tr diet-id='".$rows['diet_id']."'>";
+                            echo "<td>".$rows['diet_id']."</td>";
+                            echo "<td>".$rows['diet_name']."</td>";
+                            echo "<td>".$rows['description']."</td>";
+                            echo "<td>".$rows['diet_type']."</td>";
+                            echo "<td>".$rows['preparation_min']."</td>";
+                            if (!empty($rows['picture'])) {
+                                echo "<td><img src='uploads/".$rows['picture']."' alt='".$rows['diet_name']."' width='100' loading='lazy'></td>";
+                            } else {
+                                echo "<td>No image available</td>";
                             }
-                        } else {
-                            echo "<tr class='no-data'><td colspan='8'>No data available</td></tr>";
+                            echo "<td>".$rows['directions']."</td>";
+                            echo "<td>".(!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available')."</td>";
+                            echo "</tr>";
                         }
-                        ?>
-                    </table>
+                    } else {
+                        echo "<tr class='no-data'><td colspan='8'>No data available</td></tr>";
+                    }
+                    ?>
+                </table>
                 </div>
                 <div class="table-option">
                     <button id="edit-btn" disabled>Edit</button>
@@ -177,74 +192,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!--Add New Profile Form -->
             <div class="add-profile" id="dadd-profile">
+                <?php
+                
+                if (!empty($dieterrors)) {
+                    echo '<div class="error-messages">';
+                    foreach ($dieterrors as $eacherror) {
+                        echo "<p style='color:red;'>$eacherror</p>";
+                    }
+                    echo '</div>';
+                    
+                }
+                ?>
             <center>
                 <h2>Add New <span>Meal</span></h2>
             </center>
-            <form action="insert_admin_diet.php" method="POST">
-                <label for="diet-name">Meal Name</label>
-                <input type="text" id="diet-name" name="diet-name" required>
+            <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
+            <label for="diet-name">Meal Name</label>
+            <input type="text" id="diet-name" name="diet-name" value="<?php echo htmlspecialchars($diet_old_data['diet-name'] ?? ''); ?>" required>
 
-                <div class="form-columns">
-                    <div class="column">
-                        <label for="diet-type">Meal Type</label>
-                        <select id="diet-type" name="diet-type" required>
-                            <option value="">Select Type</option>
-                            <option value="all">All</option>
-                            <option value="meat">Meat</option>
-                            <option value="vegetarian">Vegetarian</option>
-                            <option value="vegan">Vegan</option>
-                        </select>
-                    </div>
-                    <div class="column">
-                        <label for="preparation_min">Preparation Time (min)</label>
-                        <input type="number" id="preparation_min" name="preparation_min" required>
-                    </div>
+            <div class="form-columns">
+                <div class="column">
+                    <label for="diet-type">Meal Type</label>
+                    <select id="diet-type" name="diet-type" required>
+                        <option value="">Select Type</option>
+                        <option value="all" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
+                        <option value="meat" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
+                        <option value="vegetarian" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
+                        <option value="vegan" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
+                    </select>
                 </div>
+                <div class="column">
+                    <label for="preparation_min">Preparation Time (min)</label>
+                    <input type="number" id="preparation_min" name="preparation_min" value="<?php echo htmlspecialchars($diet_old_data['preparation_min'] ?? ''); ?>" required>
+                </div>
+            </div>
 
-                <label for="nutrition_id">Ingredients</label>
-                <div class="nutrition-select-container">
-                    <div class="custom-select">
-                        <div class="select-box">
-                            <input type="text" class="tags_input" name="nutrition_ids" hidden/>
-                            <div class="selected-options">
-                                <span class="placeholder">Select nutrition IDs</span>
-                            </div>
-                            <div class="arrow">
-                                <i class="fas fa-angle-down"></i>
-                            </div>
+            <label for="nutrition_id">Ingredients</label>
+            <div class="nutrition-select-container">
+                <div class="custom-select">
+                    <div class="select-box">
+                        <input type="text" class="tags_input" name="nutrition_ids" hidden value="<?php echo htmlspecialchars($diet_old_data['nutrition_ids'] ?? ''); ?>" required/>
+                        <div class="selected-options">
+                            <span class="placeholder">Select nutrition IDs</span>
                         </div>
                     </div>
-                    <div class="options">
-                        <div class="option-search-tags">
-                            <input type="text" class="search-tags" placeholder="Search nutrition IDs..."/>
-                        </div>
-                        <div class="option all-tags" data-value="all">Select All</div>
-                    </div>
-                    <span class="tag_error_msg">This field is required</span>
                 </div>
-
-                <div class="form-columns">
-                    <div class="column">
-                        <label for="meal_picture">Meal Picture</label>
-                        <div class="picture" onclick="document.getElementById('meal_picture').click()">
-                            <p id="words">Click To Upload Meal Picture Here</p>
-                            <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
-                            <img id="imagePreview" src="" alt="Image Preview">
-                        </div>
+                <div class="options">
+                    <div class="option-search-tags">
+                        <input type="text" class="search-tags" placeholder="Search nutrition IDs..."/>
                     </div>
-                    <div class="column">
-                        <label for="desc">Description</label>
-                        <textarea id="desc" name="desc" rows="7" placeholder="Describe the diet.." required></textarea>
+                    <div class="option all-tags" data-value="all">Select All</div>
+                </div>
+                <span class="tag_error_msg">This field is required</span>
+            </div>
+
+            <div class="form-columns">
+                <div class="column">
+                    <label for="meal_picture">Meal Picture</label>
+                    <div class="picture" onclick="document.getElementById('meal_picture').click()">
+                        <p id="words">Click To Upload Meal Picture Here</p>
+                        <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
+                        <img id="imagePreview" src="" alt="Image Preview">
                     </div>
                 </div>
-
-                <label for="directions">Directions</label>
-                <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required></textarea>
-
-                <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
-                    <button type="" id="add-profile-btn">Create New</button>
+                <div class="column">
+                    <label for="desc">Description</label>
+                    <textarea id="desc" name="desc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
                 </div>
-                </form>
+            </div>
+
+            <label for="directions">Directions</label>
+            <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['directions'] ?? ''); ?></textarea>
+
+            <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+                <button type="submit" id="add-profile-btn">Create New</button>
+            </div>
+        </form>
             </div>
             <div class="edit-profile" id="dedit-profile">
                 <center>
@@ -274,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
 
                 <label for="egender">Gender</label>
-                <select id="egender" name="egender" required style="width:98%;">
+                <selec"egender" name="egender" required style="width:98%;">
                     <option value="">Select Gender</option>
                     <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
                     <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
@@ -344,36 +367,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
             </div>  
             <div class="add-profile" id="nadd-profile" style="height:540px;">
-            <center>
-                <h2>Add New <span>Nutrition</span></h2>
-            </center>
-            <?php if (!empty($nutrierrors)): ?>
-                <script>
-                    <?php foreach ($nutrierrors as $error): ?>
-                        alert("<?php echo addslashes($error); ?>");
-                    <?php endforeach; ?>
-                </script>
-            <?php endif; ?>
-            <form action="" method="POST">
-            <label for="nutrition-name">Nutrition Name</label>
-            <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
+                <center>
+                    <h2>Add New <span>Nutrition</span></h2>
+                </center>
+                <?php
+                if (!empty($nutrierrors)) {
+                    echo '<div class="error-messages">';
+                    foreach ($nutrierrors as $error) {
+                        echo "<p style='color:red;'>$error</p>";
+                    }
+                    echo '</div>';
+                    
+                }
+                ?>
 
-            <label for="calories">Calories</label>
-            <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
+                <form action="" method="POST">
+                <label for="nutrition-name">Nutrition Name</label>
+                <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
 
-            <label for="fat">Fat (g)</label>
-            <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
+                <label for="calories">Calories</label>
+                <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
 
-            <label for="protein">Protein (g)</label>
-            <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
+                <label for="fat">Fat (g)</label>
+                <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
 
-            <label for="carb">Carbohydrate (g)</label>
-            <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
+                <label for="protein">Protein (g)</label>
+                <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
 
-            <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
-                <button type="submit" id="nadd-profile-btn">Create New</button>
-            </div>
-            </form>
+                <label for="carb">Carbohydrate (g)</label>
+                <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
+
+                <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+                    <button type="submit" id="nadd-profile-btn">Create New</button>
+                </div>
+                </form>
             </div>
             <div class="edit-profile" id="nedit-profile" style="height:540px;">
             <center>
@@ -392,6 +419,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                         echo "</div>";
                         unset($_SESSION['admin_errors']); 
+                        unset($_SESSION['old_data']);
                     }
                 ?>
                 
