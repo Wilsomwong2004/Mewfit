@@ -112,13 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 <body>
-    <nav class="navbar" id="navbar">
+<nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
             <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-            <span><a href="admin_homepage.php">DASHBOARD</a></span>
-            <span><a href="admin_user_page.php" >USER</a></span>
-            <span><a href="admin_workout.php">WORKOUT</a></span>
-            <span><a href="#" class="active">MEALS</a></span>
+            <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
+            <span class="admin-user"><a href="admin_user_page.php" >USER</a></span>
+            <span class="admin-workout"><a href="admin_workout.php">WORKOUT</a></span>
+            <span class="admin-meals"><a href="#" class="active">MEALS</a></span>
         </div>
         <div class="header-right">
             <button id="hamburger-menu" aria-label="Menu">

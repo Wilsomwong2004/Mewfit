@@ -250,7 +250,7 @@ case 'diet':
         // Handle errors
         $_SESSION['e_diet_errors'] = $dieterrors;
         $_SESSION['e_diet_old_data'] = $_POST; // Store old data for repopulation
-        header("Location: edit_diet.php?id=" . $selectedDietId);
+        header("Location: admin_diet.php?id=" . $selectedDietId."#diet");
         exit();
     }
 }

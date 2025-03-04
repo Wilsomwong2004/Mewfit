@@ -486,13 +486,6 @@ table tr.selected {
 
 
 @media (max-width: 768px) {
-    /* .nav-links {
-        flex-direction: column;
-    }
-
-    .nav-links li {
-        margin-bottom: 10px;
-    } */
 
     .navbar {
         padding: 1.5rem 0 !important;

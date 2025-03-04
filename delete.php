@@ -14,6 +14,10 @@
         if (!isset($validTables[$table])) {
             die("Invalid table name.");
         }
+
+        if($table == "diet"){
+            $sql = "DELETE FROM diet_nutrition WHERE diet_id = '$id'";
+        }
         
         $sql = "DELETE FROM $table WHERE {$validTables[$table]} = '$id'";
         
