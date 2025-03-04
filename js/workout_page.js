@@ -439,10 +439,10 @@ const workouts = [
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Burpee", "reps": 12, "video": " " },
-            { "exercise": "High Knees", "duration": "45 seconds", "video": " " },
-            { "exercise": "Mountain Climbers", "duration": "45 seconds", "video": " " },
-            { "exercise": "Jump Squat With Punches", "reps": 15, "video": " " }
+            { "exercise": "Burpee", "reps": 12, "video": "./assets/workout_video/Power HIIT Cardio/How_to_do_Burpee_Joanna_Soh.mp4" },
+            { "exercise": "High Knees", "duration": "45 seconds", "video": "./assets/workout_video/Power HIIT Cardio/How_to_do_High_Knees_Joanna_Soh.mp4" },
+            { "exercise": "Mountain Climbers", "duration": "45 seconds", "video": "./assets/workout_video/Power HIIT Cardio/How_to_do_Mountain_Climbers_Joanna_Soh.mp4" },
+            { "exercise": "Jump Squat With Punches", "reps": 15, "video": "./assets/workout_video/Power HIIT Cardio/How_to_Do_Jump_Squat_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -454,9 +454,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Step-Ups", "reps": 20, "video": " " },
-            { "exercise": "Step Hop Overs", "reps": 15, "video": " " },
-            { "exercise": "Wide to Narrow Step Jump", "reps": 12, "video": " " },
+            { "exercise": "Step-Ups", "reps": 20, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Side_Step-Ups_Joanna_Soh.mp4" },
+            { "exercise": "Step Hop Overs", "reps": 15, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Step_Hop_Overs_Joanna_Soh.mp4" },
+            { "exercise": "Wide to Narrow Step Jump", "reps": 12, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Wide_to_Narrow_Step_Jump_Joanna_Soh.mp4" },
         ]
     },
     {
@@ -468,9 +468,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Squat With Punches", "reps": 20, "video": " " },
-            { "exercise": "Cross High Punches", "reps": 15, "video": " " },
-            { "exercise": "Straight Punches", "reps": 30, "video": " " }
+            { "exercise": "Squat With Punches", "reps": 20, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Squat_Hold_With_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Cross High Punches", "reps": 15, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Cross_High_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Straight Punches", "reps": 30, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Straight_Punches_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -482,9 +482,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Shuffle Forward and Backward", "duration": "8 minutes", "video": " " },
-            { "exercise": "Ice Ski", "duration": "8 minutes", "video": " " },
-            { "exercise": "Side Step Shuffle", "duration": "8 minutes", "video": " " }
+            { "exercise": "Shuffle Forward and Backward", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/How_to_do_Shuffle_Forward_and_Backward_Joanna_Soh.mp4" },
+            { "exercise": "Ice Ski", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/How_to_do_Ice_Ski_Joanna_Soh.mp4" },
+            { "exercise": "Side Step Shuffle", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/Side_Step_Shuffle.mp4" }
         ]
     },
     {
@@ -496,9 +496,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Kangaroo Hops", "reps": 15, "video": " " },
-            { "exercise": "Sprint", "duration": "30 seconds", "video": " " },
-            { "exercise": "Ice Skater", "reps": 20, "video": " " },
+            { "exercise": "Kangaroo Hops", "reps": 15, "video": ".assets/workout_video/Full-Body Cardio Fusion/Kangaroo_Hops.mp4" },
+            { "exercise": "Sprint", "duration": "30 seconds", "video": ".assets/workout_video/Full-Body Cardio Fusion/Sprint.mp4" },
+            { "exercise": "Ice Skater", "reps": 20, "video": ".assets/workout_video/Full-Body Cardio Fusion/Ice Skater.mp4" },
         ]
     },
     {
@@ -510,9 +510,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": " " },
-            { "exercise": "Step Jump", "reps": 12, "video": " " },
-            { "exercise": "Burpee Step-Up", "reps": 10, "video": " " }
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": ".assets/workout_video/Step-Up Challenge/Step-Ups.mp4" },
+            { "exercise": "Step Jump", "reps": 12, "video": ".assets/workout_video/Step-Up Challenge/Step Jump.mp4" },
+            { "exercise": "Burpee Step-Up", "reps": 10, "video": ".assets/workout_video/Step-Up Challenge/Burpee Step-Up.mp4" }
         ]
     },
     {
@@ -524,9 +524,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Lateral Shuttle Steps", "duration": "5 minutes", "video": " " },
-            { "exercise": "Side to Side Step", "duration": "5 minutes", "video": " " },
-            { "exercise": "Twist & Reach", "duration": "5 minutes", "video": " " }
+            { "exercise": "Lateral Shuttle Steps", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Lateral Shuttle StepsLateral Shuttle Steps.mp4" },
+            { "exercise": "Side to Side Step", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Side to Side Step.mp4" },
+            { "exercise": "Twist & Reach", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Twist & Reach.mp4" }
         ]
     },
     {
@@ -538,10 +538,9 @@ const workouts = [
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Plank Jacks", "reps": 20, "video": " " },
-            { "exercise": "Frogger To Squat", "reps": 15, "video": " " },
-            { "exercise": "Decline Mountain Climbers", "reps": 20, "video": " " },
-            { "exercise": "Rest", "duration": "1 minute", "video": " " }
+            { "exercise": "Plank Jacks", "reps": 20, "video": ".assets/workout_video/HIIT & Core Combo/Plank Jacks.mp4" },
+            { "exercise": "Frogger To Squat", "reps": 15, "video": ".assets/workout_video/HIIT & Core Combo/Frogger To Squat.mp4" },
+            { "exercise": "Decline Mountain Climbers", "reps": 20, "video": ".assets/workout_video/HIIT & Core Combo/Decline Mountain Climbers.mp4" },
         ]
     },
     {
@@ -553,9 +552,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Jog On The Spot", "duration": "3 minutes", "video": " " },
-            { "exercise": "Butt Kicks", "duration": "3 minutes", "video": " " },
-            { "exercise": "High Punches", "duration": "3 minutes", "video": " " }
+            { "exercise": "Jog On The Spot", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/Jog On The Spot.mp4" },
+            { "exercise": "Butt Kicks", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/Butt Kicks.mp4" },
+            { "exercise": "High Punches", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/High Punches.mp4" }
         ]
     },
     // Weighted
@@ -568,10 +567,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Dumbbell Squat", "reps": 12, "video": " " },
-            { "exercise": "Shoulder Press", "reps": 10, "video": " " },
-            { "exercise": "Reverse Lunge to Shoulder Press", "reps": 10, "video": " " },
-            { "exercise": "Bicep Curls", "reps": 15, "video": " " }
+            { "exercise": "Dumbbell Squat", "reps": 12, "video": ".assets/workout_video/Full-Body Dumbbell Burn/Dumbbell SquatDumbbell Squat.mp4" },
+            { "exercise": "Shoulder Press", "reps": 10, "video": ".assets/workout_video/Full-Body Dumbbell Burn/o7HCVmBwlGM - How_to_do_Shoulder_Press_Joanna_Soh.mp4" },
+            { "exercise": "Reverse Lunge to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Full-Body Dumbbell Burn/FxLiuvBL5Cs - How_to_do_Reverse_Lunge_to_Shoulder_Press_Joanna_Soh.mp4" },
+            { "exercise": "Bicep Curls", "reps": 15, "video": ".assets/workout_video/Full-Body Dumbbell Burn/nLAbP19S2hk - How_to_do_Bicep_Curls_to_Outward_Abductor_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -583,10 +582,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Tricep Kickback", "reps": 12, "video": " " },
-            { "exercise": "Front Raise", "reps": 15, "video": " " },
-            { "exercise": "Single Arm Dumbbell Row", "reps": 10, "video": " " },
-            { "exercise": "Upright Dumbbell Row", "reps": 12, "video": " " }
+            { "exercise": "Tricep Kickback", "reps": 12, "video": ".assets/workout_video/Upper Body Sculpt/Urn2TycUVjw - How_to_do_Tricep_Kickback_Joanna_Soh.mp4" },
+            { "exercise": "Front Raise", "reps": 15, "video": ".assets/workout_video/Upper Body Sculpt/4Uyhk2qaFrg - How_to_do_Front_Raise_Joanna_Soh.mp4" },
+            { "exercise": "Single Arm Dumbbell Row", "reps": 10, "video": ".assets/workout_video/Upper Body Sculpt/Single Arm Dumbbell Row.mp4" },
+            { "exercise": "Upright Dumbbell Row", "reps": 12, "video": ".assets/workout_video/Upper Body Sculpt/Upright Dumbbell Row.mp4" }
         ]
     },
     {
@@ -598,10 +597,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Dumbbell Sumo Squat", "reps": 15, "video": " " },
-            { "exercise": "Walking Lunges", "reps": 12, "video": " " },
-            { "exercise": "Deadlift", "reps": 10, "video": " " },
-            { "exercise": "Goblet Squat", "reps": 12, "video": " " }
+            { "exercise": "Dumbbell Sumo Squat", "reps": 15, "video": ".assets/workout_video/Leg Day Strength/Dumbbell Sumo Squat.mp4" },
+            { "exercise": "Walking Lunges", "reps": 12, "video": ".assets/workout_video/Leg Day Strength/Walking Lunges.mp4" },
+            { "exercise": "Deadlift", "reps": 10, "video": ".assets/workout_video/Leg Day Strength/Deadlift.mp4" },
+            { "exercise": "Goblet Squat", "reps": 12, "video": ".assets/workout_video/Leg Day Strength/Goblet Squat.mp4" }
         ]
     },
     {
@@ -613,10 +612,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Woodchop", "reps": 15, "video": " " },
-            { "exercise": "Snatch to Shoulder Press", "reps": 10, "video": " " },
-            { "exercise": "Dumbbell Swing", "reps": 12, "video": " " },
-            { "exercise": "Overhead Squat", "reps": 10, "video": " " }
+            { "exercise": "Woodchop", "reps": 15, "video": ".assets/workout_video/Functional Strength/Woodchop.mp4" },
+            { "exercise": "Snatch to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Functional Strength/Snatch to Shoulder Press.mp4" },
+            { "exercise": "Dumbbell Swing", "reps": 12, "video": ".assets/workout_video/Functional Strength/Dumbbell Swing.mp4" },
+            { "exercise": "Overhead Squat", "reps": 10, "video": ".assets/workout_video/Functional Strength/Overhead Squat.mp4" }
         ]
     },
     {
@@ -628,10 +627,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Single Leg Deadlift", "reps": 12, "video": " " },
-            { "exercise": "Reverse Fly", "reps": 15, "video": " " },
-            { "exercise": "Plank Row", "reps": 10, "video": " " },
-            { "exercise": "Y to T Raises", "reps": 12, "video": " " }
+            { "exercise": "Single Leg Deadlift", "reps": 12, "video": ".assets/workout_video/Back & Shoulders Focus/Single Leg Deadlift.mp4" },
+            { "exercise": "Reverse Fly", "reps": 15, "video": ".assets/workout_video/Back & Shoulders Focus/Reverse Fly.mp4" },
+            { "exercise": "Plank Row", "reps": 10, "video": ".assets/workout_video/Back & Shoulders Focus/Plank Row.mp4" },
+            { "exercise": "Y to T Raises", "reps": 12, "video": ".assets/workout_video/Back & Shoulders Focus/Y to T Raises.mp4" }
         ]
     },
     {
@@ -643,9 +642,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": " " },
-            { "exercise": "Alternate Elevated Lunge (With Stepper)", "reps": 12, "video": " " },
-            { "exercise": "Tricep Dips", "reps": 15, "video": " " }
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": ".assets/workout_video/Stepper Strength/Step-Ups With Knee To Elbow.mp4" },
+            { "exercise": "Alternate Elevated Lunge (With Stepper)", "reps": 12, "video": ".assets/workout_video/Stepper Strength/Alternate Elevated Lunge (With Stepper).mp4" },
+            { "exercise": "Tricep Dips", "reps": 15, "video": ".assets/workout_video/Stepper Strength/Tricep DipsTricep Dips.mp4" }
         ]
     },
     {
@@ -657,10 +656,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Burpees with Dumbbell Press", "reps": 10, "video": " " },
-            { "exercise": "Dumbbells High Pulls", "reps": 12, "video": " " },
-            { "exercise": "Alternate Lunge & Twist", "reps": 12, "video": " " },
-            { "exercise": "Head Crusher", "reps": 10, "video": " " }
+            { "exercise": "Burpees with Dumbbell Press", "reps": 10, "video": ".assets/workout_video/Total Body Dumbbell/Burpees with Dumbbell Press.mp4" },
+            { "exercise": "Dumbbells High Pulls", "reps": 12, "video": ".assets/workout_video/Total Body Dumbbell/Dumbbells High Pulls.mp4" },
+            { "exercise": "Alternate Lunge & Twist", "reps": 12, "video": ".assets/workout_video/Total Body Dumbbell/Alternate Lunge & Twist.mp4" },
+            { "exercise": "Head Crusher", "reps": 10, "video": ".assets/workout_video/Total Body Dumbbell/Head Crusher.mp4" }
         ]
     },
     {
@@ -672,9 +671,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Russian Twist (Dumbbell)", "reps": 20, "video": " " },
-            { "exercise": "Tricep Extension", "reps": 12, "video": " " },
-            { "exercise": "Bicep Curls to Outward Abductor", "reps": 15, "video": " " }
+            { "exercise": "Russian Twist (Dumbbell)", "reps": 20, "video": ".assets/workout_video/Arm & Core Combo/Russian Twist (Dumbbell).mp4" },
+            { "exercise": "Tricep Extension", "reps": 12, "video": ".assets/workout_video/Arm & Core Combo/Tricep Extension.mp4" },
+            { "exercise": "Bicep Curls to Outward Abductor", "reps": 15, "video": ".assets/workout_video/Arm & Core Combo/Bicep Curls to Outward Abductor.mp4" }
         ]
     },
     {
@@ -686,10 +685,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Squat to Shoulder Press", "reps": 12, "video": " " },
-            { "exercise": "Single Arm Snatch to Shoulder Press", "reps": 10, "video": " " },
-            { "exercise": "Pull Over", "reps": 12, "video": " " },
-            { "exercise": "Fly Hip Bridge", "reps": 15, "video": " " }
+            { "exercise": "Squat to Shoulder Press", "reps": 12, "video": ".assets/workout_video/Power Endurance/Squat to Shoulder Press.mp4" },
+            { "exercise": "Single Arm Snatch to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Power Endurance/Single Arm Snatch to Shoulder Press.mp4" },
+            { "exercise": "Pull Over", "reps": 12, "video": ".assets/workout_video/Power Endurance/Pull Over.mp4" },
+            { "exercise": "Fly Hip Bridge", "reps": 15, "video": ".assets/workout_video/Power Endurance/Fly Hip Bridge.mp4" }
         ]
     },
     {
@@ -701,9 +700,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Overhead Arm Circle", "reps": 12, "video": " " },
-            { "exercise": "L Rotation", "reps": 10, "video": " " },
-            { "exercise": "Side to Front Raise", "reps": 12, "video": " " }
+            { "exercise": "Overhead Arm Circle", "reps": 12, "video": ".assets/workout_video/Functional Mobility/Overhead Arm Circle.mp4" },
+            { "exercise": "L Rotation", "reps": 10, "video": ".assets/workout_video/Functional Mobility/L Rotation.mp4" },
+            { "exercise": "Side to Front Raise", "reps": 12, "video": ".assets/workout_video/Functional Mobility/Side to Front Raise.mp4" }
         ]
     },
     // Weight-Free
@@ -716,10 +715,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Plank", "duration": "1 minute", "video": " " },
-            { "exercise": "Russian Twist", "reps": 20, "video": " " },
-            { "exercise": "Leg Raise with Hip Thrust", "reps": 15, "video": " " },
-            { "exercise": "Side Plank Hip Dips", "reps": 12, "video": " " }
+            { "exercise": "Plank", "duration": "1 minute", "video": ".assets/workout_video/Core Crusher/Plank Row.mp4" },
+            { "exercise": "Russian Twist", "reps": 20, "video": ".assets/workout_video/Core Crusher/Russian Twist.mp4" },
+            { "exercise": "Leg Raise with Hip Thrust", "reps": 15, "video": ".assets/workout_video/Core Crusher/Leg Raise with Hip Thrust.mp4" },
+            { "exercise": "Side Plank Hip Dips", "reps": 12, "video": ".assets/workout_video/Core Crusher/Side Plank Hip Dips.mp4" }
         ]
     },
     {
@@ -731,10 +730,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Chair Squat", "reps": 15, "video": " " },
-            { "exercise": "Reverse Lunge", "reps": 12, "video": " " },
-            { "exercise": "Hip Bridge Hold", "duration": "45 seconds", "video": " " },
-            { "exercise": "Fire Hydrants", "reps": 15, "video": " " }
+            { "exercise": "Chair Squat", "reps": 15, "video": ".assets/workout_video/Low Impact Strength/Chair Squat.mp4" },
+            { "exercise": "Reverse Lunge", "reps": 12, "video": ".assets/workout_video/Low Impact Strength/Reverse Lunge.mp4" },
+            { "exercise": "Hip Bridge Hold", "duration": "45 seconds", "video": ".assets/workout_video/Low Impact Strength/Hip Bridge Hold.mp4" },
+            { "exercise": "Fire Hydrants", "reps": 15, "video": ".assets/workout_video/Low Impact Strength/Fire Hydrants.mp4" }
         ]
     },
     {
@@ -746,10 +745,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Push-Up", "reps": 12, "video": " " },
-            { "exercise": "Lunge Pulse", "reps": 15, "video": " " },
-            { "exercise": "Sumo Squat", "reps": 15, "video": " " },
-            { "exercise": "Superman", "duration": "1 minute", "video": " " }
+            { "exercise": "Push-Up", "reps": 12, "video": ".assets/workout_video/Total Body Bodyweight/Push-Up.mp4" },
+            { "exercise": "Lunge Pulse", "reps": 15, "video": ".assets/workout_video/Total Body Bodyweight/Lunge Pulse.mp4" },
+            { "exercise": "Sumo Squat", "reps": 15, "video": ".assets/workout_video/Total Body Bodyweight/Sumo Squat.mp4" },
+            { "exercise": "Superman", "duration": "1 minute", "video": ".assets/workout_video/Total Body Bodyweight/Superman.mp4" }
         ]
     },
     {
@@ -761,9 +760,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Windshield Wiper with Leg Extension", "reps": 10, "video": " " },
-            { "exercise": "Plank Up-Down", "reps": 15, "video": " " },
-            { "exercise": "Flutter Kicks", "duration": "1 minute", "video": " " }
+            { "exercise": "Windshield Wiper with Leg Extension", "reps": 10, "video": ".assets/workout_video/Dynamic Core/Windshield Wiper with Leg Extension.mp4" },
+            { "exercise": "Plank Up-Down", "reps": 15, "video": ".assets/workout_video/Dynamic Core/Plank Up-Down.mp4" },
+            { "exercise": "Flutter Kicks", "duration": "1 minute", "video": ".assets/workout_video/Dynamic Core/Flutter Kicks.mp4" }
         ]
     },
     {
@@ -775,10 +774,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Curtsy Lunge", "reps": 12, "video": " " },
-            { "exercise": "Squat Pulse", "reps": 15, "video": " " },
-            { "exercise": "Standing Side Leg Raise", "reps": 20, "video": " " },
-            { "exercise": "Calf Raises", "reps": 20, "video": " " }
+            { "exercise": "Curtsy Lunge", "reps": 12, "video": "./assets/workout_video/Lower Body Burn/Curtsy Lunge.mp4" },
+            { "exercise": "Squat Pulse", "reps": 15, "video": "./assets/workout_video/Lower Body Burn/Squat Pulse.mp4" },
+            { "exercise": "Standing Side Leg Raise", "reps": 20, "video": "./assets/workout_video/Lower Body Burn/Standing Side Leg Raise.mp4" },
+            { "exercise": "Calf Raises", "reps": 20, "video": "./assets/workout_video/Lower Body Burn/Calf Raises.mp4" }
         ]
     },
     {
@@ -790,9 +789,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Assisted Standing Kickbacks", "reps": 15, "video": " " },
-            { "exercise": "Clock Lunge", "reps": 10, "video": " " },
-            { "exercise": "Hip Bridge Circle", "reps": 12, "video": " " }
+            { "exercise": "Assisted Standing Kickbacks", "reps": 15, "video": ".assets/workout_video/Mobility & Stability/Assisted Standing Kickbacks.mp4" },
+            { "exercise": "Clock Lunge", "reps": 10, "video": ".assets/workout_video/Mobility & Stability/Clock Lunge.mp4" },
+            { "exercise": "Hip Bridge Circle", "reps": 12, "video": ".assets/workout_video/Mobility & Stability/Hip Bridge Circl.mp4" }
         ]
     },
     {
@@ -804,9 +803,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Knee Push-Up", "reps": 12, "video": " " },
-            { "exercise": "Wide To Narrow Push-Up", "reps": 10, "video": " " },
-            { "exercise": "Spiderman Push-Up", "reps": 8, "video": " " }
+            { "exercise": "Knee Push-Up", "reps": 12, "video": "./assets/workout_video/Push-Up Progression/Knee Push-Up.mp4" },
+            { "exercise": "Wide To Narrow Push-Up", "reps": 10, "video": "./assets/workout_video/Push-Up Progression/Wide To Narrow Push-Up.mp4" },
+            { "exercise": "Spiderman Push-Up", "reps": 8, "video": "./assets/workout_video/Push-Up Progression/Spiderman Push-Up.mp4" }
         ]
     },
     {
@@ -818,11 +817,13 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Forward To Back Lunge", "reps": 12, "video": " " },
-            { "exercise": "The Bird", "reps": 15, "video": " " },
-            { "exercise": "Bob Weave Circle", "duration": "5 minutes", "video": " " }
+            { "exercise": "Forward To Back Lunge", "reps": 12, "video": ".assets/workout_video/Functional Flexibility/Forward To Back Lunge.mp4" },
+            { "exercise": "The Bird", "reps": 15, "video": ".assets/workout_video/Functional Flexibility/The Bird.mp4" },
+            { "exercise": "Bob Weave Circle", "duration": "5 minutes", "video": ".assets/workout_video/Functional Flexibility/Bob Weave Circle.mp4" }
         ]
     },
+
+    //Stop here
     {
         "title": "Total Body Tone",
         "duration": "30 minutes",

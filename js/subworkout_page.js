@@ -869,268 +869,264 @@ function areLibrariesLoaded() {
 }
 
 // Music Function (pop up window)
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize required elements
-    const popupContainer = document.getElementById('popup-container');
-    const popupTitle = document.getElementById('popup-title');
-    const popupBody = document.getElementById('popup-body');
-    const closeBtn = document.getElementById('close-btn');
-    const musicBtn = document.querySelector('.music-btn');
-    const musicLibrary = document.querySelector('.music-library');
+// Initialize required elements
+// const popupContainer = document.getElementById('popup-container');
+// const popupTitle = document.getElementById('popup-title');
+// const popupBody = document.getElementById('popup-body');
+// const closeBtn = document.getElementById('close-btn');
+const musicBtn = document.querySelector('.music-btn');
+const musicLibrary = document.querySelector('.music-library');
 
-    const musicTracks = [
-        {
-            title: "Nu Love",
-            artist: "Momot Music",
-            duration: "4:45",
-            url: "./assets/workout_music/Nu Love.mp3",
-            cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
-        },
-        {
-            title: "Pump It Up",
-            artist: "Momot Music",
-            duration: "1:49",
-            url: "./assets/workout_music/workout-by-MomotMusic.mp3",
-            cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
-        },
-        {
-            title: "Energy Boost",
-            artist: "HitsLab",
-            duration: "2:31",
-            url: "./assets/workout_music/workout-motivation.mp3",
-            cover: "https://images.unsplash.com/photo-1574680096145-d05b474e2155"
-        }
-    ];
+const musicTracks = [
+    {
+        title: "Nu Love",
+        artist: "Momot Music",
+        duration: "4:45",
+        url: "./assets/workout_music/Nu Love.mp3",
+        cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
+    },
+    {
+        title: "Pump It Up",
+        artist: "Momot Music",
+        duration: "1:49",
+        url: "./assets/workout_music/workout-by-MomotMusic.mp3",
+        cover: "https://images.unsplash.com/photo-1519501025264-65ba15a82390"
+    },
+    {
+        title: "Energy Boost",
+        artist: "HitsLab",
+        duration: "2:31",
+        url: "./assets/workout_music/workout-motivation.mp3",
+        cover: "https://images.unsplash.com/photo-1574680096145-d05b474e2155"
+    }
+];
+class WorkoutMusicPlayer {
+    constructor() {
+        this.audio = new Audio();
+        this.playlist = musicTracks;
+        this.currentTrackIndex = 0;
+        this.isPlaying = false;
+        this.volume = 0.7;
+        this.progressUpdateInterval = null;
 
-    //.........................................................................................//
-    class WorkoutMusicPlayer {
-        constructor() {
-            this.audio = new Audio();
-            this.playlist = musicTracks;
-            this.currentTrackIndex = 0;
-            this.isPlaying = false;
-            this.volume = 0.7;
-            this.progressUpdateInterval = null;
+        // Initialize audio properties
+        this.audio.volume = this.volume;
+        this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        this.audio.addEventListener('ended', () => this.nextTrack());
+        this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+    }
 
-            // Initialize audio properties
-            this.audio.volume = this.volume;
-            this.audio.addEventListener('timeupdate', () => this.updateProgress());
-            this.audio.addEventListener('ended', () => this.nextTrack());
-            this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
-        }
-
-        createMusicInterface() {
-            const container = document.createElement('div');
-            container.className = 'music-player-container';
-            container.innerHTML = `
-                <div class="player-card">
-                    <div class="player-header">
-                        <div class="track-info">
-                            <div class="title">${this.playlist[this.currentTrackIndex].title}</div>
-                            <div class="artist">${this.playlist[this.currentTrackIndex].artist}</div>
-                        </div>
-                        <div class="duration" id="time-display">0:00 / ${this.playlist[this.currentTrackIndex].duration}</div>
+    createMusicInterface() {
+        const container = document.createElement('div');
+        container.className = 'music-player-container';
+        container.innerHTML = `
+            <div class="player-card">
+                <div class="player-header">
+                    <div class="track-info">
+                        <div class="title">${this.playlist[this.currentTrackIndex].title}</div>
+                        <div class="artist">${this.playlist[this.currentTrackIndex].artist}</div>
                     </div>
-                    <div class="player-controls">
-                        <button class="control-btn prev">
-                            <i class="fas fa-backward"></i>
-                        </button>
-                        <button class="control-btn play">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="control-btn next">
-                            <i class="fas fa-forward"></i>
-                        </button>
-                        <div class="volume-control">
-                            <i class="fas fa-volume-up"></i>
-                            <input type="range" class="volume-slider" min="0" max="100" value="${this.volume * 100}">
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress"></div>
+                    <div class="duration" id="time-display">0:00 / ${this.playlist[this.currentTrackIndex].duration}</div>
+                </div>
+                <div class="player-controls">
+                    <button class="control-btn prev">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button class="control-btn play">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="control-btn next">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <input type="range" class="volume-slider" min="0" max="100" value="${this.volume * 100}">
                     </div>
                 </div>
-            `;
-            return container;
-        }
-
-        initializeControls() {
-            const playerCard = document.querySelector('.player-card');
-            const playBtn = playerCard.querySelector('.play');
-            const prevBtn = playerCard.querySelector('.prev');
-            const nextBtn = playerCard.querySelector('.next');
-            const volumeSlider = playerCard.querySelector('.volume-slider');
-            const progressBar = playerCard.querySelector('.progress-bar');
-
-            playBtn.addEventListener('click', () => this.togglePlay());
-            prevBtn.addEventListener('click', () => this.previousTrack());
-            nextBtn.addEventListener('click', () => this.nextTrack());
-            volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
-            progressBar.addEventListener('click', (e) => this.seekTo(e));
-        }
-
-        togglePlay() {
-            if (this.isPlaying) {
-                this.pause();
-            } else {
-                this.play();
-            }
-        }
-
-        play() {
-            this.audio.play();
-            this.isPlaying = true;
-            document.querySelector('.play i').className = 'fas fa-pause';
-        }
-
-        pause() {
-            this.audio.pause();
-            this.isPlaying = false;
-            document.querySelector('.play i').className = 'fas fa-play';
-        }
-
-        updateProgress() {
-            const progress = (this.audio.currentTime / this.audio.duration) * 100 || 0;
-            document.querySelector('.progress').style.width = `${progress}%`;
-            this.updateTimeDisplay();
-        }
-
-        updateTimeDisplay() {
-            const timeDisplay = document.getElementById('time-display');
-            const currentTime = this.formatTime(this.audio.currentTime);
-            const duration = this.formatTime(this.audio.duration);
-            timeDisplay.textContent = `${currentTime} / ${duration}`;
-        }
-
-        formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-
-        seekTo(e) {
-            const progressBar = e.currentTarget;
-            const rect = progressBar.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
-            this.audio.currentTime = pos * this.audio.duration;
-        }
-
-        setVolume(value) {
-            this.volume = value;
-            this.audio.volume = value;
-            document.querySelector('.volume-slider').value = value * 100;
-        }
-
-        loadTrack() {
-            const track = this.playlist[this.currentTrackIndex];
-            this.audio.src = track.url;
-            document.querySelector('.title').textContent = track.title;
-            document.querySelector('.artist').textContent = track.artist;
-
-            if (this.isPlaying) {
-                this.play();
-            }
-        }
-
-        nextTrack() {
-            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
-            this.loadTrack();
-        }
-
-        previousTrack() {
-            this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
-            this.loadTrack();
-        }
-
-        updateDuration() {
-            const duration = this.formatTime(this.audio.duration);
-            document.getElementById('time-display').textContent = `0:00 / ${duration}`;
-        }
-    }
-
-    // Initialize player
-    const player = new WorkoutMusicPlayer();
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-
-    // Setup player container
-    const playerContainer = player.createMusicInterface();
-    wrapper.appendChild(playerContainer);
-
-    // Insert wrapper into DOM
-    if (musicBtn) {
-        musicBtn.parentNode.insertBefore(wrapper, musicBtn);
-        wrapper.appendChild(musicBtn);
-    }
-
-    // Initialize controls
-    player.initializeControls();
-    player.loadTrack();
-
-    // Setup hover behavior
-    let hideTimeout;
-    wrapper.addEventListener('mouseenter', () => {
-        clearTimeout(hideTimeout);
-        playerContainer.classList.add('show');
-    });
-
-    wrapper.addEventListener('mouseleave', () => {
-        hideTimeout = setTimeout(() => {
-            playerContainer.classList.remove('show');
-        }, 2000);
-    });
-
-    // Music library popup functionality
-    if (musicBtn) {
-        musicBtn.addEventListener('click', (e) => {
-            if (e.target.closest('.music-player-container')) return;
-
-            playerContainer.classList.remove('show');
-            showMusicLibrary();
-        });
-    }
-
-    function showMusicLibrary() {
-        showPopup('Music Library', `
-            <div class="music-list">
-                ${musicTracks.map((track, index) => `
-                    <div class="music-item" data-index="${index}">
-                        <div class="music-item-image">
-                            <img src="${track.cover}" alt="${track.title}">
-                        </div>
-                        <div class="music-item-details">
-                            <span class="music-item-title">${track.title}</span>
-                            <span class="music-item-artist">${track.artist}</span>
-                        </div>
-                        <button class="play-btn">
-                            ${index === player.currentTrackIndex && player.isPlaying ? 'Playing' : 'Play'}
-                        </button>
-                    </div>
-                `).join('')}
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
             </div>
-        `);
-
-        // Add click handlers for playlist items
-        document.querySelectorAll('.music-item').forEach(item => {
-            item.querySelector('.play-btn').addEventListener('click', () => {
-                player.currentTrackIndex = parseInt(item.dataset.index);
-                player.loadTrack();
-                player.play();
-                popupContainer.style.display = 'none';
-            });
-        });
+        `;
+        return container;
     }
 
-    function showPopup(title, content) {
-        popupTitle.textContent = title;
-        popupBody.innerHTML = content;
-        popupContainer.style.display = 'flex';
+    initializeControls() {
+        const playerCard = document.querySelector('.player-card');
+        const playBtn = playerCard.querySelector('.play');
+        const prevBtn = playerCard.querySelector('.prev');
+        const nextBtn = playerCard.querySelector('.next');
+        const volumeSlider = playerCard.querySelector('.volume-slider');
+        const progressBar = playerCard.querySelector('.progress-bar');
+
+        playBtn.addEventListener('click', () => this.togglePlay());
+        prevBtn.addEventListener('click', () => this.previousTrack());
+        nextBtn.addEventListener('click', () => this.nextTrack());
+        volumeSlider.addEventListener('input', (e) => this.setVolume(e.target.value / 100));
+        progressBar.addEventListener('click', (e) => this.seekTo(e));
     }
 
-    // Setup close handlers
-    closeBtn.addEventListener('click', () => {
-        popupContainer.style.display = 'none';
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    }
+
+    play() {
+        this.audio.play();
+        this.isPlaying = true;
+        document.querySelector('.play i').className = 'fas fa-pause';
+    }
+
+    pause() {
+        this.audio.pause();
+        this.isPlaying = false;
+        document.querySelector('.play i').className = 'fas fa-play';
+    }
+
+    updateProgress() {
+        const progress = (this.audio.currentTime / this.audio.duration) * 100 || 0;
+        document.querySelector('.progress').style.width = `${progress}%`;
+        this.updateTimeDisplay();
+    }
+
+    updateTimeDisplay() {
+        const timeDisplay = document.getElementById('time-display');
+        const currentTime = this.formatTime(this.audio.currentTime);
+        const duration = this.formatTime(this.audio.duration);
+        timeDisplay.textContent = `${currentTime} / ${duration}`;
+    }
+
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    seekTo(e) {
+        const progressBar = e.currentTarget;
+        const rect = progressBar.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        this.audio.currentTime = pos * this.audio.duration;
+    }
+
+    setVolume(value) {
+        this.volume = value;
+        this.audio.volume = value;
+        document.querySelector('.volume-slider').value = value * 100;
+    }
+
+    loadTrack() {
+        const track = this.playlist[this.currentTrackIndex];
+        this.audio.src = track.url;
+        document.querySelector('.title').textContent = track.title;
+        document.querySelector('.artist').textContent = track.artist;
+
+        if (this.isPlaying) {
+            this.play();
+        }
+    }
+
+    nextTrack() {
+        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+        this.loadTrack();
+    }
+
+    previousTrack() {
+        this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+        this.loadTrack();
+    }
+
+    updateDuration() {
+        const duration = this.formatTime(this.audio.duration);
+        document.getElementById('time-display').textContent = `0:00 / ${duration}`;
+    }
+}
+
+// Initialize player
+const player = new WorkoutMusicPlayer();
+const wrapper = document.createElement('div');
+wrapper.style.position = 'relative';
+
+// Setup player container
+const playerContainer = player.createMusicInterface();
+wrapper.appendChild(playerContainer);
+
+// Insert wrapper into DOM
+if (musicBtn) {
+    musicBtn.parentNode.insertBefore(wrapper, musicBtn);
+    wrapper.appendChild(musicBtn);
+}
+
+// Initialize controls
+player.initializeControls();
+player.loadTrack();
+
+// Setup hover behavior
+let hideTimeout;
+wrapper.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimeout);
+    playerContainer.classList.add('show');
+});
+
+wrapper.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => {
+        playerContainer.classList.remove('show');
+    }, 2000);
+});
+
+// Music library popup functionality
+if (musicBtn) {
+    musicBtn.addEventListener('click', (e) => {
+        if (e.target.closest('.music-player-container')) return;
+
+        playerContainer.classList.remove('show');
+        showMusicLibrary();
     });
+}
+
+function showMusicLibrary() {
+    showPopup('Music Library', `
+        <div class="music-list">
+            ${musicTracks.map((track, index) => `
+                <div class="music-item" data-index="${index}">
+                    <div class="music-item-image">
+                        <img src="${track.cover}" alt="${track.title}">
+                    </div>
+                    <div class="music-item-details">
+                        <span class="music-item-title">${track.title}</span>
+                        <span class="music-item-artist">${track.artist}</span>
+                    </div>
+                    <button class="play-btn">
+                        ${index === player.currentTrackIndex && player.isPlaying ? 'Playing' : 'Play'}
+                    </button>
+                </div>
+            `).join('')}
+        </div>
+    `);
+
+    // Add click handlers for playlist items
+    document.querySelectorAll('.music-item').forEach(item => {
+        item.querySelector('.play-btn').addEventListener('click', () => {
+            player.currentTrackIndex = parseInt(item.dataset.index);
+            player.loadTrack();
+            player.play();
+            popupContainer.style.display = 'none';
+        });
+    });
+}
+
+function showPopup(title, content) {
+    popupTitle.textContent = title;
+    popupBody.innerHTML = content;
+    popupContainer.style.display = 'flex';
+}
+
+// Setup close handlers
+closeBtn.addEventListener('click', () => {
+    popupContainer.style.display = 'none';
 });
 
 //.........................................................................................//
@@ -1845,9 +1841,10 @@ class WorkoutManager {
         // Initialize voice instructions
         this.initializeVoiceInstructions();
 
-        // this.workoutMusicPlayer = new WorkoutMusicPlayer();
+        // Initialize workout music player
+        this.workoutMusicPlayer = new WorkoutMusicPlayer();
         // Initialize pose detector
-        this.poseDetector = new WorkoutPoseDetector(); // Add this line
+        this.poseDetector = new WorkoutPoseDetector(); // Ensure this is defined elsewhere
         // Would store reference keypoints for each exercise
         this.referenceKeypointsLibrary = {};
 
@@ -2114,6 +2111,7 @@ class WorkoutManager {
         const currentExercise = this.exercises[this.currentExerciseIndex];
         if (!currentExercise) return;
 
+        // Start music when exercise begins
         this.workoutMusicPlayer.play();
 
         if (currentExercise.reps) {
@@ -2265,13 +2263,13 @@ class WorkoutManager {
             return;
         }
 
-        this.isPaused = false; // Make isPaused a class property so other methods can access it
+        this.isPaused = false;
 
         pauseBtn.addEventListener('click', () => {
             this.isPaused = !this.isPaused;
 
             if (this.isPaused) {
-                // Pause workout
+                // Pause workout and music
                 pauseIcon.classList.remove('fa-pause');
                 pauseIcon.classList.add('fa-play');
                 pauseText.textContent = 'Resume';
@@ -2288,10 +2286,12 @@ class WorkoutManager {
                     isRunning = false;
                 }
 
+                // Pause music and video
+                this.workoutMusicPlayer.pause();
                 this.pauseExerciseVideo();
                 this.showPauseOverlay();
             } else {
-                // Resume workout
+                // Resume workout and music
                 pauseIcon.classList.remove('fa-play');
                 pauseIcon.classList.add('fa-pause');
                 pauseText.textContent = 'Pause';
@@ -2302,6 +2302,11 @@ class WorkoutManager {
                 // Hide pause overlay
                 this.hidePauseOverlay();
                 this.resumeExerciseVideo();
+
+                // Resume music if not in rest state
+                if (!this.isResting) {
+                    this.workoutMusicPlayer.play();
+                }
 
                 // Resume appropriate timers based on state
                 if (this.isResting) {
@@ -2865,6 +2870,9 @@ class WorkoutManager {
 
     endWorkout() {
         try {
+            // Stop music when workout ends
+            this.workoutMusicPlayer.pause();
+
             // Announce workout completion
             this.speakText('Congratulations! Workout complete.', () => {
                 pause()
