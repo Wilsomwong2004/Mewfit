@@ -606,52 +606,86 @@ function showErrorModal(errorMessage) {
     workoutUser.appendChild(modalContainer);
 }
 
-// Detect poses and draw them
+let lastNotificationTime = 0;
+const NOTIFICATION_INTERVAL = 20000; // 20 seconds in milliseconds
+
+function checkFullBodyVisibility(poses) {
+    if (!poses || poses.length === 0) return false;
+    const requiredKeypoints = ['nose', 'left_ankle', 'right_ankle'];
+    return requiredKeypoints.every(name => poses[0].keypoints.some(kp => kp.name === name && kp.score > 0.3));
+}
+
+function checkCameraDistance(keypoints) {
+    const MIN_BODY_HEIGHT = 0.7; // 70% of frame height
+    const head = getKeypointByName(keypoints, 'nose');
+    const ankle = getKeypointByName(keypoints, 'left_ankle') || getKeypointByName(keypoints, 'right_ankle');
+
+    if (!head || !ankle) return false;
+
+    const bodyHeight = Math.abs(ankle.y - head.y);
+    return bodyHeight / videoElement.videoHeight >= MIN_BODY_HEIGHT;
+}
+
 async function detectPose() {
     if (!isRunning || !detector || !isMewTrackEnabled) {
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
         }
-        console.log('Pose detection stopped:', { isRunning, hasDetector: !!detector, isMewTrackEnabled });
         return;
     }
 
-    // Check if video is ready and has valid dimensions
-    if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight || videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
-        console.log('Video not ready or has invalid dimensions, retrying...');
+    if (!videoElement || !videoElement.videoWidth || !videoElement.videoHeight) {
         animationFrameId = requestAnimationFrame(() => detectPose());
         return;
     }
 
     try {
+        // Get pose estimations first
         const poses = await detector.estimatePoses(videoElement);
 
-        // Clear previous frame
+        // Check current time for notification
+        const currentTime = Date.now();
+
+        // Full-body visibility check with timed notification
+        const fullBodyVisible = checkFullBodyVisibility(poses);
+        if (!fullBodyVisible && notificationsEnabled) {
+            // Only show notification every 20 seconds
+            if (currentTime - lastNotificationTime >= NOTIFICATION_INTERVAL) {
+                showFormFeedback(["Step back! Ensure your full body is visible in the frame"]);
+                lastNotificationTime = currentTime;
+            }
+        }
+
+        // Pass detection to WorkoutManager if exists
+        if (window.workoutManager) {
+            window.workoutManager.handlePoseDetection(poses);
+        }
+
+        // Clear canvas and draw results
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
-
-            // Use canvas scale factors for correct drawing
             const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
             const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
             const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-            // Draw skeleton with proper scaling
             drawSkeleton(keypoints, scale, offsetX, offsetY);
             drawKeypoints(keypoints, scale, offsetX, offsetY);
 
-            // Form validation if enabled
-            if (this.repCounter) {
-                const formFeedback = validateForm(keypoints, this.repCounter.exerciseType);
-                showFormFeedback(formFeedback);
+            // Distance check with timed notification
+            if (!checkCameraDistance(keypoints) && notificationsEnabled) {
+                // Only show notification every 20 seconds
+                if (currentTime - lastNotificationTime >= NOTIFICATION_INTERVAL) {
+                    showFormFeedback(["Move back 1-2 meters from camera for better detection"]);
+                    lastNotificationTime = currentTime;
+                }
             }
         }
 
         animationFrameId = requestAnimationFrame(() => detectPose());
     } catch (error) {
         console.error('Detection error:', error);
-        // Continue the detection loop even if there's an error
         animationFrameId = requestAnimationFrame(() => detectPose());
     }
 }
@@ -762,75 +796,6 @@ function drawSkeleton(keypoints, scale, offsetX, offsetY) {
     }
 }
 
-// function startWorkoutCountdown(workoutName, onCompleteCallback) {
-//     let currentCount = 3;
-//     let countdownInterval;
-
-//     // Create countdown content
-//     const countdownContent = `
-//         <div class="countdown-main">
-//             <h1 class="ready-text">READY TO GO</h1>
-//             <div class="count-circle">${currentCount}</div>
-//             <div class="warmup-text">Warm-up Exercise: ${workoutName}</div>
-//         </div>
-//     `;
-
-//     // Create overlay div
-//     const overlay = document.createElement('div');
-//     overlay.className = 'countdown-overlay';
-//     overlay.innerHTML = countdownContent;
-//     document.body.appendChild(overlay);
-
-//     const styleSheet = document.createElement('style');
-//     styleSheet.textContent = styles;
-//     document.head.appendChild(styleSheet);
-
-//     // Start countdown
-//     let isPaused = false;
-//     countdownInterval = setInterval(() => {
-//         if (!isPaused) {
-//             currentCount--;
-//             const countCircle = overlay.querySelector('.count-circle');
-//             if (countCircle) {
-//                 countCircle.textContent = currentCount;
-//             }
-
-//             if (currentCount <= 0) {
-//                 clearInterval(countdownInterval);
-//                 overlay.remove();
-//                 styleSheet.remove();
-//                 if (onCompleteCallback) {
-//                     onCompleteCallback();
-//                 }
-//             }
-//         }
-//     }, 1000);
-
-//     // Add event listeners
-//     const pauseBtn = overlay.querySelector('#countdown-pause');
-//     const closeBtn = overlay.querySelector('#countdown-close');
-
-//     pauseBtn.addEventListener('click', () => {
-//         isPaused = !isPaused;
-//         const pauseIcon = pauseBtn.querySelector('i');
-//         const pauseText = pauseBtn.querySelector('.pause-text');
-
-//         if (isPaused) {
-//             pauseIcon.className = 'fa-solid fa-play';
-//             pauseText.textContent = 'Resume';
-//         } else {
-//             pauseIcon.className = 'fa-solid fa-pause';
-//             pauseText.textContent = 'Pause';
-//         }
-//     });
-
-//     closeBtn.addEventListener('click', () => {
-//         clearInterval(countdownInterval);
-//         overlay.remove();
-//         styleSheet.remove();
-//     });
-// }
-
 // Start detection
 async function startDetection() {
     if (!videoElement || !videoElement.srcObject || videoElement.readyState < 2) {
@@ -868,6 +833,7 @@ function areLibrariesLoaded() {
         tf.backend() !== undefined;
 }
 
+//.........................................................................................//
 // Music Function (pop up window)
 // Initialize required elements
 // const popupContainer = document.getElementById('popup-container');
@@ -1844,7 +1810,8 @@ class WorkoutManager {
         // Initialize workout music player
         this.workoutMusicPlayer = new WorkoutMusicPlayer();
         // Initialize pose detector
-        this.poseDetector = new WorkoutPoseDetector(); // Ensure this is defined elsewhere
+        this.poseDetector = new WorkoutPoseDetector();
+        this.fullBodyAlertActive = false;
         // Would store reference keypoints for each exercise
         this.referenceKeypointsLibrary = {};
 
@@ -1852,6 +1819,40 @@ class WorkoutManager {
         this.setupPauseButton();
         this.setupCloseButton();
         this.setupSkipButton();
+
+    }
+
+    handlePoseDetection(poses) {
+        if (!this.poseDetector || !poses || poses.length === 0) return;
+
+        // Get the current exercise name from the workout
+        const currentExercise = this.exercises[this.currentExerciseIndex].exercise;
+
+        // Ensure the pose detector is set to the current exercise
+        if (this.poseDetector.currentExercise !== currentExercise) {
+            console.log(`Setting current exercise to: ${currentExercise}`);
+            this.poseDetector.startExercise(currentExercise);
+        }
+
+        const keypoints = poses[0].keypoints;
+        const result = this.poseDetector.analyzePose(keypoints);
+
+        // Update rep counter display
+        if (result.repCount > this.repCount) {
+            this.repCount = result.repCount;
+            this.timerElement.textContent = this.repCount;
+
+            // Check if exercise is complete based on reps
+            if (this.exercises[this.currentExerciseIndex].reps &&
+                this.repCount >= this.exercises[this.currentExerciseIndex].reps) {
+                this.nextExercise();
+            }
+        }
+
+        // Show form feedback
+        if (result.feedback && notificationsEnabled) {
+            showFormFeedback([result.feedback]);
+        }
     }
 
     // Add this method to initialize voice instructions
@@ -2890,6 +2891,7 @@ class WorkoutManager {
 // Initialize workout manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const workoutManager = new WorkoutManager();
+    window.workoutManager = workoutManager;
     workoutManager.init();
 });
 
@@ -2906,10 +2908,24 @@ class WorkoutPoseDetector {
         this.poseCorrection = {};
         this.referenceKeypoints = null;
         this.lastFeedback = null;
+
+        this.registerExerciseDetectors();
+    }
+
+    // Debug method to log current state
+    debugExerciseDetection() {
+        console.log({
+            currentExercise: this.currentExercise,
+            registeredExercises: Object.keys(this.exerciseDetectors),
+            hasCurrentExerciseDetector: !!this.exerciseDetectors[this.currentExercise]
+        });
     }
 
     // Initialize with the current exercise
     startExercise(exercise, referenceKeypoints = null) {
+        // Add extra logging
+        console.log(`Attempting to start exercise: ${exercise}`);
+
         this.currentExercise = exercise;
         this.repCounter = 0;
         this.lastState = null;
@@ -2917,14 +2933,30 @@ class WorkoutPoseDetector {
         this.poseCorrection = {};
         this.referenceKeypoints = referenceKeypoints;
 
-        console.log(`Starting exercise: ${exercise}`);
+        // Ensure detectors are registered
+        if (Object.keys(this.exerciseDetectors).length === 0) {
+            this.registerExerciseDetectors();
+        }
 
-        // Register specific detectors based on exercise type
-        this.registerExerciseDetectors();
+        this.currentExercise = exercise;
+        console.log("Registered detectors:", Object.keys(this.exerciseDetectors));
+        console.log("Current exercise detector:",
+            this.exerciseDetectors[this.currentExercise] ? "Exists" : "Not found");
+        console.log(`Exercise started: ${exercise}`);
+        this.debugState();
     }
 
     // Register all exercise detectors
     registerExerciseDetectors() {
+        console.log("Registering exercise detectors...");
+
+        // Explicitly log each registration
+        this.registerDetector('Squats', this.detectSquat);
+        console.log("Registered Squats:", !!this.exerciseDetectors['Squats']);
+
+        this.registerDetector('Push Ups', this.detectPushUp);
+        console.log("Registered Push Ups:", !!this.exerciseDetectors['Push Ups']);
+
         // Basic exercises from the original RepCounter
         this.registerDetector('Squats', this.detectSquat);
         this.registerDetector('Push Ups', this.detectPushUp);
@@ -2942,6 +2974,8 @@ class WorkoutPoseDetector {
         this.registerDetector('Step-Ups', this.detectStepUps);
         this.registerDetector('Step Hop Overs', this.detectStepHopOvers);
         this.registerDetector('Wide to Narrow Step Jump', this.detectWideToNarrowStepJump);
+
+        console.log("Total registered exercises:", Object.keys(this.exerciseDetectors));
     }
 
     // Register a specific detector function for an exercise
@@ -2951,9 +2985,21 @@ class WorkoutPoseDetector {
 
     // Analyze the current pose based on the current exercise
     analyzePose(keypoints) {
-        if (!this.currentExercise || !this.exerciseDetectors[this.currentExercise]) {
-            console.warn(`No detector found for exercise: ${this.currentExercise}`);
-            return { repCount: 0, feedback: "Exercise not supported", isCorrect: false };
+        if (!this.currentExercise) {
+            console.warn('No exercise selected. Current exercises:',
+                Object.keys(this.exerciseDetectors));
+            return {
+                repCount: 0,
+                feedback: "Waiting for exercise selection. Available exercises: " +
+                    Object.keys(this.exerciseDetectors).join(', '),
+                isCorrect: false
+            };
+        }
+
+        // Add null check for exercise detectors
+        if (!this.exerciseDetectors[this.currentExercise]) {
+            console.warn(`Exercise configuration pending: ${this.currentExercise}`);
+            return { repCount: 0, feedback: "Exercise configuration in progress...", isCorrect: false };
         }
 
         // Update keypoint history for smoothing
