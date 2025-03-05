@@ -123,20 +123,20 @@ $conn->close();
               <div class="half-input-wrapper">
                 <div class="half-inputs">
                   <label for="f-name">First Name</label>
-                  <input type="text" id="f-name" name="f-name" required />
+                  <input type="text" id="f-name" name="f-name"/>
                 </div>
                 <div class="half-inputs">
                   <label for="l-name">Last Name</label>
-                  <input type="text" id="l-name" name="l-name" required />
+                  <input type="text" id="l-name" name="l-name"/>
                 </div>
               </div>
               <div class="inputs">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required />
+                <input type="text" id="username" name="username"/>
               </div>
               <div class="inputs">
                 <label for="e-mail">Email</label>
-                <input type="email" id="e-mail" name="e-mail" required />
+                <input type="email" id="e-mail" name="e-mail"/>
               </div>
               <div class="inputs">
                 <label for="password">Password</label>

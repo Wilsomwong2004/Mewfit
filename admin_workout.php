@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Management</title>
-    <link rel="stylesheet" href="css/admin_workout.css">
+    <link rel="stylesheet" href="./css/admin_workout.css">
+    <link rel="stylesheet" href="./css/navigation_bar.css">
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo-space">
-            <div class="logo-and-title"></div>
-            <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
+    <nav class="navbar" id="navbar">
+        <div class="nav-links" id="nav-links">
+            <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
+            <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
+            <span class="admin-user"><a href="admin_user_page.php" >USER</a></span>
+            <span class="admin-workout"><a href="#" class="active">WORKOUT</a></span>
+            <span class="admin-meals"><a href="admin_diet.php" >MEALS</a></span>
         </div>
-        <ul class="nav-links">
-            <li><a href="#">DASHBOARD</a></li>
-            <li><a href="#">USER</a></li>
-            <li><a href="#" class="active">WORKOUT</a></li>
-            <li><a href="#">MEALS</a></li>
-        </ul>
+        <div class="header-right">
+            <button id="hamburger-menu" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
     </nav>
 
     <div class="container">

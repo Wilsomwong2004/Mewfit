@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Handle image upload
     $meal_picture = null;
     if (!empty($_FILES["meal_picture"]["name"])) {
-        $targetDir = "./uploads/"; 
+        $targetDir = "./asset/database_uploads/"; 
         if (!file_exists($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
@@ -58,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     } elseif (isset($_SESSION['diet_picture'])) {
-        // Use previously uploaded image from session
         $meal_picture = $_SESSION['diet_picture'];
     }
 
@@ -82,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $directions_str = implode(";", $directions_array);
 
         // Insert data into the `diet` table
-        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?)");
+        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?, CURDATE()))");
         $insertStmt->bind_param("sssiss", $name, $description, $type, $duration, $meal_picture, $directions_str);
 
         if ($insertStmt->execute()) {
