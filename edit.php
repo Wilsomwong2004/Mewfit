@@ -206,6 +206,33 @@ case 'diet':
     $checkStmt->close();
 
     if ($count > 0) {
+        // Retrieve existing nutrition IDs
+        $nutritionQuery = $dbConn->prepare("SELECT nutrition_id FROM diet_nutrition WHERE diet_id = ?");
+        $nutritionQuery->bind_param("i", $selectedDietId);
+        $nutritionQuery->execute();
+        $nutritionResult = $nutritionQuery->get_result();
+        
+        $existing_nutrition_ids = [];
+        while ($row = $nutritionResult->fetch_assoc()) {
+            $existing_nutrition_ids[] = $row['nutrition_id'];
+        }
+        $nutritionQuery->close();
+
+        // If no new nutrition IDs provided, use existing ones
+        if (empty($nutrition_ids)) {
+            $nutrition_ids = $existing_nutrition_ids;
+        }
+
+        // Prepare detailed error information
+        $_SESSION['existing_diet_data'] = [
+            'nutrition_ids' => $nutrition_ids,
+            'picture' => $current_picture,
+            'type' => $type,
+            'duration' => $duration,
+            'description' => $description,
+            'directions' => $directions
+        ];
+
         $dieterrors[] = "Meal name already exists.";
     }
 
@@ -246,12 +273,14 @@ case 'diet':
         } else {
             $dieterrors[] = "Error updating meal: " . $dbConn->error;
         }
-    } else {
-        // Handle errors
+    } 
+
+    // Handle errors (if any)
+    if (!empty($dieterrors)) {
         $_SESSION['e_diet_errors'] = $dieterrors;
         $_SESSION['e_diet_old_data'] = $_POST; // Store old data for repopulation
         header("Location: admin_diet.php?id=" . $selectedDietId."#diet");
         exit();
     }
-}
+    }
 }
