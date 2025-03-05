@@ -200,7 +200,7 @@ button {
   font-family: "poppins";
 }
 
-.otp-wrapper input{
+.otp-wrapper input {
   display: none;
 }
 
@@ -257,6 +257,32 @@ button {
   outline: none;
   padding: 10px 0px;
   cursor: pointer;
+}
+
+.error-popup {
+  width: 95%;
+  color: #fff;
+  font-weight: bold;
+  background-color: red;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  margin-top: 20px;
+  padding: 15px;
+}
+
+.error-popup.active {
+  display: none;
+}
+
+.error-popup .close-error {
+  color: white;
+  background: none;
+  border: none;
+  font-size: 3rem;
 }
 
 .outer-form {

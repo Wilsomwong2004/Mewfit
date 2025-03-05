@@ -65,6 +65,12 @@ $conn->close();
     />
   </head>
   <body>
+
+    <div class="error-popup">
+      <p>ERROR MESSAGE</p>
+      <button class="close-error">&times;</button>
+    </div>
+
     <div class="outer-form">
       <div class="form-wrapper">
         <div class="create-header">

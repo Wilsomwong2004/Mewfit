@@ -143,6 +143,15 @@ html.dark-mode .nav-links a {
   padding: 10px; /* Add some padding */
 }
 
+.workout-date {
+  font-size: 1.25rem;
+  font-weight: bold;
+  font-family: "Inter";
+  width: 95%;
+  margin: 0 auto;
+  padding: 10px 0px;
+}
+
 @media only screen and (max-width: 480px) {
   .workout-record {
     width: 100%;
