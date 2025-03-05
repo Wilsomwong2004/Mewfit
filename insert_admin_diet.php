@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Handle image upload
     $meal_picture = null;
     if (!empty($_FILES["meal_picture"]["name"])) {
-        $targetDir = "./uploads/"; 
+        $targetDir = "./asset/database_uploads/"; 
         if (!file_exists($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
@@ -58,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     } elseif (isset($_SESSION['diet_picture'])) {
-        // Use previously uploaded image from session
         $meal_picture = $_SESSION['diet_picture'];
     }
 

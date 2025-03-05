@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <link rel="stylesheet" href="css/admin_user_page.css">
+    <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
