@@ -265,7 +265,7 @@ button {
   font-weight: bold;
   background-color: red;
   border-radius: 20px;
-  display: flex;
+  display: none;
   justify-content: space-between;
   position: absolute;
   top: 0;
@@ -275,7 +275,7 @@ button {
 }
 
 .error-popup.active {
-  display: none;
+  display: flex;
 }
 
 .error-popup .close-error {
