@@ -63,6 +63,7 @@
                             <th>Gender</th>
                             <th>Email Address</th>
                             <th>Phone Number</th>
+                            <th>Registration Date</th>
                         </tr>
                         <?php
                         $sql = "SELECT * FROM administrator";
@@ -77,6 +78,7 @@
                                 echo "<td>".$rows['gender']."</td>";
                                 echo "<td>".$rows['email_address']."</td>";
                                 echo "<td>".$rows['phone_number']."</td>";
+                                echo "<td>".$rows['date_registered']."</td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -195,6 +197,7 @@
                         <th>Target Weight</th>
                         <th>Gender</th>
                         <th>Day Streak Starting Date</th>
+                        <th>Registration Date</th>
                     </tr>
                     
                     <?php
@@ -213,6 +216,7 @@
                                 echo "<td>".$rows['target_weight']."</td>";
                                 echo "<td>".$rows['gender']."</td>";
                                 echo "<td>".$rows['day_streak_starting_date']."</td>";
+                                echo "<td>".$rows['date_registered']."</td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -306,13 +310,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!empty($username)){
         $errors = validateInput($dbConn,$username,$email,  $phone_num);
         if (empty($errors)) {
-            $sql = "INSERT INTO administrator (username, password, name, gender, email_address, phone_number) 
-                    VALUES ('$username', '$password', '$name', '$gender', '$email', '$phone_num')";
-    
-            if (!$dbConn->query($sql)) {
-                die("Failed to update admin table");
-            }else{
+            $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
+                                      VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
+            $stmt->bind_param("ssssss", $username, $password, $name, $gender, $email, $phone_num);
+
+            if ($stmt->execute()) {
                 echo "<script>sessionStorage.setItem('clearForm', 'true');</script>";
+            } else {
+                die("Failed to update admin table");
             }
         } else {
             foreach ($errors as $error) {

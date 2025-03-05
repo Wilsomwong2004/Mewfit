@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (empty($nutrierrors)) {
-        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?)");
+        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?,CURDATE()))");
         $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
 
         if ($insertStmt->execute()) {
@@ -151,13 +151,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <th>Preparation Time (Min)</th>
                         <th>Picture</th>
                         <th>Directions</th>
+                        <th>Registration Date</th>
                         <th>Nutrition IDs</th>
                     </tr>
                     <?php
                     include "conn.php";
 
                     $sql = "
-                        SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.picture, d.directions, 
+                        SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.picture, d.directions, d.date_registered,
                             GROUP_CONCAT(n.nutrition_id) AS nutrition_ids
                         FROM diet d
                         LEFT JOIN diet_nutrition n ON d.diet_id = n.diet_id
@@ -179,6 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 echo "<td>No image available</td>";
                             }
                             echo "<td>".$rows['directions']."</td>";
+                            echo "<td>".$rows['date_registered']."</td>";
                             echo "<td>".(!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available')."</td>";
                             echo "</tr>";
                         }
@@ -382,6 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <th>Fat (g)</th>
                             <th>Protein (g)</th>
                             <th>Carbohydrate (g)</th>
+                            <th>Registration Date</th>
                         </tr>
 
                         <?php
@@ -510,7 +513,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
-                          
 </div>
 </body>
 </html>
@@ -1142,4 +1144,4 @@ function setSelectedNutritionIds(nutritionIds) {
         }
     }
 });
-</script>  
+</script> 
