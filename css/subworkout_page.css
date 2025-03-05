@@ -318,13 +318,13 @@ h2#popup-title {
 
 #form-feedback {
     position: fixed;
-    bottom: 20px;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: 1;
 }
 
-.form-alert {
+/* .form-alert {
     background: #ff9967;
     color: white;
     padding: 10px 20px;
@@ -334,15 +334,47 @@ h2#popup-title {
     align-items: center;
     gap: 10px;
     animation: slideUp 0.3s ease;
-}
+} */
 
-@keyframes slideUp {
+/* @keyframes slideUp {
     from {
         transform: translateY(100%);
     }
 
     to {
         transform: translateY(0);
+    }
+} */
+
+/* .form-feedback-container {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+} */
+
+.form-alert {
+    background: #ff6060;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 }
 

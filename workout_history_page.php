@@ -153,46 +153,44 @@
                 workout.thumbnail
                 FROM workout_history 
                 INNER JOIN workout 
-                ON workout_history.workout_id = workout.workout_id"; // connect the workout_history table and workout table
+                ON workout_history.workout_id = workout.workout_id
+                ORDER BY workout_history.date DESC"; // connect the workout_history table and workout table
 
         $result = $conn->query($sql); // create a variable and store the sql query result inside it
         
-
-        while ($row = $result->fetch_assoc()) { // check if there is any record related to the member
-
-          for ($i = 0; $i <= 10; $i++) {
-            $date = new DateTime();
-            $date->modify("-$i days");
-            $formattedDate = $date->format("Y-m-d");
-            
-            // // Check if it's today or yesterday
-            // if ($i == 0) {
-            //     echo "Today<br>";
-            // } elseif ($i == 1) {
-            //     echo "Yesterday<br>";
-            // } else {
-            //     echo $formattedDate . "<br>"; // Print normal date for older days
-            // }
-
-            if ($row['member_id'] == $member_id) {
-              $exist_record = true;
-              // prints out the record
-              echo "
-                    <div class=\"workout-record\">
-                      <img
-                        class=\"picture\"
-                        src=\"./assets/workout_pics/{$row['thumbnail']}\"
-                        alt=\"{$row['workout_name']}\"
-                      />
-                      <p class=\"name\">{$row['workout_name']}</p>
-                      <p class=\"type\">{$row['workout_type']}</p>
-                      <p class=\"kcal\">{$row['calories']}</p>
-                      <p class=\"time\">{$row['duration']}</p>
-                    </div>
-              ";
-
-            }
+        function formatDate($date) {
+          if ($date == date("Y-m-d")) {
+              return "Today";
+          } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
+              return "Yesterday";
+          } else {
+              return $date; // Return normal date for older days
           }
+        }
+
+        while ($row = $result->fetch_assoc()) {
+
+          $workout_date = formatDate($row['date']);
+
+          if ($row['member_id'] == $member_id) {
+            $exist_record = true;
+            // prints out the record
+            echo "<div class=\"workout-date\">
+                  <p>{$workout_date}</p>
+                  </div>
+                  <div class=\"workout-record\">
+                  <img
+                  class=\"picture\"
+                  src=\"./assets/workout_pics/{$row['thumbnail']}\"
+                  alt=\"{$row['workout_name']}\"
+                  />
+                  <p class=\"name\">{$row['workout_name']}</p>
+                  <p class=\"type\">{$row['workout_type']}</p>
+                  <p class=\"kcal\">{$row['calories']}kcal</p>
+                  <p class=\"time\">{$row['duration']}min</p>
+                  </div>
+                ";
+            }
         }
 
         if (!$exist_record) {

@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', function () {
     //--------------------select sections-----------------------
     const nutritionLink = document.querySelector('.nutrition-link');
@@ -27,20 +25,84 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     //-------------------retain information-----------------------------
-    let form = document.querySelectorAll(".add-profile form");
-    form.querySelector("input, select").forEach(input => {
-        if (sessionStorage.getItem(input.name)) {
-            input.value = sessionStorage.getItem(input.name);
-        }
+    const forms = document.querySelectorAll(".add-profile form");
 
-        input.addEventListener("input", function () {
-            sessionStorage.setItem(input.name, this.value);
+    forms.forEach(form => {
+        // Select all inputs and selects within this form
+        const inputs = form.querySelectorAll("input, select, textarea");
+
+        inputs.forEach(input => {
+            // Skip hidden inputs, buttons, and file inputs
+            if (input.type === 'hidden' || input.type === 'submit' || input.type === 'file') return;
+
+            // Restore value from sessionStorage if it exists
+            if (sessionStorage.getItem(input.name)) {
+                input.value = sessionStorage.getItem(input.name);
+            }
+
+            // Save input value to sessionStorage on change
+            input.addEventListener("input", function () {
+                sessionStorage.setItem(input.name, this.value);
+            });
+        });
+
+        // Special handling for file inputs
+        const fileInputs = form.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(fileInput => {
+            fileInput.addEventListener('change', function () {
+                // Optional: Show selected file name
+                const fileName = this.files.length > 0 ? this.files[0].name : '';
+                const fileNameDisplay = form.querySelector('.file-name-display');
+                if (fileNameDisplay) {
+                    fileNameDisplay.textContent = fileName;
+                }
+            });
         });
     });
 
+    // Optional: Handle existing diet data passed from PHP
+    function handleExistingDietData() {
+        const nutritionIdsInput = document.querySelector('input[name="edietnutrition_ids"]');
+        const pictureInput = document.querySelector('input[name="meal_picture"]');
+        const typeSelect = document.querySelector('select[name="ediet-type"]');
+        const durationInput = document.querySelector('input[name="epreparation_min"]');
+        const descriptionTextarea = document.querySelector('textarea[name="edesc"]');
+        const directionsTextarea = document.querySelector('textarea[name="edirections"]');
+
+        // Check if we have existing diet data in the session
+        const existingDietData = JSON.parse(sessionStorage.getItem('existing_diet_data'));
+
+        if (existingDietData) {
+            // Restore nutrition IDs
+            if (existingDietData.nutrition_ids && nutritionIdsInput) {
+                nutritionIdsInput.value = existingDietData.nutrition_ids.join(',');
+            }
+
+            // Restore other form fields
+            if (typeSelect) typeSelect.value = existingDietData.type;
+            if (durationInput) durationInput.value = existingDietData.duration;
+            if (descriptionTextarea) descriptionTextarea.value = existingDietData.description;
+            if (directionsTextarea) directionsTextarea.value = existingDietData.directions;
+
+            // Clear the session storage
+            sessionStorage.removeItem('existing_diet_data');
+        }
+    }
+
+    // Call the function to handle existing diet data
+    handleExistingDietData();
+
     //---------------------clear all rows-------------------------
     function clearForm() {
-        document.querySelector('.add-profile form').reset();
+        document.querySelectorAll('.add-profile form').forEach(form => {
+            form.reset();
+
+            // Clear file input display if exists
+            const fileNameDisplay = form.querySelector('.file-name-display');
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = '';
+            }
+        });
         sessionStorage.clear();
     }
 
@@ -50,5 +112,4 @@ document.addEventListener('DOMContentLoaded', function () {
             sessionStorage.removeItem("clearForm");
         }
     };
-    
 });
