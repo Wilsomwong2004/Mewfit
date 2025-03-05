@@ -160,21 +160,21 @@
 
         while ($row = $result->fetch_assoc()) { // check if there is any record related to the member
 
-          for ($i = 0; $i <= 10; $i++) {
+          for ($i = 0; $i <= 5; $i++) {
             $date = new DateTime();
             $date->modify("-$i days");
             $formattedDate = $date->format("Y-m-d");
             
-            // // Check if it's today or yesterday
-            // if ($i == 0) {
-            //     echo "Today<br>";
-            // } elseif ($i == 1) {
-            //     echo "Yesterday<br>";
-            // } else {
-            //     echo $formattedDate . "<br>"; // Print normal date for older days
-            // }
+            // Check if it's today or yesterday
+            if ($i == 0) {
+                echo "Today<br>";
+            } elseif ($i == 1) {
+                echo "Yesterday<br>";
+            } else {
+                echo $formattedDate . "<br>"; // Print normal date for older days
+            }
 
-            if ($row['member_id'] == $member_id) {
+            if ($row['member_id'] == $member_id && $row == $formattedDate) {
               $exist_record = true;
               // prints out the record
               echo "
