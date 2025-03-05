@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $directions_str = implode(";", $directions_array);
 
         // Insert data into the `diet` table
-        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?)");
+        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?, CURDATE()))");
         $insertStmt->bind_param("sssiss", $name, $description, $type, $duration, $meal_picture, $directions_str);
 
         if ($insertStmt->execute()) {
