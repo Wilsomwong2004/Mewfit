@@ -4,33 +4,71 @@ $username = "root";
 $password = "";
 $dbname = "mewfit";
 
-$showAlert = false;
-
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-$showAlert = false;
+$error = false;
+$errorMessage = "";
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = $_POST['f-name'];
-    $last_name = $_POST['l-name'];
-    $member_name = $first_name . " " . $last_name; 
-    $username = $_POST['username'];
-    $email = $_POST['e-mail'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $age = $_POST['age'];
-    $gender = $_POST['gender'];
-    $weight = $_POST['weight'];
-    $weight_unit = $_POST['weight-unit'];
-    $height = $_POST['height'];
-    $height_unit = $_POST['height-unit'];
-    $target_weight = $_POST['target-weight'];
-    $target_weight_unit = $_POST['target-weight-unit'];
-    $start_streak = (new DateTime())->format('Y-m-d H:i:s');
 
+  foreach ($_POST as $key => $value) {
+    if (empty(trim($value))) {
+        $error = true;
+        $errorMessage = 'Please fill in all the required fields.';
+        break;
+    }
+  }
+
+
+  $first_name = trim($_POST['f-name']);
+  $last_name = trim($_POST['l-name']);
+  $member_name = $first_name . " " . $last_name; 
+  $username = trim($_POST['username']);
+  $email = trim($_POST['e-mail']);
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $age = (int)$_POST['age'];
+  $gender = $_POST['gender'];
+  $weight = (float)$_POST['weight'];
+  $weight_unit = $_POST['weight-unit'];
+  $height = (float)$_POST['height'];
+  $height_unit = $_POST['height-unit'];
+  $target_weight = (float)$_POST['target-weight'];
+  $target_weight_unit = $_POST['target-weight-unit'];
+  $start_streak = date('Y-m-d H:i:s');
+
+  $sql = "SELECT * FROM member";
+  
+  $result = $conn->query($sql);
+
+  if (!$result) {
+      die("Query failed: " . $conn->error);
+  }
+
+  while ($row = $result->fetch_assoc()) {
+      if ($username == $row['username']) {
+        $errorMessage = "Username already taken, please choose another one";
+        $error = true;
+      }
+  }
+
+  if ($error) {
+    // echo "
+    //     <div class=\"error-popup\">
+    //       <p>{$errorMessage}</p>
+    //       <button class=\"close-error\">&times;</button>
+    //     </div>
+    //     ";
+
+    echo "
+          <script>
+            alert('$errorMessage');
+          </script>
+          ";
+  } else {
     $sql = "INSERT INTO member (`member_pic`, `username`, `password`, `level`, `weight`, `age`, `target_weight`, `gender`, `day_streak_starting_date`)
     VALUES ('./assets/icons/Unknown_acc-removebg.png', '$username', '$password', 1, '$weight', '$age', '$target_weight', '$gender', '$start_streak')";
 
@@ -43,7 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo '<script>alert("Account added");</script>';
     header("Refresh: 1; url=login_page.html");
     exit;
+  }
 }
+
+
+
 
 $conn->close();
 ?> 
@@ -66,18 +108,13 @@ $conn->close();
   </head>
   <body>
 
-    <div class="error-popup">
-      <p>ERROR MESSAGE</p>
-      <button class="close-error">&times;</button>
-    </div>
-
     <div class="outer-form">
       <div class="form-wrapper">
         <div class="create-header">
           <button class="previous"><i class="bx bxs-chevron-left"></i></button>
           <h2>Create an account</h2>
         </div>
-        <form method="post">
+        <form method="post" autocomplete="off">
           <div class="sign-in-steps">
             <div class="pages slide_page">
               <div class="sign-in-description">
@@ -103,7 +140,7 @@ $conn->close();
               </div>
               <div class="inputs">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required />
+                <input type="password" id="password" name="password"/>
               </div>
               <div class="account-rules">
                 <ul>
