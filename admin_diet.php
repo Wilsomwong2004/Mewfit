@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             echo "<td>".$rows['diet_type']."</td>";
                             echo "<td>".$rows['preparation_min']."</td>";
                             if (!empty($rows['picture'])) {
-                                echo "<td><img src='uploads/".$rows['picture']."' alt='".$rows['diet_name']."' width='100' loading='lazy'></td>";
+                                echo "<td><img src='./asset/database_uploads/".$rows['picture']."' alt='".$rows['diet_name']."' width='100' loading='lazy'></td>";
                             } else {
                                 echo "<td>No image available</td>";
                             }

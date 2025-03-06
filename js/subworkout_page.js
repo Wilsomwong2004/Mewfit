@@ -606,25 +606,7 @@ function showErrorModal(errorMessage) {
     workoutUser.appendChild(modalContainer);
 }
 
-let lastNotificationTime = 0;
-const NOTIFICATION_INTERVAL = 20000; // 20 seconds in milliseconds
-
-function checkFullBodyVisibility(poses) {
-    if (!poses || poses.length === 0) return false;
-    const requiredKeypoints = ['nose', 'left_ankle', 'right_ankle'];
-    return requiredKeypoints.every(name => poses[0].keypoints.some(kp => kp.name === name && kp.score > 0.3));
-}
-
-function checkCameraDistance(keypoints) {
-    const MIN_BODY_HEIGHT = 0.7; // 70% of frame height
-    const head = getKeypointByName(keypoints, 'nose');
-    const ankle = getKeypointByName(keypoints, 'left_ankle') || getKeypointByName(keypoints, 'right_ankle');
-
-    if (!head || !ankle) return false;
-
-    const bodyHeight = Math.abs(ankle.y - head.y);
-    return bodyHeight / videoElement.videoHeight >= MIN_BODY_HEIGHT;
-}
+// const NOTIFICATION_INTERVAL = 20000; // 20 seconds in milliseconds
 
 async function detectPose() {
     if (!isRunning || !detector || !isMewTrackEnabled) {
@@ -643,44 +625,30 @@ async function detectPose() {
         // Get pose estimations first
         const poses = await detector.estimatePoses(videoElement);
 
-        // Check current time for notification
-        const currentTime = Date.now();
+        // Simplified visibility check
+        const minimalVisibility = checkMinimalVisibility(poses);
 
-        // Full-body visibility check with timed notification
-        const fullBodyVisible = checkFullBodyVisibility(poses);
-        if (!fullBodyVisible && notificationsEnabled) {
-            // Only show notification every 20 seconds
-            if (currentTime - lastNotificationTime >= NOTIFICATION_INTERVAL) {
-                showFormFeedback(["Step back! Ensure your full body is visible in the frame"]);
-                lastNotificationTime = currentTime;
+        // Only proceed with pose detection if minimal keypoints are visible
+        if (minimalVisibility) {
+            // Pass detection to WorkoutManager if exists
+            if (window.workoutManager) {
+                window.workoutManager.handlePoseDetection(poses);
             }
-        }
 
-        // Pass detection to WorkoutManager if exists
-        if (window.workoutManager) {
-            window.workoutManager.handlePoseDetection(poses);
-        }
+            // Clear canvas and draw results
+            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-        // Clear canvas and draw results
-        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            if (poses.length > 0) {
+                const keypoints = poses[0].keypoints;
+                const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
+                const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
+                const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-        if (poses.length > 0) {
-            const keypoints = poses[0].keypoints;
-            const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
-            const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
-            const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
-
-            drawSkeleton(keypoints, scale, offsetX, offsetY);
-            drawKeypoints(keypoints, scale, offsetX, offsetY);
-
-            // Distance check with timed notification
-            if (!checkCameraDistance(keypoints) && notificationsEnabled) {
-                // Only show notification every 20 seconds
-                if (currentTime - lastNotificationTime >= NOTIFICATION_INTERVAL) {
-                    showFormFeedback(["Move back 1-2 meters from camera for better detection"]);
-                    lastNotificationTime = currentTime;
-                }
+                drawSkeleton(keypoints, scale, offsetX, offsetY);
+                drawKeypoints(keypoints, scale, offsetX, offsetY);
             }
+        } else {
+            console.log('Insufficient keypoints for pose detection');
         }
 
         animationFrameId = requestAnimationFrame(() => detectPose());
@@ -688,6 +656,35 @@ async function detectPose() {
         console.error('Detection error:', error);
         animationFrameId = requestAnimationFrame(() => detectPose());
     }
+}
+
+// Simplified minimal visibility check
+function checkMinimalVisibility(poses) {
+    if (!poses || poses.length === 0) return false;
+
+    const pose = poses[0];
+    const keypoints = pose.keypoints;
+
+    // Minimal critical keypoints for exercise detection
+    const criticalKeypoints = [
+        'left_shoulder', 'right_shoulder',
+        'left_hip', 'right_hip',
+        'left_knee', 'right_knee'
+    ];
+
+    // Check visibility and confidence
+    const visibleKeypoints = criticalKeypoints.filter(name => {
+        const keypoint = getKeypointByName(keypoints, name);
+        return keypoint &&
+            keypoint.score > 0.2 &&  // Slightly lower confidence threshold
+            keypoint.x > 0 &&
+            keypoint.x < videoElement.videoWidth &&
+            keypoint.y > 0 &&
+            keypoint.y < videoElement.videoHeight;
+    });
+
+    // Require at least 4 out of 6 critical keypoints to be visible
+    return visibleKeypoints.length >= 4;
 }
 
 function validateForm(keypoints, exerciseType) {
@@ -2908,17 +2905,11 @@ class WorkoutPoseDetector {
         this.poseCorrection = {};
         this.referenceKeypoints = null;
         this.lastFeedback = null;
+        this.lastFeedbackTime = 0;
+        this.FEEDBACK_INTERVAL = 5000; // 5 seconds between feedback
+        this.lastGeneratedFeedback = null;
 
         this.registerExerciseDetectors();
-    }
-
-    // Debug method to log current state
-    debugExerciseDetection() {
-        console.log({
-            currentExercise: this.currentExercise,
-            registeredExercises: Object.keys(this.exerciseDetectors),
-            hasCurrentExerciseDetector: !!this.exerciseDetectors[this.currentExercise]
-        });
     }
 
     // Initialize with the current exercise
@@ -2940,10 +2931,6 @@ class WorkoutPoseDetector {
 
         this.currentExercise = exercise;
         console.log("Registered detectors:", Object.keys(this.exerciseDetectors));
-        console.log("Current exercise detector:",
-            this.exerciseDetectors[this.currentExercise] ? "Exists" : "Not found");
-        console.log(`Exercise started: ${exercise}`);
-        this.debugState();
     }
 
     // Register all exercise detectors
@@ -3014,8 +3001,23 @@ class WorkoutPoseDetector {
         // Add correctness information to the result
         result.isCorrect = correctnessScore > 0.7; // 70% similarity threshold
 
-        if (!result.isCorrect) {
+        // Manage feedback generation
+        const currentTime = Date.now();
+        const timeSinceLastFeedback = currentTime - this.lastFeedbackTime;
+
+        // Only generate new feedback if:
+        // 1. Enough time has passed since last feedback
+        // 2. The new feedback is different from the last one
+        if (!result.isCorrect &&
+            (timeSinceLastFeedback >= this.FEEDBACK_INTERVAL ||
+                result.feedback !== this.lastGeneratedFeedback)) {
             result.feedback = this.generatePoseCorrectionFeedback();
+            this.lastFeedbackTime = currentTime;
+            this.lastGeneratedFeedback = result.feedback;
+        } else if (result.isCorrect) {
+            // Clear feedback if pose is correct
+            result.feedback = "";
+            this.lastGeneratedFeedback = null;
         }
 
         return result;
@@ -3141,15 +3143,7 @@ class WorkoutPoseDetector {
             direction = yDiff > 0 ? "higher" : "lower";
         }
 
-        const feedback = `Position your ${keypointDisplayName} ${direction}`;
-
-        // Don't repeat the same feedback too often
-        if (feedback === this.lastFeedback) {
-            return ""; // Skip feedback this frame
-        }
-
-        this.lastFeedback = feedback;
-        return feedback;
+        return `Position your ${keypointDisplayName} ${direction}`;
     }
 
     // Get relevant keypoints for the current exercise
