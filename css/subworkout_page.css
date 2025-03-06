@@ -31,6 +31,8 @@ body {
     overflow: hidden;
     margin: 0;
     padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .header {
@@ -49,6 +51,10 @@ body {
     width: 200px;
     margin: 0 20px;
     margin-left: 40px;
+}
+
+html.dark-mode .timer {
+    background-color: #f1a17a;
 }
 
 .timer svg {
@@ -80,12 +86,17 @@ body {
     color: #000000;
     border: none;
     border-radius: 20px;
-    padding: 15px 23px;
+    padding: 15px 20px;
     font-size: 18px;
     cursor: pointer;
     margin: 0 20px;
     margin-right: 41px;
     z-index: 1000;
+}
+
+html.dark-mode .close-btn {
+    background-color: #ffc3a4;
+    color: #000000;
 }
 
 .close-btn-icon {
@@ -104,7 +115,7 @@ body {
 }
 
 .workout-guide {
-    background-color: white;
+    background-color: var(--background-color);
     border-radius: 16px;
     width: 50%;
     height: 68vh;
@@ -114,7 +125,7 @@ body {
 .workout-user {
     position: relative !important;
     overflow: hidden;
-    background-color: #EADFC9;
+    background-color: var(--background-color);
     border-radius: 16px;
     width: 50%;
     height: 68vh;
@@ -218,6 +229,19 @@ body {
     margin: auto;
 }
 
+.popup-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 30%;
+    text-align: center;
+    z-index: 1001;
+}
+
+html.dark-mode .popup-content {
+    background-color: #353536;
+}
+
 .popup-container-more {
     display: none;
     position: fixed;
@@ -233,11 +257,15 @@ body {
 
 .popup-settings {
     position: absolute;
-    background-color: white;
     padding: 12px;
     border-radius: 16px;
     min-width: 250px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+}
+
+html.dark-mode .popup-settings {
+    background-color: #444444;
 }
 
 .settings-option {
@@ -257,6 +285,10 @@ body {
     background-color: #FFEADF;
 }
 
+html.dark-mode .settings-option:hover {
+    background-color: #2c2c2c;
+}
+
 .settings-option i {
     margin-right: 12px;
     width: 20px;
@@ -265,7 +297,6 @@ body {
 
 .settings-option span {
     font-size: 14px;
-    color: #333;
 }
 
 .icon-right {
@@ -297,6 +328,10 @@ body {
     width: 80%;
     max-width: 500px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+html.dark-mode .popup-content {
+    background-color: #353536;
 }
 
 .popup-content button {
@@ -468,11 +503,8 @@ h2#popup-title {
     max-width: 90%;
 }
 
-.rest-controls {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1rem;
+html.dark-mode .rest-card {
+    background: #353536;
 }
 
 .add-time {
@@ -615,6 +647,10 @@ h2#popup-title {
     background-color: #fff1f1;
 }
 
+html.dark-mode .layout-option.active {
+    background-color: #444444;
+}
+
 .layout-option h3 {
     font-size: 16px;
     font-weight: 600;
@@ -625,6 +661,10 @@ h2#popup-title {
     font-size: 14px;
     color: #666;
     margin-bottom: 12px;
+}
+
+html.dark-mode .layout-option p{
+    color: #999;
 }
 
 .layout-preview {
@@ -704,7 +744,6 @@ h2#popup-title {
     display: flex;
     justify-content: flex-end;
     padding: 20px;
-    border-top: 1px solid #e5e7eb;
 }
 
 .apply-layout {
@@ -755,6 +794,10 @@ h2#popup-title {
     font-size: 14px;
     margin-top: 8px;
     line-height: 1.5;
+}
+
+html.dark-mode .setting-description {
+    color: #999;
 }
 
 /* Toggle Switch */
@@ -830,9 +873,17 @@ input:checked+.slider:before {
     background-color: #f8f8f8;
 }
 
+html.dark-mode .style-option:hover {
+    background-color: #444444;
+}
+
 .style-option.active {
     border-color: #ffb089;
     background-color: #fff1f1;
+}
+
+html.dark-mode .style-option.active {
+    background-color: #444444;
 }
 
 .style-preview {
@@ -918,7 +969,7 @@ input:checked+.slider:before {
 /* Music Player Styles */
 .music-player-container {
     position: absolute;
-    top: -145px;
+    top: -155px;
     right: 0px;
     transform: scale(0.95);
     opacity: 0;
@@ -1073,6 +1124,7 @@ input:checked+.slider:before {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .progress {
