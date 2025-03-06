@@ -75,7 +75,7 @@
                     
                 $conn = new mysqli($servername, $username, $password, $dbname);
 
-                $member_id = "1"; // replace with session variable later
+                $member_id = "10"; // replace with session variable later
 
                 if ($conn->connect_error) {
                   die("Connection failed: " . $conn->connect_error);
