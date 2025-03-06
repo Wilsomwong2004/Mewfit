@@ -87,7 +87,7 @@
                 while ($row = $result->fetch_assoc()) {
                   if ($member_id == $row['member_id']) {
                     echo "
-                      <img src=\"{$row['member_pic']}\" alt=\"Profile\" class=\"profile-photo\"/>
+                      <img src=\".uploads/{$row['member_pic']}\" alt=\"Profile\" class=\"profile-photo\"/>
                       <div class=\"profile-info-settings\">
                       <h2>{$row['username']}</h2>
                       <button class=\"change-photo\">Change profile photo</button>

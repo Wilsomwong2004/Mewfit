@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     echo '<script>alert("Account added");</script>';
-    header("Refresh: 1; url=login_page.html");
+    header("Refresh: 1; url=login_page.php");
     exit;
   }
 }
