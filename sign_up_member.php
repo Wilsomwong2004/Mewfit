@@ -51,8 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $sql = "INSERT INTO member (`member_pic`, `username`, `email_address`, `password`, `level`, `weight`, `age`, `target_weight`, `gender`, `day_streak_starting_date`)
-            VALUES ('Unknown_acc-removebg.png', '$username', '$email', '$password', 1, '$weight', '$age', '$target_weight', '$gender', '$start_streak')";
+    $sql = "INSERT INTO member (`member_pic`, `username`, `email_address`, `password`, `level`, `weight`, `age`, `target_weight`, `gender`, `day_streak_starting_date`, `date_registered`)
+            VALUES ('Unknown_acc-removebg.png', '$username', '$email', '$password', 1, '$weight', '$age', '$target_weight', '$gender', '$start_streak', $start_streak)";
 
     if ($conn->query($sql)) {
         echo '<script>
