@@ -1,94 +1,17 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mewfit";
+session_start();
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-$error = false;
-$errorMessage = "";
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-  foreach ($_POST as $key => $value) {
-    if (empty(trim($value))) {
-        $error = true;
-        $errorMessage = 'Please fill in all the required fields.';
-        break;
-    }
-  }
-
-
-  $first_name = trim($_POST['f-name']);
-  $last_name = trim($_POST['l-name']);
-  $member_name = $first_name . " " . $last_name; 
-  $username = trim($_POST['username']);
-  $email = trim($_POST['e-mail']);
-  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-  $age = (int)$_POST['age'];
-  $gender = $_POST['gender'];
-  $weight = (float)$_POST['weight'];
-  $weight_unit = $_POST['weight-unit'];
-  $height = (float)$_POST['height'];
-  $height_unit = $_POST['height-unit'];
-  $target_weight = (float)$_POST['target-weight'];
-  $target_weight_unit = $_POST['target-weight-unit'];
-  $start_streak = date('Y-m-d H:i:s');
-
-  $sql = "SELECT * FROM member";
-  
-  $result = $conn->query($sql);
-
-  if (!$result) {
-      die("Query failed: " . $conn->error);
-  }
-
-  while ($row = $result->fetch_assoc()) {
-      if ($username == $row['username']) {
-        $errorMessage = "Username already taken, please choose another one";
-        $error = true;
-      }
-  }
-
-  if ($error) {
-    // echo "
-    //     <div class=\"error-popup\">
-    //       <p>{$errorMessage}</p>
-    //       <button class=\"close-error\">&times;</button>
-    //     </div>
-    //     ";
-
+if (!empty($_SESSION['error_message'])) {
     echo "
-          <script>
-            alert('$errorMessage');
-          </script>
-          ";
-  } else {
-    $sql = "INSERT INTO member (`member_pic`, `username`, `password`, `level`, `weight`, `age`, `target_weight`, `gender`, `day_streak_starting_date`)
-    VALUES ('./assets/icons/Unknown_acc-removebg.png', '$username', '$password', 1, '$weight', '$age', '$target_weight', '$gender', '$start_streak')";
-
-    $result = $conn->query($sql);
-
-    if (!$result) {
-      $errorMessage = "Error: " . $conn->error;
-    }
-
-    echo '<script>alert("Account added");</script>';
-    header("Refresh: 1; url=login_page.php");
-    exit;
-  }
+    <div class='error-popup'>
+        <p>{$_SESSION['error_message']}</p>
+        <button class='close-error' onclick='this.parentElement.style.display=\"none\"'>&times;</button>
+    </div>
+    ";
+    unset($_SESSION['error_message']);
 }
+?>
 
-
-
-
-$conn->close();
-?> 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +37,7 @@ $conn->close();
           <button class="previous"><i class="bx bxs-chevron-left"></i></button>
           <h2>Create an account</h2>
         </div>
-        <form method="post" autocomplete="off">
+        <form action="sign_up_member.php" method="post">
           <div class="sign-in-steps">
             <div class="pages slide_page">
               <div class="sign-in-description">

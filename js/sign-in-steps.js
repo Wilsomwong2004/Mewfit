@@ -11,7 +11,7 @@ next_button.addEventListener("click", function () {
 
 prev_button.addEventListener("click", function () {
   if (slide_page.style.marginLeft == "0%") {
-    window.location.href = "login_page.html";
+    window.location.href = "login_page.php";
   } else {
     slide_page.style.marginLeft = "0%";
   }
