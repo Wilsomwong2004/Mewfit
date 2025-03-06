@@ -63,42 +63,9 @@ body {
 }
 
 @media (max-width: 1200px) {
-    body {
-        overflow: auto;
-    }
 
     .content {
         margin: 0 auto;
-    }
-
-    .admin-container {
-        flex-direction: column;
-        align-items: center;
-        height: 1500px;
-        margin-bottom: 60px;
-        padding: 1px;
-    }
-
-    .section1 {
-        width: 95%;
-        margin-bottom: 0px;
-        padding: 0px;
-    }
-
-    .add-profile,
-    .edit-profile {
-        width: 90%;
-    }
-
-    .add-profile label,
-    .edit-profile label {
-        font-weight: bold;
-        display: block;
-        margin-top: 16px;
-    }
-
-    .member-container {
-        width: 100%;
     }
 
 }
@@ -138,6 +105,8 @@ h2{
     font-size:25px;
     padding-top: 40px;
 }
+
+
 
 h5{
     font-size:16px;
@@ -183,12 +152,60 @@ p{
     padding-bottom: 10px;
 }
 
-.containers{
-    margin-top:20px;
-    box-shadow:2px 2px 5px rgb(223, 223, 223);
-    height:300px;
+/* ------------------------data analysis-------------------------- */
+
+.containers {
+    margin-top: 20px;
+    box-shadow: 3px 3px 7px rgb(198, 198, 198);
+    min-height: 400px; 
     border-radius: 20px;
-    padding:20px;
+    padding: 20px;
+    background-color: white; 
+}
+
+.chart div{
+    transition: transform 1.5s ease;
+    padding-bottom: 80px;
+}
+
+.chart div:hover{
+    scale:1.023;
+}
+
+.chart {
+    display: flex;
+    align-items: flex-start; 
+    justify-content: center; 
+    flex-wrap: wrap; 
+    gap: 20px; 
+    width: 100%; 
+    
+}
+
+.chart > div {
+    flex: 1; 
+    width: 600px; 
+    height:300px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+
+h4 {
+    font-size: 18px;
+    background-color: #ffc587;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+    width:90%;
+}
+h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 @media screen and (max-width: 800px){

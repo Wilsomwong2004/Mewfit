@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 include "conn.php";
@@ -20,9 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $dieterrors = [];
 
     // Validate input
-    if (empty($name)) {
-        $dieterrors[] = "Meal name cannot be empty.";
-    }
     
     if ($duration <= 0) {
         $dieterrors[] = "Preparation time must be a positive number.";
@@ -33,9 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Handle image upload
-    $meal_picture = null;
     if (!empty($_FILES["meal_picture"]["name"])) {
-        $targetDir = "./asset/database_uploads/"; 
+        $targetDir = "./uploads/"; 
         if (!file_exists($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
@@ -57,8 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $dieterrors[] = "Error: Failed to upload image.";
             }
         }
-    } elseif (isset($_SESSION['diet_picture'])) {
-        $meal_picture = $_SESSION['diet_picture'];
     }
 
     // Check if meal name already exists
@@ -81,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $directions_str = implode(";", $directions_array);
 
         // Insert data into the `diet` table
-        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?, CURDATE()))");
+        $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?)");
         $insertStmt->bind_param("sssiss", $name, $description, $type, $duration, $meal_picture, $directions_str);
 
         if ($insertStmt->execute()) {
@@ -95,12 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             $insertNutritionStmt->close();
-            
-            // Clear all session data related to diet
             unset($_SESSION['diet_errors']);
             unset($_SESSION['diet_old_data']);
-            unset($_SESSION['diet_picture']);
-            unset($_SESSION['diet_nutrition_ids']);
             
             $_SESSION['diet_success_message'] = "Meal added successfully!";
             header("Location: admin_diet.php");
@@ -113,20 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (!empty($dieterrors)) {
-        // Preserve uploaded image
-        if ($meal_picture) {
-            $_SESSION['diet_picture'] = $meal_picture;
-        }
-
-        // Store nutrition IDs
-        $_SESSION['diet_nutrition_ids'] = $nutrition_ids;
-
-        // Store errors and old data
         $_SESSION['diet_errors'] = $dieterrors;
         $_SESSION['diet_old_data'] = $_POST;
-
         header("Location: admin_diet.php");
-        exit();
     }
 }
 ?>
+<script src="js/admin_diet.js"></script>

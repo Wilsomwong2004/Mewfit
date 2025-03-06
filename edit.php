@@ -145,18 +145,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // --------------------------------------DIET-----------------------------------------
 case 'diet':
+    // Retrieve and sanitize form data
     $name = htmlspecialchars(trim($_POST['ediet-name']));
     $type = htmlspecialchars(trim($_POST['ediet-type']));
     $duration = (int)$_POST['epreparation_min'];
     $description = htmlspecialchars(trim($_POST['edesc']));
     $directions = htmlspecialchars(trim($_POST['edirections']));
 
+    // Process nutrition IDs
     $nutrition_ids = [];
     if (!empty($_POST['edietnutrition_ids'])) {
         $nutrition_ids = array_map('intval', explode(',', $_POST['edietnutrition_ids']));
     }
 
     $dieterrors = [];
+
+    // Validation
     if ($duration <= 0) {
         $dieterrors[] = "Preparation time must be a positive number.";
     }
@@ -164,9 +168,10 @@ case 'diet':
         $dieterrors[] = "At least one ingredient must be selected.";
     }
 
+    // Handle image upload
     $final_picture = $current_picture; // Default to current picture
     if (!empty($_FILES["meal_picture"]["name"])) {
-        $targetDir = "./asset/database_uploads/";
+        $targetDir = "./uploads/";
         if (!file_exists($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
@@ -191,7 +196,6 @@ case 'diet':
         // If the image is removed, set final_picture to null
         $final_picture = null; 
     }
-    
 
     // Check if meal name already exists
     $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM diet WHERE diet_name = ? AND diet_id != ?");
@@ -202,33 +206,6 @@ case 'diet':
     $checkStmt->close();
 
     if ($count > 0) {
-        // Retrieve existing nutrition IDs
-        $nutritionQuery = $dbConn->prepare("SELECT nutrition_id FROM diet_nutrition WHERE diet_id = ?");
-        $nutritionQuery->bind_param("i", $selectedDietId);
-        $nutritionQuery->execute();
-        $nutritionResult = $nutritionQuery->get_result();
-        
-        $existing_nutrition_ids = [];
-        while ($row = $nutritionResult->fetch_assoc()) {
-            $existing_nutrition_ids[] = $row['nutrition_id'];
-        }
-        $nutritionQuery->close();
-
-        // If no new nutrition IDs provided, use existing ones
-        if (empty($nutrition_ids)) {
-            $nutrition_ids = $existing_nutrition_ids;
-        }
-
-        // Prepare detailed error information
-        $_SESSION['existing_diet_data'] = [
-            'nutrition_ids' => $nutrition_ids,
-            'picture' => $current_picture,
-            'type' => $type,
-            'duration' => $duration,
-            'description' => $description,
-            'directions' => $directions
-        ];
-
         $dieterrors[] = "Meal name already exists.";
     }
 
@@ -269,14 +246,12 @@ case 'diet':
         } else {
             $dieterrors[] = "Error updating meal: " . $dbConn->error;
         }
-    } 
-
-    // Handle errors (if any)
-    if (!empty($dieterrors)) {
+    } else {
+        // Handle errors
         $_SESSION['e_diet_errors'] = $dieterrors;
         $_SESSION['e_diet_old_data'] = $_POST; // Store old data for repopulation
         header("Location: admin_diet.php?id=" . $selectedDietId."#diet");
         exit();
     }
-    }
+}
 }
