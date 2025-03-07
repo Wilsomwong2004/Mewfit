@@ -8,7 +8,14 @@
     <script src="js/navigation_bar.js"></script>
     <script src="js/admin_homepage.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <style>
+        h3 {
+        font-size: 20px !important;
+        color: #795858 !important;
+        margin-bottom: 20px;
+        text-align: left !important;
+        }
+    </style>
 </head>
 <?php include "conn.php" ?>
 <body>
@@ -30,11 +37,13 @@
     </nav>
 
     <div class="content">
+        <!-- greetings -->
         <div style="display:flex;">
         <h1 id="type">Hello, <span style="color:#FF9F39">admin</span></h1>
         <h1 class="cursor">|</h1>
         </div>
         
+        <!-- summary -->
         <section class="summary-container">
         <?php
             function getCount($dbConn, $table) {
@@ -69,6 +78,7 @@
                 <div>
                 <h5>User</h5>
                 <h6 class="count-up"><?php echo $adminNo + $memberNo; ?></h6>
+                <p style="font-weight:bold;padding-bottom:10px;">Member: <?php echo $memberNo; ?> Admin: <?php echo $adminNo?></p>
                 <p>Increase by <span class="count-up-p"><?php echo $memberCompare+$adminCompare; ?></span></p>
                 </div>
                 <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png">
@@ -91,11 +101,12 @@
             </div>
         </section>
 
+        <!-- member analysis -->
         <section>
-            <h2>User Analysis</h2>
+            <h2>Member Analysis</h2>
             <div>
                 <div class="containers">
-                    <h3>User Personal Information</h3>
+                    <h3>Member Personal Information</h3>
                     <div class="chart">
                         <div>
                             <h4>Gender vs Fitness Goal Distribution (Month)</h4>
@@ -497,7 +508,7 @@
 
                 </div>
                 <div class="containers">
-                    <h3>User Activity</h3>
+                    <h3>Member Activity</h3>
                     <div class="chart">
                         <div>
                             <h4>Fitness Goal vs Level Distribution</h4>
@@ -516,220 +527,177 @@
                             <canvas id="memberPerformanceChart"></canvas>
                         </div>
                     </div>
-                    <?php 
-
-                    //-------------------------CHART 1----------------------------------------
-                $sqlLevel = "SELECT 
-                CASE 
-                    WHEN level BETWEEN 1 AND 10 THEN '1-10'
-                    WHEN level BETWEEN 11 AND 20 THEN '11-20'
-                    WHEN level BETWEEN 21 AND 30 THEN '21-30'
-                    WHEN level BETWEEN 31 AND 40 THEN '31-40'
-                    WHEN level BETWEEN 41 AND 50 THEN '41-50'
-                END AS level_range,
-                SUM(CASE WHEN fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS lose_weight,
-                SUM(CASE WHEN fitness_goal = 'Gain Muscle' THEN 1 ELSE 0 END) AS gain_muscle
-            FROM 
-                member
-            WHERE 
-                level BETWEEN 1 AND 50
-            GROUP BY 
-                level_range
-            ORDER BY 
-                level_range";
             
-            $resultLevel = $dbConn->query($sqlLevel);
-            $dataLevel = $resultLevel->fetch_all(MYSQLI_ASSOC);
+                    <?php 
+                        //-------------------------CHART 1----------------------------------------
+                        $sqlLevel = "SELECT 
+                            CASE 
+                                WHEN level BETWEEN 1 AND 10 THEN '1-10'
+                                WHEN level BETWEEN 11 AND 20 THEN '11-20'
+                                WHEN level BETWEEN 21 AND 30 THEN '21-30'
+                                WHEN level BETWEEN 31 AND 40 THEN '31-40'
+                                WHEN level BETWEEN 41 AND 50 THEN '41-50'
+                            END AS level_range,
+                            SUM(CASE WHEN fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS lose_weight,
+                            SUM(CASE WHEN fitness_goal = 'Gain Muscle' THEN 1 ELSE 0 END) AS gain_muscle
+                        FROM 
+                            member
+                        WHERE 
+                            level BETWEEN 1 AND 50
+                        GROUP BY 
+                            level_range
+                        ORDER BY 
+                            level_range";
+                        
+                        $resultLevel = $dbConn->query($sqlLevel);
+                        $dataLevel = $resultLevel->fetch_all(MYSQLI_ASSOC);
 
-            //--------------------------------------------CHART 2----------------------------
-            $sqlRegistered1 = "SELECT 
-                CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
-                COUNT(*) AS registered_count
-            FROM member
-            GROUP BY period
-            ORDER BY period";
+                        //--------------------------------------------CHART 2----------------------------
+                        $sqlRegistered1 = "SELECT 
+                            CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
+                            COUNT(*) AS registered_count
+                        FROM member
+                        GROUP BY period
+                        ORDER BY period";
 
-            $resultRegistered = $dbConn->query($sqlRegistered1);
-            $registeredData = [];
-            while ($row = $resultRegistered->fetch_assoc()) {
-                $registeredData[$row['period']] = $row['registered_count'];
-            }
+                        $resultRegistered = $dbConn->query($sqlRegistered1);
+                        $registeredData = [];
+                        while ($row = $resultRegistered->fetch_assoc()) {
+                            $registeredData[$row['period']] = $row['registered_count'];
+                        }
 
-            // Fetch performance data
-            $sqlPerformance = "SELECT 
-                CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
-                SUM(workout_history_count + diet_history_count) AS total_performance
-            FROM member_performance
-            GROUP BY period
-            ORDER BY period";
+                        // Fetch performance data
+                        $sqlPerformance = "SELECT 
+                            CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
+                            SUM(workout_history_count + diet_history_count) AS total_performance
+                        FROM member_performance
+                        GROUP BY period
+                        ORDER BY period";
 
-            $resultPerformance = $dbConn->query($sqlPerformance);
-            $performanceData = [];
-            while ($row = $resultPerformance->fetch_assoc()) {
-                $performanceData[$row['period']] = $row['total_performance'];
-            }
+                        $resultPerformance = $dbConn->query($sqlPerformance);
+                        $performanceData = [];
+                        while ($row = $resultPerformance->fetch_assoc()) {
+                            $performanceData[$row['period']] = $row['total_performance'];
+                        }
 
-            // Combine periods
-            $periods = array_unique(array_merge(array_keys($registeredData), array_keys($performanceData)));
-            sort($periods);
+                        $periods = array_unique(array_merge(array_keys($registeredData), array_keys($performanceData)));
+                        sort($periods);
 
-            // Prepare cumulative counts for registered members
-            $registeredCounts = [];
-            $cumulativeCount = 0; // Initialize cumulative count
+                        $registeredCounts = [];
+                        $cumulativeCount = 0; 
 
-            foreach ($periods as $period) {
-                $cumulativeCount += $registeredData[$period] ?? 0; // Add current period's count
-                $registeredCounts[] = $cumulativeCount; // Store cumulative count
-            }
+                        foreach ($periods as $period) {
+                            $cumulativeCount += $registeredData[$period] ?? 0; 
+                            $registeredCounts[] = $cumulativeCount; 
+                        }
 
-            // Prepare performance counts
-            $performanceCounts = [];
-            foreach ($periods as $period) {
-                $performanceCounts[] = $performanceData[$period] ?? 0; // Store performance counts
-            }
-            //------------------------------------------CHART 3-------------------------------
-            $sqlAgeLevel = "SELECT 
-                CASE 
-                    WHEN age < 18 THEN 'Under 18'
-                    WHEN age BETWEEN 18 AND 29 THEN '18-29'
-                    WHEN age BETWEEN 30 AND 49 THEN '30-49'
-                    ELSE '50+' 
-                END AS age_group,
-                CASE 
-                    WHEN level BETWEEN 1 AND 10 THEN '1-10'
-                    WHEN level BETWEEN 11 AND 20 THEN '11-20'
-                    WHEN level BETWEEN 21 AND 30 THEN '21-30'
-                    WHEN level BETWEEN 31 AND 40 THEN '31-40'
-                    ELSE '41-50'
-                END AS level_range,
-                COUNT(*) AS count
-            FROM 
-                member
-            GROUP BY 
-                age_group, level_range
-            ORDER BY 
-                FIELD(age_group, 'Under 18', '18-29', '30-49', '50+'), 
-                FIELD(level_range, '1-10', '11-20', '21-30', '31-40', '41-50')";
+                        $performanceCounts = [];
+                        foreach ($periods as $period) {
+                            $performanceCounts[] = $performanceData[$period] ?? 0; 
+                        }
 
-            $resultAgeLevel = $dbConn->query($sqlAgeLevel);
-            $dataAgeLevel = $resultAgeLevel->fetch_all(MYSQLI_ASSOC);
+                        $performanceCounts = array_map(function($value) {
+                            return $value / 10;
+                        }, $performanceCounts);
+                        //------------------------------------------CHART 3-------------------------------
+                        $sqlAgeLevel = "SELECT 
+                            CASE 
+                                WHEN age < 18 THEN 'Under 18'
+                                WHEN age BETWEEN 18 AND 29 THEN '18-29'
+                                WHEN age BETWEEN 30 AND 49 THEN '30-49'
+                                ELSE '50+' 
+                            END AS age_group,
+                            CASE 
+                                WHEN level BETWEEN 1 AND 10 THEN '1-10'
+                                WHEN level BETWEEN 11 AND 20 THEN '11-20'
+                                WHEN level BETWEEN 21 AND 30 THEN '21-30'
+                                WHEN level BETWEEN 31 AND 40 THEN '31-40'
+                                ELSE '41-50'
+                            END AS level_range,
+                            COUNT(*) AS count
+                        FROM 
+                            member
+                        GROUP BY 
+                            age_group, level_range
+                        ORDER BY 
+                            FIELD(age_group, 'Under 18', '18-29', '30-49', '50+'), 
+                            FIELD(level_range, '1-10', '11-20', '21-30', '31-40', '41-50')";
 
-            $ageGroups = ['Under 18', '18-29', '30-49', '50+'];
-            $levelRanges = ['1-10', '11-20', '21-30', '31-40', '41-50'];
+                        $resultAgeLevel = $dbConn->query($sqlAgeLevel);
+                        $dataAgeLevel = $resultAgeLevel->fetch_all(MYSQLI_ASSOC);
 
-            $chartData = [];
+                        $ageGroups = ['Under 18', '18-29', '30-49', '50+'];
+                        $levelRanges = ['1-10', '11-20', '21-30', '31-40', '41-50'];
 
-            foreach ($ageGroups as $ageGroup) {
-                $chartData[$ageGroup] = array_fill(0, count($levelRanges), 0);
-            }
+                        $chartData = [];
 
-            foreach ($dataAgeLevel as $row) {
-                $ageIndex = array_search($row['age_group'], $ageGroups);
-                $levelIndex = array_search($row['level_range'], $levelRanges);
-                if ($ageIndex !== false && $levelIndex !== false) {
-                    $chartData[$row['age_group']][$levelIndex] = $row['count'];
-                }
-            }
-            ?>
+                        foreach ($ageGroups as $ageGroup) {
+                            $chartData[$ageGroup] = array_fill(0, count($levelRanges), 0);
+                        }
+
+                        foreach ($dataAgeLevel as $row) {
+                            $ageIndex = array_search($row['age_group'], $ageGroups);
+                            $levelIndex = array_search($row['level_range'], $levelRanges);
+                            if ($ageIndex !== false && $levelIndex !== false) {
+                                $chartData[$row['age_group']][$levelIndex] = $row['count'];
+                            }
+                        }
+
+                        //-------------------------------------------------------CHART 4-------------------------------
+                        $sqlDistinctRegistrationPeriods = "SELECT DISTINCT CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period 
+                                    FROM member ORDER BY period";
+                        $resultDistinctRegistrationPeriods = $dbConn->query($sqlDistinctRegistrationPeriods);
+                        $uniqueRegistrationPeriods = []; 
+
+                        while ($row = $resultDistinctRegistrationPeriods->fetch_assoc()) {
+                            $uniqueRegistrationPeriods[] = $row['period'];
+                        }
+
+                        $performanceDataByPeriod = []; 
+                        foreach ($uniqueRegistrationPeriods as $currentRegPeriod) {
+                            $sqlPerformanceData = "SELECT 
+                                                        CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period,
+                                                        SUM(workout_history_count + diet_history_count) AS total_performance
+                                                    FROM member_performance
+                                                    WHERE member_id IN (
+                                                        SELECT member_id FROM member WHERE 
+                                                        CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) = '$currentRegPeriod'
+                                                    )
+                                                    GROUP BY period
+                                                    ORDER BY period";
+
+                            $resultPerformanceData = $dbConn->query($sqlPerformanceData);
+                            
+                            $performanceDataByPeriod[$currentRegPeriod] = [];
+                            while ($row = $resultPerformanceData->fetch_assoc()) {
+                                $performanceDataByPeriod[$currentRegPeriod][$row['period']] = $row['total_performance'] / 20;
+                            }
+                        }
+
+                        $allUniquePeriods = []; 
+                        foreach ($performanceDataByPeriod as $data) {
+                            $allUniquePeriods = array_merge($allUniquePeriods, array_keys($data));
+                        }
+                        $allUniquePeriods = array_unique($allUniquePeriods);
+                        sort($allUniquePeriods);
+
+                        // Prepare datasets for output
+                        $chartDatasets = []; // Renamed from $datasets
+                        foreach ($uniqueRegistrationPeriods as $currentRegPeriod) {
+                            $dataPointsForPeriod = []; // Renamed from $dataPoints
+                            foreach ($allUniquePeriods as $currentPeriod) {
+                                $dataPointsForPeriod[] = $performanceDataByPeriod[$currentRegPeriod][$currentPeriod] ?? 0; 
+                            }
+                            $chartDatasets[] = [
+                                "label" => "Member registered " . $currentRegPeriod,
+                                "data" => $dataPointsForPeriod
+                            ];
+                        }
+                        ?>
 
                     <script>
                     document.addEventListener("DOMContentLoaded", function() {
-                        //-----------------------------CHART 1----------------------------------
-                        const ctxBar = document.getElementById('ageChart').getContext('2d');
-            
-                        const levelLabels2 = <?php echo json_encode($levelRanges); ?>;
-                        const ageGroupData = <?php echo json_encode(array_values($chartData), JSON_NUMERIC_CHECK); ?>;
-                        const ageGroupLabels = <?php echo json_encode(array_keys($chartData)); ?>;
-
-                        const customColors = {
-                            'Under 18': 'rgb(255, 206, 241)',
-                            '18-29': 'rgb(255, 210, 151)',
-                            '30-49': 'rgb(192, 228, 255)',
-                            '50+': 'rgb(215, 197, 255)'
-                        };
-
-                        new Chart(ctxBar, {
-                            type: 'bar',
-                            data: {
-                                labels: levelLabels2,
-                                datasets: ageGroupLabels.map((ageGroup) => ({
-                                    label: ageGroup,
-                                    data: ageGroupData[ageGroupLabels.indexOf(ageGroup)],
-                                    backgroundColor: customColors[ageGroup],
-                                    borderColor: customColors[ageGroup].replace('0.5', '1'), // Make border color opaque
-                                    borderWidth: 1
-                                }))
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        title: {
-                                            display: true,
-                                            text: 'Level Ranges'
-                                        }
-                                    },
-                                    y: {
-                                        title: {
-                                            display: true,
-                                            text: 'Count'
-                                        },
-                                        beginAtZero: true
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        position: 'top'
-                                    }
-                                }
-                            }
-                        });
-                        //------------------------CHART 2-----------------------------
-                        const ctx6 = document.getElementById('performanceChart').getContext('2d');
-
-                        const periods = <?php echo json_encode($periods); ?>;
-                        const registeredData = <?php echo json_encode($registeredCounts, JSON_NUMERIC_CHECK); ?>; // Use cumulative counts
-                        const performanceData = <?php echo json_encode($performanceCounts, JSON_NUMERIC_CHECK); ?>;
-
-                        new Chart(ctx6, {
-                            type: 'line', 
-                            data: {
-                                labels: periods,
-                                datasets: [
-                                    {
-                                        label: 'Cumulative Member Registrations',
-                                        data: registeredData,
-                                        backgroundColor: 'rgb(161, 217, 255)',
-                                        borderColor: 'rgb(161, 217, 255)',
-                                        borderWidth: 2,
-                                        pointStyle: false,
-                                        fill: true
-                                    },
-                                    {
-                                        label: 'Performance (Workout + Diet)',
-                                        data: performanceData,
-                                        backgroundColor: 'rgb(255, 197, 210)',
-                                        borderColor: 'rgb(255, 197, 210)',
-                                        borderWidth: 2,
-                                        pointStyle: false,
-                                        fill: true
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        title: { display: true, text: 'Date (Grouped per 4 Months)' }
-                                    },
-                                    y: {
-                                        title: { display: true, text: 'Performance Score' },
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                        //------------------------CHART 3------------------------------
+                        //------------------------CHART 1------------------------------
                         const ctxLevel = document.getElementById('levelChart').getContext('2d');
                         const levelData3 = <?php echo json_encode($dataLevel); ?>;
                         
@@ -775,141 +743,728 @@
                                 }
                             }
                         });
+
+                        
+                        //------------------------CHART 2-----------------------------
+                        const ctx6 = document.getElementById('performanceChart').getContext('2d');
+
+                        const periods = <?php echo json_encode($periods); ?>;
+                        const registeredData = <?php echo json_encode($registeredCounts, JSON_NUMERIC_CHECK); ?>; 
+                        const performanceData = <?php echo json_encode($performanceCounts, JSON_NUMERIC_CHECK); ?>;
+
+                        new Chart(ctx6, {
+                            type: 'line', 
+                            data: {
+                                labels: periods,
+                                datasets: [
+                                    {
+                                        label: 'Member Performance',
+                                        data: performanceData,
+                                        backgroundColor: 'rgba(255, 197, 210, 0)',
+                                        borderColor: 'rgb(255, 131, 158)',
+                                        borderWidth: 2,
+                                        pointStyle: false,
+                                    },
+                                    {
+                                        label: 'Total Member Registrations',
+                                        data: registeredData,
+                                        backgroundColor: 'rgb(159, 247, 255)',
+                                        borderColor: 'rgb(159, 247, 255)',
+                                        borderWidth: 2,
+                                        pointStyle: false,
+                                        fill: true
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: { display: true, text: 'Date Range' }
+                                    },
+                                    y: {
+                                        title: { display: true, text: 'Number of Members' },
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                        
+                        //-----------------------------CHART 3----------------------------------
+                        const ctxBar = document.getElementById('ageChart').getContext('2d');
+            
+                        const levelLabels2 = <?php echo json_encode($levelRanges); ?>;
+                        const ageGroupData = <?php echo json_encode(array_values($chartData), JSON_NUMERIC_CHECK); ?>;
+                        const ageGroupLabels = <?php echo json_encode(array_keys($chartData)); ?>;
+
+                        const customColors = {
+                            'Under 18': 'rgb(255, 206, 241)',
+                            '18-29': 'rgb(255, 210, 151)',
+                            '30-49': 'rgb(192, 228, 255)',
+                            '50+': 'rgb(215, 197, 255)'
+                        };
+
+                        new Chart(ctxBar, {
+                            type: 'bar',
+                            data: {
+                                labels: levelLabels2,
+                                datasets: ageGroupLabels.map((ageGroup) => ({
+                                    label: ageGroup,
+                                    data: ageGroupData[ageGroupLabels.indexOf(ageGroup)],
+                                    backgroundColor: customColors[ageGroup],
+                                    borderColor: customColors[ageGroup].replace('0.5', '1'), // Make border color opaque
+                                    borderWidth: 1
+                                }))
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Level Ranges'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Number of member'
+                                        },
+                                        beginAtZero: true
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        });
+
+                        //--------------------------------CHART 4----------------------------------
+                        const ctxMemberPerformance = document.getElementById('memberPerformanceChart').getContext('2d');
+
+                        const performancePeriods = <?php echo json_encode($allUniquePeriods); ?>; // Renamed from periods
+                        const performanceDatasets = <?php echo json_encode($chartDatasets, JSON_NUMERIC_CHECK); ?>; // Renamed from datasets
+
+                        function generateColor(index) {
+                            const colorPalette = [ // Renamed from colors
+                                'rgb(255, 160, 180)', 'rgb(128, 204, 255)', 
+                                'rgb(255, 207, 86)', 'rgb(179, 255, 156)', 
+                                'rgb(212, 191, 255)', 'rgb(255, 160, 64)'
+                            ];
+                            return colorPalette[index % colorPalette.length];
+                        }
+
+                        new Chart(ctxMemberPerformance, {
+                            type: 'line', 
+                            data: {
+                                labels: performancePeriods,
+                                datasets: performanceDatasets.map((dataset, index) => ({
+                                    ...dataset,
+                                    borderColor: generateColor(index),
+                                    backgroundColor: "rgba(179, 255, 156, 0)",
+                                    borderWidth: 2,
+                                    tension: 0.05,
+                                    pointRadius: 1,
+                                    pointHoverRadius: 5,
+                                    pointHoverBackgroundColor: generateColor(index),
+                                    fill: true
+                                }))
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: { display: true, text: 'Date' }
+                                    },
+                                    y: {
+                                        title: { display: true, text: 'Performance Score' },
+                                        beginAtZero: true
+                                    }
+                                },
+                                plugins: {
+                                    legend: { position: 'top' }
+                                }
+                            }
+                        });
                     });
-                    </script>
-
-<?php
-$sqlRegistered = "SELECT DISTINCT CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period 
-                  FROM member ORDER BY period";
-$resultRegistered = $dbConn->query($sqlRegistered);
-$registrationPeriods = [];
-while ($row = $resultRegistered->fetch_assoc()) {
-    $registrationPeriods[] = $row['period'];
-}
-
-// Get performance data for each member group (grouped by their registration period)
-$performanceData = [];
-foreach ($registrationPeriods as $regPeriod) {
-    $sqlPerformance = "SELECT 
-                        CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period,
-                        SUM(workout_history_count + diet_history_count) AS total_performance
-                    FROM member_performance
-                    WHERE member_id IN (
-                        SELECT member_id FROM member WHERE 
-                        CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) = '$regPeriod'
-                    )
-                    GROUP BY period
-                    ORDER BY period";
-
-    $resultPerformance = $dbConn->query($sqlPerformance);
-    
-    $performanceData[$regPeriod] = [];
-    while ($row = $resultPerformance->fetch_assoc()) {
-        $performanceData[$regPeriod][$row['period']] = $row['total_performance'];
-    }
-}
-
-// Get all unique time periods from performance records
-$allPeriods = [];
-foreach ($performanceData as $data) {
-    $allPeriods = array_merge($allPeriods, array_keys($data));
-}
-$allPeriods = array_unique($allPeriods);
-sort($allPeriods);
-
-// Prepare dataset structure
-$datasets = [];
-foreach ($registrationPeriods as $regPeriod) {
-    $dataPoints = [];
-    foreach ($allPeriods as $period) {
-        $dataPoints[] = $performanceData[$regPeriod][$period] ?? 0;
-    }
-    $datasets[] = [
-        "label" => "Reg. " . $regPeriod,
-        "data" => $dataPoints
-    ];
-}
-?>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const ctx7 = document.getElementById('memberPerformanceChart').getContext('2d');
-
-    // Convert PHP arrays to JavaScript
-    const periods = <?php echo json_encode($allPeriods); ?>;
-    const datasets = <?php echo json_encode($datasets, JSON_NUMERIC_CHECK); ?>;
-
-    // Color generator function
-    function generateColor(index) {
-        const colors = [
-            'rgb(255, 160, 180)', 'rgb(128, 204, 255)', 
-            'rgb(255, 207, 86)', 'rgb(179, 255, 156)', 
-            'rgb(212, 191, 255)b(255, 160, 64)'
-        ];
-        return colors[index % colors.length];
-    }
-
-    new Chart(ctx7, {
-        type: 'line', // Area chart
-        data: {
-            labels: periods,
-            datasets: datasets.map((dataset, index) => ({
-                ...dataset,
-                borderColor: generateColor(index),
-                backgroundColor:"rgba(179, 255, 156, 0)",
-                borderWidth: 2,
-                tension: 0.05,
-                pointRadius:1,
-                pointHoverRadius:5,
-                pointHoverBackgroundColor:generateColor(index),
-                fill:true
-            }))
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: { display: true, text: 'Date (January & June each year)' }
-                },
-                y: {
-                    title: { display: true, text: 'Performance Score' },
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: { position: 'top' }
-            }
-        }
-    });
-});
-</script>
+                    </script>        
                 </div>
-
-                
             </div>
         </section>
 
+        <!-- workout analysis -->
         <section>
             <h2>Workout Analysis</h2>
             <div>
                 <div class="containers">
-                    <h3>Most viewed</h3>
+                    <div class="chart">
+                        <div>
+                            <h4>Members' Favourite on Workout Type</h4>
+                            <canvas id="workoutPopularityChart"></canvas>
+                        </div>
+                        <div>
+                            <h4>Member's Preference on Duration</h4>
+                            <div>
+                                <canvas id="durationChart" width="500" height="300"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>Member's Preference on Calories</h4>
+                            <div>
+                                <canvas id="caloriesChart" width="500" height="300"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>Workout vs Member Performance</h4> 
+                            <canvas id="workoutPerformanceChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="containers">
-                    <h3>User favourite</h3>
-                </div>
+                <!-- ----------------------------CHART 1---------------------- -->
+                <?php
+                $sqlWorkoutTypes = "SELECT DISTINCT workout_type FROM workout";
+                $resultWorkoutTypes = $dbConn->query($sqlWorkoutTypes);
+
+                $workoutTypes = [];
+                while ($row = $resultWorkoutTypes->fetch_assoc()) {
+                    $workoutTypes[] = $row['workout_type'];
+                }
+
+                $workoutData = [];
+                foreach ($workoutTypes as $type) {
+                    $sqlHistory = "SELECT COUNT(workout_history_id) AS workout_count
+                                FROM workout_history
+                                WHERE workout_id IN (
+                                    SELECT workout_id FROM workout WHERE workout_type = '$type'
+                                )";
+
+                    $resultHistory = $dbConn->query($sqlHistory);
+                    $workoutData[$type] = $resultHistory->fetch_assoc()['workout_count'] ?? 0;
+                }
+
+                $colors = [
+                    "Cardio" => "rgba(255, 154, 176, 0.84)", 
+                    "Weighted" => "rgba(104, 195, 255, 0.85)", 
+                    "Weight-Free" => "rgba(255, 217, 122, 0.84)", 
+                    "Yoga" => "rgba(180, 255, 139, 0.85)"
+                ];
+
+                $dataset = [
+                    "labels" => array_keys($workoutData),
+                    "data" => array_values($workoutData),
+                    "backgroundColor" => array_values($colors),
+                ];
+
+                //CHART 2 and 3
+
+                $sqlWorkoutData = "SELECT 
+                w.workout_type,
+                w.calories,
+                w.duration,
+                COUNT(wh.workout_id) AS workout_count
+                FROM workout w
+                LEFT JOIN workout_history wh ON w.workout_id = wh.workout_id
+                WHERE w.workout_type IN ('weighted', 'yoga', 'weight-free', 'cardio')
+                GROUP BY w.workout_type, w.calories, w.duration";
+
+                $resultWorkoutData = $dbConn->query($sqlWorkoutData);
+
+                $workoutData = [
+                    'weighted' => [],
+                    'yoga' => [],
+                    'weight-free' => [],
+                    'cardio' => []
+                ];
+
+                while ($row = $resultWorkoutData->fetch_assoc()) {
+                    $workoutType = $row['workout_type'];
+                    $workoutData[$workoutType][] = [
+                        'calories' => $row['calories'],
+                        'duration' => $row['duration'],
+                        'workout_count' => $row['workout_count']
+                    ];
+                }
+
+                // CHART 4
+                $sqlDistinctWorkoutTypes = "SELECT DISTINCT workout_type FROM workout";
+                $resultDistinctWorkoutTypes = $dbConn->query($sqlDistinctWorkoutTypes);
+
+                $allWorkoutTypes = []; 
+                while ($row = $resultDistinctWorkoutTypes->fetch_assoc()) {
+                    $allWorkoutTypes[] = $row['workout_type'];
+                }
+
+                $workoutCountsByType = [];
+                $performanceDataByPeriod = []; 
+                $allTimePeriods = []; 
+
+                $cumulativeWorkoutCountsByType = []; 
+                foreach ($allWorkoutTypes as $currentWorkoutType) {
+                    $sqlWorkoutHistoryByType = "SELECT 
+                                                    CONCAT(YEAR(date), '-', LPAD(((MONTH(date)-1) DIV 6)*6 + 1, 2, '0')) AS period,
+                                                    COUNT(workout_history_id) AS total_workout_count
+                                                FROM workout_history
+                                                WHERE workout_id IN (
+                                                    SELECT workout_id FROM workout WHERE workout_type = '$currentWorkoutType'
+                                                )
+                                                GROUP BY period
+                                                ORDER BY period";
+
+                    $resultWorkoutHistory = $dbConn->query($sqlWorkoutHistoryByType);
+                    
+                    $workoutCountsByType[$currentWorkoutType] = [];
+                    $cumulativeWorkoutCount = 0;
+                    while ($row = $resultWorkoutHistory->fetch_assoc()) {
+                        $cumulativeWorkoutCount += $row['total_workout_count']; 
+                        $workoutCountsByType[$currentWorkoutType][$row['period']] = $cumulativeWorkoutCount;
+                        $allTimePeriods[] = $row['period'];
+                    }
+                }
+
+                $sqlMemberPerformance = "SELECT 
+                                            CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 6)*6 + 1, 2, '0')) AS period,
+                                            SUM(workout_history_count + diet_history_count) AS total_performance
+                                        FROM member_performance
+                                        GROUP BY period
+                                        ORDER BY period";
+
+                $resultMemberPerformance = $dbConn->query($sqlMemberPerformance);
+                while ($row = $resultMemberPerformance->fetch_assoc()) {
+                    $performanceDataByPeriod[$row['period']] = $row['total_performance'] / 10; 
+                }
+
+                $allTimePeriods = array_unique($allTimePeriods);
+                sort($allTimePeriods);
+
+                $chartDataSets = []; 
+                $performanceDataPoints = [];
+                foreach ($allTimePeriods as $currentPeriod) {
+                    $performanceDataPoints[] = $performanceDataByPeriod[$currentPeriod] ?? 0;
+                }
+                $chartDataSets[] = [
+                    "label" => "Member Performance",
+                    "type" => "line",
+                    "data" => $performanceDataPoints,
+                    "backgroundColor" => "rgb(235, 61, 61)",
+                    "borderColor" => "rgb(235, 61, 61)",
+                    "pointRadius" => 1,
+                    "pointHoverRadius" => 4,
+                    "borderWidth" => 2,
+                    "fill" => false
+                ];
+
+                $workoutTypeColors = [
+                    "cardio" => "rgb(255, 149, 172)", 
+                    "weighted" => "rgb(132, 206, 255)", 
+                    "weight-free" => "rgb(255, 219, 128)", 
+                    "yoga" => "rgb(201, 255, 119)"
+                ];
+
+                foreach ($allWorkoutTypes as $currentWorkoutType) {
+                    $dataPointsForCurrentType = [];
+                    $cumulativeValueForCurrentType = 0; 
+
+                    foreach ($allTimePeriods as $currentPeriod) {
+                        if (isset($workoutCountsByType[$currentWorkoutType][$currentPeriod])) {
+                            $cumulativeValueForCurrentType = $workoutCountsByType[$currentWorkoutType][$currentPeriod]; 
+                        }
+                        $dataPointsForCurrentType[] = $cumulativeValueForCurrentType;
+                    }
+
+                    $chartDataSets[] = [
+                        "label" => ucfirst($currentWorkoutType), 
+                        "type" => "bar",
+                        "data" => $dataPointsForCurrentType,
+                        "backgroundColor" => $workoutTypeColors[strtolower($currentWorkoutType)],
+                        "borderColor" => str_replace("0.6", "1", $workoutTypeColors[strtolower($currentWorkoutType)]),
+                        "borderWidth" => 1
+                    ];
+                }
+                ?>
+                <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    //-----------------------------------CHART 1-----------------------------------
+                    const ctx = document.getElementById('workoutPopularityChart').getContext('2d');
+
+                    new Chart(ctx, {
+                        type: 'polarArea',
+                        data: {
+                            labels: <?php echo json_encode($dataset["labels"]); ?>,
+                            datasets: [{
+                                label: "Workout Popularity",
+                                data: <?php echo json_encode($dataset["data"], JSON_NUMERIC_CHECK); ?>,
+                                backgroundColor: <?php echo json_encode($dataset["backgroundColor"]); ?>
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' }
+                            }
+                        }
+                    });
+
+                    //-----------------------------CHART 2 and 3----------------------------------------
+                    const workoutData = <?php echo json_encode($workoutData); ?>;
+
+                    function createScatterChart(canvasId, xAxisLabel, xAxisDataKey, data) {
+                        const ctx = document.getElementById(canvasId).getContext('2d');
+
+                        const scatterChart = new Chart(ctx, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [
+                                    {
+                                        label: 'Weighted',
+                                        data: data.weighted.map(workout => ({
+                                            x: workout[xAxisDataKey],
+                                            y: workout.workout_count
+                                        })),
+                                        backgroundColor: 'rgb(255, 72, 111)',
+                                        borderColor: 'rgb(255, 72, 111)',
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6
+                                    },
+                                    {
+                                        label: 'Yoga',
+                                        data: data.yoga.map(workout => ({
+                                            x: workout[xAxisDataKey],
+                                            y: workout.workout_count
+                                        })),
+                                        backgroundColor: 'rgb(111, 197, 255)',
+                                        borderColor: 'rgb(111, 197, 255)',
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6
+                                    },
+                                    {
+                                        label: 'Weight-Free',
+                                        data: data['weight-free'].map(workout => ({
+                                            x: workout[xAxisDataKey],
+                                            y: workout.workout_count
+                                        })),
+                                        backgroundColor: 'rgb(255, 169, 255)', 
+                                        borderColor: 'rgb(255, 169, 255)',
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6
+                                    },
+                                    {
+                                        label: 'Cardio',
+                                        data: data.cardio.map(workout => ({
+                                            x: workout[xAxisDataKey],
+                                            y: workout.workout_count
+                                        })),
+                                        backgroundColor: 'rgb(188, 154, 255)', 
+                                        borderColor: 'rgb(188, 154, 255)',
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: xAxisLabel
+                                        },
+                                        type: 'linear',
+                                        position: 'bottom'
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Clicks'
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    createScatterChart('durationChart', 'Duration (minutes)', 'duration', workoutData);
+                    createScatterChart('caloriesChart', 'Calories', 'calories', workoutData);
+
+                    //-----------------------------CHART 4----------------------------------------
+
+                    const ctx9 = document.getElementById('workoutPerformanceChart').getContext('2d');
+
+                    const allTimeLabels = <?php echo json_encode($allTimePeriods); ?>; // Updated variable name
+                    const chartDataSets = <?php echo json_encode($chartDataSets, JSON_NUMERIC_CHECK); ?>; // Updated variable name
+
+                    new Chart(ctx9, {
+                        type: 'bar',
+                        data: {
+                            labels: allTimeLabels,
+                            datasets: chartDataSets
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: { display: true, text: 'Date' }
+                                },
+                                y: {
+                                    title: { display: true, text: 'Total Number of Workouts' },
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: { position: 'top' }
+                            }
+                        }
+                    });
+                });
+                </script>
+
             </div>
         </section>
 
+        <!-- meal analysis -->
         <section>
-            <h2>Diet Analysis</h2>
+            <h2>Meal Analysis</h2>
             <div>
                 <div class="containers">
-                    <h3>Most viewed</h3>
+                    <h3>Diet Analysis</h3>
+                    <div class="chart">
+                        <div>
+                            <h4>Members' Favourite on Diet Type</h4>
+                            <canvas id="dietPopularityChart"></canvas>
+                        </div>
+                        <div>
+                            <h4>Member's Preference on Preparation Time</h4>
+                            <div>
+                                <canvas id="preparationTimeChart" width="500" height="300"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>Member's Preference on Calories</h4>
+                            <div>
+                                <canvas id="dietCalorieChart" width="500" height="300"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>Diet vs Member Performance</h4> 
+                            <canvas id="worormanceChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="containers">
-                    <h3>User favourite</h3>
-                </div>
+                <!-- ----------------------------------CHART 1-------------------------- -->
+                    <?php
+                    $sqlDistinctDietTypes = "SELECT DISTINCT diet_type FROM diet";
+                    $resultDistinctDietTypes = $dbConn->query($sqlDistinctDietTypes);
+
+                    $allDietTypes = []; 
+                    while ($row = $resultDistinctDietTypes->fetch_assoc()) {
+                        $allDietTypes[] = $row['diet_type'];
+                    }
+
+                    $dietCountsByType = [];
+                    foreach ($allDietTypes as $currentDietType) {
+                        $sqlDietHistory = "SELECT COUNT(diet_history_id) AS total_diet_count
+                                        FROM diet_history
+                                        WHERE diet_id IN (
+                                            SELECT diet_id FROM diet WHERE diet_type = '$currentDietType'
+                                        )";
+
+                        $resultDietHistory = $dbConn->query($sqlDietHistory);
+                        $dietCountsByType[$currentDietType] = $resultDietHistory->fetch_assoc()['total_diet_count'] ?? 0;
+                    }
+
+                    $dietColors = [
+                        "all" => "rgba(255, 99, 132, 0.85)", 
+                        "vegetarian" => "rgba(54, 162, 235, 0.85)", 
+                        "vegan" => "rgba(75, 192, 192, 0.85)", 
+                        "meat" => "rgba(255, 206, 86, 0.85)", 
+                    ];
+
+                    $dietChartDataset = [
+                        "labels" => array_keys($dietCountsByType),
+                        "data" => array_values($dietCountsByType),
+                        "backgroundColor" => array_values($dietColors),
+                    ];
+                    ?>
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        console.log("loading");
+                        const ctxDietChart = document.getElementById('dietPopularityChart').getContext('2d');
+
+                        new Chart(ctxDietChart, {
+                            type: 'polarArea',
+                            data: {
+                                labels: <?php echo json_encode($dietChartDataset["labels"]); ?>,
+                                datasets: [{
+                                    label: "Diet Popularity",
+                                    data: <?php echo json_encode($dietChartDataset["data"], JSON_NUMERIC_CHECK); ?>,
+                                    backgroundColor: <?php echo json_encode($dietChartDataset["backgroundColor"]); ?>
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'top' }
+                                }
+                            }
+                        });
+                    });
+                    </script>
+
+                    <?php
+                    // Modified SQL query to correctly calculate total calories for each diet
+                    $sqlDietStatistics = "SELECT 
+                                            d.diet_type,
+                                            SUM(n.calories) AS total_calories,
+                                            d.preparation_min,
+                                            COUNT(dh.diet_id) AS total_diet_count
+                                        FROM diet d
+                                        LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
+                                        LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+                                        LEFT JOIN diet_history dh ON d.diet_id = dh.diet_id
+                                        GROUP BY d.diet_type, d.diet_id, d.preparation_min";
+
+                    $resultDietStatistics = $dbConn->query($sqlDietStatistics);
+
+                    // Initializing diet statistics with correct categories from your data
+                    $dietStatistics = [
+                        'Vegetarian' => [],
+                        'Vegan' => [],
+                        'Ketogenic' => [],
+                        'Paleo' => [],
+                        'Mediterranean' => [],
+                        'Pescatarian' => [],
+                        'High Protein' => [],
+                        'Low Carb' => [],
+                        'Gluten Free' => [],
+                        'Heart Healthy' => [],
+                        'Anti-Inflammatory' => []
+                    ];
+
+                    while ($row = $resultDietStatistics->fetch_assoc()) {
+                        $currentDietType = $row['diet_type'];
+                        
+                        // Make sure the diet type exists in our array
+                        if (!isset($dietStatistics[$currentDietType])) {
+                            $dietStatistics[$currentDietType] = [];
+                        }
+                        
+                        $dietStatistics[$currentDietType][] = [
+                            'calories' => (int)$row['total_calories'],
+                            'preparation_min' => (int)$row['preparation_min'],
+                            'total_diet_count' => (int)$row['total_diet_count']
+                        ];
+                    }
+
+                    // Create JavaScript-friendly variable names
+                    $jsVariableNames = [
+                        'Vegetarian' => 'vegetarian',
+                        'Vegan' => 'vegan', 
+                        'Meat' => 'meat',
+                        'All' => 'all',
+                    ];
+
+                    // Convert PHP array keys to match JavaScript expected keys
+                    $jsDietStatistics = [];
+                    foreach ($dietStatistics as $dietType => $data) {
+                        $jsKey = isset($jsVariableNames[$dietType]) ? $jsVariableNames[$dietType] : strtolower(str_replace(' ', '', $dietType));
+                        $jsDietStatistics[$jsKey] = $data;
+                    }
+                    ?>
+
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Get data from PHP
+                        const dietStatistics = <?php echo json_encode($jsDietStatistics); ?>;
+                        
+                        function createScatterChart(canvasId, xAxisLabel, xAxisDataKey, data) {
+                            const ctx = document.getElementById(canvasId).getContext('2d');
+                            
+                            // Prepare datasets dynamically based on available data
+                            const datasets = [];
+                            const colors = {
+                                'vegetarian': 'rgb(197, 236, 113)',
+                                'vegan': 'rgb(140, 184, 255)',
+                                'meat': 'rgb(255, 154, 154)',
+                                'all': 'rgb(220, 167, 255)',
+                            };
+                            
+                            // Only create datasets for diet types that have data
+                            Object.keys(data).forEach(dietType => {
+                                if (data[dietType] && data[dietType].length > 0) {
+                                    const displayName = dietType.charAt(0).toUpperCase() + dietType.slice(1)
+                                        .replace(/([A-Z])/g, ' $1').trim(); // Convert camelCase to Title Case with spaces
+                                    
+                                    datasets.push({
+                                        label: displayName,
+                                        data: data[dietType].map(diet => ({
+                                            x: diet[xAxisDataKey],
+                                            y: diet.total_diet_count
+                                        })),
+                                        backgroundColor: colors[dietType] || `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`,
+                                        borderColor: colors[dietType] || `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`,
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6
+                                    });
+                                }
+                            });
+                            
+                            const scatterChart = new Chart(ctx, {
+                                type: 'scatter',
+                                data: {
+                                    datasets: datasets
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: xAxisLabel
+                                            },
+                                            type: 'linear',
+                                            position: 'bottom'
+                                        },
+                                        y: {
+                                            title: {
+                                                display: true,
+                                                text: 'Number of Times Prepared'
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top'
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    return `${context.dataset.label}: (${context.parsed.x}, ${context.parsed.y})`;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        // Create the charts if data exists
+                        if (document.getElementById('preparationTimeChart')) {
+                            createScatterChart('preparationTimeChart', 'Preparation Time (minutes)', 'preparation_min', dietStatistics);
+                        }
+                        
+                        if (document.getElementById('dietCalorieChart')) {
+                            createScatterChart('dietCalorieChart', 'Calories', 'calories', dietStatistics);
+                        }
+                    });
+                    </script>
             </div>
         </section>
     </div>
