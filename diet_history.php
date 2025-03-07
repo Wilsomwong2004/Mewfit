@@ -111,21 +111,6 @@
         <h1>History</h1>
       </header>
 
-      <!-- <div class="search-date">
-        <h2>2000B.C</h2>
-      </div>
-      <div class="workout-record">
-        <img
-          class="picture"
-          src="./assets/workout_pics/workout1.jpeg"
-          alt="dumbell raise"
-        />
-        <p class="name">HIITT Name</p>
-        <p class="type">Yoga</p>
-        <p class="kcal">150 kcal</p>
-        <p class="time">30 mins</p>
-      </div> -->
-
       <?php
         $servername = "localhost";
         $username = "root";
@@ -134,7 +119,7 @@
       
         $conn = new mysqli($servername, $username, $password, $dbname);
 
-        $member_id = "1"; // replace with session variable later
+        $member_id = "10"; // replace with session variable later
         $exist_record = false;
 
         if ($conn->connect_error) {
@@ -142,19 +127,18 @@
         }
         
         $sql = "SELECT 
-                workout_history.workout_history_id,
-                workout_history.date,
-                workout_history.member_id,
-                workout_history.workout_id,
-                workout.workout_name,
-                workout.workout_type,
-                workout.calories,
-                workout.duration,
-                workout.thumbnail
-                FROM workout_history 
-                INNER JOIN workout 
-                ON workout_history.workout_id = workout.workout_id
-                ORDER BY workout_history.date DESC"; // connect the workout_history table and workout table
+                diet_history.diet_history_id,
+                diet_history.date,
+                diet_history.member_id,
+                diet_history.diet_id,
+                diet.diet_name,
+                diet.diet_type,
+                diet.preparation_min,
+                diet.picture
+                FROM diet_history 
+                INNER JOIN diet 
+                ON diet_history.diet_id = diet.diet_id
+                ORDER BY diet_history.date DESC"; // connect the workout_history table and workout table
 
         $result = $conn->query($sql); // create a variable and store the sql query result inside it
         
@@ -181,27 +165,20 @@
                   <div class=\"workout-record\">
                   <img
                   class=\"picture\"
-                  src=\"./assets/workout_pics/{$row['thumbnail']}\"
-                  alt=\"{$row['workout_name']}\"
+                  src=\"./assets/workout_pics/{$row['picture']}\"
+                  alt=\"{$row['diet_name']}\"
                   />
-                  <p class=\"name\">{$row['workout_name']}</p>
-                  <p class=\"type\">{$row['workout_type']}</p>
-                  <p class=\"kcal\">{$row['calories']}kcal</p>
-                  <p class=\"time\">{$row['duration']}min</p>
+                  <p class=\"name\">{$row['diet_name']}</p>
+                  <p class=\"type\">{$row['diet_type']}</p>
+                  <p class=\"time\">{$row['preparation_min']}min</p>
                   </div>
                 ";
             }
         }
 
         if (!$exist_record) {
-          echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
+          echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no diet meals recorded in your history</marquee>";
         }
-
-        // for ($i = 0; $i <= 10; $i++) {
-        //     $date = new DateTime();
-        //     $date->modify("-$i days");
-        //     echo $date->format("Y-m-d") . "<br>";
-        // }
 
       $conn->close();
       ?>

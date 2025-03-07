@@ -136,11 +136,10 @@ html.dark-mode .nav-links a {
 }
 
 .no-record {
-  color: red; /* Change text color */
-  font-size: 20px; /* Adjust font size */
-  font-weight: bold; /* Make it bold */
-  background-color: yellow; /* Background color */
-  padding: 10px; /* Add some padding */
+  flex: 1 0 0;
+  font-size: 5rem;
+  font-weight: bold;
+  margin: 10% 0px;
 }
 
 .workout-date {
