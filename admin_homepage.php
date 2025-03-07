@@ -504,15 +504,21 @@
                             <canvas id="levelChart"></canvas>
                         </div>
                         <div>
-                            <h4>Target Weight vs Day Streak Distribution</h4>
-                            <canvas id="dayStreakChart"></canvas>
+                            <h4>Member vs Activity Performance Distribution</h4>
+                            <canvas id="performanceChart"></canvas>
                         </div>
                         <div>
                             <h4>Age vs Level Distribution</h4>
                             <canvas id="ageChart"></canvas>
                         </div>
+                        <div>
+                            <h4>Performance Distribution</h4>
+                            <canvas id="memberPerformanceChart"></canvas>
+                        </div>
                     </div>
                     <?php 
+
+                    //-------------------------CHART 1----------------------------------------
                 $sqlLevel = "SELECT 
                 CASE 
                     WHEN level BETWEEN 1 AND 10 THEN '1-10'
@@ -535,117 +541,348 @@
             $resultLevel = $dbConn->query($sqlLevel);
             $dataLevel = $resultLevel->fetch_all(MYSQLI_ASSOC);
 
+            //--------------------------------------------CHART 2----------------------------
+            $sqlRegistered1 = "SELECT 
+                CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
+                COUNT(*) AS registered_count
+            FROM member
+            GROUP BY period
+            ORDER BY period";
+
+            $resultRegistered = $dbConn->query($sqlRegistered1);
+            $registeredData = [];
+            while ($row = $resultRegistered->fetch_assoc()) {
+                $registeredData[$row['period']] = $row['registered_count'];
+            }
+
+            // Fetch performance data
+            $sqlPerformance = "SELECT 
+                CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period, 
+                SUM(workout_history_count + diet_history_count) AS total_performance
+            FROM member_performance
+            GROUP BY period
+            ORDER BY period";
+
+            $resultPerformance = $dbConn->query($sqlPerformance);
+            $performanceData = [];
+            while ($row = $resultPerformance->fetch_assoc()) {
+                $performanceData[$row['period']] = $row['total_performance'];
+            }
+
+            // Combine periods
+            $periods = array_unique(array_merge(array_keys($registeredData), array_keys($performanceData)));
+            sort($periods);
+
+            // Prepare cumulative counts for registered members
+            $registeredCounts = [];
+            $cumulativeCount = 0; // Initialize cumulative count
+
+            foreach ($periods as $period) {
+                $cumulativeCount += $registeredData[$period] ?? 0; // Add current period's count
+                $registeredCounts[] = $cumulativeCount; // Store cumulative count
+            }
+
+            // Prepare performance counts
+            $performanceCounts = [];
+            foreach ($periods as $period) {
+                $performanceCounts[] = $performanceData[$period] ?? 0; // Store performance counts
+            }
+            //------------------------------------------CHART 3-------------------------------
             $sqlAgeLevel = "SELECT 
-                    age,
-                    level
-                FROM 
-                    member
-                WHERE 
-                    level BETWEEN 1 AND 50
-                ORDER BY 
-                    age";
+                CASE 
+                    WHEN age < 18 THEN 'Under 18'
+                    WHEN age BETWEEN 18 AND 29 THEN '18-29'
+                    WHEN age BETWEEN 30 AND 49 THEN '30-49'
+                    ELSE '50+' 
+                END AS age_group,
+                CASE 
+                    WHEN level BETWEEN 1 AND 10 THEN '1-10'
+                    WHEN level BETWEEN 11 AND 20 THEN '11-20'
+                    WHEN level BETWEEN 21 AND 30 THEN '21-30'
+                    WHEN level BETWEEN 31 AND 40 THEN '31-40'
+                    ELSE '41-50'
+                END AS level_range,
+                COUNT(*) AS count
+            FROM 
+                member
+            GROUP BY 
+                age_group, level_range
+            ORDER BY 
+                FIELD(age_group, 'Under 18', '18-29', '30-49', '50+'), 
+                FIELD(level_range, '1-10', '11-20', '21-30', '31-40', '41-50')";
 
             $resultAgeLevel = $dbConn->query($sqlAgeLevel);
             $dataAgeLevel = $resultAgeLevel->fetch_all(MYSQLI_ASSOC);
 
-            // Prepare data for the area chart
-            $ageData = [];
-            $levelData = [];
+            $ageGroups = ['Under 18', '18-29', '30-49', '50+'];
+            $levelRanges = ['1-10', '11-20', '21-30', '31-40', '41-50'];
+
+            $chartData = [];
+
+            foreach ($ageGroups as $ageGroup) {
+                $chartData[$ageGroup] = array_fill(0, count($levelRanges), 0);
+            }
 
             foreach ($dataAgeLevel as $row) {
-                $ageData[] = $row['age'];
-                $levelData[] = $row['level'];
+                $ageIndex = array_search($row['age_group'], $ageGroups);
+                $levelIndex = array_search($row['level_range'], $levelRanges);
+                if ($ageIndex !== false && $levelIndex !== false) {
+                    $chartData[$row['age_group']][$levelIndex] = $row['count'];
+                }
             }
             ?>
 
-            <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                
-                const ctxAge = document.getElementById('ageChart').getContext('2d');
-                const ageData = <?php echo json_encode($ageData); ?>; // Convert PHP data to JavaScript
-                const levelData = <?php echo json_encode($levelData); ?>; // Convert PHP data to JavaScript
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        //-----------------------------CHART 1----------------------------------
+                        const ctxBar = document.getElementById('ageChart').getContext('2d');
+            
+                        const levelLabels2 = <?php echo json_encode($levelRanges); ?>;
+                        const ageGroupData = <?php echo json_encode(array_values($chartData), JSON_NUMERIC_CHECK); ?>;
+                        const ageGroupLabels = <?php echo json_encode(array_keys($chartData)); ?>;
 
-                // Create the area chart
-                new Chart(ctxAge, {
-                    type: 'line', // Use 'line' type for area chart
-                    data: {
-                        labels: ageData,
-                        datasets: [{
-                            label: 'Level Distribution',
-                            data: levelData,
-                            fill: true, // Fill the area under the line
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Age' // Title for x-axis
-                                }
+                        const customColors = {
+                            'Under 18': 'rgb(255, 206, 241)',
+                            '18-29': 'rgb(255, 210, 151)',
+                            '30-49': 'rgb(192, 228, 255)',
+                            '50+': 'rgb(215, 197, 255)'
+                        };
+
+                        new Chart(ctxBar, {
+                            type: 'bar',
+                            data: {
+                                labels: levelLabels2,
+                                datasets: ageGroupLabels.map((ageGroup) => ({
+                                    label: ageGroup,
+                                    data: ageGroupData[ageGroupLabels.indexOf(ageGroup)],
+                                    backgroundColor: customColors[ageGroup],
+                                    borderColor: customColors[ageGroup].replace('0.5', '1'), // Make border color opaque
+                                    borderWidth: 1
+                                }))
                             },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Level' // Title for y-axis
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Level Ranges'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Count'
+                                        },
+                                        beginAtZero: true
+                                    }
                                 },
-                                beginAtZero: true // Start y-axis at zero
-                            }
-                        }
-                    }
-                });
-                // Level vs Fitness Goal Chart
-                const ctxLevel = document.getElementById('levelChart').getContext('2d');
-                const levelData = <?php echo json_encode($dataLevel); ?>;
-                
-                const levelLabels = levelData.map(item => item.level_range);
-                const loseWeightData = levelData.map(item => parseInt(item.lose_weight) || 0);
-                const gainMuscleData = levelData.map(item => parseInt(item.gain_muscle) || 0);
-                
-                new Chart(ctxLevel, {
-                    type: 'bar',
-                    data: {
-                        labels: levelLabels,
-                        datasets: [
-                            {
-                                label: 'Lose Weight',
-                                data: loseWeightData,
-                                backgroundColor: 'rgb(255, 155, 155)',
-                            },
-                            {
-                                label: 'Gain Muscle',
-                                data: gainMuscleData,
-                                backgroundColor: 'rgb(255, 223, 135)',
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                stacked: true,
-                                title: {
-                                    display: true,
-                                    text: 'Level Range'
-                                }
-                            },
-                            y: {
-                                stacked: true,
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of Members'
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
                                 }
                             }
-                        }
-                    }
-                });
-            });
-            </script>
+                        });
+                        //------------------------CHART 2-----------------------------
+                        const ctx6 = document.getElementById('performanceChart').getContext('2d');
+
+                        const periods = <?php echo json_encode($periods); ?>;
+                        const registeredData = <?php echo json_encode($registeredCounts, JSON_NUMERIC_CHECK); ?>; // Use cumulative counts
+                        const performanceData = <?php echo json_encode($performanceCounts, JSON_NUMERIC_CHECK); ?>;
+
+                        new Chart(ctx6, {
+                            type: 'line', 
+                            data: {
+                                labels: periods,
+                                datasets: [
+                                    {
+                                        label: 'Cumulative Member Registrations',
+                                        data: registeredData,
+                                        backgroundColor: 'rgb(161, 217, 255)',
+                                        borderColor: 'rgb(161, 217, 255)',
+                                        borderWidth: 2,
+                                        pointStyle: false,
+                                        fill: true
+                                    },
+                                    {
+                                        label: 'Performance (Workout + Diet)',
+                                        data: performanceData,
+                                        backgroundColor: 'rgb(255, 197, 210)',
+                                        borderColor: 'rgb(255, 197, 210)',
+                                        borderWidth: 2,
+                                        pointStyle: false,
+                                        fill: true
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: { display: true, text: 'Date (Grouped per 4 Months)' }
+                                    },
+                                    y: {
+                                        title: { display: true, text: 'Performance Score' },
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                        //------------------------CHART 3------------------------------
+                        const ctxLevel = document.getElementById('levelChart').getContext('2d');
+                        const levelData3 = <?php echo json_encode($dataLevel); ?>;
+                        
+                        const levelLabels = levelData3.map(item => item.level_range);
+                        const loseWeightData = levelData3.map(item => parseInt(item.lose_weight) || 0);
+                        const gainMuscleData = levelData3.map(item => parseInt(item.gain_muscle) || 0);
+                        
+                        new Chart(ctxLevel, {
+                            type: 'bar',
+                            data: {
+                                labels: levelLabels,
+                                datasets: [
+                                    {
+                                        label: 'Lose Weight',
+                                        data: loseWeightData,
+                                        backgroundColor: 'rgb(255, 155, 155)',
+                                    },
+                                    {
+                                        label: 'Gain Muscle',
+                                        data: gainMuscleData,
+                                        backgroundColor: 'rgb(255, 223, 135)',
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        stacked: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Level Range'
+                                        }
+                                    },
+                                    y: {
+                                        stacked: true,
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Members'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    </script>
+
+<?php
+$sqlRegistered = "SELECT DISTINCT CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period 
+                  FROM member ORDER BY period";
+$resultRegistered = $dbConn->query($sqlRegistered);
+$registrationPeriods = [];
+while ($row = $resultRegistered->fetch_assoc()) {
+    $registrationPeriods[] = $row['period'];
+}
+
+// Get performance data for each member group (grouped by their registration period)
+$performanceData = [];
+foreach ($registrationPeriods as $regPeriod) {
+    $sqlPerformance = "SELECT 
+                        CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period,
+                        SUM(workout_history_count + diet_history_count) AS total_performance
+                    FROM member_performance
+                    WHERE member_id IN (
+                        SELECT member_id FROM member WHERE 
+                        CONCAT(YEAR(date_registered), '-', LPAD(((MONTH(date_registered)-1) DIV 4)*4 + 1, 2, '0')) = '$regPeriod'
+                    )
+                    GROUP BY period
+                    ORDER BY period";
+
+    $resultPerformance = $dbConn->query($sqlPerformance);
+    
+    $performanceData[$regPeriod] = [];
+    while ($row = $resultPerformance->fetch_assoc()) {
+        $performanceData[$regPeriod][$row['period']] = $row['total_performance'];
+    }
+}
+
+// Get all unique time periods from performance records
+$allPeriods = [];
+foreach ($performanceData as $data) {
+    $allPeriods = array_merge($allPeriods, array_keys($data));
+}
+$allPeriods = array_unique($allPeriods);
+sort($allPeriods);
+
+// Prepare dataset structure
+$datasets = [];
+foreach ($registrationPeriods as $regPeriod) {
+    $dataPoints = [];
+    foreach ($allPeriods as $period) {
+        $dataPoints[] = $performanceData[$regPeriod][$period] ?? 0;
+    }
+    $datasets[] = [
+        "label" => "Reg. " . $regPeriod,
+        "data" => $dataPoints
+    ];
+}
+?>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx7 = document.getElementById('memberPerformanceChart').getContext('2d');
+
+    // Convert PHP arrays to JavaScript
+    const periods = <?php echo json_encode($allPeriods); ?>;
+    const datasets = <?php echo json_encode($datasets, JSON_NUMERIC_CHECK); ?>;
+
+    // Color generator function
+    function generateColor(index) {
+        const colors = [
+            'rgb(255, 160, 180)', 'rgb(128, 204, 255)', 
+            'rgb(255, 207, 86)', 'rgb(179, 255, 156)', 
+            'rgb(212, 191, 255)b(255, 160, 64)'
+        ];
+        return colors[index % colors.length];
+    }
+
+    new Chart(ctx7, {
+        type: 'line', // Area chart
+        data: {
+            labels: periods,
+            datasets: datasets.map((dataset, index) => ({
+                ...dataset,
+                borderColor: generateColor(index),
+                backgroundColor:"rgba(179, 255, 156, 0)",
+                borderWidth: 2,
+                tension: 0.05,
+                pointRadius:1,
+                pointHoverRadius:5,
+                pointHoverBackgroundColor:generateColor(index),
+                fill:true
+            }))
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: { display: true, text: 'Date (January & June each year)' }
+                },
+                y: {
+                    title: { display: true, text: 'Performance Score' },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+});
+</script>
                 </div>
 
                 
