@@ -421,12 +421,13 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Simple moves to get your heart pumping.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
             { "exercise": "March On The Spot", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_March_On_The_Spot_Joanna_Soh.mp4" },
-            { "exercise": "Side to Side Step", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Side_to_Side_Step_Joanna_Soh.mp4" },
             { "exercise": "Low Impact High Knee", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Low_Impact_High_Knee_Joanna_Soh.mp4" },
+            { "exercise": "Side to Side Step", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Side_to_Side_Step_Joanna_Soh.mp4" },
             { "exercise": "Twist & Reach", "duration": "1 minute", "video": "./assets/workout_video/Jumpstart Cardio/How_to_do_Twist_Reach_Joanna_Soh.mp4" }
         ]
     },
@@ -436,6 +437,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-intensity intervals for explosive results.",
+        "image": '',
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
@@ -451,6 +453,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for dynamic movements.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
@@ -465,6 +468,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Cardio with boxing-inspired moves.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 2,
         "exercises": [
@@ -479,6 +483,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle cardio for joint-friendly sweating.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -493,6 +498,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Mix of jumps and agility drills.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
@@ -507,6 +513,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Intermediate",
         "description": "Elevate your heart rate with step-ups.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 4,
         "exercises": [
@@ -521,6 +528,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Beginner",
         "description": "Fun moves to keep you moving.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -535,6 +543,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Blast fat while engaging your core.",
+        "image": '',
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
@@ -549,6 +558,7 @@ const workouts = [
         "calories": "90Kcal",
         "level": "Beginner",
         "description": "Fast routine to kickstart your day.",
+        "image": '',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -564,6 +574,7 @@ const workouts = [
         "calories": "250Kcal",
         "level": "Intermediate",
         "description": "Compound lifts for total strength.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -579,6 +590,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Target arms, shoulders, and back.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -594,6 +606,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Intermediate",
         "description": "Build lower body power.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -609,6 +622,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Real-world movement patterns.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -624,6 +638,7 @@ const workouts = [
         "calories": "190Kcal",
         "level": "Advanced",
         "description": "Strengthen posterior chain.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -639,6 +654,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for resistance.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -653,6 +669,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Full-body endurance with weights.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
@@ -668,6 +685,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Strengthen arms and abs.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -682,6 +700,7 @@ const workouts = [
         "calories": "210Kcal",
         "level": "Advanced",
         "description": "Build stamina with weights.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
@@ -697,6 +716,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Improve movement quality.",
+        "image": '',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -712,6 +732,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Target abs with no equipment.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -727,6 +748,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle moves for joint health.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -742,6 +764,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "No equipment, full-body focus.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -757,6 +780,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Advanced",
         "description": "Advanced ab challenges.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -771,6 +795,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Focus on legs and glutes.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -786,6 +811,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Beginner",
         "description": "Improve balance and control.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
@@ -800,6 +826,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Master push-up variations.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -814,6 +841,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Beginner",
         "description": "Enhance movement range.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
@@ -823,19 +851,19 @@ const workouts = [
         ]
     },
 
-    //Stop here
     {
         "title": "Total Body Tone",
         "duration": "30 minutes",
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-effort bodyweight moves.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Burpee to Push-Up", "reps": 10, "video": " " },
-            { "exercise": "Split Jack Knife", "reps": 15, "video": " " },
-            { "exercise": "Sprinter Alternate Knee Tucks", "reps": 20, "video": " " }
+            { "exercise": "Burpee to Push-Up", "reps": 10, "video": ".assets/workout_video/Total Body Tone/Burpee to Push-Up.mp4" },
+            { "exercise": "Split Jack Knife", "reps": 15, "video": ".assets/workout_video/Total Body Tone/Split Jack Knife.mp4" },
+            { "exercise": "Sprinter Alternate Knee Tucks", "reps": 20, "video": ".assets/workout_video/Total Body Tone/Sprinter Alternate Knee Tucks.mp4" }
         ]
     },
     {
@@ -844,12 +872,13 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Improve stability.",
+        "image": '',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Single Leg Hip Bridge", "reps": 12, "video": " " },
-            { "exercise": "Assisted Lunge", "reps": 10, "video": " " },
-            { "exercise": "Standing Side Crunch", "reps": 15, "video": " " }
+            { "exercise": "Single Leg Hip Bridge", "reps": 12, "video": ".assets/workout_video/Balance & Coordination/Single Leg Hip Bridge.mp4" },
+            { "exercise": "Assisted Lunge", "reps": 10, "video": ".assets/workout_video/Balance & Coordination/Assisted Lunge.mp4" },
+            { "exercise": "Standing Side Crunch", "reps": 15, "video": ".assets/workout_video/Balance & Coordination/Standing Side Crunch.mp4" }
         ]
     },
     // Yoga
@@ -859,12 +888,13 @@ const workouts = [
         "calories": "60Kcal",
         "level": "Beginner",
         "description": "Relax and recover.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "3 minutes", "video": " " },
-            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": " " },
-            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": " " }
+            { "pose": "Child Pose", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Child Pose.mp4" },
+            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Downward Facing Dog.mp4" },
+            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Butterfly Stretch.mp4" }
         ]
     },
     {
@@ -873,26 +903,13 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Improve mobility and posture.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": " " },
-            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": " " },
-            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": " " }
-        ]
-    },
-    {
-        "title": "Hip Opener Routine",
-        "duration": "15 minutes",
-        "calories": "50Kcal",
-        "level": "Beginner",
-        "description": "Release tension in hips.",
-        "type": ["All", "Yoga"],
-        "sets": 1,
-        "exercises": [
-            { "pose": "Pigeon Pose (modified)", "duration": "3 minutes", "video": " " },
-            { "pose": "Kneeling Hip Flexor", "duration": "3 minutes", "video": " " },
-            { "pose": "Inner Thigh Stretch", "duration": "3 minutes", "video": " " }
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Cat and Camel.mp4" },
+            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Lying Spinal Twist.mp4" },
+            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Standing Hamstring Stretch.mp4" }
         ]
     },
     {
@@ -901,12 +918,13 @@ const workouts = [
         "calories": "70Kcal",
         "level": "Intermediate",
         "description": "Ease back stiffness.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cobra", "duration": "5 minutes", "video": " " },
-            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": " " },
-            { "pose": "Spinal Twist", "duration": "5 minutes", "video": " " }
+            { "pose": "Cobra", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Cobra.mp4" },
+            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Bridge Stretch.mp4" },
+            { "pose": "Spinal Twist", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Lying Spinal Twist.mp4" }
         ]
     },
     {
@@ -915,26 +933,13 @@ const workouts = [
         "calories": "30Kcal",
         "level": "Beginner",
         "description": "Release upper body tension.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Neck Stretches", "duration": "3 minutes", "video": " " },
-            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": " " },
-            { "pose": "Chest Stretch", "duration": "3 minutes", "video": " " }
-        ]
-    },
-    {
-        "title": "Full-Body Stretch",
-        "duration": "25 minutes",
-        "calories": "90Kcal",
-        "level": "Intermediate",
-        "description": "Comprehensive flexibility session.",
-        "type": ["All", "Yoga"],
-        "sets": 1,
-        "exercises": [
-            { "pose": "Split Side Stretch", "duration": "5 minutes", "video": " " },
-            { "pose": "Lying Glute Stretch", "duration": "5 minutes", "video": " " },
-            { "pose": "Seated Forward Bend", "duration": "5 minutes", "video": " " }
+            { "pose": "Neck Stretches", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Neck Stretches.mp4" },
+            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Shoulder Stretch.mp4" },
+            { "pose": "Chest Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Chest Stretch.mp4" }
         ]
     },
     {
@@ -943,26 +948,13 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Wake up your body gently.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Arm Circle", "duration": "3 minutes", "video": " " },
-            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": " " },
-            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": " " }
-        ]
-    },
-    {
-        "title": "Deep Relaxation",
-        "duration": "20 minutes",
-        "calories": "50Kcal",
-        "level": "Beginner",
-        "description": "Calm mind and body.",
-        "type": ["All", "Yoga"],
-        "sets": 1,
-        "exercises": [
-            { "pose": "Corpse Pose", "duration": "5 minutes", "video": " " },
-            { "pose": "Legs-Up-The-Wall", "duration": "5 minutes", "video": " " },
-            { "pose": "Breathing Exercise", "duration": "5 minutes", "video": " " }
+            { "pose": "Arm Circle", "duration": "3 minutes", "video": ".assets/workout_video/Morning Mobility/Overhead Arm Circle.mp4" },
+            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": "assets/workout_video/Morning Mobility/Alternate Cross Stretch.mp4" },
+            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": "assets/workout_video/Morning Mobility/Hug Knees to Chest.mp4" }
         ]
     },
     {
@@ -971,12 +963,13 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Dynamic stretching for athletes.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": " " },
-            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": " " },
-            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": " " }
+            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Hip Flexor Reach.mp4" },
+            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Lying Hamstring Stretch.mp4" },
+            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Wrist Stretch.mp4" }
         ]
     },
     {
@@ -985,27 +978,13 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Unwind before bed.",
+        "image": '',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "5 minutes", "video": " " },
-            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": " " },
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": " " }
-        ]
-    },
-    //Meditation
-    {
-        "title": "Meditation",
-        "duration": "10 minutes",
-        "calories": "100Kcal",
-        "level": "Beginner",
-        "description": "Calm your mind and body.",
-        "type": ["All", "Meditation"],
-        "sets": 1,
-        "exercises": [
-            { "meditation": "Mindfulness", "duration": "5 minutes", "video": " " },
-            { "meditation": "Meditation", "duration": "5 minutes", "video": " " },
-            { "meditation": "Mindfulness", "duration": "5 minutes", "video": " " }
+            { "pose": "Child Pose", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Child Pose.mp4" },
+            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Butterfly Stretch.mp4" },
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Cat and Camel.mp4" }
         ]
     },
 ];

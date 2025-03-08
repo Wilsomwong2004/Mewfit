@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2025 at 03:47 AM
+-- Generation Time: Mar 08, 2025 at 10:33 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `mewfit`
 --
-CREATE DATABASE IF NOT EXISTS `mewfit` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `mewfit`;
 
 -- --------------------------------------------------------
 
@@ -75,47 +73,36 @@ CREATE TABLE `diet` (
   `preparation_min` int(11) DEFAULT NULL,
   `picture` varchar(255) DEFAULT NULL,
   `directions` text DEFAULT NULL,
-  `nutrition_id` int(11) DEFAULT NULL,
-  `date_registered` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `date_registered` date DEFAULT NULL,
+  `nutrition_id` int(11) DEFAULT NULL
+) ;
 
 --
 -- Dumping data for table `diet`
 --
 
-INSERT INTO `diet` (`diet_id`, `diet_name`, `description`, `diet_type`, `preparation_min`, `picture`, `directions`, `nutrition_id`, `date_registered`) VALUES
-(12, 'vfdcrevfd', 'vfdcx', 'meat', 55, NULL, 'vds,vwds', NULL, NULL),
-(13, 'vfd', 'tkughj,n', 'meat', 55, '', 'htgf,fyhcg', NULL, NULL),
-(14, 'vfdas', 'sca', 'vegetarian', 22, '', 'as,rsf', NULL, NULL),
-(15, 'vfdascds', 'ca', 'vegetarian', 22, '', 'as,tg', NULL, NULL),
-(16, 'hihihhhh', 'rg', 'vegetarian', 22, '', 'er,df', NULL, NULL),
-(17, 'hihihgf', 'thgn', 'vegetarian', 22, '', 'gn,h', NULL, NULL),
-(18, 'hihihgffew', 'we', 'vegetarian', 22, '', 'ww', NULL, NULL),
-(19, 'soup', 'as', 'vegetarian', 22, '', 'as', NULL, NULL),
-(21, 'soupyfft', 'f', 'vegetarian', 22, NULL, 'f', NULL, NULL),
-(22, 'vds', 'e', 'vegetarian', 22, NULL, 'e', NULL, NULL),
-(23, 'fish', 's', 'vegetarian', 22, '', 's', NULL, NULL),
-(24, 'fishsa', 'a', 'vegetarian', 22, '', 'a', NULL, NULL),
-(25, 'fishsax', 'x', 'vegetarian', 22, '', 'x', NULL, NULL),
-(26, 'fishsaxg', 'gg', 'vegetarian', 22, '', 'g', NULL, NULL),
-(27, 'fishsaxgyy', 'y', 'vegetarian', 22, '', 'y', NULL, NULL),
-(28, 'fishsaxgyygggggg', 'g', 'vegetarian', 22, '', 'g', NULL, NULL),
-(29, 'fishgd', 'f', 'vegetarian', 22, '', 'f', NULL, NULL),
-(30, 'soupi', 'g', 'vegetarian', 22, '', 'g', NULL, NULL),
-(31, 'soupiyy', 'y', 'vegetarian', 22, '', 'y', NULL, NULL),
-(32, 'sou', 'r', 'vegetarian', 22, '', 'r', NULL, NULL),
-(33, 'soudddddd', 'd', 'vegetarian', 22, '', 'd', NULL, NULL),
-(34, 'soud', '0', 'vegetarian', 22, '', '', NULL, NULL),
-(35, 'soudeedfdffr', 'ee', 'vegetarian', 22, '', 'ee', NULL, NULL),
-(36, 'tfgj', '6', 'meat', 6, '', '6', NULL, NULL),
-(37, 'u', '0', 'meat', 8, '', '', NULL, NULL),
-(38, 'ik', '8', 'meat', 8, '', '8', NULL, NULL),
-(39, 'roasted duck', '4', 'meat', 4, NULL, '4', NULL, NULL),
-(40, 'es', '2', 'meat', 2, NULL, '2', NULL, NULL),
-(41, 'ducky', '3', 'vegetarian', 3, NULL, '3', NULL, NULL),
-(42, 'ij', '8', 'meat', 8, NULL, '8', NULL, NULL),
-(43, 'rhfd', '8', 'meat', 7, NULL, '8', NULL, NULL),
-(44, 'iygjh', '6', 'vegan', 6, NULL, '6', NULL, NULL);
+INSERT INTO `diet` (`diet_id`, `diet_name`, `description`, `diet_type`, `preparation_min`, `picture`, `directions`, `date_registered`, `nutrition_id`) VALUES
+(1, 'Greek Salad', 'Traditional Greek salad with feta cheese and olives', 'vegetarian', 15, 'greek_salad.jpg', 'Combine chopped cucumbers, tomatoes, red onion, olives, and feta cheese. Drizzle with olive oil and sprinkle with oregano.', '2024-01-10', 4),
+(2, 'Grilled Chicken with Vegetables', 'Simple high protein meal with seasonal vegetables', 'vegetarian', 25, 'grilled_chicken.jpg', 'Season chicken breast and grill. Steam mixed vegetables and serve together.', '2024-01-15', 2),
+(3, 'Avocado Toast', 'Healthy breakfast with whole grain bread', 'vegetarian', 10, 'avocado_toast.jpg', 'Toast bread, spread mashed avocado, add salt, pepper, and red pepper flakes.', '2024-02-05', 7),
+(4, 'Salmon with Asparagus', 'Baked salmon fillet with roasted asparagus', 'meat', 30, 'salmon_asparagus.jpg', 'Season salmon, bake at 400°F for 15 minutes. Roast asparagus with olive oil.', '2024-02-12', 13),
+(5, 'Beef and Broccoli Stir Fry', 'Quick weeknight dinner with lean beef', 'meat', 20, 'beef_broccoli.jpg', 'Stir fry sliced beef with broccoli, garlic, and soy sauce. Serve immediately.', '2024-02-25', 6),
+(6, 'Quinoa Bowl', 'Nutrient-rich bowl with mixed vegetables', 'vegan', 20, 'quinoa_bowl.jpg', 'Cook quinoa, top with roasted vegetables, chickpeas, and tahini dressing.', '2024-03-05', 5),
+(7, 'Keto Breakfast Plate', 'Low carb breakfast with eggs and avocado', 'vegan', 15, 'keto_breakfast.jpg', 'Cook eggs as desired, serve with avocado slices and bacon.', '2024-03-18', 3),
+(8, 'Mediterranean Mezze Platter', 'Assortment of small dishes and dips', 'vegan', 25, 'mezze_platter.jpg', 'Arrange hummus, tzatziki, olives, feta, and vegetables on a platter. Serve with pita bread.', '2024-03-30', 4),
+(9, 'Protein Smoothie Bowl', 'Thick smoothie topped with fruits and nuts', 'all', 10, 'smoothie_bowl.jpg', 'Blend protein powder with frozen fruits and milk. Top with fresh berries, nuts, and seeds.', '2024-04-08', 17),
+(10, 'Lentil Soup', 'Hearty vegetarian soup with vegetables', 'vegetarian', 40, 'lentil_soup.jpg', 'Simmer lentils with onions, carrots, celery, and spices until tender.', '2024-04-22', 7),
+(11, 'Baked Cod with Sweet Potato', 'Simple fish dinner with roasted vegetables', 'meat', 35, 'cod_sweet_potato.jpg', 'Season cod fillets, bake alongside sweet potato wedges.', '2024-05-03', 19),
+(12, 'Chicken and Vegetable Skewers', 'Grilled protein with colorful vegetables', 'vegetarian', 30, 'chicken_skewers.jpg', 'Thread chicken pieces and vegetables onto skewers, grill until chicken is cooked through.', '2024-05-17', 11),
+(13, 'Berry Oatmeal', 'Wholesome breakfast with mixed berries', 'vegetarian', 15, 'berry_oatmeal.jpg', 'Cook oatmeal with milk, top with mixed berries and a drizzle of honey.', '2024-06-02', 19),
+(14, 'Turkey and Spinach Stuffed Peppers', 'Bell peppers filled with lean turkey mixture', 'vegetarian', 45, 'stuffed_peppers.jpg', 'Brown turkey with onions and garlic, mix with spinach and spices, stuff into bell peppers and bake.', '2024-06-15', 1),
+(15, 'Asian Tofu Stir Fry', 'Quick vegetarian dish with mixed vegetables', 'vegan', 20, 'tofu_stir_fry.jpg', 'Stir fry firm tofu with broccoli, bell peppers, and soy sauce. Serve over rice.', '2024-07-01', 5),
+(16, 'Protein Pancakes', 'High protein breakfast option', 'all', 20, 'protein_pancakes.jpg', 'Mix protein powder with eggs and banana, cook pancakes, top with berries.', '2024-07-18', 2),
+(17, 'Spaghetti Squash with Marinara', 'Low carb alternative to pasta', 'all', 50, 'spaghetti_squash.jpg', 'Roast spaghetti squash, scrape strands, top with marinara sauce and parmesan.', '2024-08-05', 1),
+(18, 'Tuna Nicoise Salad', 'French-inspired salad with tuna and eggs', 'meat', 25, 'tuna_nicoise.jpg', 'Arrange tuna, boiled eggs, green beans, potatoes, olives on a bed of lettuce. Drizzle with vinaigrette.', '2024-08-22', 13),
+(19, 'Cauliflower Rice Bowl', 'Low carb alternative with mixed toppings', 'vegan', 30, 'cauliflower_rice.jpg', 'Pulse cauliflower into rice-like texture, sauté and top with protein and vegetables of choice.', '2024-09-10', 3),
+(20, 'Overnight Oats', 'No-cook breakfast prepared in advance', 'all', 10, 'overnight_oats.jpg', 'Combine oats with milk, chia seeds, and honey. Refrigerate overnight, top with fruit before serving.', '2024-09-25', 20),
+(47, 'test', '2', 'meat', 2, 'meal_67cb23884a59c8.76615319.jpg', '2', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -127,8 +114,114 @@ CREATE TABLE `diet_history` (
   `diet_history_id` int(11) NOT NULL,
   `date` date DEFAULT NULL,
   `member_id` int(11) DEFAULT NULL,
-  `meal_id` int(11) DEFAULT NULL
+  `diet_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `diet_history`
+--
+
+INSERT INTO `diet_history` (`diet_history_id`, `date`, `member_id`, `diet_id`) VALUES
+(1, '2024-01-05', 1, 1),
+(2, '2024-01-08', 2, 3),
+(3, '2024-01-10', 3, 5),
+(4, '2024-01-12', 4, 2),
+(5, '2024-01-15', 5, 8),
+(6, '2024-01-18', 6, 1),
+(7, '2024-01-20', 7, 1),
+(8, '2024-01-22', 8, 6),
+(9, '2024-01-25', 9, 9),
+(10, '2024-01-28', 10, 4),
+(11, '2024-02-01', 11, 7),
+(12, '2024-02-05', 12, 15),
+(13, '2024-02-08', 13, 12),
+(14, '2024-02-10', 14, 20),
+(15, '2024-02-12', 15, 18),
+(16, '2024-02-15', 1, 2),
+(17, '2024-02-18', 2, 5),
+(18, '2024-02-20', 3, 8),
+(19, '2024-02-22', 4, 14),
+(20, '2024-02-25', 5, 11),
+(21, '2024-03-01', 6, 16),
+(22, '2024-03-05', 7, 13),
+(23, '2024-03-08', 8, 19),
+(24, '2024-03-10', 9, 17),
+(25, '2024-03-15', 10, 3),
+(26, '2024-03-18', 11, 6),
+(27, '2024-03-20', 12, 9),
+(28, '2024-03-22', 13, 4),
+(29, '2024-03-25', 14, 10),
+(30, '2024-03-28', 15, 1),
+(31, '2024-04-01', 1, 7),
+(32, '2024-04-05', 2, 12),
+(33, '2024-04-08', 3, 15),
+(34, '2024-04-10', 4, 20),
+(35, '2024-04-12', 5, 18),
+(36, '2024-04-15', 6, 2),
+(37, '2024-04-18', 7, 5),
+(38, '2024-04-20', 8, 8),
+(39, '2024-04-22', 9, 14),
+(40, '2024-04-25', 10, 11),
+(41, '2024-05-01', 11, 16),
+(42, '2024-05-05', 12, 13),
+(43, '2024-05-08', 13, 19),
+(44, '2024-05-10', 14, 17),
+(45, '2024-05-15', 15, 3),
+(46, '2024-05-18', 1, 6),
+(47, '2024-05-20', 2, 9),
+(48, '2024-05-22', 3, 4),
+(49, '2024-05-25', 4, 10),
+(50, '2024-05-28', 5, 1),
+(51, '2024-06-01', 6, 7),
+(52, '2024-06-05', 7, 12),
+(53, '2024-06-08', 8, 15),
+(54, '2024-06-10', 9, 20),
+(55, '2024-06-12', 10, 18),
+(56, '2024-06-15', 11, 2),
+(57, '2024-06-18', 12, 5),
+(58, '2024-06-20', 13, 8),
+(59, '2024-06-22', 14, 14),
+(60, '2024-06-25', 15, 11),
+(61, '2024-07-01', 1, 16),
+(62, '2024-07-05', 2, 13),
+(63, '2024-07-08', 3, 19),
+(64, '2024-07-10', 4, 17),
+(65, '2024-07-15', 5, 3),
+(66, '2024-07-18', 6, 6),
+(67, '2024-07-20', 7, 9),
+(68, '2024-07-22', 8, 4),
+(69, '2024-07-25', 9, 10),
+(70, '2024-08-01', 10, 1),
+(71, '2024-08-05', 11, 7),
+(72, '2024-08-08', 12, 12),
+(73, '2024-08-10', 13, 15),
+(74, '2024-08-12', 14, 20),
+(75, '2024-08-15', 15, 18),
+(76, '2024-08-18', 1, 2),
+(77, '2024-08-20', 2, 5),
+(78, '2024-08-22', 3, 8),
+(79, '2024-08-25', 4, 14),
+(80, '2024-08-28', 5, 11),
+(81, '2024-09-01', 6, 16),
+(82, '2024-09-05', 7, 13),
+(83, '2024-09-08', 8, 19),
+(84, '2024-09-10', 9, 17),
+(85, '2024-09-15', 10, 3),
+(86, '2024-09-18', 11, 6),
+(87, '2024-09-20', 12, 9),
+(88, '2024-09-22', 13, 4),
+(89, '2024-09-25', 14, 10),
+(90, '2024-09-28', 15, 1),
+(91, '2024-10-01', 1, 7),
+(92, '2024-10-05', 2, 12),
+(93, '2024-10-08', 3, 15),
+(94, '2024-10-10', 4, 20),
+(95, '2024-10-15', 5, 18),
+(96, '2024-10-18', 6, 2),
+(97, '2024-10-20', 7, 5),
+(98, '2024-10-22', 8, 8),
+(99, '2024-10-25', 9, 14),
+(100, '2024-10-28', 10, 11);
 
 -- --------------------------------------------------------
 
@@ -146,47 +239,35 @@ CREATE TABLE `diet_nutrition` (
 --
 
 INSERT INTO `diet_nutrition` (`diet_id`, `nutrition_id`) VALUES
-(12, 18),
-(12, 42),
-(13, 18),
-(13, 43),
-(14, 44),
-(15, 43),
-(16, 43),
-(17, 18),
+(1, 12),
+(3, 1),
+(3, 3),
+(3, 4),
+(5, 3),
+(6, 15),
+(7, 1),
+(7, 15),
+(8, 17),
+(9, 4),
+(9, 5),
+(9, 20),
+(10, 9),
+(12, 15),
+(13, 3),
+(14, 4),
+(14, 6),
+(14, 7),
+(15, 8),
+(17, 1),
+(17, 9),
+(18, 1),
+(18, 3),
+(18, 4),
 (18, 18),
-(19, 42),
-(19, 43),
-(19, 44),
-(21, 42),
-(22, 42),
-(23, 18),
-(24, 18),
-(25, 18),
-(26, 42),
-(26, 43),
-(27, 18),
-(28, 18),
-(29, 18),
-(30, 42),
-(31, 18),
-(32, 42),
-(33, 42),
-(34, 18),
-(35, 42),
-(36, 42),
-(37, 18),
-(38, 18),
-(39, 42),
-(39, 43),
-(40, 18),
-(41, 18),
-(42, 44),
-(43, 18),
-(43, 42),
-(43, 43),
-(44, 18),
-(44, 42);
+(19, 7),
+(19, 11),
+(20, 2),
+(20, 17);
 
 -- --------------------------------------------------------
 
@@ -198,14 +279,17 @@ CREATE TABLE `member` (
   `member_id` int(11) NOT NULL,
   `member_pic` varchar(255) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
+  `email_address` varchar(180) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   `level` int(11) DEFAULT NULL,
+  `height` decimal(4,1) NOT NULL,
   `weight` decimal(5,2) DEFAULT NULL,
   `age` int(11) DEFAULT NULL,
   `fitness_goal` varchar(20) NOT NULL,
   `target_weight` decimal(5,2) DEFAULT NULL,
   `gender` varchar(10) DEFAULT NULL,
   `day_streak_starting_date` date DEFAULT NULL,
+  `last_session_date` date DEFAULT NULL,
   `date_registered` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -213,16 +297,27 @@ CREATE TABLE `member` (
 -- Dumping data for table `member`
 --
 
-INSERT INTO `member` (`member_id`, `member_pic`, `username`, `password`, `level`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `date_registered`) VALUES
-(2, 'profile2.jpg', 'jane_smith', 'securepass', 2, 65.20, 28, 'Gain Muscle', 68.00, 'Female', '2024-01-10', NULL),
-(3, 'profile3.jpg', 'mike_tyson', 'boxingchamp', 3, 90.80, 35, 'Maintain', 90.80, 'Male', '2024-02-05', NULL),
-(4, 'profile4.jpg', 'emily_clark', 'fitgirl2024', 1, 55.60, 22, 'Lose Weight', 50.00, 'Female', '2024-03-12', NULL),
-(5, 'profile5.jpg', 'alex_jones', 'strongman99', 2, 80.00, 30, 'Gain Muscle', 85.00, 'Male', '2024-04-20', NULL),
-(6, 'profile6.jpg', 'sarah_miller', 'gymqueen', 3, 62.40, 27, 'Maintain', 62.40, 'Female', '2024-05-08', NULL),
-(7, 'profile7.jpg', 'chris_evans', 'cap_america', 2, 88.00, 32, 'Gain Muscle', 92.00, 'Male', '2024-06-15', NULL),
-(8, 'profile8.jpg', 'anna_wilson', 'fitandfab', 1, 58.30, 26, 'Lose Weight', 55.00, 'Female', '2024-07-22', NULL),
-(9, 'profile9.jpg', 'mark_rober', 'techguy2024', 3, 76.50, 29, 'Maintain', 76.50, 'Male', '2024-08-30', NULL),
-(10, 'profile10.jpg', 'olivia_brown', 'yogalife', 2, 60.00, 31, 'Gain Flexibility', 60.00, 'Female', '2024-09-10', NULL);
+INSERT INTO `member` (`member_id`, `member_pic`, `username`, `email_address`, `password`, `level`, `height`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `last_session_date`, `date_registered`) VALUES
+(1, 'pic1.jpg', 'user1', 'user1@example.com', 'pass123', 1, 155.0, 50.00, 25, 'Lose Weight', 48.00, 'Male', '2025-03-01', '2025-03-08', '2024-01-05'),
+(2, 'pic2.jpg', 'user2', 'user2@example.com', 'pass123', 2, 165.0, 65.00, 30, 'Gain Muscle', 70.00, 'Female', '2023-06-12', '2024-05-28', '2024-07-02'),
+(3, 'pic3.jpg', 'user3', 'user3@example.com', 'pass123', 1, 175.0, 85.00, 28, 'Maintain', 80.00, 'Male', '2023-07-01', '2025-02-28', '2024-03-15'),
+(4, 'pic4.jpg', 'user4', 'user4@example.com', 'pass123', 3, 160.0, 45.00, 24, 'Lose Weight', 50.00, 'Female', '2023-04-05', '2023-10-20', '2024-04-20'),
+(5, 'pic5.jpg', 'user5', 'user5@example.com', 'pass123', 1, 190.0, 100.00, 35, 'Gain Muscle', 105.00, 'Male', '2023-03-18', '2024-02-02', '2024-05-18'),
+(6, 'pic6.jpg', 'user6', 'user6@example.com', 'pass123', 2, 168.0, 72.00, 27, 'Lose Weight', 68.00, 'Female', '2023-09-09', '2024-04-05', '2024-06-18'),
+(7, 'pic7.jpg', 'user7', 'user7@example.com', 'pass123', 1, 178.0, 70.00, 22, 'Maintain', 72.00, 'Male', '2023-10-10', '2024-08-04', '2024-07-25'),
+(8, 'pic8.jpg', 'user8', 'user8@example.com', 'pass123', 2, 182.0, 90.00, 29, 'Gain Muscle', 95.00, 'Female', '2023-11-20', '2024-11-10', '2024-08-30'),
+(9, 'pic9.jpg', 'user9', 'user9@example.com', 'pass123', 1, 160.0, 58.00, 31, 'Lose Weight', 55.00, 'Male', '2023-02-14', '2023-03-01', '2024-09-12'),
+(10, 'pic10.jpg', 'user10', 'user10@example.com', 'pass123', 3, 170.0, 77.00, 26, 'Maintain', 74.00, 'Female', '2023-01-28', '2024-11-10', '2024-10-05'),
+(11, 'pic11.jpg', 'user11', 'user11@example.com', 'pass123', 2, 200.0, 110.00, 34, 'Gain Muscle', 115.00, 'Male', '2023-08-15', '2023-11-21', '2024-11-20'),
+(12, 'pic12.jpg', 'user12', 'user12@example.com', 'pass123', 40, 158.0, 54.00, 23, 'Lose Weight', 52.00, 'Female', '2023-07-07', '2024-01-17', '2024-12-10'),
+(13, 'pic13.jpg', 'user13', 'user13@example.com', 'pass123', 2, 176.0, 88.00, 32, 'Maintain', 85.00, 'Male', '2023-06-18', '2023-08-05', '2025-01-08'),
+(14, 'pic14.jpg', 'user14', 'user14@example.com', 'pass123', 30, 162.0, 59.00, 28, 'Gain Muscle', 63.00, 'Female', '2023-05-12', '2024-02-22', '2025-02-15'),
+(15, 'pic15.jpg', 'user15', 'user15@example.com', 'pass123', 1, 172.0, 69.00, 30, 'Lose Weight', 65.00, 'Male', '2023-03-05', '2025-01-05', '2025-03-25'),
+(16, 'pic16.jpg', 'user16', 'user16@example.com', 'pass123', 29, 168.0, 74.00, 24, 'Maintain', 72.00, 'Female', '2024-01-10', '2024-05-14', '2025-01-15'),
+(17, 'pic17.jpg', 'user17', 'user17@example.com', 'pass123', 3, 189.0, 92.00, 30, 'Gain Muscle', 98.00, 'Male', '2024-02-01', '2024-11-18', '2025-01-20'),
+(18, 'pic18.jpg', 'user18', 'user18@example.com', 'pass123', 1, 152.0, 47.00, 26, 'Lose Weight', 45.00, 'Female', '2024-02-10', '2024-11-30', '2025-01-27'),
+(19, 'pic19.jpg', 'user19', 'user19@example.com', 'pass123', 17, 195.0, 104.00, 34, 'Gain Muscle', 110.00, 'Male', '2024-02-18', '2024-09-23', '2025-02-02'),
+(20, 'pic20.jpg', 'user20', 'user20@example.com', 'pass123', 30, 162.0, 58.00, 22, 'Lose Weight', 55.00, 'Female', '2024-02-25', '2024-10-04', '2025-02-08');
 
 -- --------------------------------------------------------
 
@@ -233,10 +328,65 @@ INSERT INTO `member` (`member_id`, `member_pic`, `username`, `password`, `level`
 CREATE TABLE `member_performance` (
   `performance_id` int(11) NOT NULL,
   `weeks_date_mon` date DEFAULT NULL,
-  `workout_history_id` int(11) DEFAULT NULL,
-  `diet_history_id` int(11) DEFAULT NULL,
+  `workout_history_count` int(3) DEFAULT NULL,
+  `diet_history_count` int(3) DEFAULT NULL,
   `member_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `member_performance`
+--
+
+INSERT INTO `member_performance` (`performance_id`, `weeks_date_mon`, `workout_history_count`, `diet_history_count`, `member_id`) VALUES
+(148, '2024-06-01', 12, 8, 1),
+(149, '2024-05-05', 14, 9, 2),
+(150, '2024-06-04', 10, 7, 3),
+(151, '2024-07-01', 13, 8, 4),
+(152, '2024-07-06', 15, 10, 5),
+(153, '2024-07-03', 9, 6, 6),
+(154, '2024-07-01', 12, 7, 7),
+(155, '2024-08-05', 14, 9, 8),
+(156, '2024-09-02', 11, 8, 9),
+(157, '2024-10-07', 13, 7, 10),
+(158, '2024-11-04', 10, 6, 11),
+(159, '2024-12-02', 15, 9, 12),
+(160, '2025-01-06', 14, 10, 13),
+(161, '2025-02-03', 12, 7, 14),
+(162, '2025-03-03', 11, 6, 15),
+(163, '2025-04-07', 10, 5, 16),
+(164, '2025-05-05', 14, 9, 17),
+(165, '2025-06-02', 13, 8, 18),
+(166, '2025-07-07', 12, 6, 19),
+(167, '2025-08-04', 15, 10, 20),
+(168, '2025-09-01', 9, 5, 1),
+(169, '2025-10-06', 11, 7, 2),
+(170, '2025-11-03', 13, 8, 3),
+(171, '2025-12-01', 14, 9, 4),
+(172, '2024-01-08', 10, 6, 5),
+(173, '2024-02-12', 12, 8, 6),
+(174, '2024-03-18', 9, 7, 7),
+(175, '2024-04-22', 13, 9, 8),
+(176, '2024-05-27', 15, 10, 9),
+(177, '2024-06-24', 11, 8, 10),
+(178, '2024-07-29', 10, 6, 11),
+(179, '2024-08-26', 14, 9, 12),
+(180, '2024-09-30', 12, 7, 13),
+(181, '2024-10-28', 15, 10, 14),
+(182, '2024-11-25', 10, 5, 15),
+(183, '2025-01-13', 11, 6, 16),
+(184, '2025-02-10', 13, 9, 17),
+(185, '2025-03-17', 9, 7, 18),
+(186, '2025-04-14', 12, 8, 19),
+(187, '2025-05-19', 14, 10, 20),
+(188, '2025-06-16', 10, 6, 1),
+(189, '2025-07-14', 11, 7, 2),
+(190, '2025-08-18', 15, 10, 3),
+(191, '2025-09-22', 12, 8, 4),
+(192, '2025-10-20', 9, 6, 5),
+(193, '2025-11-17', 14, 9, 6),
+(194, '2025-12-15', 13, 8, 7),
+(195, '2024-02-19', 10, 7, 8),
+(196, '2024-04-29', 12, 9, 5);
 
 -- --------------------------------------------------------
 
@@ -250,51 +400,42 @@ CREATE TABLE `nutrition` (
   `calories` int(11) DEFAULT NULL,
   `fat` decimal(5,2) DEFAULT NULL,
   `protein` decimal(5,2) DEFAULT NULL,
-  `carbohydrate` decimal(5,2) DEFAULT NULL
+  `carbohydrate` decimal(5,2) DEFAULT NULL,
+  `date_registered` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `nutrition`
 --
 
-INSERT INTO `nutrition` (`nutrition_id`, `nutrition_name`, `calories`, `fat`, `protein`, `carbohydrate`) VALUES
-(18, 'gsdvdf', 12, 5.00, 123.00, 12.00),
-(42, 'few', 11, 32.00, 432.00, 23.00),
-(43, 'meat', 11, 32.00, 432.00, 23.00),
-(44, 'egg', 11, 32.00, 432.00, 23.00),
-(45, 'vews', 87, 67.00, 876.00, 68.00),
-(46, 'gvr', 324, 23.00, 234.00, 32.00),
-(47, 'vwedsvc', 76, 67.00, 67.00, 67.00),
-(48, 'evfd', 32, 322.00, 23.00, 23.00),
-(54, 'dsv', 12, 21.00, 2.00, 2.00),
-(55, 'duck', 12, 1.00, 1.00, 1.00),
-(56, 'vds', 21, 2.00, 2.00, 2.00),
-(57, 'cds', 68, 6.00, 6.00, 6.00),
-(58, 'bgfvc', 32, 32.00, 32.00, 23.00),
-(59, 'cs', 324, 2.00, 2.00, 2.00),
-(60, 'ggigigi', 65, 56.00, 5.00, 5.00),
-(61, 'sa', 21, 1.00, 1.00, 1.00),
-(62, 'hihi', 21, 1.00, 1.00, 1.00),
-(63, 'vsd', 132, 1.00, 1.00, 1.00),
-(64, 'rgvds', 2, 2.00, 2.00, 2.00),
-(65, 'gvfd', 3, 3.00, 3.00, 3.00),
-(66, 'hehe', 1, 1.00, 1.00, 1.00),
-(67, 'hehehe', 1, 1.00, 1.00, 1.00),
-(69, 'cascawsc', 1, 1.00, 1.00, 1.00),
-(70, 'hehehehehehe', 2, 2.00, 2.00, 2.00),
-(71, 'eeeer', 2, 2.00, 2.00, 2.00),
-(72, 'vegeee', 2, 2.00, 2.00, 2.00),
-(73, 'fvs', 1, 1.00, 1.00, 1.00),
-(74, 'vegedsew', 1, 1.00, 1.00, 1.00),
-(75, 'gfe', 3, 3.00, 3.00, 3.00),
-(78, 'f', 1, 1.00, 1.00, 1.00),
-(79, 'fefe', 3, 3.00, 3.00, 3.00),
-(80, 'fish', 2, 2.00, 2.00, 2.00),
-(81, 'wq', 1, 1.00, 1.00, 1.00),
-(82, 'ewfevfssevfds', 2, 2.00, 2.00, 2.00),
-(83, 'pork', 2, 2.00, 2.00, 2.00),
-(84, 'duckge', 2, 2.00, 2.00, 2.00),
-(85, 'h', 7, 6.00, 6.00, 7.00);
+INSERT INTO `nutrition` (`nutrition_id`, `nutrition_name`, `calories`, `fat`, `protein`, `carbohydrate`, `date_registered`) VALUES
+(1, 'Low Carb', 150, 65.50, 120.30, 50.20, '2024-02-02'),
+(2, 'High Protein', 150, 55.00, 180.50, 80.30, '2024-10-21'),
+(3, 'Ketogenic', 150, 140.20, 95.50, 20.10, '2024-03-21'),
+(4, 'Mediterranean', 150, 70.80, 90.20, 110.50, '2025-01-16'),
+(5, 'Vegan', 150, 50.30, 70.50, 225.80, '2025-01-03'),
+(6, 'Paleo', 150, 95.50, 150.20, 60.40, '2024-09-23'),
+(7, 'Vegetarian', 150, 55.20, 75.80, 210.50, '2024-08-13'),
+(8, 'Intermittent Fasting', 150, 60.80, 100.20, 90.50, '2024-11-25'),
+(9, 'DASH', 150, 45.30, 85.70, 195.20, '2024-04-15'),
+(10, 'Whole30', 150, 85.20, 130.40, 75.80, '2025-02-09'),
+(11, 'Gluten Free', 150, 65.70, 95.20, 150.30, '2025-02-18'),
+(12, 'Low FODMAP', 150, 60.40, 90.60, 140.20, '2025-02-28'),
+(13, 'Pescatarian', 150, 60.30, 110.50, 135.80, '2024-01-15'),
+(14, 'Flexitarian', 150, 55.60, 95.30, 160.20, '2024-04-06'),
+(15, 'Nordic', 150, 75.30, 105.60, 145.20, '2024-01-06'),
+(16, 'Weight Gain', 150, 100.20, 180.50, 300.50, '2024-06-20'),
+(17, 'Athletic Performance', 150, 90.50, 200.30, 250.20, '2025-02-12'),
+(18, 'Diabetic', 150, 50.20, 100.50, 130.80, '2024-08-21'),
+(19, 'Heart Healthy', 150, 40.50, 95.20, 180.30, '2025-01-08'),
+(20, 'Anti-Inflammatory', 150, 60.80, 100.50, 155.20, '2024-10-29'),
+(79, 'fefe', 20, 3.00, 3.00, 3.00, '2025-01-27'),
+(80, 'fish', 20, 2.00, 2.00, 2.00, '2024-07-11'),
+(81, 'wq', 20, 1.00, 1.00, 1.00, '2024-08-01'),
+(82, 'ewfevfssevfds', 20, 2.00, 2.00, 2.00, '2024-03-02'),
+(83, 'pork', 20, 2.00, 2.00, 2.00, '2024-04-06'),
+(84, 'duckge', 20, 2.00, 2.00, 2.00, '2024-10-24'),
+(85, 'h', 20, 6.00, 6.00, 7.00, '2024-12-01');
 
 -- --------------------------------------------------------
 
@@ -316,6 +457,32 @@ CREATE TABLE `workout` (
   `date_registered` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `workout`
+--
+
+INSERT INTO `workout` (`workout_id`, `workout_name`, `workout_type`, `calories`, `duration`, `thumbnail`, `video`, `description`, `muscle_diagram`, `workout_step_checklist`, `date_registered`) VALUES
+(1, 'Morning Yoga', 'yoga', 150, 30, 'yoga_thumbnail_1.jpg', 'yoga_video_1.mp4', 'A beginner-friendly yoga session.', 'muscle_diagram_1.jpg', 'Warmup, Pose A, Pose B', '2025-01-01'),
+(2, 'Cardio Burn', 'cardio', 400, 60, 'cardio_thumbnail_1.jpg', 'cardio_video_1.mp4', 'High-energy cardio for fat burn.', 'muscle_diagram_2.jpg', 'Warmup, Jog, Cooldown', '2025-01-02'),
+(3, 'Evening Yoga', 'yoga', 200, 45, 'yoga_thumbnail_2.jpg', 'yoga_video_2.mp4', 'Intermediate yoga to unwind.', 'muscle_diagram_1.jpg', 'Warmup, Stretch, Pose C', '2025-01-03'),
+(4, 'HIIT Cardio Blast', 'cardio', 550, 50, 'cardio_thumbnail_2.jpg', 'cardio_video_2.mp4', 'Intense cardio session for endurance.', 'muscle_diagram_2.jpg', 'Sprint, Jumping Jacks, Rest', '2025-01-04'),
+(5, 'Weighted Squats', 'weighted', 300, 40, 'weighted_thumbnail_1.jpg', 'weighted_video_1.mp4', 'Strengthen lower body with weights.', 'muscle_diagram_3.jpg', 'Warmup, Squats, Rest', '2025-01-05'),
+(6, 'Weight-Free Core', 'weight-free', 250, 35, 'weightfree_thumbnail_1.jpg', 'weightfree_video_1.mp4', 'Core strengthening without equipment.', 'muscle_diagram_4.jpg', 'Warmup, Planks, Cooldown', '2025-01-06'),
+(7, 'Cardio Marathon', 'cardio', 700, 90, 'cardio_thumbnail_3.jpg', 'cardio_video_3.mp4', 'Long cardio endurance session.', 'muscle_diagram_2.jpg', 'Jog, Sprint, Walk', '2025-01-07'),
+(8, 'Weighted Deadlifts', 'weighted', 400, 50, 'weighted_thumbnail_2.jpg', 'weighted_video_2.mp4', 'Improve posterior strength.', 'muscle_diagram_3.jpg', 'Warmup, Deadlifts, Cooldown', '2025-01-08'),
+(9, 'Sunrise Yoga', 'yoga', 180, 40, 'yoga_thumbnail_3.jpg', 'yoga_video_3.mp4', 'A refreshing morning yoga routine.', 'muscle_diagram_1.jpg', 'Breathing, Stretch, Pose D', '2025-01-09'),
+(10, 'Bodyweight Push', 'weight-free', 220, 30, 'weightfree_thumbnail_2.jpg', 'weightfree_video_2.mp4', 'Upper body workout using bodyweight.', 'muscle_diagram_4.jpg', 'Pushups, Planks, Rest', '2025-01-10'),
+(11, 'Cardio Circuit', 'cardio', 450, 60, 'cardio_thumbnail_4.jpg', 'cardio_video_4.mp4', 'Circuit-based cardio exercises.', 'muscle_diagram_2.jpg', 'Warmup, Circuit, Cooldown', '2025-01-11'),
+(12, 'Weighted Bench Press', 'weighted', 500, 50, 'weighted_thumbnail_3.jpg', 'weighted_video_3.mp4', 'Develop chest and triceps with weights.', 'muscle_diagram_3.jpg', 'Warmup, Bench Press, Rest', '2025-01-12'),
+(13, 'Relaxing Yoga', 'yoga', 120, 25, 'yoga_thumbnail_4.jpg', 'yoga_video_4.mp4', 'Relax your body and mind.', 'muscle_diagram_1.jpg', 'Stretch, Pose A, Pose B', '2025-01-13'),
+(14, 'Weight-Free Legs', 'weight-free', 240, 35, 'weightfree_thumbnail_3.jpg', 'weightfree_video_3.mp4', 'Leg-focused exercises without equipment.', 'muscle_diagram_4.jpg', 'Lunges, Squats, Rest', '2025-01-14'),
+(15, 'Fast Cardio', 'cardio', 600, 45, 'cardio_thumbnail_5.jpg', 'cardio_video_5.mp4', 'Quick, high-intensity cardio.', 'muscle_diagram_2.jpg', 'Sprint, Jump Rope, Cooldown', '2025-01-15'),
+(16, 'Weighted Lunges', 'weighted', 320, 45, 'weighted_thumbnail_4.jpg', 'weighted_video_4.mp4', 'Target glutes and thighs with weights.', 'muscle_diagram_3.jpg', 'Warmup, Lunges, Cooldown', '2025-01-16'),
+(17, 'Evening Stretches', 'yoga', 100, 20, 'yoga_thumbnail_5.jpg', 'yoga_video_5.mp4', 'End the day with relaxing poses.', 'muscle_diagram_1.jpg', 'Pose X, Pose Y, Rest', '2025-01-17'),
+(18, 'Bodyweight Basics', 'weight-free', 180, 30, 'weightfree_thumbnail_4.jpg', 'weightfree_video_4.mp4', 'Simple movements for beginners.', 'muscle_diagram_4.jpg', 'Stretch, Pushups, Cooldown', '2025-01-18'),
+(19, 'Cardio Dance', 'cardio', 350, 40, 'cardio_thumbnail_6.jpg', 'cardio_video_6.mp4', 'Fun cardio session with dance.', 'muscle_diagram_2.jpg', 'Warmup, Dance, Stretch', '2025-01-19'),
+(20, 'Weighted Rows', 'weighted', 450, 50, 'weighted_thumbnail_5.jpg', 'weighted_video_5.mp4', 'Strengthen back with rows.', 'muscle_diagram_3.jpg', 'Warmup, Rows, Rest', '2025-01-20');
+
 -- --------------------------------------------------------
 
 --
@@ -328,6 +495,212 @@ CREATE TABLE `workout_history` (
   `member_id` int(11) DEFAULT NULL,
   `workout_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `workout_history`
+--
+
+INSERT INTO `workout_history` (`workout_history_id`, `date`, `member_id`, `workout_id`) VALUES
+(1, '2025-01-15', 20, 19),
+(2, '2024-10-27', 18, 6),
+(3, '2024-11-17', 6, 14),
+(4, '2024-12-27', 20, 14),
+(5, '2024-11-28', 14, 16),
+(6, '2024-10-31', 6, 7),
+(7, '2024-10-03', 6, 15),
+(8, '2024-10-20', 15, 6),
+(9, '2025-01-17', 11, 15),
+(10, '2025-02-09', 11, 4),
+(11, '2025-01-19', 17, 8),
+(12, '2025-01-02', 14, 7),
+(13, '2024-11-10', 5, 5),
+(14, '2024-12-12', 13, 17),
+(15, '2025-01-30', 11, 1),
+(16, '2024-12-09', 9, 12),
+(17, '2024-11-04', 14, 7),
+(18, '2024-11-19', 1, 8),
+(19, '2024-11-03', 8, 18),
+(20, '2025-01-31', 8, 5),
+(21, '2025-02-22', 14, 4),
+(22, '2024-10-26', 5, 18),
+(23, '2024-10-11', 9, 12),
+(24, '2024-11-21', 6, 13),
+(25, '2025-01-19', 10, 11),
+(26, '2025-01-12', 18, 11),
+(27, '2024-09-18', 4, 1),
+(28, '2024-12-04', 12, 7),
+(29, '2024-10-11', 4, 9),
+(30, '2024-11-03', 3, 10),
+(31, '2024-09-14', 10, 9),
+(32, '2024-10-11', 16, 8),
+(33, '2024-12-02', 11, 4),
+(34, '2025-02-11', 5, 13),
+(35, '2024-11-28', 18, 14),
+(36, '2024-10-30', 12, 15),
+(37, '2024-09-16', 12, 1),
+(38, '2025-01-02', 15, 13),
+(39, '2024-10-07', 8, 8),
+(40, '2024-11-12', 3, 17),
+(41, '2024-11-20', 12, 2),
+(42, '2024-11-23', 15, 17),
+(43, '2025-02-23', 17, 19),
+(44, '2025-02-10', 19, 6),
+(45, '2024-11-22', 2, 14),
+(46, '2025-02-08', 15, 3),
+(47, '2024-12-09', 2, 17),
+(48, '2024-09-13', 8, 20),
+(49, '2024-11-10', 8, 1),
+(50, '2024-10-01', 7, 1),
+(51, '2025-01-30', 18, 18),
+(52, '2024-11-11', 13, 5),
+(53, '2025-01-27', 9, 10),
+(54, '2025-02-06', 7, 5),
+(55, '2025-02-27', 12, 17),
+(56, '2025-01-20', 18, 12),
+(57, '2025-01-15', 15, 14),
+(58, '2025-02-05', 18, 19),
+(59, '2024-10-02', 13, 11),
+(60, '2024-10-16', 8, 9),
+(61, '2025-02-25', 20, 17),
+(62, '2025-02-13', 4, 9),
+(63, '2024-11-07', 2, 6),
+(64, '2025-01-12', 13, 4),
+(65, '2024-09-11', 9, 4),
+(66, '2024-11-09', 15, 13),
+(67, '2024-10-01', 12, 4),
+(68, '2025-01-14', 18, 10),
+(69, '2024-10-26', 6, 5),
+(70, '2025-01-27', 10, 13),
+(71, '2024-10-17', 1, 17),
+(72, '2025-02-15', 1, 17),
+(73, '2025-03-05', 13, 20),
+(74, '2025-02-05', 17, 15),
+(75, '2025-03-06', 19, 12),
+(76, '2025-02-16', 17, 17),
+(77, '2024-11-30', 7, 19),
+(78, '2024-11-21', 5, 9),
+(79, '2024-12-05', 5, 12),
+(80, '2025-01-15', 13, 8),
+(81, '2024-10-09', 3, 1),
+(82, '2024-10-20', 17, 16),
+(83, '2025-01-03', 10, 7),
+(84, '2025-02-08', 17, 14),
+(85, '2024-09-10', 18, 7),
+(86, '2025-02-10', 14, 19),
+(87, '2024-12-02', 19, 2),
+(88, '2024-12-12', 5, 14),
+(89, '2024-11-16', 3, 18),
+(90, '2024-10-01', 16, 7),
+(91, '2025-01-16', 9, 5),
+(92, '2024-09-22', 19, 16),
+(93, '2025-02-01', 12, 8),
+(94, '2025-01-28', 18, 16),
+(95, '2025-01-28', 15, 2),
+(96, '2025-02-10', 10, 20),
+(97, '2024-12-23', 4, 12),
+(98, '2024-12-25', 6, 4),
+(99, '2025-03-03', 13, 1),
+(100, '2025-01-22', 4, 3),
+(128, '2024-12-13', 13, 19),
+(129, '2024-11-15', 14, 8),
+(130, '2024-12-31', 20, 8),
+(131, '2025-01-17', 6, 16),
+(132, '2024-04-21', 5, 18),
+(133, '2024-09-23', 4, 5),
+(134, '2024-10-19', 9, 5),
+(135, '2025-01-14', 13, 11),
+(136, '2025-01-19', 15, 19),
+(137, '2024-10-09', 3, 18),
+(138, '2025-01-30', 19, 1),
+(139, '2024-06-17', 7, 17),
+(140, '2024-03-29', 18, 4),
+(141, '2024-06-08', 16, 1),
+(142, '2025-02-01', 9, 8),
+(143, '2024-11-16', 7, 10),
+(144, '2024-07-04', 6, 9),
+(145, '2024-07-01', 6, 11),
+(146, '2024-11-17', 20, 14),
+(147, '2024-08-09', 4, 11),
+(148, '2024-04-06', 18, 4),
+(149, '2024-06-05', 14, 15),
+(150, '2024-10-20', 18, 11),
+(151, '2024-04-07', 16, 15),
+(152, '2024-05-07', 15, 2),
+(153, '2024-05-30', 19, 20),
+(154, '2025-02-22', 20, 1),
+(155, '2024-04-11', 10, 1),
+(156, '2024-12-07', 14, 4),
+(157, '2024-12-23', 10, 20),
+(158, '2024-09-18', 14, 18),
+(159, '2024-07-08', 1, 3),
+(160, '2024-09-04', 3, 5),
+(161, '2024-10-14', 9, 6),
+(162, '2024-05-12', 1, 14),
+(163, '2024-05-23', 2, 13),
+(164, '2025-03-04', 2, 8),
+(165, '2024-11-05', 5, 2),
+(166, '2024-11-04', 3, 15),
+(167, '2024-05-20', 17, 12),
+(168, '2024-07-26', 4, 17),
+(169, '2024-09-01', 20, 11),
+(170, '2024-10-03', 7, 1),
+(171, '2024-03-16', 2, 7),
+(172, '2024-08-05', 2, 3),
+(173, '2024-08-07', 15, 7),
+(174, '2024-08-29', 9, 14),
+(175, '2024-04-14', 11, 4),
+(176, '2024-08-20', 15, 4),
+(177, '2024-12-05', 5, 18),
+(178, '2024-10-21', 12, 18),
+(179, '2024-11-28', 1, 19),
+(180, '2024-10-13', 5, 6),
+(181, '2024-11-09', 12, 19),
+(182, '2025-01-20', 12, 6),
+(183, '2024-11-09', 11, 13),
+(184, '2024-09-30', 19, 20),
+(185, '2024-04-13', 12, 11),
+(186, '2025-01-12', 15, 4),
+(187, '2024-10-08', 10, 11),
+(188, '2024-06-12', 15, 19),
+(189, '2024-07-05', 19, 12),
+(190, '2024-05-22', 6, 15),
+(191, '2025-01-22', 4, 6),
+(192, '2024-12-12', 2, 20),
+(193, '2024-11-19', 13, 18),
+(194, '2024-10-24', 11, 14),
+(195, '2024-12-12', 18, 1),
+(196, '2024-08-15', 4, 14),
+(197, '2024-11-12', 10, 6),
+(198, '2025-02-19', 20, 1),
+(199, '2024-04-27', 14, 18),
+(200, '2024-07-11', 3, 14),
+(201, '2025-01-22', 9, 10),
+(202, '2024-05-16', 10, 17),
+(203, '2024-11-04', 18, 7),
+(204, '2025-02-12', 16, 3),
+(205, '2024-05-14', 13, 10),
+(206, '2024-09-27', 8, 4),
+(207, '2024-11-17', 1, 20),
+(208, '2025-01-22', 9, 13),
+(209, '2024-11-03', 11, 11),
+(210, '2024-05-14', 7, 1),
+(211, '2024-04-14', 10, 4),
+(212, '2024-06-22', 1, 3),
+(213, '2024-11-25', 4, 14),
+(214, '2025-01-02', 3, 4),
+(215, '2024-09-04', 19, 6),
+(216, '2024-08-17', 10, 19),
+(217, '2024-07-14', 19, 13),
+(218, '2024-06-01', 8, 3),
+(219, '2024-08-17', 19, 5),
+(220, '2024-07-03', 20, 20),
+(221, '2025-01-27', 12, 3),
+(222, '2025-01-23', 2, 15),
+(223, '2024-08-06', 18, 5),
+(224, '2024-09-19', 19, 3),
+(225, '2024-11-18', 4, 17),
+(226, '2024-11-02', 16, 17),
+(227, '2024-12-20', 11, 5);
 
 --
 -- Indexes for dumped tables
@@ -354,7 +727,7 @@ ALTER TABLE `diet`
 ALTER TABLE `diet_history`
   ADD PRIMARY KEY (`diet_history_id`),
   ADD KEY `member_id` (`member_id`),
-  ADD KEY `meal_id` (`meal_id`);
+  ADD KEY `meal_id` (`diet_id`);
 
 --
 -- Indexes for table `diet_nutrition`
@@ -368,16 +741,15 @@ ALTER TABLE `diet_nutrition`
 --
 ALTER TABLE `member`
   ADD PRIMARY KEY (`member_id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email_address` (`email_address`);
 
 --
 -- Indexes for table `member_performance`
 --
 ALTER TABLE `member_performance`
   ADD PRIMARY KEY (`performance_id`),
-  ADD KEY `workout_history_id` (`workout_history_id`),
-  ADD KEY `diet_history_id` (`diet_history_id`),
-  ADD KEY `member_id` (`member_id`);
+  ADD KEY `member_id` (`member_id`) USING BTREE;
 
 --
 -- Indexes for table `nutrition`
@@ -415,25 +787,25 @@ ALTER TABLE `administrator`
 -- AUTO_INCREMENT for table `diet`
 --
 ALTER TABLE `diet`
-  MODIFY `diet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `diet_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `diet_history`
 --
 ALTER TABLE `diet_history`
-  MODIFY `diet_history_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `diet_history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
 
 --
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `member_performance`
 --
 ALTER TABLE `member_performance`
-  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
 
 --
 -- AUTO_INCREMENT for table `nutrition`
@@ -445,13 +817,13 @@ ALTER TABLE `nutrition`
 -- AUTO_INCREMENT for table `workout`
 --
 ALTER TABLE `workout`
-  MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `workout_history`
 --
 ALTER TABLE `workout_history`
-  MODIFY `workout_history_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `workout_history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=228;
 
 --
 -- Constraints for dumped tables
@@ -468,7 +840,7 @@ ALTER TABLE `diet`
 --
 ALTER TABLE `diet_history`
   ADD CONSTRAINT `diet_history_ibfk_1` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`),
-  ADD CONSTRAINT `diet_history_ibfk_2` FOREIGN KEY (`meal_id`) REFERENCES `diet` (`diet_id`);
+  ADD CONSTRAINT `diet_history_ibfk_2` FOREIGN KEY (`diet_id`) REFERENCES `diet` (`diet_id`);
 
 --
 -- Constraints for table `diet_nutrition`
@@ -481,8 +853,8 @@ ALTER TABLE `diet_nutrition`
 -- Constraints for table `member_performance`
 --
 ALTER TABLE `member_performance`
-  ADD CONSTRAINT `member_performance_ibfk_1` FOREIGN KEY (`workout_history_id`) REFERENCES `workout_history` (`workout_history_id`),
-  ADD CONSTRAINT `member_performance_ibfk_2` FOREIGN KEY (`diet_history_id`) REFERENCES `diet_history` (`diet_history_id`),
+  ADD CONSTRAINT `member_performance_ibfk_1` FOREIGN KEY (`workout_history_count`) REFERENCES `workout_history` (`workout_history_id`),
+  ADD CONSTRAINT `member_performance_ibfk_2` FOREIGN KEY (`diet_history_count`) REFERENCES `diet_history` (`diet_history_id`),
   ADD CONSTRAINT `member_performance_ibfk_3` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`);
 
 --
