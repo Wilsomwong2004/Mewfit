@@ -15,6 +15,36 @@
         margin-bottom: 20px;
         text-align: left !important;
         }
+
+        .chart-description {
+            z-index: 2;
+            visibility: hidden;  
+            opacity: 0;
+            transform: translateY(-20px); 
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s; 
+            padding: 10px;
+            background-color:rgb(255, 251, 247);
+            border-left: 4px solid rgb(255, 153, 50);
+            margin-top: 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            color:rgb(190, 138, 85);
+            line-height: 20px;
+        }
+
+        .fade-in-up {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s;
+        }
+
+        .fade-out-down {
+            opacity: 0;
+            transform: translateY(-20px);
+            visibility: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s; 
+        }
     </style>
 </head>
 <?php include "conn.php" ?>
@@ -109,16 +139,25 @@
                     <h3>Member Personal Information</h3>
                     <div class="chart">
                         <div>
-                            <h4>Gender vs Fitness Goal Distribution (Month)</h4>
-                            <canvas id="CumulativeGenderChart"></canvas>
+                            <h4>Gender & Fitness Goal Growth</h4>
+                            <canvas id="CumulativeGenderChart" class="chart" data-description="Description1"></canvas>
+                            <section id="Description1" class="chart-description">
+                                <p><b>This chart uses member data to illustrate member needs according to gender over the months</b> <br>Hovered Data Points: Total number of data & New data for that month according to category</p>
+                            </section>
                         </div>
                         <div>
                             <h4>Age vs Fitness Goal Distribution</h4>
-                            <canvas id="OverallAgeChart"></canvas>
+                            <canvas id="OverallAgeChart" class="chart" data-description="Description2"></canvas>
+                            <section id="Description2" class="chart-description">
+                                <p><b>This chart uses member data to illustrate member needs according to age</b> <br>Hovered Data Points: Total number of data & Number of member for each fitness goal according to age category</p>
+                            </section>
                         </div>
                         <div>
                             <h4>BMI vs Weight Change Distribution</h4>
-                            <canvas id="WeightChangeBmiChart"></canvas>
+                            <canvas id="WeightChangeBmiChart" class="chart" data-description="Description3"></canvas>
+                            <section id="Description3" class="chart-description">
+                                <p><b>This chart uses member data to illustrate member target according to their BMI so that we can provide realistic suggestions to members in the future</b> <br>Hovered Data Points: Number of member according to BMI category</p>
+                            </section>
                         </div>
                     </div>
                     
@@ -512,19 +551,31 @@
                     <div class="chart">
                         <div>
                             <h4>Fitness Goal vs Level Distribution</h4>
-                            <canvas id="levelChart"></canvas>
+                            <canvas id="levelChart" class="chart" data-description="Description4"></canvas>
+                            <section id="Description4" class="chart-description">
+                                <p><b>This chart uses member data to illustrate member needs according to their levels so that we can adjust the difficulty in the future</b> <br>Hovered Data Points: Number of member according to fitness goal</p>
+                            </section>
                         </div>
                         <div>
-                            <h4>Member vs Activity Performance Distribution</h4>
-                            <canvas id="performanceChart"></canvas>
+                            <h4>Member & Activity Performance Growth</h4>
+                            <canvas id="performanceChart" class="chart" data-description="Description5"></canvas>
+                            <section id="Description5" class="chart-description">
+                                <p><b>This chart uses member & member performance data to show how frequently members use MewFit</b> <br>Hovered Data Points: Member Performance Score/ Total number of members<br><span style="color: red;">Note: Performance score is already divided by 10</span></p>
+                            </section>
                         </div>
                         <div>
                             <h4>Age vs Level Distribution</h4>
-                            <canvas id="ageChart"></canvas>
+                            <canvas id="ageChart" class="chart" data-description="Description6"></canvas>
+                            <section id="Description6" class="chart-description">
+                                <p><b>This chart uses member data to illustrate how active members are according to age so that we can improve to make MewFit more age-friendly</b> <br>Hovered Data Points: Total number of members according to age category</p>
+                            </section>
                         </div>
                         <div>
-                            <h4>Performance Distribution</h4>
-                            <canvas id="memberPerformanceChart"></canvas>
+                            <h4>Detailed Performance Distribution</h4>
+                            <canvas id="memberPerformanceChart" class="chart" data-description="Description7"></canvas>
+                            <section id="Description7" class="chart-description">
+                                <p><b>This chart uses member and member performance data to compare how active new and old members are</b> <br>Hovered Data Points: Performance score according to registered date category<br><span style="color: red;">Note: Performance score is already divided by 10</span></p>
+                            </section>
                         </div>
                     </div>
             
@@ -766,7 +817,7 @@
                                         pointStyle: false,
                                     },
                                     {
-                                        label: 'Total Member Registrations',
+                                        label: 'Total Number of Member',
                                         data: registeredData,
                                         backgroundColor: 'rgb(159, 247, 255)',
                                         borderColor: 'rgb(159, 247, 255)',
@@ -901,37 +952,49 @@
                 <div class="containers">
                     <div class="chart">
                         <div>
-                            <h4>Members' Favourite on Workout Type</h4>
-                            <canvas id="workoutPopularityChart"></canvas>
+                            <h4>Members' Preferences on Workout Type</h4>
+                            <canvas id="workoutPopularityChart" class="chart" data-description="Description8"></canvas>
+                            <section id="Description8" class="chart-description">
+                                <p><b>This chart uses workout and workout history data to see which workout category do members prefer</b> <br>Hovered Data Points: Number of times the workouts has been clicked according to workout type</p>
+                            </section>
                         </div>
                         <div>
                             <h4>Member's Preference on Duration</h4>
                             <div>
-                                <canvas id="durationChart" width="500" height="300"></canvas>
+                                <canvas id="durationChart" width="500" height="300" class="chart" data-description="Description9"></canvas>
                             </div>
+                            <section id="Description9" class="chart-description">
+                                <p><b>This chart uses workout and workout history data to see which duration do members prefer for each workout category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
+                            </section>
                         </div>
                         <div>
                             <h4>Member's Preference on Calories</h4>
                             <div>
-                                <canvas id="caloriesChart" width="500" height="300"></canvas>
+                                <canvas id="caloriesChart" width="500" height="300" class="chart" data-description="Description10"></canvas>
+                                <section id="Description10" class="chart-description">
+                                <p><b>This chart uses workout and workout history data to see how many calories burnt do members prefer for each workout category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
+                                </section>
                             </div>
                         </div>
                         <div>
-                            <h4>Workout vs Member Performance</h4> 
-                            <canvas id="workoutPerformanceChart"></canvas>
+                            <h4>Workout & Member Performance Growth</h4> 
+                            <canvas id="workoutPerformanceChart" class="chart" data-description="Description11"></canvas>
+                            <section id="Description11" class="chart-description">
+                                <p><b>This chart uses workout and member performance data to see how the increasing number of each workout category affect member performance</b> <br>Hovered Data Points: Total number of workout according to workout category<br><span style="color:red;">Note: Performance score is already divided by 10</span></p>
+                            </section>
                         </div>
                     </div>
                 </div>
-                <!-- ----------------------------CHART 1---------------------- -->
+
                 <?php
                 $sqlWorkoutTypes = "SELECT DISTINCT workout_type FROM workout";
                 $resultWorkoutTypes = $dbConn->query($sqlWorkoutTypes);
-
+                
                 $workoutTypes = [];
                 while ($row = $resultWorkoutTypes->fetch_assoc()) {
                     $workoutTypes[] = $row['workout_type'];
                 }
-
+                
                 $workoutData = [];
                 foreach ($workoutTypes as $type) {
                     $sqlHistory = "SELECT COUNT(workout_history_id) AS workout_count
@@ -939,23 +1002,27 @@
                                 WHERE workout_id IN (
                                     SELECT workout_id FROM workout WHERE workout_type = '$type'
                                 )";
-
+                
                     $resultHistory = $dbConn->query($sqlHistory);
                     $workoutData[$type] = $resultHistory->fetch_assoc()['workout_count'] ?? 0;
                 }
-
+                
                 $colors = [
-                    "Cardio" => "rgba(255, 154, 176, 0.84)", 
-                    "Weighted" => "rgba(104, 195, 255, 0.85)", 
-                    "Weight-Free" => "rgba(255, 217, 122, 0.84)", 
-                    "Yoga" => "rgba(180, 255, 139, 0.85)"
+                    "cardio" => "rgb(255, 149, 172)", 
+                    "weighted" => "rgb(132, 206, 255)", 
+                    "weight-free" => "rgb(255, 219, 128)", 
+                    "yoga" => "rgb(218, 169, 255)"
                 ];
-
+                
                 $dataset = [
                     "labels" => array_keys($workoutData),
                     "data" => array_values($workoutData),
-                    "backgroundColor" => array_values($colors),
+                    "backgroundColor" => []
                 ];
+                
+                foreach (array_keys($workoutData) as $type) {
+                    $dataset["backgroundColor"][] = $colors[$type] ?? "rgb(200, 200, 200)"; 
+                }
 
                 //CHART 2 and 3
 
@@ -1003,7 +1070,7 @@
                 $cumulativeWorkoutCountsByType = []; 
                 foreach ($allWorkoutTypes as $currentWorkoutType) {
                     $sqlWorkoutHistoryByType = "SELECT 
-                                                    CONCAT(YEAR(date), '-', LPAD(((MONTH(date)-1) DIV 6)*6 + 1, 2, '0')) AS period,
+                                                    CONCAT(YEAR(date), '-', LPAD(((MONTH(date)-1) DIV 4)*4 + 1, 2, '0')) AS period,
                                                     COUNT(workout_history_id) AS total_workout_count
                                                 FROM workout_history
                                                 WHERE workout_id IN (
@@ -1025,7 +1092,7 @@
 
                 $sqlMemberPerformance = "SELECT 
                                             CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 6)*6 + 1, 2, '0')) AS period,
-                                            SUM(workout_history_count + diet_history_count) AS total_performance
+                                            SUM(workout_history_count) AS total_performance
                                         FROM member_performance
                                         GROUP BY period
                                         ORDER BY period";
@@ -1059,7 +1126,7 @@
                     "cardio" => "rgb(255, 149, 172)", 
                     "weighted" => "rgb(132, 206, 255)", 
                     "weight-free" => "rgb(255, 219, 128)", 
-                    "yoga" => "rgb(201, 255, 119)"
+                    "yoga" => "rgb(218, 169, 255)"
                 ];
 
                 foreach ($allWorkoutTypes as $currentWorkoutType) {
@@ -1122,8 +1189,8 @@
                                             x: workout[xAxisDataKey],
                                             y: workout.workout_count
                                         })),
-                                        backgroundColor: 'rgb(255, 72, 111)',
-                                        borderColor: 'rgb(255, 72, 111)',
+                                        backgroundColor: 'rgb(132, 206, 255)',
+                                        borderColor: 'rgb(132, 206, 255)',
                                         pointRadius: 4,
                                         pointHoverRadius: 6
                                     },
@@ -1133,8 +1200,8 @@
                                             x: workout[xAxisDataKey],
                                             y: workout.workout_count
                                         })),
-                                        backgroundColor: 'rgb(111, 197, 255)',
-                                        borderColor: 'rgb(111, 197, 255)',
+                                        backgroundColor: 'rgb(218, 169, 255)',
+                                        borderColor: 'rgb(218, 169, 255)',
                                         pointRadius: 4,
                                         pointHoverRadius: 6
                                     },
@@ -1144,8 +1211,8 @@
                                             x: workout[xAxisDataKey],
                                             y: workout.workout_count
                                         })),
-                                        backgroundColor: 'rgb(255, 169, 255)', 
-                                        borderColor: 'rgb(255, 169, 255)',
+                                        backgroundColor: 'rgb(255, 219, 128)', 
+                                        borderColor: 'rgb(255, 219, 128)',
                                         pointRadius: 4,
                                         pointHoverRadius: 6
                                     },
@@ -1155,8 +1222,8 @@
                                             x: workout[xAxisDataKey],
                                             y: workout.workout_count
                                         })),
-                                        backgroundColor: 'rgb(188, 154, 255)', 
-                                        borderColor: 'rgb(188, 154, 255)',
+                                        backgroundColor: 'rgb(255, 149, 172)', 
+                                        borderColor: 'rgb(255, 149, 172)',
                                         pointRadius: 4,
                                         pointHoverRadius: 6
                                     }
@@ -1197,8 +1264,8 @@
 
                     const ctx9 = document.getElementById('workoutPerformanceChart').getContext('2d');
 
-                    const allTimeLabels = <?php echo json_encode($allTimePeriods); ?>; // Updated variable name
-                    const chartDataSets = <?php echo json_encode($chartDataSets, JSON_NUMERIC_CHECK); ?>; // Updated variable name
+                    const allTimeLabels = <?php echo json_encode($allTimePeriods); ?>; 
+                    const chartDataSets = <?php echo json_encode($chartDataSets, JSON_NUMERIC_CHECK); ?>; 
 
                     new Chart(ctx9, {
                         type: 'bar',
@@ -1229,6 +1296,7 @@
         </section>
 
         <!-- meal analysis -->
+        <!-- diet analysis -->
         <section>
             <h2>Meal Analysis</h2>
             <div>
@@ -1236,24 +1304,36 @@
                     <h3>Diet Analysis</h3>
                     <div class="chart">
                         <div>
-                            <h4>Members' Favourite on Diet Type</h4>
-                            <canvas id="dietPopularityChart"></canvas>
+                            <h4>Members' Preference on Diet Type</h4>
+                            <canvas id="dietPopularityChart" class="chart" data-description="Description12"></canvas>
+                            <section id="Description12" class="chart-description">
+                                <p><b>This chart uses diet and diet history data to see which diet category do members prefer</b> <br>Hovered Data Points: Number of times the diet has been clicked according to diet type</p>
+                            </section>
                         </div>
                         <div>
                             <h4>Member's Preference on Preparation Time</h4>
                             <div>
-                                <canvas id="preparationTimeChart" width="500" height="300"></canvas>
+                                <canvas id="preparationTimeChart" width="500" height="300" class="chart" data-description="Description13"></canvas>
+                                <section id="Description13" class="chart-description">
+                                    <p><b>This chart uses diet and diet history data to see which preparation time do members prefer for each diet category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
+                                </section>
                             </div>
                         </div>
                         <div>
                             <h4>Member's Preference on Calories</h4>
                             <div>
-                                <canvas id="dietCalorieChart" width="500" height="300"></canvas>
+                                <canvas id="dietCalorieChart" width="500" height="300" class="chart" data-description="Description14"></canvas>
+                                <section id="Description14" class="chart-description">
+                                    <p><b>This chart uses diet and diet history data to see which calories do members prefer for each diet category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
+                                </section>
                             </div>
                         </div>
                         <div>
                             <h4>Diet vs Member Performance</h4> 
-                            <canvas id="worormanceChart"></canvas>
+                            <canvas id="dietPerformanceChart" class="chart" data-description="Description15"></canvas>
+                            <section id="Description15" class="chart-description">
+                                <p><b>This chart uses diet and member performance data to see how the increasing number of each diet category affect member performance</b> <br>Hovered Data Points: Total number of diet according to diet category<br><span style="color:red;">Note: Performance score is already divided by 10</span></p>
+                            </section>
                         </div>
                     </div>
                 </div>
@@ -1280,16 +1360,16 @@
                     }
 
                     $dietColors = [
-                        "all" => "rgba(255, 99, 132, 0.85)", 
-                        "vegetarian" => "rgba(54, 162, 235, 0.85)", 
-                        "vegan" => "rgba(75, 192, 192, 0.85)", 
-                        "meat" => "rgba(255, 206, 86, 0.85)", 
+                        "all" => "rgba(247, 195, 64, 0.85)", 
+                        "vegetarian" => "rgba(94, 119, 233, 0.85)", 
+                        "vegan" => "rgba(111, 212, 119, 0.85)", 
+                        "meat" => "rgba(255, 99, 132, 0.85)", 
                     ];
 
                     $dietChartDataset = [
                         "labels" => array_keys($dietCountsByType),
                         "data" => array_values($dietCountsByType),
-                        "backgroundColor" => array_values($dietColors),
+                        "backgroundColor" => array_map(fn($type) => $dietColors[$type] ?? "rgba(200, 200, 200, 0.85)", array_keys($dietCountsByType)),
                     ];
                     ?>
                     <script>
@@ -1316,9 +1396,8 @@
                         });
                     });
                     </script>
-
+                <!-- ----------------------------------CHART 2 AND 3-------------------------- -->
                     <?php
-                    // Modified SQL query to correctly calculate total calories for each diet
                     $sqlDietStatistics = "SELECT 
                                             d.diet_type,
                                             SUM(n.calories) AS total_calories,
@@ -1331,21 +1410,6 @@
                                         GROUP BY d.diet_type, d.diet_id, d.preparation_min";
 
                     $resultDietStatistics = $dbConn->query($sqlDietStatistics);
-
-                    // Initializing diet statistics with correct categories from your data
-                    $dietStatistics = [
-                        'Vegetarian' => [],
-                        'Vegan' => [],
-                        'Ketogenic' => [],
-                        'Paleo' => [],
-                        'Mediterranean' => [],
-                        'Pescatarian' => [],
-                        'High Protein' => [],
-                        'Low Carb' => [],
-                        'Gluten Free' => [],
-                        'Heart Healthy' => [],
-                        'Anti-Inflammatory' => []
-                    ];
 
                     while ($row = $resultDietStatistics->fetch_assoc()) {
                         $currentDietType = $row['diet_type'];
@@ -1389,12 +1453,12 @@
                             // Prepare datasets dynamically based on available data
                             const datasets = [];
                             const colors = {
-                                'vegetarian': 'rgb(197, 236, 113)',
-                                'vegan': 'rgb(140, 184, 255)',
-                                'meat': 'rgb(255, 154, 154)',
-                                'all': 'rgb(220, 167, 255)',
+                                'vegetarian': 'rgba(94, 119, 233, 0.85)',
+                                'vegan': 'rgba(111, 212, 119, 0.85)',
+                                'meat': 'rgba(255, 99, 132, 0.85)',
+                                'all': 'rgba(247, 195, 64, 0.85)',
                             };
-                            
+
                             // Only create datasets for diet types that have data
                             Object.keys(data).forEach(dietType => {
                                 if (data[dietType] && data[dietType].length > 0) {
@@ -1434,7 +1498,7 @@
                                         y: {
                                             title: {
                                                 display: true,
-                                                text: 'Number of Times Prepared'
+                                                text: 'Number of Clicks'
                                             }
                                         }
                                     },
@@ -1465,8 +1529,395 @@
                         }
                     });
                     </script>
+                <!-- ----------------------------------CHART 4-------------------------- -->
+                    <?php
+                    $sqlDistinctDietTypes = "SELECT DISTINCT diet_type FROM diet";
+                    $resultDistinctDietTypes = $dbConn->query($sqlDistinctDietTypes);
+                    
+                    $allDietTypes = []; 
+                    while ($row = $resultDistinctDietTypes->fetch_assoc()) {
+                        $allDietTypes[] = $row['diet_type'];
+                    }
+                    
+                    $dietCountsByType = [];
+                    $performanceDataByPeriod = []; 
+                    $allTimePeriods = []; 
+                    
+                    $cumulativeDietCountsByType = []; 
+                    foreach ($allDietTypes as $currentDietType) {
+                        $sqlDietHistoryByType = "SELECT 
+                                                    CONCAT(YEAR(date), '-', LPAD(((MONTH(date)-1) DIV 4)*4 + 1, 2, '0')) AS period,
+                                                    COUNT(diet_history_id) AS total_diet_count
+                                                FROM diet_history
+                                                WHERE diet_id IN (
+                                                    SELECT diet_id FROM diet WHERE diet_type = '$currentDietType'
+                                                )
+                                                GROUP BY period
+                                                ORDER BY period";
+                    
+                        $resultDietHistory = $dbConn->query($sqlDietHistoryByType);
+                        
+                        $dietCountsByType[$currentDietType] = [];
+                        $cumulativeDietCount = 0;
+                        while ($row = $resultDietHistory->fetch_assoc()) {
+                            $cumulativeDietCount += $row['total_diet_count']; 
+                            $dietCountsByType[$currentDietType][$row['period']] = $cumulativeDietCount;
+                            $allTimePeriods[] = $row['period'];
+                        }
+                    }
+                    
+                    $sqlMemberPerformance = "SELECT 
+                                                CONCAT(YEAR(weeks_date_mon), '-', LPAD(((MONTH(weeks_date_mon)-1) DIV 4)*4 + 1, 2, '0')) AS period,
+                                                SUM(diet_history_count) AS total_performance
+                                            FROM member_performance
+                                            GROUP BY period
+                                            ORDER BY period";
+                    
+                    $resultMemberPerformance = $dbConn->query($sqlMemberPerformance);
+                    while ($row = $resultMemberPerformance->fetch_assoc()) {
+                        $performanceDataByPeriod[$row['period']] = $row['total_performance'] / 10; 
+                    }
+                    
+                    $allTimePeriods = array_unique($allTimePeriods);
+                    sort($allTimePeriods);
+                    
+                    $chartDataSets = []; 
+                    $performanceDataPoints = [];
+                    foreach ($allTimePeriods as $currentPeriod) {
+                        $performanceDataPoints[] = $performanceDataByPeriod[$currentPeriod] ?? 0;
+                    }
+                    $chartDataSets[] = [
+                        "label" => "Member Performance",
+                        "type" => "line",
+                        "data" => $performanceDataPoints,
+                        "backgroundColor" => "rgb(235, 61, 61)",
+                        "borderColor" => "rgb(235, 61, 61)",
+                        "pointRadius" => 1,
+                        "pointHoverRadius" => 4,
+                        "borderWidth" => 2,
+                        "fill" => false
+                    ];
+                    
+                    $dietTypeColors = [
+                        "all" => "rgba(247, 195, 64, 0.85)", 
+                        "vegetarian" => "rgba(94, 119, 233, 0.85)", 
+                        "vegan" => "rgba(111, 212, 119, 0.85)", 
+                        "meat" => "rgba(255, 99, 132, 0.85)", 
+                    ];
+                    
+                    foreach ($allDietTypes as $currentDietType) {
+                        $dataPointsForCurrentType = [];
+                        $cumulativeValueForCurrentType = 0; 
+                    
+                        foreach ($allTimePeriods as $currentPeriod) {
+                            if (isset($dietCountsByType[$currentDietType][$currentPeriod])) {
+                                $cumulativeValueForCurrentType = $dietCountsByType[$currentDietType][$currentPeriod]; 
+                            }
+                            $dataPointsForCurrentType[] = $cumulativeValueForCurrentType;
+                        }
+                    
+                        $chartDataSets[] = [
+                            "label" => ucfirst($currentDietType), 
+                            "type" => "bar",
+                            "data" => $dataPointsForCurrentType,
+                            "backgroundColor" => $dietTypeColors[strtolower($currentDietType)] ?? "rgba(200, 200, 200, 0.85)", // Default color if not found
+                            "borderColor" => str_replace("0.85", "1", $dietTypeColors[strtolower($currentDietType)] ?? "rgba(200, 200, 200, 1)"),
+                            "borderWidth" => 1
+                        ];
+                    }
+                    ?>
+
+                    <script>
+                        const ctx9 = document.getElementById('dietPerformanceChart').getContext('2d');
+
+                        const allTimeLabels = <?php echo json_encode($allTimePeriods); ?>; // Updated variable name
+                        const chartDataSets = <?php echo json_encode($chartDataSets, JSON_NUMERIC_CHECK); ?>; // Updated variable name
+
+                        new Chart(ctx9, {
+                            type: 'bar',
+                            data: {
+                                labels: allTimeLabels,
+                                datasets: chartDataSets
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: { display: true, text: 'Date' }
+                                    },
+                                    y: {
+                                        title: { display: true, text: 'Total Number of Diets' },
+                                        beginAtZero: true
+                                    }
+                                },
+                                plugins: {
+                                    legend: { position: 'top' }
+                                }
+                            }
+                        });
+                    </script>
+
+                <!-- ---------------------------------nutrition analysis------------------------- -->    
+                <div class="containers">
+                    <h3>Ingredients Analysis</h3>
+                    <div class="chart">
+                        <div>
+                            <h4>Top 10 Member's Favourite</h4>
+                            <canvas id="nutritionPopularityChart" class="chart" data-description="Description16"></canvas>
+                            <section id="Description16" class="chart-description">
+                                <p><b>This chart uses nutrition and diet data to see which ingredients do members prefer</b><br>Hovered Data Points: Nutrition information </p>
+                            </section>
+                        </div>
+                        <div>
+                            <h4>Nutrition & Member Performance Growth</h4> 
+                            <canvas id="nutritionPerformanceChart" class="chart" data-description="Description17"></canvas>
+                            <section id="Description17" class="chart-description">
+                                <p><b>This chart uses nutrition, diet, and member performance data to see how the increasing number of each nutrition category affect member performance</b><br>Hovered Data Points: Nutrition information/ Performance score <br><span style="color:red;">Note: Performance score is already divided by 10</span></p>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+                <!-- ----------------------------------CHART 1-------------------------- -->
+                <?php
+                $sqlTopNutrition = "
+                    SELECT dn.nutrition_id, n.nutrition_name, 
+                        SUM(n.calories) AS total_calories,
+                        SUM(n.fat) AS total_fat,
+                        SUM(n.protein) AS total_protein,
+                        SUM(n.carbohydrate) AS total_carbohydrate,
+                        COUNT(dn.nutrition_id) AS usage_count
+                    FROM diet_nutrition dn
+                    JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+                    GROUP BY dn.nutrition_id
+                    ORDER BY usage_count DESC
+                    LIMIT 10";
+
+                $resultTopNutrition = $dbConn->query($sqlTopNutrition);
+
+                $nutritionLabels = [];
+                $caloriesData = [];
+                $fatData = [];
+                $proteinData = [];
+                $carbohydrateData = [];
+
+                while ($row = $resultTopNutrition->fetch_assoc()) {
+                    $nutritionLabels[] = $row['nutrition_name'];
+                    $caloriesData[] = $row['total_calories'];
+                    $fatData[] = $row['total_fat'];
+                    $proteinData[] = $row['total_protein'];
+                    $carbohydrateData[] = $row['total_carbohydrate'];
+                }
+                ?>
+                <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('nutritionPopularityChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($nutritionLabels); ?>,
+                datasets: [
+                    {
+                        label: 'Calories',
+                        data: <?php echo json_encode($caloriesData); ?>,
+                        backgroundColor: 'rgb(255, 142, 166)'
+                    },
+                    {
+                        label: 'Fat',
+                        data: <?php echo json_encode($fatData); ?>,
+                        backgroundColor: 'rgb(255, 206, 146)'
+                    },
+                    {
+                        label: 'Protein',
+                        data: <?php echo json_encode($proteinData); ?>,
+                        backgroundColor: 'rgb(175, 255, 208)'
+                    },
+                    {
+                        label: 'Carbohydrate',
+                        data: <?php echo json_encode($carbohydrateData); ?>,
+                        backgroundColor: 'rgb(175, 222, 255)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        title: { display: true, text: 'Nutritional Values' }
+                    },
+                }
+            }
+        });
+    });
+                </script>
+                <!-- ----------------------------------CHART 2-------------------------- -->
+                <?php
+                $sqlNutritionPerformance = "
+                    SELECT CONCAT(YEAR(n.date_registered), '-', LPAD(((MONTH(n.date_registered)-1) DIV 4)*4 + 1, 2, '0')) AS period,
+                        SUM(n.calories) AS total_calories,
+                        SUM(n.fat) AS total_fat,
+                        SUM(n.protein) AS total_protein,
+                        SUM(n.carbohydrate) AS total_carbohydrate,
+                        COUNT(dh.diet_id) AS member_performance
+                    FROM nutrition n
+                    JOIN diet_nutrition dn ON n.nutrition_id = dn.nutrition_id
+                    JOIN diet_history dh ON dn.diet_id = dh.diet_id
+                    GROUP BY period
+                    ORDER BY period ASC";
+
+                $resultNutritionPerformance = $dbConn->query($sqlNutritionPerformance);
+
+                $nutritionLabels = [];
+                $caloriesData = [];
+                $fatData = [];
+                $proteinData = [];
+                $carbohydrateData = [];
+                $memberPerformanceData = [];
+
+                $cumulativeCalories = 0;
+                $cumulativeFat = 0;
+                $cumulativeProtein = 0;
+                $cumulativeCarbohydrate = 0;
+                $cumulativeMemberPerformance = 0;
+
+                while ($row = $resultNutritionPerformance->fetch_assoc()) {
+                    $nutritionLabels[] = $row['period']; 
+                    
+                    // Cumulative Sum Calculation
+                    $cumulativeCalories += $row['total_calories'];
+                    $cumulativeFat += $row['total_fat'];
+                    $cumulativeProtein += $row['total_protein'];
+                    $cumulativeCarbohydrate += $row['total_carbohydrate'];
+                    $cumulativeMemberPerformance += $row['member_performance'];
+
+                    $caloriesData[] = $cumulativeCalories;
+                    $fatData[] = $cumulativeFat;
+                    $proteinData[] = $cumulativeProtein;
+                    $carbohydrateData[] = $cumulativeCarbohydrate;
+                    $memberPerformanceData[] = $cumulativeMemberPerformance;
+                }
+                ?>
+
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var ctx = document.getElementById('nutritionPerformanceChart').getContext('2d');
+                        var labels = <?php echo json_encode($nutritionLabels); ?>;
+                        var calories = <?php echo json_encode($caloriesData); ?>;
+                        var fat = <?php echo json_encode($fatData); ?>;
+                        var protein = <?php echo json_encode($proteinData); ?>;
+                        var carbohydrate = <?php echo json_encode($carbohydrateData); ?>;
+                        var performance = <?php echo json_encode($memberPerformanceData); ?>;
+
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: <?php echo json_encode($nutritionLabels); ?>,
+                                datasets: [
+                                    {
+                                        label: 'Member Performance (Cumulative)',
+                                        data: <?php echo json_encode($memberPerformanceData); ?>,
+                                        borderColor: 'rgb(235, 61, 61)',
+                                        backgroundColor: 'rgb(235, 61, 61)',
+                                        type: 'line',
+                                        fill: false,
+                                        yAxisID: 'y1'
+                                    },
+                                    {
+                                        label: 'Calories (Cumulative)',
+                                        data: <?php echo json_encode($caloriesData); ?>,
+                                        backgroundColor: 'rgb(255, 142, 166)',
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'Fat (Cumulative)',
+                                        data: <?php echo json_encode($fatData); ?>,
+                                        backgroundColor: 'rgb(255, 206, 146)',
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'Protein (Cumulative)',
+                                        data: <?php echo json_encode($proteinData); ?>,
+                                        backgroundColor: 'rgb(175, 255, 208)',
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'Carbohydrate (Cumulative)',
+                                        data: <?php echo json_encode($carbohydrateData); ?>,
+                                        backgroundColor: 'rgb(175, 222, 255)',
+                                        yAxisID: 'y'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: { display: true, text: 'Date Range (Cumulative per 4 Months)' }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        stacked: false,
+                                        title: { display: true, text: 'Cumulative Nutritional Values' }
+                                    },
+                                    y1: {
+                                        beginAtZero: true,
+                                        position: 'right',
+                                        title: { display: true, text: 'Cumulative Member Performance' },
+                                        grid: { drawOnChartArea: false }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { position: 'top' },
+                                    title: { display: true, text: 'Cumulative Nutrition vs Member Performance' }
+                                }
+                            }
+                        });
+                    });
+                </script>
             </div>
         </section>
-    </div>
+
+        <!-- Function to show the selected description and hide others -->
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to show the selected description and hide others
+            function showDescription(descriptionId) {
+                // Hide all descriptions with the fade-out-down animation
+                document.querySelectorAll('.chart-description').forEach(desc => {
+                    desc.classList.remove('fade-in-up');
+                    desc.classList.add('fade-out-down');
+                });
+
+                // Show the selected description with the fade-in-up animation
+                let descriptionDiv = document.getElementById(descriptionId);
+                if (descriptionDiv) {
+                    descriptionDiv.classList.remove('fade-out-down');
+                    descriptionDiv.classList.add('fade-in-up');
+                }
+            }
+
+            // Add event listener to the parent container (event delegation) for chart clicks
+            document.addEventListener('click', function (event) {
+                let clickedChart = event.target.closest('.chart');  // Get closest chart element clicked
+
+                // If a chart is clicked
+                if (clickedChart) {
+                    let descriptionId = clickedChart.getAttribute('data-description');
+                    if (descriptionId) {
+                        showDescription(descriptionId);
+                    }
+                } else {
+                    // If the click is outside the chart or description, hide all descriptions
+                    document.querySelectorAll('.chart-description').forEach(desc => {
+                        desc.classList.remove('fade-in-up');
+                        desc.classList.add('fade-out-down');
+                    });
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>

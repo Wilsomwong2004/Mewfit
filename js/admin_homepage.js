@@ -60,6 +60,4 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatToTwoDecimals(num) {
         return Math.round(num * 100) / 100; 
     }
-
-    
 });
