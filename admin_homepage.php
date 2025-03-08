@@ -45,6 +45,37 @@
             visibility: hidden;
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s; 
         }
+
+        .greetings-word{
+            padding:25px 0px 25px 0px;
+            line-height: 33px;
+            width:70%;
+            font-size: 18px;
+        }
+
+        .greetings{
+            display:flex;
+        }
+
+        .detail-summary{
+            font-weight:bold;
+            padding-bottom:10px;
+        }
+
+        @media screen and (max-width: 832px) {
+            .greetings{
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .greetings-word{
+                display: none;
+            }
+            .detail-summary{
+                display:none;
+            }
+        }
     </style>
 </head>
 <?php include "conn.php" ?>
@@ -68,12 +99,24 @@
 
     <div class="content">
         <!-- greetings -->
-        <div style="display:flex;">
-        <h1 id="type">Hello, <span style="color:#FF9F39">admin</span></h1>
-        <h1 class="cursor">|</h1>
-        </div>
+         <div style="padding-bottom: 20px;border-bottom: 1px solid rgb(186, 186, 186);">
+            <div class="greetings">
+                <div>
+                    <div style="display:flex;">
+                        <h1 id="type">Hello, <span style="color:#FF9F39">admin</span></h1>
+                        <h1 class="cursor">|</h1>
+                    </div>
+                    <p class="greetings-word">This platform provides comprehensive reports on user data, including diet and workout trends, 
+                        for in-depth analysis. Explore the charts and containers by hovering or clicking to access detailed insights. Gain 
+                        valuable information to better understand and optimize fitness strategies tailored to individual needs!</p>
+                </div>
+                <img src="./assets/icons/level.svg" class="cat" alt="Logo">
+            </div>
+         </div>
+        
         
         <!-- summary -->
+        <h2>Summary for this month</h2>
         <section class="summary-container">
         <?php
             function getCount($dbConn, $table) {
@@ -104,11 +147,12 @@
             $memberCompare = comparison($dbConn,'member');
             $adminCompare = comparison($dbConn,'administrator');
             ?>
+            
             <div class="summary" style="background-color:#DBFAFF;">
                 <div>
                 <h5>User</h5>
                 <h6 class="count-up"><?php echo $adminNo + $memberNo; ?></h6>
-                <p style="font-weight:bold;padding-bottom:10px;">Member: <?php echo $memberNo; ?> Admin: <?php echo $adminNo?></p>
+                <p class="detail-summary">Member: <?php echo $memberNo; ?> Admin: <?php echo $adminNo?></p>
                 <p>Increase by <span class="count-up-p"><?php echo $memberCompare+$adminCompare; ?></span></p>
                 </div>
                 <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png">
@@ -125,6 +169,7 @@
                 <div>
                     <h5>Diet</h5>
                     <h6 class="count-up"><?php echo getCount($dbConn, 'diet'); ?></h6>
+                    <p class="detail-summary">Ingredients: <?php echo getCount($dbConn,'nutrition');?></p>
                     <p>Increase by <span class="count-up-p"><?php echo comparison($dbConn,'diet');?></span></p>
                 </div>
                 <img src="https://cdn-icons-png.flaticon.com/512/706/706133.png">
