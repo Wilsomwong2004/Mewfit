@@ -39,6 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
+    if (($target_weight - $weight > 20) || ($weight - $target_weight > 20)) {
+        $_SESSION['error_message'] = "Please enter a target weight range that is less that 20 gap";
+        header("Location: sign_up_page.php");
+        exit;
+    }
+
     $sql = "SELECT * FROM member WHERE username = '$username'";
     $result = $conn->query($sql);
 

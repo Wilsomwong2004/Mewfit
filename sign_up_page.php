@@ -112,7 +112,7 @@ if (!empty($_SESSION['error_message'])) {
               </div>
               <p>Current BMI:</p>
               <div class="select-inputs">
-                <label for="fitness-goal">Fitness Goal</label>
+                <label for="fitness-goal">Fitness Goal:</label>
                 <select id="fitness-goal" name="fitness-goal">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Maintain">Maintain</option>
@@ -122,7 +122,7 @@ if (!empty($_SESSION['error_message'])) {
                 </select>
               </div>
               <div class="inputs">
-                <label for="target-weight">Target Weight</label>
+                <label for="target-weight">Target Weight: (MewFit personalized plan will help you achieve you goal in 1 month)</label>
                 <input
                   type="number"
                   id="target-weight"
