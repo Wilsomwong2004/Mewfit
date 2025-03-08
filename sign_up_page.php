@@ -43,16 +43,7 @@ if (!empty($_SESSION['error_message'])) {
               <div class="sign-in-description">
                 <p>Let’s us know more about you.</p>
               </div>
-              <div class="half-input-wrapper">
-                <div class="half-inputs">
-                  <label for="f-name">First Name</label>
-                  <input type="text" id="f-name" name="f-name"/>
-                </div>
-                <div class="half-inputs">
-                  <label for="l-name">Last Name</label>
-                  <input type="text" id="l-name" name="l-name"/>
-                </div>
-              </div>
+
               <div class="inputs">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"/>
@@ -133,6 +124,7 @@ if (!empty($_SESSION['error_message'])) {
                   <option value="lbs">LBS</option>
                 </select>
               </div>
+
               <p>Target BMI:</p>
               <div class="button-inputs">
                 <button type="submit">Sign up</button>

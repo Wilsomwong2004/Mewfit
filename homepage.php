@@ -66,7 +66,11 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             <div class="content">
                 <section class="section1">
                     <div class="s1-words">
-                        <h2>Hello, <span style="color:#FF946E">Ariande Grande</span></h2>
+                        <?php
+                            echo "
+                            <h2>Hello, <span style='color:#FF946E'>{$_SESSION['username']}</span></h2>
+                            ";
+                        ?>
                         <p>Today is the workout time that you have long awaited for. <br>
                             Let's hit the workout time goal to get a mew mew! </p>
                         <div class="s1-icon">

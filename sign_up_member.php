@@ -26,9 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    $first_name = trim($_POST['f-name']);
-    $last_name = trim($_POST['l-name']);
-    $member_name = $first_name . " " . $last_name; 
     $username = trim($_POST['username']);
     $email = trim($_POST['e-mail']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
