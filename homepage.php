@@ -1,10 +1,10 @@
 <?php
 session_start();  
 
-// if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-//     header("Location: prelogin.html");
-//     exit;
-// }
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,14 +38,22 @@ session_start();
                 </div>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo-responsive" id="nav-logo-responsive">
                 <div class="profile">
-                    <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+                    <?php
+                        echo "
+                        <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                        ";
+                    ?>
                     <div class="profile-dropdown" id="profile-dropdown">
                         <div class="profile-info">
-                            <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
-                            <div>
-                                <h3>unknown</h3>
-                                <p>unknown</p>
-                            </div>
+                            <?php
+                                echo "
+                                <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                                <div>
+                                    <h3>{$_SESSION["username"]}</h3>
+                                    <p>unknown</p>
+                                </div>
+                                ";
+                            ?>
                         </div>
                         <ul>
                             <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>

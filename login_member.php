@@ -33,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       
       $_SESSION["logged_in"] = true;
       $_SESSION["username"] = $row['username'];
+      $_SESSION["member pic"] = $row['member_pic'];
       
       header("Location: " . $homepage);
       exit();
