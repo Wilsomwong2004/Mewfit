@@ -7,6 +7,29 @@ body {
     background-color: #ffffff;
 }
 
+.cat {
+    width: 100px;
+    height: 100px;
+    padding: 90px 30px 0px 30px;
+    animation: squishy 2.6s ease infinite;
+    
+}
+
+@keyframes squishy {
+    0% {
+        transform: scale(1, 1); 
+    }
+    15% {
+        transform: scale(1.1, 0.95); 
+    }
+    20% {
+        transform: scale(1, 1);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
 .content{
     padding-left: 2vw;
     padding-right: 2vw;
@@ -17,9 +40,8 @@ body {
 }
 
 .logo-space {
-    margin: 0;
-    padding: 0;
     width: 80px;
+    /* Space for logo */
 }
 
 .nav-links {
@@ -31,6 +53,16 @@ body {
     left: auto !important;
     margin-left: 320px !important;
     transform: translateX(-50%);
+}
+
+.nav-links a {
+    text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
+    color: black;
+    white-space: nowrap;
+    z-index: 3;
+    position: relative;
 }
 
 .nav-links a {
@@ -79,6 +111,10 @@ body {
     .nav-links {
         margin-left: 0 !important;
         left: 50% !important;
+    }
+
+    .cat{
+        padding: 20px;
     }
 }
 
@@ -201,12 +237,7 @@ h4 {
     margin-bottom: 10px;
     width:90%;
 }
-h3 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-}
+
 
 @media screen and (max-width: 800px){
     h1{
@@ -219,6 +250,10 @@ h3 {
 
     h3{
         font-size:4vw;
+    }
+
+    h4{
+        font-size:3vw;
     }
     
     h5{
@@ -246,7 +281,16 @@ h3 {
         justify-content: space-around;
         margin-top:20px;
         width:80vw;
-        height:100px;
+        height:35vw;
+        text-align: center;
+    }
+    
+    .chart {
+        width:90%;
+        height: 90%;
+    }
+    .chart div{
+        padding-bottom: 20px;
     }
 }
 
@@ -275,3 +319,4 @@ h3 {
         opacity: 0;
     }
 }
+
