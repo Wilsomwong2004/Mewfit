@@ -153,8 +153,8 @@ if (!empty($_SESSION['error_message'])) {
     <script src="js/sign-in-steps.js"></script>
     <script>
       function calculateSum() {
-
       }
     </script>
+    <script src="js/login_page.js"></script>
   </body>
 </html>
