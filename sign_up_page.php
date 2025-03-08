@@ -56,6 +56,22 @@ if (!empty($_SESSION['error_message'])) {
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"/>
               </div>
+              <div class="half-input-wrapper">
+                <div class="half-inputs">
+                  <label for="age">Your Age</label>
+                  <input type="number" id="age" name="age"/>
+                </div>
+                <div class="gender-inputs">
+                  <label for="gender">Your Gender</label>
+                  <select id="gender" name="gender">
+                    <option value="" disabled selected>
+                      Select your gender
+                    </option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
               <div class="account-rules">
                 <ul>
                   <li>Use 8 or more characters</li>
@@ -78,24 +94,8 @@ if (!empty($_SESSION['error_message'])) {
               </div>
               <div class="half-input-wrapper">
                 <div class="half-inputs">
-                  <label for="age">Your Age</label>
-                  <input type="number" id="age" name="age" required />
-                </div>
-                <div class="gender-inputs">
-                  <label for="gender">Your Gender</label>
-                  <select id="gender" name="gender" required>
-                    <option value="" disabled selected>
-                      Select your gender
-                    </option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-              </div>
-              <div class="half-input-wrapper">
-                <div class="half-inputs">
                   <label for="weight">Your Weight</label>
-                  <input type="number" id="weight" name="weight" required />
+                  <input type="number" id="weight" name="weight"/>
                   <select id="weight-unit" name="weight-unit">
                     <option value="kg">KG</option>
                     <option value="lbs">LBS</option>
@@ -103,21 +103,30 @@ if (!empty($_SESSION['error_message'])) {
                 </div>
                 <div class="half-inputs">
                   <label for="height">Your Height</label>
-                  <input type="number" id="height" name="height" required />
+                  <input type="number" id="height" name="height"/>
                   <select id="height-unit" name="height-unit">
-                    <option value="kg">CM</option>
-                    <option value="lbs">FEET</option>
+                    <option value="cm">CM</option>
+                    <option value="feet">FEET</option>
                   </select>
                 </div>
               </div>
               <p>Current BMI:</p>
+              <div class="select-inputs">
+                <label for="fitness-goal">Fitness Goal</label>
+                <select id="fitness-goal" name="fitness-goal">
+                  <option value="" disabled selected>Pick a fitness goal</option>
+                  <option value="Maintain">Maintain</option>
+                  <option value="Lose weight">Lose weight</option>
+                  <option value="Gain weight">Gain weight</option>
+                  <option value="Gain muscle">Gain muscle</option>
+                </select>
+              </div>
               <div class="inputs">
                 <label for="target-weight">Target Weight</label>
                 <input
                   type="number"
                   id="target-weight"
                   name="target-weight"
-                  required
                 />
                 <select id="target-weight-unit" name="target-weight-unit">
                   <option value="kg">KG</option>
