@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fitness_goal = $_POST['fitness-goal'];
     $target_weight = (float)$_POST['target-weight'];
     $target_weight_unit = $_POST['target-weight-unit'];
-    $start_streak = date('Y-m-d H:i:s');
+    $start_streak = date('Y-m-d');
 
     foreach ($_POST as $key => $value) {
         if (empty(trim($value)) || (!isset($fitness_goal) || !isset($gender))) {
@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } 
 
     $sql = "INSERT INTO member (`member_pic`, `username`, `email_address`, `password`, `level`, `height`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `date_registered`)
-            VALUES ('Unknown_acc-removebg.png', '$username', '$email', '$password', 1, `$height`,  '$weight', '$age', '$fitness_goal', '$target_weight', '$gender', '$start_streak', '$start_streak')";
+            VALUES ('Unknown_acc-removebg.png', '$username', '$email', '$password', 1, '$height',  '$weight', '$age', '$fitness_goal', '$target_weight', '$gender', '$start_streak', '$start_streak')";
 
     if ($conn->query($sql)) {
         echo '<script>

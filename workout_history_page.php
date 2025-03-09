@@ -1,3 +1,12 @@
+<?php
+session_start();  
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -111,21 +120,6 @@
         <h1>History</h1>
       </header>
 
-      <!-- <div class="search-date">
-        <h2>2000B.C</h2>
-      </div>
-      <div class="workout-record">
-        <img
-          class="picture"
-          src="./assets/workout_pics/workout1.jpeg"
-          alt="dumbell raise"
-        />
-        <p class="name">HIITT Name</p>
-        <p class="type">Yoga</p>
-        <p class="kcal">150 kcal</p>
-        <p class="time">30 mins</p>
-      </div> -->
-
       <?php
         $servername = "localhost";
         $username = "root";
@@ -133,8 +127,6 @@
         $dbname = "mewfit";
       
         $conn = new mysqli($servername, $username, $password, $dbname);
-
-        $member_id = "1"; // replace with session variable later
         $exist_record = false;
 
         if ($conn->connect_error) {
@@ -164,7 +156,7 @@
           } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
               return "Yesterday";
           } else {
-              return $date; // Return normal date for older days
+              return date('d F Y', strtotime($date)); // Return normal date for older days
           }
         }
 
@@ -172,7 +164,7 @@
 
           $workout_date = formatDate($row['date']);
 
-          if ($row['member_id'] == $member_id) {
+          if ($row['member_id'] == $_SESSION['member id']) {
             $exist_record = true;
             // prints out the record
             echo "<div class=\"workout-date\">
@@ -196,12 +188,6 @@
         if (!$exist_record) {
           echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
         }
-
-        // for ($i = 0; $i <= 10; $i++) {
-        //     $date = new DateTime();
-        //     $date->modify("-$i days");
-        //     echo $date->format("Y-m-d") . "<br>";
-        // }
 
       $conn->close();
       ?>
