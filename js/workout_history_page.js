@@ -1,5 +1,5 @@
 const previousBtn = document.querySelector(".previous");
 
 previousBtn.addEventListener("click", function () {
-  window.location.href = "homepage.html";
+  window.location.href = "homepage.php";
 });

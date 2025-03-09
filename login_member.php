@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 $servername = "localhost";
 $username = "root";
@@ -31,7 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $login = true;
       
       $_SESSION["logged_in"] = true;
+      $_SESSION["member id"] = $row['member_id'];
       $_SESSION["username"] = $row['username'];
+      $_SESSION["member pic"] = $row['member_pic'];
       
       header("Location: " . $homepage);
       exit();

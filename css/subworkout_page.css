@@ -359,46 +359,40 @@ h2#popup-title {
     z-index: 1;
 }
 
-/* .form-alert {
-    background: #ff9967;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    margin: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: slideUp 0.3s ease;
-} */
-
-/* @keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
-} */
-
-/* .form-feedback-container {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-} */
-
-.form-alert {
-    background: #ff6060;
-    color: white;
+.feedback-message {
     padding: 12px 20px;
+    margin-bottom: 10px;
     border-radius: 8px;
     margin: 8px 0;
+    gap: 5px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: slideIn 0.3s ease-out;
+    animation: fadeIn 0.5s;
+}
+
+.feedback-icon {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.feedback-message.success {
+    background-color: #60c52d;
+    color: white;
+}
+
+.feedback-message.info {
+    background-color: #3a9efc;
+    color: white;
+}
+
+.feedback-message.warning {
+    background-color: #f89933;;
+    color: white;
+}
+
+.feedback-message.error {
+    background-color: #f73842;
+    color: white;
 }
 
 @keyframes slideIn {
@@ -663,7 +657,7 @@ html.dark-mode .layout-option.active {
     margin-bottom: 12px;
 }
 
-html.dark-mode .layout-option p{
+html.dark-mode .layout-option p {
     color: #999;
 }
 

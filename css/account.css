@@ -440,6 +440,25 @@ button {
   position: absolute;
 }
 
+.select-inputs {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.select-inputs label {
+  color: #666666;
+  margin-bottom: 7px;
+}
+
+.select-inputs select {
+  height: 50px;
+  padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
+}
+
 .button-inputs {
   width: calc(100% - 100px);
   height: 50px;
@@ -539,5 +558,9 @@ button {
 
   .inputs input {
     height: 20px;
+  }
+
+  .select-inputs select {
+    height: 40px;
   }
 }

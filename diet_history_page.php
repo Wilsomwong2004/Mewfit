@@ -1,3 +1,12 @@
+<?php
+session_start();  
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -119,7 +128,6 @@
       
         $conn = new mysqli($servername, $username, $password, $dbname);
 
-        $member_id = "10"; // replace with session variable later
         $exist_record = false;
 
         if ($conn->connect_error) {
@@ -143,12 +151,12 @@
         $result = $conn->query($sql); // create a variable and store the sql query result inside it
         
         function formatDate($date) {
-          if ($date == date("Y-m-d")) {
+          if ($date == date("d-m-Y")) {
               return "Today";
-          } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
+          } elseif ($date == date("d-m-Y", strtotime("-1 day"))) {
               return "Yesterday";
           } else {
-              return $date; // Return normal date for older days
+              return date('d F Y', strtotime($date)); // Return normal date for older days
           }
         }
 
@@ -156,7 +164,7 @@
 
           $workout_date = formatDate($row['date']);
 
-          if ($row['member_id'] == $member_id) {
+          if ($row['member_id'] == $_SESSION['member id']) {
             $exist_record = true;
             // prints out the record
             echo "<div class=\"workout-date\">

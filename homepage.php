@@ -142,14 +142,22 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 </div>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo-responsive" id="nav-logo-responsive">
                 <div class="profile">
-                    <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
+                    <?php
+                        echo "
+                        <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                        ";
+                    ?>
                     <div class="profile-dropdown" id="profile-dropdown">
                         <div class="profile-info">
-                            <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
-                            <div>
-                                <h3>unknown</h3>
-                                <p>unknown</p>
-                            </div>
+                            <?php
+                                echo "
+                                <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                                <div>
+                                    <h3>{$_SESSION["username"]}</h3>
+                                    <p>unknown</p>
+                                </div>
+                                ";
+                            ?>
                         </div>
                         <ul>
                             <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
@@ -170,10 +178,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
             <div class="content">
                 <section class="section1">
                     <div class="s1-words">
-                        <div style="display:flex;">
-                            <h2 id="type">Hello, <span style="color:#FF946E">Ariande Grande</span></h2>
-                            <h2 class="cursor">|</h2>
-                        </div>
+                        <h2>Hello, <span style="color:#FF946E">Ariande Grande</span></h2>
                         <p>Today is the workout time that you have long awaited for. <br>
                             Let's hit the workout time goal to get a mew mew! </p>
                         

@@ -609,30 +609,114 @@ function showErrorModal(errorMessage) {
 // Global variable to track visibility state
 let isVisibilityFeedbackShown = false;
 let lastFeedbackTime = 0;
-const FEEDBACK_INTERVAL = 3000;
+let feedbackClearTimerId = null;
+const FEEDBACK_DURATION = 3000;    // Show feedback for 5 seconds
+const FEEDBACK_INTERVAL = 10000;   // Check every 10 seconds
+let lastVisibilityState = true;
 
 function handleVisibilityFeedback(poses) {
     const currentTime = Date.now();
     const minimalVisibility = checkMinimalVisibility(poses);
     const isResting = window.workoutManager ? window.workoutManager.isResting : false;
+    
+    // Only process when state changes or feedback interval has passed
+    const visibilityChanged = (minimalVisibility !== lastVisibilityState);
+    lastVisibilityState = minimalVisibility;
 
-    // If keypoints are visible and feedback is shown, clear it immediately
+    // If user becomes fully visible and feedback is shown, don't clear immediately
+    // Let the feedback message stay visible for the full duration
     if ((minimalVisibility || isResting) && isVisibilityFeedbackShown) {
-        showFormFeedback([]);
-        isVisibilityFeedbackShown = false;
+        // Don't clear the message immediately - it will be cleared by the timer
+        // Do nothing here to keep the message visible
     }
-    // If keypoints are not visible and NOT resting, show feedback every 10 seconds
-    else if (!minimalVisibility && !isResting) {
-        // Only show if 10 seconds have passed since last feedback
-        if (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL) {
-            showFormFeedback(["Please position yourself within the camera view"]);
-            isVisibilityFeedbackShown = true;
-            lastFeedbackTime = currentTime; // Update the timestamp
+    // If keypoints are not visible and NOT resting, show appropriate feedback
+    else if (!minimalVisibility && !isResting && 
+            (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
+        
+        // Clear any existing timer
+        if (feedbackClearTimerId) {
+            clearTimeout(feedbackClearTimerId);
         }
+        
+        // Check if any upper body is visible (partial visibility)
+        const partialVisibility = checkPartialVisibility(poses);
+        
+        if (partialVisibility) {
+            showFormFeedback(["Please position your full body within the camera view"], "warning");
+        } else {
+            showFormFeedback(["Please position yourself within the camera view"], "error");
+        }
+        
+        isVisibilityFeedbackShown = true;
+        lastFeedbackTime = currentTime;
+        
+        // Set timer to clear the feedback after FEEDBACK_DURATION
+        feedbackClearTimerId = setTimeout(() => {
+            showFormFeedback([]);
+            isVisibilityFeedbackShown = false;
+            feedbackClearTimerId = null;
+        }, FEEDBACK_DURATION);
     }
 }
 
-// Modified detectPose function - only adding the new handleVisibilityFeedback call
+// Check if at least some upper body parts are visible
+function checkPartialVisibility(poses) {
+    if (!poses || poses.length === 0) return false;
+
+    const pose = poses[0];
+    const keypoints = pose.keypoints;
+
+    // Upper body keypoints
+    const upperBodyKeypoints = [
+        'nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
+        'left_shoulder', 'right_shoulder'
+    ];
+
+    // Check visibility of upper body
+    const visibleUpperBodyKeypoints = upperBodyKeypoints.filter(name => {
+        const keypoint = getKeypointByName(keypoints, name);
+        return keypoint && 
+            keypoint.score > 0.2 && 
+            keypoint.x > 0 &&
+            keypoint.x < videoElement.videoWidth &&
+            keypoint.y > 0 &&
+            keypoint.y < videoElement.videoHeight;
+    });
+
+    // If we can see at least 3 upper body keypoints, consider it partial visibility
+    return visibleUpperBodyKeypoints.length >= 3;
+}
+
+// Modified minimal visibility check to be more specific about required keypoints
+function checkMinimalVisibility(poses) {
+    if (!poses || poses.length === 0) return false;
+
+    const pose = poses[0];
+    const keypoints = pose.keypoints;
+
+    // Critical keypoints required for exercise tracking
+    const criticalKeypoints = [
+        'left_shoulder', 'right_shoulder',
+        'left_hip', 'right_hip',
+        'left_knee', 'right_knee'
+    ];
+
+    // Check visibility and confidence of critical keypoints
+    const visibleKeypoints = criticalKeypoints.filter(name => {
+        const keypoint = getKeypointByName(keypoints, name);
+        return keypoint &&
+            keypoint.score > 0.2 &&
+            keypoint.x > 0 &&
+            keypoint.x < videoElement.videoWidth &&
+            keypoint.y > 0 &&
+            keypoint.y < videoElement.videoHeight;
+    });
+
+    // Still require at least 4 out of 6 critical keypoints for full visibility
+    return visibleKeypoints.length >= 4;
+}
+
+// Modified detectPose function remains the same as previous solution
 async function detectPose() {
     if (!isRunning || !detector || !isMewTrackEnabled) {
         if (animationFrameId) {
@@ -650,31 +734,27 @@ async function detectPose() {
         // Get pose estimations first
         const poses = await detector.estimatePoses(videoElement);
 
-        // Handle visibility feedback - only updates when state changes
+        // Handle visibility feedback with improved detection
         handleVisibilityFeedback(poses);
 
-        // Rest of your existing code stays the same
         const minimalVisibility = checkMinimalVisibility(poses);
 
-        if (minimalVisibility) {
-            // Existing code when visibility is good
-            if (window.workoutManager) {
-                window.workoutManager.handlePoseDetection(poses);
-            }
+        // Always draw whatever keypoints we can see, even if not enough for tracking
+        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        
+        if (poses.length > 0) {
+            const keypoints = poses[0].keypoints;
+            const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
+            const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
+            const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
 
-            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            drawSkeleton(keypoints, scale, offsetX, offsetY);
+            drawKeypoints(keypoints, scale, offsetX, offsetY);
+        }
 
-            if (poses.length > 0) {
-                const keypoints = poses[0].keypoints;
-                const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
-                const offsetX = (canvasElement.width - videoElement.videoWidth * scale) / 2;
-                const offsetY = (canvasElement.height - videoElement.videoHeight * scale) / 2;
-
-                drawSkeleton(keypoints, scale, offsetX, offsetY);
-                drawKeypoints(keypoints, scale, offsetX, offsetY);
-            }
-        } else {
-            // console.log('Insufficient keypoints for pose detection');
+        // Only run workout detection if we have minimal visibility
+        if (minimalVisibility && window.workoutManager) {
+            window.workoutManager.handlePoseDetection(poses);
         }
 
         animationFrameId = requestAnimationFrame(() => detectPose());
@@ -682,35 +762,6 @@ async function detectPose() {
         console.error('Detection error:', error);
         animationFrameId = requestAnimationFrame(() => detectPose());
     }
-}
-
-// Simplified minimal visibility check
-function checkMinimalVisibility(poses) {
-    if (!poses || poses.length === 0) return false;
-
-    const pose = poses[0];
-    const keypoints = pose.keypoints;
-
-    // Minimal critical keypoints for exercise detection
-    const criticalKeypoints = [
-        'left_shoulder', 'right_shoulder',
-        'left_hip', 'right_hip',
-        'left_knee', 'right_knee'
-    ];
-
-    // Check visibility and confidence
-    const visibleKeypoints = criticalKeypoints.filter(name => {
-        const keypoint = getKeypointByName(keypoints, name);
-        return keypoint &&
-            keypoint.score > 0.2 &&  // Slightly lower confidence threshold
-            keypoint.x > 0 &&
-            keypoint.x < videoElement.videoWidth &&
-            keypoint.y > 0 &&
-            keypoint.y < videoElement.videoHeight;
-    });
-
-    // Require at least 4 out of 6 critical keypoints to be visible
-    return visibleKeypoints.length >= 4;
 }
 
 function validateForm(keypoints, exerciseType) {
@@ -739,20 +790,57 @@ function validateForm(keypoints, exerciseType) {
     return feedback;
 }
 
-function showFormFeedback(messages) {
+function showFormFeedback(messages, type = 'info') {
     const feedbackElement = document.getElementById('form-feedback') ||
         document.createElement('div');
 
     feedbackElement.id = 'form-feedback';
-    feedbackElement.innerHTML = messages.map(msg => `
-    <div class="form-alert">
-        <i class="fas fa-exclamation-triangle"></i>
-        ${msg}
-    </div>
-    `).join('');
+
+    // Clear feedback if empty messages array is passed
+    if (!messages || messages.length === 0) {
+        feedbackElement.innerHTML = '';
+        if (!document.getElementById('form-feedback')) {
+            document.body.appendChild(feedbackElement);
+        }
+        return;
+    }
+
+    // Only update if there are new messages
+    const lastUpdateTime = feedbackElement.dataset.lastUpdate || 0;
+    const currentTime = Date.now();
+
+    // Only update UI every 2 seconds to prevent flashing
+    if (currentTime - lastUpdateTime > 2000) {
+        feedbackElement.innerHTML = messages.map(msg => {
+            if (!msg) return '';
+            return `
+                <div class="feedback-message ${type}">
+                    <span class="feedback-icon">${getFeedbackIcon(type)}</span>
+                    <span class="feedback-text">${msg}</span>
+                </div>
+            `;
+        }).join('');
+
+        feedbackElement.dataset.lastUpdate = currentTime;
+    }
 
     if (!document.getElementById('form-feedback')) {
         document.body.appendChild(feedbackElement);
+    }
+}
+
+// Helper function to get appropriate icon for each feedback type
+function getFeedbackIcon(type) {
+    switch (type) {
+        case 'success':
+            return '🎉';
+        case 'warning':
+            return '⚠️';
+        case 'error':
+            return '❌';
+        case 'info':
+        default:
+            return '💡';
     }
 }
 
@@ -2867,6 +2955,10 @@ class WorkoutManager {
         // Announce that rest is over
         this.speakText('Rest time is over. Let\'s continue!');
 
+        if (isRunning && detector && isMewTrackEnabled) {
+            animationFrameId = requestAnimationFrame(() => detectPose());
+        }
+
         this.showCurrentExercise();
         this.startExercise();
     }
@@ -3064,16 +3156,18 @@ class WorkoutPoseDetector {
         this.lastFeedbackTime = 0;
         this.FEEDBACK_INTERVAL = 5000; // 5 seconds between feedback
         this.lastGeneratedFeedback = null;
+        this.exerciseType = null; // 'reps' or 'time'
 
         this.registerExerciseDetectors();
     }
 
     // Initialize with the current exercise
-    startExercise(exercise, referenceKeypoints = null) {
+    startExercise(exercise, exerciseType = 'reps', referenceKeypoints = null) {
         // Add extra logging
-        console.log(`Attempting to start exercise: ${exercise}`);
+        console.log(`Attempting to start exercise: ${exercise}, type: ${exerciseType}`);
 
         this.currentExercise = exercise;
+        this.exerciseType = exerciseType; // 'reps' or 'time'
         this.repCounter = 0;
         this.lastState = null;
         this.keypointHistory = [];
@@ -3085,7 +3179,6 @@ class WorkoutPoseDetector {
             this.registerExerciseDetectors();
         }
 
-        this.currentExercise = exercise;
         console.log("Registered detectors:", Object.keys(this.exerciseDetectors));
     }
 
@@ -3093,23 +3186,18 @@ class WorkoutPoseDetector {
     registerExerciseDetectors() {
         console.log("Registering exercise detectors...");
 
-        // Explicitly log each registration
-        this.registerDetector('Squats', this.detectSquat);
-        console.log("Registered Squats:", !!this.exerciseDetectors['Squats']);
-
-        this.registerDetector('Push Ups', this.detectPushUp);
-        console.log("Registered Push Ups:", !!this.exerciseDetectors['Push Ups']);
-
-        // Basic exercises from the original RepCounter
+        // Basic exercises
         this.registerDetector('Squats', this.detectSquat);
         this.registerDetector('Push Ups', this.detectPushUp);
         this.registerDetector('Jumping Jacks', this.detectJumpingJack);
 
-        // Add new exercises from your workout data
+        // Time-based exercises
         this.registerDetector('March On The Spot', this.detectMarchOnSpot);
         this.registerDetector('Side to Side Step', this.detectSideToSideStep);
         this.registerDetector('Low Impact High Knee', this.detectHighKnee);
         this.registerDetector('Twist & Reach', this.detectTwistReach);
+
+        // Rep-based exercises
         this.registerDetector('Burpee', this.detectBurpee);
         this.registerDetector('High Knees', this.detectHighKnees);
         this.registerDetector('Mountain Climbers', this.detectMountainClimbers);
@@ -3154,10 +3242,15 @@ class WorkoutPoseDetector {
         // Run the specific detector for this exercise
         const result = this.exerciseDetectors[this.currentExercise](keypoints);
 
+        // For time-based exercises, don't show rep count
+        if (this.exerciseType === 'time') {
+            result.repCount = null; // Don't display rep count for time-based exercises
+        }
+
         // Add correctness information to the result
         result.isCorrect = correctnessScore > 0.7; // 70% similarity threshold
 
-        // Manage feedback generation - IMPORTANT CHANGE HERE
+        // Manage feedback generation
         const currentTime = Date.now();
         const timeSinceLastFeedback = currentTime - this.lastFeedbackTime;
 
@@ -3268,6 +3361,7 @@ class WorkoutPoseDetector {
 
     // Generate feedback based on pose corrections
     generatePoseCorrectionFeedback() {
+        // Existing implementation
         if (Object.keys(this.poseCorrection).length === 0) {
             return "Good form!";
         }
@@ -3425,51 +3519,126 @@ class WorkoutPoseDetector {
 
     detectMarchOnSpot(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
-        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
-
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
+        
         const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
         const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
         const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
         const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
-
+        
+        // Error case: missing critical keypoints
         if (!leftKnee || !rightKnee || !leftHip || !rightHip) {
-            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+            console.log("March error: Missing keypoints");
+            return { repCount: this.repCounter, feedback: "Cannot track legs", feedbackType: "error" };
         }
-
+        
         // Calculate the height of knees relative to hips
         const leftKneeHeight = leftHip.y - leftKnee.y;
         const rightKneeHeight = rightHip.y - rightKnee.y;
-
+        
         // Track the highest knee
         const highestKneeHeight = Math.max(leftKneeHeight, rightKneeHeight);
-
+        
         // Normalize based on hip position (higher value means knee is higher)
         const hipWidth = Math.abs(leftHip.x - rightHip.x);
         const normalizedHeight = highestKneeHeight / hipWidth;
-
+        
+        // Log the calculations for debugging
+        console.log("March calculations:", {
+            leftKneeHeight,
+            rightKneeHeight,
+            hipWidth,
+            normalizedHeight,
+            currentState: this.lastState,
+            threshold: {
+                high: 0.5,
+                low: 0.2
+            }
+        });
+        
         let feedback = "";
-
+        let feedbackType = "info";
+        
+        // Track which knee is active
+        if (!this.lastActiveKnee) {
+            this.lastActiveKnee = null;
+        }
+        
+        // Tracking variables
+        if (!this.feedbackCooldown) {
+            this.feedbackCooldown = 0;
+        }
+        
+        // Reduce feedback frequency - only show feedback every few frames
+        if (this.feedbackCooldown > 0) {
+            this.feedbackCooldown--;
+            return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
+        }
+        
         // A high knee followed by a low knee counts as one rep
         if (normalizedHeight > 0.5 && this.lastState !== 'high') {
             this.lastState = 'high';
             // Only count rep when a different knee goes up
-            if ((leftKneeHeight > rightKneeHeight && this.lastActiveKnee === 'right') ||
-                (rightKneeHeight > leftKneeHeight && this.lastActiveKnee === 'left') ||
+            const activeKnee = leftKneeHeight > rightKneeHeight ? 'left' : 'right';
+            
+            if ((activeKnee === 'left' && this.lastActiveKnee === 'right') ||
+                (activeKnee === 'right' && this.lastActiveKnee === 'left') ||
                 this.lastActiveKnee === null) {
                 this.repCounter++;
                 feedback = "Good march!";
-                this.lastActiveKnee = leftKneeHeight > rightKneeHeight ? 'left' : 'right';
+                feedbackType = "success";
+                this.lastActiveKnee = activeKnee;
+                
+                // Log successful rep
+                console.log("March rep counted:", {
+                    newCount: this.repCounter,
+                    activeKnee,
+                    normalizedHeight
+                });
             }
         } else if (normalizedHeight < 0.2 && this.lastState === 'high') {
             this.lastState = 'low';
-            feedback = "Ready for next step";
-        } else if (this.lastState === 'high') {
+            // Don't show any feedback when returning to low position
+            feedback = "";
+            feedbackType = "info";
+        } else if (this.lastState === 'high' && this.feedbackCooldown === 0) {
+            // Only show this feedback occasionally
             feedback = "Lower your foot";
-        } else if (normalizedHeight < 0.3) {
-            feedback = "Lift your knee higher";
+            feedbackType = "info";
+            this.feedbackCooldown = 30; // Skip feedback for next 30 frames
+        } else if (normalizedHeight < 0.3 && this.lastState === 'low' && this.feedbackCooldown === 0) {
+            // Only show this feedback if the user has been in the low state for a while
+            if (!this.lowStateCounter) this.lowStateCounter = 0;
+            this.lowStateCounter++;
+            
+            // Only give "lift higher" feedback after being low for a while
+            if (this.lowStateCounter > 60) { // About 2 seconds at 30fps
+                feedback = "Lift your knee higher";
+                feedbackType = "info";
+                this.feedbackCooldown = 45; // Show this feedback less frequently
+                this.lowStateCounter = 0;
+            } else {
+                feedback = "";
+            }
+        } else {
+            // Default - no feedback when form is good
+            feedback = "";
         }
-
-        return { repCount: this.repCounter, feedback };
+        
+        // Only show feedback in UI if there's actual feedback
+        if (feedback) {
+            showFormFeedback([feedback], feedbackType);
+            
+            // Log when feedback is shown
+            console.log("March feedback shown:", {
+                feedback,
+                feedbackType,
+                normalizedHeight,
+                state: this.lastState
+            });
+        }
+        
+        return { repCount: this.repCounter, feedback, feedbackType };
     }
 
     detectSideToSideStep(keypoints) {
@@ -3746,114 +3915,114 @@ function calculateAngle(kp1, kp2, kp3) {
     return angle > 180 ? 360 - angle : angle;
 }
 
-class RepCounter {
-    constructor(exerciseType) {
-        this.exerciseType = exerciseType;
-        this.repCount = 0;
-        this.lastState = null;
-        this.keypointHistory = [];
-        this.repThresholds = {
-            'Squats': { min: 0.6, max: 0.9 },
-            'Push Ups': { min: 0.4, max: 0.8 },
-            'Jumping Jacks': { min: 0.3, max: 0.7 }
-        };
-    }
+// class RepCounter {
+//     constructor(exerciseType) {
+//         this.exerciseType = exerciseType;
+//         this.repCount = 0;
+//         this.lastState = null;
+//         this.keypointHistory = [];
+//         this.repThresholds = {
+//             'Squats': { min: 0.6, max: 0.9 },
+//             'Push Ups': { min: 0.4, max: 0.8 },
+//             'Jumping Jacks': { min: 0.3, max: 0.7 }
+//         };
+//     }
 
-    analyzePose(keypoints) {
-        switch (this.exerciseType) {
-            case 'Squats':
-                return this._analyzeSquats(keypoints);
-            case 'Push Ups':
-                return this._analyzePushUps(keypoints);
-            case 'Jumping Jacks':
-                return this._analyzeJumpingJacks(keypoints);
-            default:
-                return 0;
-        }
-    }
+//     analyzePose(keypoints) {
+//         switch (this.exerciseType) {
+//             case 'Squats':
+//                 return this._analyzeSquats(keypoints);
+//             case 'Push Ups':
+//                 return this._analyzePushUps(keypoints);
+//             case 'Jumping Jacks':
+//                 return this._analyzeJumpingJacks(keypoints);
+//             default:
+//                 return 0;
+//         }
+//     }
 
-    _analyzeSquats(keypoints) {
-        const leftHip = keypoints.find(k => k.name === 'left_hip');
-        const rightHip = keypoints.find(k => k.name === 'right_hip');
-        const hipsY = (leftHip.y + rightHip.y) / 2;
+//     _analyzeSquats(keypoints) {
+//         const leftHip = keypoints.find(k => k.name === 'left_hip');
+//         const rightHip = keypoints.find(k => k.name === 'right_hip');
+//         const hipsY = (leftHip.y + rightHip.y) / 2;
 
-        this.keypointHistory.push(hipsY);
-        if (this.keypointHistory.length > 10) this.keypointHistory.shift();
+//         this.keypointHistory.push(hipsY);
+//         if (this.keypointHistory.length > 10) this.keypointHistory.shift();
 
-        const avgY = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
-        const normalizedY = (avgY - this.repThresholds.Squats.min) /
-            (this.repThresholds.Squats.max - this.repThresholds.Squats.min);
+//         const avgY = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
+//         const normalizedY = (avgY - this.repThresholds.Squats.min) /
+//             (this.repThresholds.Squats.max - this.repThresholds.Squats.min);
 
-        if (normalizedY < 0.3 && this.lastState !== 'down') {
-            this.repCount++;
-            this.lastState = 'down';
-            return this.repCount;
-        }
-        if (normalizedY > 0.7) this.lastState = 'up';
-        return this.repCount;
-    }
+//         if (normalizedY < 0.3 && this.lastState !== 'down') {
+//             this.repCount++;
+//             this.lastState = 'down';
+//             return this.repCount;
+//         }
+//         if (normalizedY > 0.7) this.lastState = 'up';
+//         return this.repCount;
+//     }
 
-    _analyzePushUps(keypoints) {
-        const leftElbow = keypoints.find(k => k.name === 'left_elbow');
-        const rightElbow = keypoints.find(k => k.name === 'right_elbow');
-        const shoulder = keypoints.find(k => k.name === 'left_shoulder');
-        const wrist = keypoints.find(k => k.name === 'left_wrist');
+//     _analyzePushUps(keypoints) {
+//         const leftElbow = keypoints.find(k => k.name === 'left_elbow');
+//         const rightElbow = keypoints.find(k => k.name === 'right_elbow');
+//         const shoulder = keypoints.find(k => k.name === 'left_shoulder');
+//         const wrist = keypoints.find(k => k.name === 'left_wrist');
 
-        const angle = this._calculateAngle(shoulder, leftElbow, wrist);
-        this.keypointHistory.push(angle);
-        if (this.keypointHistory.length > 5) this.keypointHistory.shift();
+//         const angle = this._calculateAngle(shoulder, leftElbow, wrist);
+//         this.keypointHistory.push(angle);
+//         if (this.keypointHistory.length > 5) this.keypointHistory.shift();
 
-        const avgAngle = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
+//         const avgAngle = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
 
-        if (avgAngle < 90 && this.lastState !== 'down') {
-            this.repCount++;
-            this.lastState = 'down';
-        }
-        if (avgAngle > 160) this.lastState = 'up';
-        return this.repCount;
-    }
+//         if (avgAngle < 90 && this.lastState !== 'down') {
+//             this.repCount++;
+//             this.lastState = 'down';
+//         }
+//         if (avgAngle > 160) this.lastState = 'up';
+//         return this.repCount;
+//     }
 
-    _analyzeJumpingJacks(keypoints) {
-        const leftWrist = keypoints.find(k => k.name === 'left_wrist');
-        const rightWrist = keypoints.find(k => k.name === 'right_wrist');
-        const shoulderWidth = Math.abs(
-            keypoints.find(k => k.name === 'left_shoulder').x -
-            keypoints.find(k => k.name === 'right_shoulder').x
-        );
+//     _analyzeJumpingJacks(keypoints) {
+//         const leftWrist = keypoints.find(k => k.name === 'left_wrist');
+//         const rightWrist = keypoints.find(k => k.name === 'right_wrist');
+//         const shoulderWidth = Math.abs(
+//             keypoints.find(k => k.name === 'left_shoulder').x -
+//             keypoints.find(k => k.name === 'right_shoulder').x
+//         );
 
-        const handSpread = Math.abs(leftWrist.x - rightWrist.x);
-        const normalizedSpread = handSpread / shoulderWidth;
+//         const handSpread = Math.abs(leftWrist.x - rightWrist.x);
+//         const normalizedSpread = handSpread / shoulderWidth;
 
-        if (normalizedSpread > 2.5 && this.lastState !== 'open') {
-            this.repCount++;
-            this.lastState = 'open';
-        }
-        if (normalizedSpread < 1.2) this.lastState = 'closed';
-        return this.repCount;
-    }
+//         if (normalizedSpread > 2.5 && this.lastState !== 'open') {
+//             this.repCount++;
+//             this.lastState = 'open';
+//         }
+//         if (normalizedSpread < 1.2) this.lastState = 'closed';
+//         return this.repCount;
+//     }
 
-    _calculateAngle(a, b, c) {
-        const radians = Math.atan2(c.y - b.y, c.x - b.x) -
-            Math.atan2(a.y - b.y, a.x - b.x);
-        let angle = Math.abs(radians * (180 / Math.PI));
-        return angle > 180 ? 360 - angle : angle;
-    }
-}
+//     _calculateAngle(a, b, c) {
+//         const radians = Math.atan2(c.y - b.y, c.x - b.x) -
+//             Math.atan2(a.y - b.y, a.x - b.x);
+//         let angle = Math.abs(radians * (180 / Math.PI));
+//         return angle > 180 ? 360 - angle : angle;
+//     }
+// }
 
-function getKeypointByName(keypoints, name) {
-    return keypoints.find(kp => kp.name === name);
-}
+// function getKeypointByName(keypoints, name) {
+//     return keypoints.find(kp => kp.name === name);
+// }
 
-function calculateDistance(kp1, kp2) {
-    return Math.sqrt(Math.pow(kp2.x - kp1.x, 2) + Math.pow(kp2.y - kp1.y, 2));
-}
+// function calculateDistance(kp1, kp2) {
+//     return Math.sqrt(Math.pow(kp2.x - kp1.x, 2) + Math.pow(kp2.y - kp1.y, 2));
+// }
 
-function calculateAngle(kp1, kp2, kp3) {
-    const radians = Math.atan2(kp3.y - kp2.y, kp3.x - kp2.x) -
-        Math.atan2(kp1.y - kp2.y, kp1.x - kp2.x);
-    let angle = Math.abs(radians * (180 / Math.PI));
-    return angle > 180 ? 360 - angle : angle;
-}
+// function calculateAngle(kp1, kp2, kp3) {
+//     const radians = Math.atan2(kp3.y - kp2.y, kp3.x - kp2.x) -
+//         Math.atan2(kp1.y - kp2.y, kp1.x - kp2.x);
+//     let angle = Math.abs(radians * (180 / Math.PI));
+//     return angle > 180 ? 360 - angle : angle;
+// }
 
 //.........................................................................................//
 // Close button Function (pop up window)
