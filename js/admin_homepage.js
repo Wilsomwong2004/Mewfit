@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     type();
     
+    //count up numbers
     const countUpElements = document.querySelectorAll('.count-up');
     const countUpPercentage = document.querySelectorAll('.count-up-p');
 
