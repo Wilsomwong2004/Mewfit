@@ -185,7 +185,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         }
 
         if (!$exist_record) {
-          echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no diet meals recorded in your history</marquee>";
+          echo "
+                <div class='no-record'>
+                  <img src='./assets/icons/error.svg' alt='logo' class='no-record-img' />
+                  <p>There is no diet meals recorded in your history</p>  
+                </div>         
+                ";
         }
 
       $conn->close();
