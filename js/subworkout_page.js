@@ -4071,3 +4071,39 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 });
+
+
+//.........................................................................................//
+// Switch camera Function
+
+let isCameraView = false;
+
+function toggleCameraView() {
+    const guide = document.querySelector('.workout-guide');
+    const userCam = document.querySelector('.workout-user');
+    const btn = document.querySelector('.switch-view-btn');
+    
+    isCameraView = !isCameraView;
+    
+    if(isCameraView) {
+        guide.classList.add('inactive');
+        userCam.classList.add('active');
+        btn.textContent = 'Switch to Guide';
+        // Update canvas size when switching to camera view
+        updateCanvasSize();
+    } else {
+        guide.classList.remove('inactive');
+        userCam.classList.remove('active');
+        btn.textContent = 'Switch to Camera';
+    }
+}
+
+// Add this helper function (reuse your existing canvas update logic)
+function updateCanvasSize() {
+    if(videoElement && videoElement.parentElement) {
+        const videoContainer = videoElement.parentElement;
+        const rect = videoContainer.getBoundingClientRect();
+        canvasElement.width = rect.width;
+        canvasElement.height = rect.height;
+    }
+}
