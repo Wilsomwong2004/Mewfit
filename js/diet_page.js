@@ -24,6 +24,13 @@ class dietCarousel {
                 duration: "30 Minutes",
                 calories: "350 kcal",
                 image: "./assets/workout_pics/workout10.jpg"
+            },
+            {
+                title: "No Joke Cardio",
+                description: "Push your limits with this advanced, high-intensity cardio workout that’s not for the faint of heart. Make you feel suffering and don't want to do again.  ",
+                duration: "30 Minutes",
+                calories: "350 kcal",
+                image: "./assets/workout_pics/workout10.jpg"
             }
         ];
 

@@ -2,10 +2,10 @@
 session_start();  
 include "conn.php";
 
-// if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-//     header("Location: prelogin.html");
-//     exit;
-// }
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
 
 $member_id = $_SESSION['member_id'] ?? 1; 
 
@@ -131,7 +131,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                     <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
                     <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
                     <span class="workout-dietplan"><a href="diet_page.html">DIET PLAN</a></span>
-                    <span class="workout-settings"><a href="settings_page.html">SETTINGS</a></span>
+                    <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
                 </div>
                 <div class="header-right">
                     <button id="hamburger-menu" aria-label="Menu">
@@ -142,11 +142,14 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 </div>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo-responsive" id="nav-logo-responsive">
                 <div class="profile">
+                    <div>
                     <?php
                         echo "
                         <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
                         ";
                     ?>
+                    </div>
+                    
                     <div class="profile-dropdown" id="profile-dropdown">
                         <div class="profile-info">
                             <?php
@@ -178,7 +181,11 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
             <div class="content">
                 <section class="section1">
                     <div class="s1-words">
-                        <h2>Hello, <span style="color:#FF946E">Ariande Grande</span></h2>
+                        <?php
+                            echo "
+                            <h2>Hello, <span style='color:#FF946E'>{$_SESSION['username']}</span></h2>
+                            ";
+                        ?>
                         <p>Today is the workout time that you have long awaited for. <br>
                             Let's hit the workout time goal to get a mew mew! </p>
                         
@@ -344,60 +351,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                     </div>
                 </section>
             </div>
-            <?php
-            $sql = "
-            SELECT w.*
-            FROM workout_history wh
-            JOIN workout w ON wh.workout_id = w.workout_id
-            WHERE wh.member_id = ?
-            ORDER BY wh.date DESC
-            LIMIT 6
-        ";
-        
-        $stmt = $dbConn->prepare($sql);
-        $stmt->bind_param("i", $member_id); // Bind the member ID to the query
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        // Fetch workouts into an array
-        $workouts = [];
-        while ($row = $result->fetch_assoc()) {
-            $workouts[] = $row;
-        }
-        
-        // Fetch the latest 6 diets and sum the calories from the nutrition table
-        $sql = "
-            SELECT d.*,
-                    SUM(n.calories) AS total_calories
-            FROM diet_history dh
-            JOIN diet d ON dh.diet_id = d.diet_id
-            LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
-            LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
-            WHERE dh.member_id = ?
-            GROUP BY d.diet_id
-            ORDER BY dh.date DESC
-            LIMIT 6
-        ";
-        
-        $stmt = $dbConn->prepare($sql);
-        $stmt->bind_param("i", $member_id); // Bind the member ID to the query
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        // Fetch diets into an array
-        $diets = [];
-        while ($row = $result->fetch_assoc()) {
-            $diets[] = $row;
-        }
-        
-        // Combine both datasets into a single array
-        $response = [
-            'workouts' => !empty($workouts) ? $workouts : ['no_data' => true],
-            'diets' => !empty($diets) ? $diets : ['no_data' => true]
-        ];
-        
-        echo json_encode($response);
-        ?>
+
             <section>
                 <div class="section3">
                     <h3 class="section2-title"><img src="https://static.thenounproject.com/png/2216254-200.png">Workout history</h3>
@@ -423,7 +377,64 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 <div class="diet-history-grid"></div>
             </section>
 
-            <script>
+            <?php
+// Database queries to fetch workouts and diets
+$sql = "
+    SELECT w.*
+    FROM workout_history wh
+    JOIN workout w ON wh.workout_id = w.workout_id
+    WHERE wh.member_id = ?
+    ORDER BY wh.date DESC
+    LIMIT 6
+";
+
+$stmt = $dbConn->prepare($sql);
+$stmt->bind_param("i", $member_id); // Bind the member ID to the query
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch workouts into an array
+$workouts = [];
+while ($row = $result->fetch_assoc()) {
+    $workouts[] = $row;
+}
+
+// Fetch the latest 6 diets and sum the calories from the nutrition table
+$sql = "
+    SELECT d.*, 
+           SUM(n.calories) AS total_calories
+    FROM diet_history dh
+    JOIN diet d ON dh.diet_id = d.diet_id
+    LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
+    LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
+    WHERE dh.member_id = ?
+    GROUP BY d.diet_id
+    ORDER BY dh.date DESC
+    LIMIT 6
+";
+
+$stmt = $dbConn->prepare($sql);
+$stmt->bind_param("i", $member_id); // Bind the member ID to the query
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch diets into an array
+$diets = [];
+while ($row = $result->fetch_assoc()) {
+    $diets[] = $row;
+}
+
+// Combine both datasets into a single array
+$response = [
+    'workouts' => !empty($workouts) ? $workouts : ['no_data' => true],
+    'diets' => !empty($diets) ? $diets : ['no_data' => true]
+];
+
+// Output the combined result as JSON
+json_encode($response); 
+?>
+
+<script>
     // JavaScript code to process the combined response
     const response = <?php echo json_encode($response); ?>;
 
@@ -441,7 +452,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                         <span class="workout-level">${item.difficulty || ''}</span>
                         <div class="workout-stats">
                             <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
-                            <span><i class="fas fa-fire"></i> ${item.calories}</span>
+                            <span><i class="fas fa-fire"></i> ${item.calories || 0}</span>
                         </div>
                     </div>
                 </div>
@@ -449,7 +460,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
         } else if (type === 'diet') {
             return `
                 <div class="diet-card-content">
-                    <div>
+                    <div >
                         <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
                     </div>
                     <div class="diet-info">
@@ -457,7 +468,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                         <span class="diet-level">${item.difficulty || ''}</span>
                         <div class="diet-stats">
                             <span><i class="fas fa-clock"></i> ${item.preparation_min || ''}</span>
-                            <span><i class="fas fa-fire"></i> ${item.total_calories}</span>
+                            <span><i class="fas fa-fire"></i> ${item.total_calories || 0}</span>
                         </div>
                     </div>
                 </div>
@@ -465,29 +476,21 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
         }
     };
 
-    const createNoHistoryMessage = (type) => {
-        return `
-            <div class="no-history-message">
-                <p>No ${type} history available.</p>
-            </div>
-        `;
-    };
-
     // Assuming workout-history-grid and diet-history-grid are present in the HTML
     const workoutGrid = document.querySelector('.workout-history-grid');
     const dietGrid = document.querySelector('.diet-history-grid');
 
-    // Populate the grids with the data
-    if (response.workouts.no_data) {
-        workoutGrid.innerHTML = createNoHistoryMessage('workout');
-    } else {
+    // Check if the workouts and diets have data
+    if (response.workouts && !response.workouts.no_data) {
         workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
+    } else {
+        workoutGrid.innerHTML = '<p>No workouts available.</p>';
     }
 
-    if (response.diets.no_data) {
-        dietGrid.innerHTML = createNoHistoryMessage('diet');
-    } else {
+    if (response.diets && !response.diets.no_data) {
         dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
+    } else {
+        dietGrid.innerHTML = '<p>No diets available.</p>';
     }
 </script>
 
