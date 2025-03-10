@@ -294,6 +294,8 @@ async function initPoseDetection() {
         return;
     }
 
+    await requestCameraPermission();
+
     try {
         // Access webcam
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -536,14 +538,14 @@ function showCameraOffMessage(message) {
 }
 
 // Modify initPoseDetection to check camera state
-async function initPoseDetection() {
-    if (!isCameraEnabled) {
-        showCameraOffMessage('Camera is currently turned off');
-        return;
-    }
+// async function initPoseDetection() {
+//     if (!isCameraEnabled) {
+//         showCameraOffMessage('Camera is currently turned off');
+//         return;
+//     }
 
-    await requestCameraPermission();
-}
+//     await requestCameraPermission();
+// }
 
 // Update window load event to respect camera state
 window.addEventListener('load', async () => {
@@ -618,7 +620,7 @@ function handleVisibilityFeedback(poses) {
     const currentTime = Date.now();
     const minimalVisibility = checkMinimalVisibility(poses);
     const isResting = window.workoutManager ? window.workoutManager.isResting : false;
-    
+
     // Only process when state changes or feedback interval has passed
     const visibilityChanged = (minimalVisibility !== lastVisibilityState);
     lastVisibilityState = minimalVisibility;
@@ -630,26 +632,26 @@ function handleVisibilityFeedback(poses) {
         // Do nothing here to keep the message visible
     }
     // If keypoints are not visible and NOT resting, show appropriate feedback
-    else if (!minimalVisibility && !isResting && 
-            (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
-        
+    else if (!minimalVisibility && !isResting &&
+        (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
+
         // Clear any existing timer
         if (feedbackClearTimerId) {
             clearTimeout(feedbackClearTimerId);
         }
-        
+
         // Check if any upper body is visible (partial visibility)
         const partialVisibility = checkPartialVisibility(poses);
-        
+
         if (partialVisibility) {
             showFormFeedback(["Please position your full body within the camera view"], "warning");
         } else {
             showFormFeedback(["Please position yourself within the camera view"], "error");
         }
-        
+
         isVisibilityFeedbackShown = true;
         lastFeedbackTime = currentTime;
-        
+
         // Set timer to clear the feedback after FEEDBACK_DURATION
         feedbackClearTimerId = setTimeout(() => {
             showFormFeedback([]);
@@ -675,8 +677,8 @@ function checkPartialVisibility(poses) {
     // Check visibility of upper body
     const visibleUpperBodyKeypoints = upperBodyKeypoints.filter(name => {
         const keypoint = getKeypointByName(keypoints, name);
-        return keypoint && 
-            keypoint.score > 0.2 && 
+        return keypoint &&
+            keypoint.score > 0.2 &&
             keypoint.x > 0 &&
             keypoint.x < videoElement.videoWidth &&
             keypoint.y > 0 &&
@@ -741,7 +743,7 @@ async function detectPose() {
 
         // Always draw whatever keypoints we can see, even if not enough for tracking
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        
+
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
             const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
@@ -2716,10 +2718,23 @@ class WorkoutManager {
                 }
             }
 
-            // Skip to next exercise
+            // Skip to next exercise and go to subworkout_done_page when last exercise is skipped
+            if (this.currentExerciseIndex >= this.exercises.length - 1) {
+                if (this.currentSet >= this.totalSets) {
+                    this.showConfirmationPopup(
+                        'End Workout',
+                        'Do you want to end the workout?',
+                        () => {
+                            this.endWorkout();
+                        }
+                    );
+                    return;
+                }
+            }
             this.skipCurrentExercise();
         });
     }
+
     skipCurrentExercise() {
         // Announce skipping exercise
         this.speakText('Skipping to next exercise');
@@ -2830,6 +2845,7 @@ class WorkoutManager {
 
         if (typeof stopDetection === 'function') stopDetection();
 
+        console.log("Restarting workout...");
         // Restart countdown
         this.startCountdown();
     }
@@ -3520,29 +3536,29 @@ class WorkoutPoseDetector {
     detectMarchOnSpot(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
         if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
-        
+
         const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
         const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
         const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
         const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
-        
+
         // Error case: missing critical keypoints
         if (!leftKnee || !rightKnee || !leftHip || !rightHip) {
             console.log("March error: Missing keypoints");
             return { repCount: this.repCounter, feedback: "Cannot track legs", feedbackType: "error" };
         }
-        
+
         // Calculate the height of knees relative to hips
         const leftKneeHeight = leftHip.y - leftKnee.y;
         const rightKneeHeight = rightHip.y - rightKnee.y;
-        
+
         // Track the highest knee
         const highestKneeHeight = Math.max(leftKneeHeight, rightKneeHeight);
-        
+
         // Normalize based on hip position (higher value means knee is higher)
         const hipWidth = Math.abs(leftHip.x - rightHip.x);
         const normalizedHeight = highestKneeHeight / hipWidth;
-        
+
         // Log the calculations for debugging
         console.log("March calculations:", {
             leftKneeHeight,
@@ -3555,32 +3571,32 @@ class WorkoutPoseDetector {
                 low: 0.2
             }
         });
-        
+
         let feedback = "";
         let feedbackType = "info";
-        
+
         // Track which knee is active
         if (!this.lastActiveKnee) {
             this.lastActiveKnee = null;
         }
-        
+
         // Tracking variables
         if (!this.feedbackCooldown) {
             this.feedbackCooldown = 0;
         }
-        
+
         // Reduce feedback frequency - only show feedback every few frames
         if (this.feedbackCooldown > 0) {
             this.feedbackCooldown--;
             return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
         }
-        
+
         // A high knee followed by a low knee counts as one rep
         if (normalizedHeight > 0.5 && this.lastState !== 'high') {
             this.lastState = 'high';
             // Only count rep when a different knee goes up
             const activeKnee = leftKneeHeight > rightKneeHeight ? 'left' : 'right';
-            
+
             if ((activeKnee === 'left' && this.lastActiveKnee === 'right') ||
                 (activeKnee === 'right' && this.lastActiveKnee === 'left') ||
                 this.lastActiveKnee === null) {
@@ -3588,7 +3604,7 @@ class WorkoutPoseDetector {
                 feedback = "Good march!";
                 feedbackType = "success";
                 this.lastActiveKnee = activeKnee;
-                
+
                 // Log successful rep
                 console.log("March rep counted:", {
                     newCount: this.repCounter,
@@ -3610,7 +3626,7 @@ class WorkoutPoseDetector {
             // Only show this feedback if the user has been in the low state for a while
             if (!this.lowStateCounter) this.lowStateCounter = 0;
             this.lowStateCounter++;
-            
+
             // Only give "lift higher" feedback after being low for a while
             if (this.lowStateCounter > 60) { // About 2 seconds at 30fps
                 feedback = "Lift your knee higher";
@@ -3624,11 +3640,11 @@ class WorkoutPoseDetector {
             // Default - no feedback when form is good
             feedback = "";
         }
-        
+
         // Only show feedback in UI if there's actual feedback
         if (feedback) {
             showFormFeedback([feedback], feedbackType);
-            
+
             // Log when feedback is shown
             console.log("March feedback shown:", {
                 feedback,
@@ -3637,7 +3653,7 @@ class WorkoutPoseDetector {
                 state: this.lastState
             });
         }
-        
+
         return { repCount: this.repCounter, feedback, feedbackType };
     }
 
@@ -4082,10 +4098,10 @@ function toggleCameraView() {
     const guide = document.querySelector('.workout-guide');
     const userCam = document.querySelector('.workout-user');
     const btn = document.querySelector('.switch-view-btn');
-    
+
     isCameraView = !isCameraView;
-    
-    if(isCameraView) {
+
+    if (isCameraView) {
         guide.classList.add('inactive');
         userCam.classList.add('active');
         btn.textContent = 'Switch to Guide';
@@ -4100,7 +4116,7 @@ function toggleCameraView() {
 
 // Add this helper function (reuse your existing canvas update logic)
 function updateCanvasSize() {
-    if(videoElement && videoElement.parentElement) {
+    if (videoElement && videoElement.parentElement) {
         const videoContainer = videoElement.parentElement;
         const rect = videoContainer.getBoundingClientRect();
         canvasElement.width = rect.width;

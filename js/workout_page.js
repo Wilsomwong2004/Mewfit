@@ -1103,6 +1103,9 @@ function setupWorkoutCardClick() {
                 workoutImage.style.height = 'auto';
             }
 
+            // Update exercise list
+            updateExerciseList(workout);
+
             // Show popup
             popup.classList.add('active');
         });
@@ -1117,6 +1120,7 @@ function setupWorkoutCardClick() {
         }
     });
 }
+
 
 document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
@@ -1340,11 +1344,288 @@ document.querySelectorAll('.activity-card').forEach(card => {
                     workoutImage.style.height = 'auto';
                 }
 
+                // Update exercise list - NEW
+                updateExerciseList(workout);
+
                 // Show popup
                 popup.classList.add('active');
             });
         });
     });
+});
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Exercise List
+
+// Function to create thumbnail from video path
+function generateThumbnail(videoPath) {
+    // In a real implementation, you would generate thumbnails from the video
+    // For now, we'll use a placeholder based on the exercise name
+    const exerciseName = videoPath.split('/').pop().replace('.mp4', '');
+
+    // First try to extract an image name from the exercise
+    const imageUrl = `./assets/exercise_thumbs/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.jpg`;
+
+    // As a fallback, use a placeholder
+    return `<div class="exercise-thumbnail">
+        <img src="${imageUrl}" onerror="this.onerror=null;this.src='./assets/icons/video_placeholder.svg';" alt="${exerciseName}">
+        <i class="fas fa-play-circle exercise-video-icon"></i>
+    </div>`;
+}
+
+// Function to create exercise item
+function createExerciseItem(exercise) {
+    const thumbnail = generateThumbnail(exercise.video);
+
+    // Determine if we have reps or duration
+    const detailText = exercise.reps
+        ? `${exercise.reps} reps`
+        : exercise.duration
+            ? exercise.duration
+            : '';
+
+    return `
+        <div class="exercise-item" data-video="${exercise.video}">
+            ${thumbnail}
+            <div class="exercise-name">${exercise.exercise}</div>
+            <div class="exercise-details">${detailText}</div>
+        </div>
+    `;
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Set up exercise video click events
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const videoPath = item.getAttribute('data-video');
+            if (videoPath) {
+                // Preview video logic here - could open in a modal or play inline
+                console.log('Play video:', videoPath);
+                // Example: window.open(videoPath, '_blank');
+            }
+        });
+    });
+
+    // Initialize the scroll arrows
+    setupExerciseListArrows();
+}
+
+// Function to handle exercise list scroll arrows
+function setupExerciseListArrows() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Function to update arrow visibility
+    function updateArrowVisibility() {
+        // Get the current scroll position and dimensions
+        const isAtStart = container.scrollLeft <= 0;
+        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+        const hasOverflow = container.scrollWidth > container.clientWidth;
+
+        // Show/hide arrows based on scroll position and if there's overflow
+        leftArrow.classList.toggle('hidden', isAtStart);
+        rightArrow.classList.toggle('hidden', isAtEnd);
+
+        // Force arrows to be visible if there's overflow content and we're not at the edge
+        if (hasOverflow) {
+            if (!isAtStart) leftArrow.classList.remove('hidden');
+            if (!isAtEnd) rightArrow.classList.remove('hidden');
+        }
+
+        console.log("Container width:", container.clientWidth, "Content width:", container.scrollWidth, "Has overflow:", hasOverflow);
+    }
+
+    // Initial check - but wait for content to be fully rendered
+    setTimeout(updateArrowVisibility, 100);
+
+    // Left arrow click
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: -250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Right arrow click
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: 250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update on scroll
+    container.addEventListener('scroll', updateArrowVisibility);
+
+    // Update on window resize
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Use MutationObserver to detect when content changes
+    const observer = new MutationObserver(entries => {
+        // Wait a short time for the browser to calculate new dimensions
+        setTimeout(updateArrowVisibility, 50);
+    });
+
+    // Start observing the container for content changes
+    observer.observe(container, {
+        childList: true,    // Watch for changes to child elements
+        subtree: true,      // Watch the entire subtree
+        attributes: true    // Watch for attribute changes that might affect size
+    });
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Set up exercise video click events
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const videoPath = item.getAttribute('data-video');
+            if (videoPath) {
+                // Preview video logic here
+                console.log('Play video:', videoPath);
+            }
+        });
+    });
+
+    // Add a small delay before initializing the scroll arrows to ensure
+    // the content is fully rendered and dimensions are calculated
+    setTimeout(() => {
+        forceArrowCheck();
+        setupExerciseListArrows();
+    }, 200);
+}
+
+// Function to force arrow visibility check after content is loaded
+function forceArrowCheck() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Force recalculation of dimensions
+    const hasOverflow = container.scrollWidth > container.clientWidth;
+    const isAtStart = container.scrollLeft <= 0;
+    const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+
+    // Make sure arrows are visible if content needs scrolling
+    if (hasOverflow) {
+        if (!isAtStart) leftArrow.classList.remove('hidden');
+        if (!isAtEnd) rightArrow.classList.remove('hidden');
+
+        // Additional backup - make right arrow visible if we have multiple items
+        // and we're at the start position (common initial state)
+        if (isAtStart && container.children.length > 1) {
+            rightArrow.classList.remove('hidden');
+        }
+    }
+
+    console.log("Force check - hasOverflow:", hasOverflow, "Items:", container.children.length);
+}
+
+// Touch scroll implementation for the exercise list
+function setupExerciseListTouchScroll() {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!container) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    container.addEventListener('touchstart', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('touchend', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDown) return;
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+}
+
+// Add this to your document.addEventListener('DOMContentLoaded') function
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWorkoutSections();
+    setupExerciseListTouchScroll();
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //

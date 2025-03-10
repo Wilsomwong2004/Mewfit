@@ -1,3 +1,12 @@
+<!-- <?php
+session_start();  
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?> -->
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -156,6 +165,20 @@
                             <span class="popup-close">&times;</span>
                             <h2 id="popup-title"></h2>
                             <p id="popup-desc"></p>
+                            <!-- Exercise List Section -->
+                            <div class="exercise-list-section">
+                                <div class="exercise-list-wrapper">
+                                    <div class="exercise-list-arrow exercise-arrow-left">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </div>
+                                    <div class="exercise-list-container" id="exercise-list-container">
+                                        <!-- Exercise items will be inserted here via JavaScript -->
+                                    </div>
+                                    <div class="exercise-list-arrow exercise-arrow-right">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="popup-stats">
                                 <div class="popup-stat-item">
                                     <div class="popup-stat-value" id="popup-duration"></div>
@@ -165,7 +188,7 @@
                                     <div class="popup-stat-value" id="popup-calories"></div>
                                     <div class="popup-stat-label">Kcal</div>
                                 </div>
-                                <div class ="popup-stat-item">
+                                <div class="popup-stat-item">
                                     <div class="popup-stat-value" id="popup-level"></div>
                                     <div class="popup-stat-label">Level</div>
                                 </div>
