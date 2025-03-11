@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -18,10 +27,11 @@
                 <div class="stat">🔥 203 kcal</div>
             </div>
         <div class="btns">
-            <button class="done-btn">Done</button>
-            <div class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div>
+            <button id="done-btn" class="done-btn">Done</button>
+            <div id="restart-btn" class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div>
         </div>
     </body>
-    <script src="./js/subworkout_done_page.js"></script>
+    <!-- <script src="./js/subworkout_done_page.js"></script> -->
     <script src="./js/darkmode.js"></script>
+    <script type="module" src="./js/subworkout_done_page.js"></script>
 </html>

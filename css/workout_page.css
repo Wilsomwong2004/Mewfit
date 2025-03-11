@@ -960,7 +960,7 @@ html.dark-mode .workout-stats {
 
 .seperate-workout-pic-details {
     display: flex;
-    max-height: 500px;
+    max-height: 600px;
     height: 100%;
     width: 100%;
 }
@@ -983,9 +983,9 @@ html.dark-mode .workout-stats {
 
 .gradient-white {
     position: relative;
-    left: -29px;
+    left: -28px;
     width: 30px;
-    max-height: 500px;
+    max-height: 600px;
     height: 100%;
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
@@ -1000,8 +1000,8 @@ html.dark-mode .gradient-white {
     background: var(--card-background);
     padding: 0rem;
     border-radius: 16px;
-    max-width: 800px;
-    max-height: 500px;
+    max-width: 1000px;
+    max-height: 600px;
     width: 100%;
     height: 100%;
     box-shadow: var(--box-shadow-light);
@@ -1043,7 +1043,7 @@ html.dark-mode .popup-content h2 {
 .popup-stats {
     display: flex;
     position: relative;
-    top: 155px;
+    top: 10px;
     justify-content: center;
     gap: 2.4rem;
     margin-bottom: 2rem;
@@ -1068,7 +1068,7 @@ html.dark-mode .popup-content h2 {
 .popup-start-button {
     width: 100%;
     position: relative;
-    top: 155px;
+    top: 5px;
     padding: 0.9rem;
     background: var(--primary-color);
     color: white;
@@ -1115,6 +1115,135 @@ html.dark-mode .popup-content h2 {
 
 .advanced .difficulty-bar.active {
     background-color: #F44336;
+}
+
+/* Exercise List */
+.exercise-list-section {
+    margin: 20px 0;
+}
+
+.exercise-list-section h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.exercise-list-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.exercise-list-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    padding: 10px 0;
+    width: 100%;
+    gap: 15px;
+    padding: 10px 20px;
+}
+
+.exercise-list-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+.exercise-item {
+    min-width: 200px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.exercise-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.exercise-name {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.exercise-details {
+    font-size: 14px;
+    color: #666;
+}
+
+.exercise-list-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    position: absolute;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.exercise-list-arrow.hidden {
+    opacity: 0;
+    pointer-events: none;
+    /* Better than display:none as it preserves layout */
+}
+
+.exercise-list-arrow i {
+    font-size: 16px;
+    color: #333;
+}
+
+.exercise-list-arrow:hover {
+    background-color: #f0f0f0;
+}
+
+.exercise-arrow-left {
+    left: -10px;
+}
+
+.exercise-arrow-right {
+    right: -10px;
+}
+
+/* Hide arrows when not needed */
+.exercise-list-arrow.hidden {
+    display: none;
+}
+
+/* Video thumbnail style */
+.exercise-thumbnail {
+    width: 100%;
+    height: 120px;
+    background-color: #e5e5e5;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.exercise-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.exercise-video-icon {
+    position: absolute;
+    color: #fff;
+    font-size: 24px;
+    opacity: 0.8;
 }
 
 /* Responsive Design */

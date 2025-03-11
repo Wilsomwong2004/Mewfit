@@ -457,9 +457,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Step-Ups", "reps": 20, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Side_Step-Ups_Joanna_Soh.mp4" },
-            { "exercise": "Step Hop Overs", "reps": 15, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Step_Hop_Overs_Joanna_Soh.mp4" },
-            { "exercise": "Wide to Narrow Step Jump", "reps": 12, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Wide_to_Narrow_Step_Jump_Joanna_Soh.mp4" },
+            { "exercise": "Step-Ups", "reps": 20, "video": "./assets/workout_video/Stepper%20Cardio%20Blast/How_to_do_Side_Step-Ups_Joanna_Soh.mp4" },
+            { "exercise": "Step Hop Overs", "reps": 15, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Step_Hop_Overs_Joanna_Soh.mp4" },
+            { "exercise": "Wide to Narrow Step Jump", "reps": 12, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Wide_to_Narrow_Step_Jump_Joanna_Soh.mp4" },
         ]
     },
     {
@@ -472,9 +472,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Squat With Punches", "reps": 20, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Squat_Hold_With_Punches_Joanna_Soh.mp4" },
-            { "exercise": "Cross High Punches", "reps": 15, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Cross_High_Punches_Joanna_Soh.mp4" },
-            { "exercise": "Straight Punches", "reps": 30, "video": ".assets/workout_video/Stepper Cardio Blast/How_to_do_Straight_Punches_Joanna_Soh.mp4" }
+            { "exercise": "Squat With Punches", "reps": 20, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Squat_Hold_With_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Cross High Punches", "reps": 15, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Cross_High_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Straight Punches", "reps": 30, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Straight_Punches_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -487,9 +487,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Shuffle Forward and Backward", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/How_to_do_Shuffle_Forward_and_Backward_Joanna_Soh.mp4" },
-            { "exercise": "Ice Ski", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/How_to_do_Ice_Ski_Joanna_Soh.mp4" },
-            { "exercise": "Side Step Shuffle", "duration": "8 minutes", "video": ".assets/workout_video/Low Impact Steady State/Side_Step_Shuffle.mp4" }
+            { "exercise": "Shuffle Forward and Backward", "duration": "8 minutes", "video": "./assets/workout_video/Low Impact Steady State/How_to_do_Shuffle_Forward_and_Backward_Joanna_Soh.mp4" },
+            { "exercise": "Ice Ski", "duration": "8 minutes", "video": "./assets/workout_video/Low Impact Steady State/How_to_do_Ice_Ski_Joanna_Soh.mp4" },
+            { "exercise": "Side Step Shuffle", "duration": "8 minutes", "video": "./assets/workout_video/Low Impact Steady State/Side_Step_Shuffle.mp4" }
         ]
     },
     {
@@ -502,9 +502,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Kangaroo Hops", "reps": 15, "video": ".assets/workout_video/Full-Body Cardio Fusion/Kangaroo_Hops.mp4" },
-            { "exercise": "Sprint", "duration": "30 seconds", "video": ".assets/workout_video/Full-Body Cardio Fusion/Sprint.mp4" },
-            { "exercise": "Ice Skater", "reps": 20, "video": ".assets/workout_video/Full-Body Cardio Fusion/Ice Skater.mp4" },
+            { "exercise": "Kangaroo Hops", "reps": 15, "video": "./assets/workout_video/Full-Body Cardio Fusion/Kangaroo_Hops.mp4" },
+            { "exercise": "Sprint", "duration": "30 seconds", "video": "./assets/workout_video/Full-Body Cardio Fusion/Sprint.mp4" },
+            { "exercise": "Ice Skater", "reps": 20, "video": "./assets/workout_video/Full-Body Cardio Fusion/Ice Skater.mp4" },
         ]
     },
     {
@@ -517,9 +517,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": ".assets/workout_video/Step-Up Challenge/Step-Ups.mp4" },
-            { "exercise": "Step Jump", "reps": 12, "video": ".assets/workout_video/Step-Up Challenge/Step Jump.mp4" },
-            { "exercise": "Burpee Step-Up", "reps": 10, "video": ".assets/workout_video/Step-Up Challenge/Burpee Step-Up.mp4" }
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": "./assets/workout_video/Step-Up Challenge/Step-Ups.mp4" },
+            { "exercise": "Step Jump", "reps": 12, "video": "./assets/workout_video/Step-Up Challenge/Step Jump.mp4" },
+            { "exercise": "Burpee Step-Up", "reps": 10, "video": "./assets/workout_video/Step-Up Challenge/Burpee Step-Up.mp4" }
         ]
     },
     {
@@ -532,9 +532,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Lateral Shuttle Steps", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Lateral Shuttle StepsLateral Shuttle Steps.mp4" },
-            { "exercise": "Side to Side Step", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Side to Side Step.mp4" },
-            { "exercise": "Twist & Reach", "duration": "5 minutes", "video": ".assets/workout_video/Dance Cardio Groove/Twist & Reach.mp4" }
+            { "exercise": "Lateral Shuttle Steps", "duration": "5 minutes", "video": "./assets/workout_video/Dance Cardio Groove/Lateral Shuttle StepsLateral Shuttle Steps.mp4" },
+            { "exercise": "Side to Side Step", "duration": "5 minutes", "video": "./assets/workout_video/Dance Cardio Groove/Side to Side Step.mp4" },
+            { "exercise": "Twist & Reach", "duration": "5 minutes", "video": "./assets/workout_video/Dance Cardio Groove/Twist & Reach.mp4" }
         ]
     },
     {
@@ -547,9 +547,9 @@ const workouts = [
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Plank Jacks", "reps": 20, "video": ".assets/workout_video/HIIT & Core Combo/Plank Jacks.mp4" },
-            { "exercise": "Frogger To Squat", "reps": 15, "video": ".assets/workout_video/HIIT & Core Combo/Frogger To Squat.mp4" },
-            { "exercise": "Decline Mountain Climbers", "reps": 20, "video": ".assets/workout_video/HIIT & Core Combo/Decline Mountain Climbers.mp4" },
+            { "exercise": "Plank Jacks", "reps": 20, "video": "./assets/workout_video/HIIT & Core Combo/Plank Jacks.mp4" },
+            { "exercise": "Frogger To Squat", "reps": 15, "video": "./assets/workout_video/HIIT & Core Combo/Frogger To Squat.mp4" },
+            { "exercise": "Decline Mountain Climbers", "reps": 20, "video": "./assets/workout_video/HIIT & Core Combo/Decline Mountain Climbers.mp4" },
         ]
     },
     {
@@ -562,9 +562,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
-            { "exercise": "Jog On The Spot", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/Jog On The Spot.mp4" },
-            { "exercise": "Butt Kicks", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/Butt Kicks.mp4" },
-            { "exercise": "High Punches", "duration": "3 minutes", "video": ".assets/workout_video/Quick Morning Cardio/High Punches.mp4" }
+            { "exercise": "Jog On The Spot", "duration": "3 minutes", "video": "./assets/workout_video/Quick Morning Cardio/Jog On The Spot.mp4" },
+            { "exercise": "Butt Kicks", "duration": "3 minutes", "video": "./assets/workout_video/Quick Morning Cardio/Butt Kicks.mp4" },
+            { "exercise": "High Punches", "duration": "3 minutes", "video": "./assets/workout_video/Quick Morning Cardio/High Punches.mp4" }
         ]
     },
     // Weighted
@@ -578,10 +578,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Dumbbell Squat", "reps": 12, "video": ".assets/workout_video/Full-Body Dumbbell Burn/Dumbbell SquatDumbbell Squat.mp4" },
-            { "exercise": "Shoulder Press", "reps": 10, "video": ".assets/workout_video/Full-Body Dumbbell Burn/o7HCVmBwlGM - How_to_do_Shoulder_Press_Joanna_Soh.mp4" },
-            { "exercise": "Reverse Lunge to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Full-Body Dumbbell Burn/FxLiuvBL5Cs - How_to_do_Reverse_Lunge_to_Shoulder_Press_Joanna_Soh.mp4" },
-            { "exercise": "Bicep Curls", "reps": 15, "video": ".assets/workout_video/Full-Body Dumbbell Burn/nLAbP19S2hk - How_to_do_Bicep_Curls_to_Outward_Abductor_Joanna_Soh.mp4" }
+            { "exercise": "Dumbbell Squat", "reps": 12, "video": "./assets/workout_video/Full-Body Dumbbell Burn/Dumbbell SquatDumbbell Squat.mp4" },
+            { "exercise": "Shoulder Press", "reps": 10, "video": "./assets/workout_video/Full-Body Dumbbell Burn/o7HCVmBwlGM - How_to_do_Shoulder_Press_Joanna_Soh.mp4" },
+            { "exercise": "Reverse Lunge to Shoulder Press", "reps": 10, "video": "./assets/workout_video/Full-Body Dumbbell Burn/FxLiuvBL5Cs - How_to_do_Reverse_Lunge_to_Shoulder_Press_Joanna_Soh.mp4" },
+            { "exercise": "Bicep Curls", "reps": 15, "video": "./assets/workout_video/Full-Body Dumbbell Burn/nLAbP19S2hk - How_to_do_Bicep_Curls_to_Outward_Abductor_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -594,10 +594,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Tricep Kickback", "reps": 12, "video": ".assets/workout_video/Upper Body Sculpt/Urn2TycUVjw - How_to_do_Tricep_Kickback_Joanna_Soh.mp4" },
-            { "exercise": "Front Raise", "reps": 15, "video": ".assets/workout_video/Upper Body Sculpt/4Uyhk2qaFrg - How_to_do_Front_Raise_Joanna_Soh.mp4" },
-            { "exercise": "Single Arm Dumbbell Row", "reps": 10, "video": ".assets/workout_video/Upper Body Sculpt/Single Arm Dumbbell Row.mp4" },
-            { "exercise": "Upright Dumbbell Row", "reps": 12, "video": ".assets/workout_video/Upper Body Sculpt/Upright Dumbbell Row.mp4" }
+            { "exercise": "Tricep Kickback", "reps": 12, "video": "./assets/workout_video/Upper Body Sculpt/Urn2TycUVjw - How_to_do_Tricep_Kickback_Joanna_Soh.mp4" },
+            { "exercise": "Front Raise", "reps": 15, "video": "./assets/workout_video/Upper Body Sculpt/4Uyhk2qaFrg - How_to_do_Front_Raise_Joanna_Soh.mp4" },
+            { "exercise": "Single Arm Dumbbell Row", "reps": 10, "video": "./assets/workout_video/Upper Body Sculpt/Single Arm Dumbbell Row.mp4" },
+            { "exercise": "Upright Dumbbell Row", "reps": 12, "video": "./assets/workout_video/Upper Body Sculpt/Upright Dumbbell Row.mp4" }
         ]
     },
     {
@@ -610,10 +610,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Dumbbell Sumo Squat", "reps": 15, "video": ".assets/workout_video/Leg Day Strength/Dumbbell Sumo Squat.mp4" },
-            { "exercise": "Walking Lunges", "reps": 12, "video": ".assets/workout_video/Leg Day Strength/Walking Lunges.mp4" },
-            { "exercise": "Deadlift", "reps": 10, "video": ".assets/workout_video/Leg Day Strength/Deadlift.mp4" },
-            { "exercise": "Goblet Squat", "reps": 12, "video": ".assets/workout_video/Leg Day Strength/Goblet Squat.mp4" }
+            { "exercise": "Dumbbell Sumo Squat", "reps": 15, "video": "./assets/workout_video/Leg Day Strength/Dumbbell Sumo Squat.mp4" },
+            { "exercise": "Walking Lunges", "reps": 12, "video": "./assets/workout_video/Leg Day Strength/Walking Lunges.mp4" },
+            { "exercise": "Deadlift", "reps": 10, "video": "./assets/workout_video/Leg Day Strength/Deadlift.mp4" },
+            { "exercise": "Goblet Squat", "reps": 12, "video": "./assets/workout_video/Leg Day Strength/Goblet Squat.mp4" }
         ]
     },
     {
@@ -626,10 +626,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Woodchop", "reps": 15, "video": ".assets/workout_video/Functional Strength/Woodchop.mp4" },
-            { "exercise": "Snatch to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Functional Strength/Snatch to Shoulder Press.mp4" },
-            { "exercise": "Dumbbell Swing", "reps": 12, "video": ".assets/workout_video/Functional Strength/Dumbbell Swing.mp4" },
-            { "exercise": "Overhead Squat", "reps": 10, "video": ".assets/workout_video/Functional Strength/Overhead Squat.mp4" }
+            { "exercise": "Woodchop", "reps": 15, "video": "./assets/workout_video/Functional Strength/Woodchop.mp4" },
+            { "exercise": "Snatch to Shoulder Press", "reps": 10, "video": "./assets/workout_video/Functional Strength/Snatch to Shoulder Press.mp4" },
+            { "exercise": "Dumbbell Swing", "reps": 12, "video": "./assets/workout_video/Functional Strength/Dumbbell Swing.mp4" },
+            { "exercise": "Overhead Squat", "reps": 10, "video": "./assets/workout_video/Functional Strength/Overhead Squat.mp4" }
         ]
     },
     {
@@ -642,10 +642,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Single Leg Deadlift", "reps": 12, "video": ".assets/workout_video/Back & Shoulders Focus/Single Leg Deadlift.mp4" },
-            { "exercise": "Reverse Fly", "reps": 15, "video": ".assets/workout_video/Back & Shoulders Focus/Reverse Fly.mp4" },
-            { "exercise": "Plank Row", "reps": 10, "video": ".assets/workout_video/Back & Shoulders Focus/Plank Row.mp4" },
-            { "exercise": "Y to T Raises", "reps": 12, "video": ".assets/workout_video/Back & Shoulders Focus/Y to T Raises.mp4" }
+            { "exercise": "Single Leg Deadlift", "reps": 12, "video": "./assets/workout_video/Back & Shoulders Focus/Single Leg Deadlift.mp4" },
+            { "exercise": "Reverse Fly", "reps": 15, "video": "./assets/workout_video/Back & Shoulders Focus/Reverse Fly.mp4" },
+            { "exercise": "Plank Row", "reps": 10, "video": "./assets/workout_video/Back & Shoulders Focus/Plank Row.mp4" },
+            { "exercise": "Y to T Raises", "reps": 12, "video": "./assets/workout_video/Back & Shoulders Focus/Y to T Raises.mp4" }
         ]
     },
     {
@@ -658,9 +658,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": ".assets/workout_video/Stepper Strength/Step-Ups With Knee To Elbow.mp4" },
-            { "exercise": "Alternate Elevated Lunge (With Stepper)", "reps": 12, "video": ".assets/workout_video/Stepper Strength/Alternate Elevated Lunge (With Stepper).mp4" },
-            { "exercise": "Tricep Dips", "reps": 15, "video": ".assets/workout_video/Stepper Strength/Tricep DipsTricep Dips.mp4" }
+            { "exercise": "Step-Ups With Knee To Elbow", "reps": 15, "video": "./assets/workout_video/Stepper Strength/Step-Ups With Knee To Elbow.mp4" },
+            { "exercise": "Alternate Elevated Lunge (With Stepper)", "reps": 12, "video": "./assets/workout_video/Stepper Strength/Alternate Elevated Lunge (With Stepper).mp4" },
+            { "exercise": "Tricep Dips", "reps": 15, "video": "./assets/workout_video/Stepper Strength/Tricep DipsTricep Dips.mp4" }
         ]
     },
     {
@@ -673,10 +673,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Burpees with Dumbbell Press", "reps": 10, "video": ".assets/workout_video/Total Body Dumbbell/Burpees with Dumbbell Press.mp4" },
-            { "exercise": "Dumbbells High Pulls", "reps": 12, "video": ".assets/workout_video/Total Body Dumbbell/Dumbbells High Pulls.mp4" },
-            { "exercise": "Alternate Lunge & Twist", "reps": 12, "video": ".assets/workout_video/Total Body Dumbbell/Alternate Lunge & Twist.mp4" },
-            { "exercise": "Head Crusher", "reps": 10, "video": ".assets/workout_video/Total Body Dumbbell/Head Crusher.mp4" }
+            { "exercise": "Burpees with Dumbbell Press", "reps": 10, "video": "./assets/workout_video/Total Body Dumbbell/Burpees with Dumbbell Press.mp4" },
+            { "exercise": "Dumbbells High Pulls", "reps": 12, "video": "./assets/workout_video/Total Body Dumbbell/Dumbbells High Pulls.mp4" },
+            { "exercise": "Alternate Lunge & Twist", "reps": 12, "video": "./assets/workout_video/Total Body Dumbbell/Alternate Lunge & Twist.mp4" },
+            { "exercise": "Head Crusher", "reps": 10, "video": "./assets/workout_video/Total Body Dumbbell/Head Crusher.mp4" }
         ]
     },
     {
@@ -689,9 +689,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Russian Twist (Dumbbell)", "reps": 20, "video": ".assets/workout_video/Arm & Core Combo/Russian Twist (Dumbbell).mp4" },
-            { "exercise": "Tricep Extension", "reps": 12, "video": ".assets/workout_video/Arm & Core Combo/Tricep Extension.mp4" },
-            { "exercise": "Bicep Curls to Outward Abductor", "reps": 15, "video": ".assets/workout_video/Arm & Core Combo/Bicep Curls to Outward Abductor.mp4" }
+            { "exercise": "Russian Twist (Dumbbell)", "reps": 20, "video": "./assets/workout_video/Arm & Core Combo/Russian Twist (Dumbbell).mp4" },
+            { "exercise": "Tricep Extension", "reps": 12, "video": "./assets/workout_video/Arm & Core Combo/Tricep Extension.mp4" },
+            { "exercise": "Bicep Curls to Outward Abductor", "reps": 15, "video": "./assets/workout_video/Arm & Core Combo/Bicep Curls to Outward Abductor.mp4" }
         ]
     },
     {
@@ -704,10 +704,10 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Squat to Shoulder Press", "reps": 12, "video": ".assets/workout_video/Power Endurance/Squat to Shoulder Press.mp4" },
-            { "exercise": "Single Arm Snatch to Shoulder Press", "reps": 10, "video": ".assets/workout_video/Power Endurance/Single Arm Snatch to Shoulder Press.mp4" },
-            { "exercise": "Pull Over", "reps": 12, "video": ".assets/workout_video/Power Endurance/Pull Over.mp4" },
-            { "exercise": "Fly Hip Bridge", "reps": 15, "video": ".assets/workout_video/Power Endurance/Fly Hip Bridge.mp4" }
+            { "exercise": "Squat to Shoulder Press", "reps": 12, "video": "./assets/workout_video/Power Endurance/Squat to Shoulder Press.mp4" },
+            { "exercise": "Single Arm Snatch to Shoulder Press", "reps": 10, "video": "./assets/workout_video/Power Endurance/Single Arm Snatch to Shoulder Press.mp4" },
+            { "exercise": "Pull Over", "reps": 12, "video": "./assets/workout_video/Power Endurance/Pull Over.mp4" },
+            { "exercise": "Fly Hip Bridge", "reps": 15, "video": "./assets/workout_video/Power Endurance/Fly Hip Bridge.mp4" }
         ]
     },
     {
@@ -720,9 +720,9 @@ const workouts = [
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Overhead Arm Circle", "reps": 12, "video": ".assets/workout_video/Functional Mobility/Overhead Arm Circle.mp4" },
-            { "exercise": "L Rotation", "reps": 10, "video": ".assets/workout_video/Functional Mobility/L Rotation.mp4" },
-            { "exercise": "Side to Front Raise", "reps": 12, "video": ".assets/workout_video/Functional Mobility/Side to Front Raise.mp4" }
+            { "exercise": "Overhead Arm Circle", "reps": 12, "video": "./assets/workout_video/Functional Mobility/Overhead Arm Circle.mp4" },
+            { "exercise": "L Rotation", "reps": 10, "video": "./assets/workout_video/Functional Mobility/L Rotation.mp4" },
+            { "exercise": "Side to Front Raise", "reps": 12, "video": "./assets/workout_video/Functional Mobility/Side to Front Raise.mp4" }
         ]
     },
     // Weight-Free
@@ -736,10 +736,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Plank", "duration": "1 minute", "video": ".assets/workout_video/Core Crusher/Plank Row.mp4" },
-            { "exercise": "Russian Twist", "reps": 20, "video": ".assets/workout_video/Core Crusher/Russian Twist.mp4" },
-            { "exercise": "Leg Raise with Hip Thrust", "reps": 15, "video": ".assets/workout_video/Core Crusher/Leg Raise with Hip Thrust.mp4" },
-            { "exercise": "Side Plank Hip Dips", "reps": 12, "video": ".assets/workout_video/Core Crusher/Side Plank Hip Dips.mp4" }
+            { "exercise": "Plank", "duration": "1 minute", "video": "./assets/workout_video/Core Crusher/Plank Row.mp4" },
+            { "exercise": "Russian Twist", "reps": 20, "video": "./assets/workout_video/Core Crusher/Russian Twist.mp4" },
+            { "exercise": "Leg Raise with Hip Thrust", "reps": 15, "video": "./assets/workout_video/Core Crusher/Leg Raise with Hip Thrust.mp4" },
+            { "exercise": "Side Plank Hip Dips", "reps": 12, "video": "./assets/workout_video/Core Crusher/Side Plank Hip Dips.mp4" }
         ]
     },
     {
@@ -752,10 +752,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Chair Squat", "reps": 15, "video": ".assets/workout_video/Low Impact Strength/Chair Squat.mp4" },
-            { "exercise": "Reverse Lunge", "reps": 12, "video": ".assets/workout_video/Low Impact Strength/Reverse Lunge.mp4" },
-            { "exercise": "Hip Bridge Hold", "duration": "45 seconds", "video": ".assets/workout_video/Low Impact Strength/Hip Bridge Hold.mp4" },
-            { "exercise": "Fire Hydrants", "reps": 15, "video": ".assets/workout_video/Low Impact Strength/Fire Hydrants.mp4" }
+            { "exercise": "Chair Squat", "reps": 15, "video": "./assets/workout_video/Low Impact Strength/Chair Squat.mp4" },
+            { "exercise": "Reverse Lunge", "reps": 12, "video": "./assets/workout_video/Low Impact Strength/Reverse Lunge.mp4" },
+            { "exercise": "Hip Bridge Hold", "duration": "45 seconds", "video": "./assets/workout_video/Low Impact Strength/Hip Bridge Hold.mp4" },
+            { "exercise": "Fire Hydrants", "reps": 15, "video": "./assets/workout_video/Low Impact Strength/Fire Hydrants.mp4" }
         ]
     },
     {
@@ -768,10 +768,10 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Push-Up", "reps": 12, "video": ".assets/workout_video/Total Body Bodyweight/Push-Up.mp4" },
-            { "exercise": "Lunge Pulse", "reps": 15, "video": ".assets/workout_video/Total Body Bodyweight/Lunge Pulse.mp4" },
-            { "exercise": "Sumo Squat", "reps": 15, "video": ".assets/workout_video/Total Body Bodyweight/Sumo Squat.mp4" },
-            { "exercise": "Superman", "duration": "1 minute", "video": ".assets/workout_video/Total Body Bodyweight/Superman.mp4" }
+            { "exercise": "Push-Up", "reps": 12, "video": "./assets/workout_video/Total Body Bodyweight/Push-Up.mp4" },
+            { "exercise": "Lunge Pulse", "reps": 15, "video": "./assets/workout_video/Total Body Bodyweight/Lunge Pulse.mp4" },
+            { "exercise": "Sumo Squat", "reps": 15, "video": "./assets/workout_video/Total Body Bodyweight/Sumo Squat.mp4" },
+            { "exercise": "Superman", "duration": "1 minute", "video": "./assets/workout_video/Total Body Bodyweight/Superman.mp4" }
         ]
     },
     {
@@ -784,9 +784,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
-            { "exercise": "Windshield Wiper with Leg Extension", "reps": 10, "video": ".assets/workout_video/Dynamic Core/Windshield Wiper with Leg Extension.mp4" },
-            { "exercise": "Plank Up-Down", "reps": 15, "video": ".assets/workout_video/Dynamic Core/Plank Up-Down.mp4" },
-            { "exercise": "Flutter Kicks", "duration": "1 minute", "video": ".assets/workout_video/Dynamic Core/Flutter Kicks.mp4" }
+            { "exercise": "Windshield Wiper with Leg Extension", "reps": 10, "video": "./assets/workout_video/Dynamic Core/Windshield Wiper with Leg Extension.mp4" },
+            { "exercise": "Plank Up-Down", "reps": 15, "video": "./assets/workout_video/Dynamic Core/Plank Up-Down.mp4" },
+            { "exercise": "Flutter Kicks", "duration": "1 minute", "video": "./assets/workout_video/Dynamic Core/Flutter Kicks.mp4" }
         ]
     },
     {
@@ -815,9 +815,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Assisted Standing Kickbacks", "reps": 15, "video": ".assets/workout_video/Mobility & Stability/Assisted Standing Kickbacks.mp4" },
-            { "exercise": "Clock Lunge", "reps": 10, "video": ".assets/workout_video/Mobility & Stability/Clock Lunge.mp4" },
-            { "exercise": "Hip Bridge Circle", "reps": 12, "video": ".assets/workout_video/Mobility & Stability/Hip Bridge Circl.mp4" }
+            { "exercise": "Assisted Standing Kickbacks", "reps": 15, "video": "./assets/workout_video/Mobility & Stability/Assisted Standing Kickbacks.mp4" },
+            { "exercise": "Clock Lunge", "reps": 10, "video": "./assets/workout_video/Mobility & Stability/Clock Lunge.mp4" },
+            { "exercise": "Hip Bridge Circle", "reps": 12, "video": "./assets/workout_video/Mobility & Stability/Hip Bridge Circl.mp4" }
         ]
     },
     {
@@ -845,9 +845,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Forward To Back Lunge", "reps": 12, "video": ".assets/workout_video/Functional Flexibility/Forward To Back Lunge.mp4" },
-            { "exercise": "The Bird", "reps": 15, "video": ".assets/workout_video/Functional Flexibility/The Bird.mp4" },
-            { "exercise": "Bob Weave Circle", "duration": "5 minutes", "video": ".assets/workout_video/Functional Flexibility/Bob Weave Circle.mp4" }
+            { "exercise": "Forward To Back Lunge", "reps": 12, "video": "./assets/workout_video/Functional Flexibility/Forward To Back Lunge.mp4" },
+            { "exercise": "The Bird", "reps": 15, "video": "./assets/workout_video/Functional Flexibility/The Bird.mp4" },
+            { "exercise": "Bob Weave Circle", "duration": "5 minutes", "video": "./assets/workout_video/Functional Flexibility/Bob Weave Circle.mp4" }
         ]
     },
 
@@ -861,9 +861,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 4,
         "exercises": [
-            { "exercise": "Burpee to Push-Up", "reps": 10, "video": ".assets/workout_video/Total Body Tone/Burpee to Push-Up.mp4" },
-            { "exercise": "Split Jack Knife", "reps": 15, "video": ".assets/workout_video/Total Body Tone/Split Jack Knife.mp4" },
-            { "exercise": "Sprinter Alternate Knee Tucks", "reps": 20, "video": ".assets/workout_video/Total Body Tone/Sprinter Alternate Knee Tucks.mp4" }
+            { "exercise": "Burpee to Push-Up", "reps": 10, "video": "./assets/workout_video/Total Body Tone/Burpee to Push-Up.mp4" },
+            { "exercise": "Split Jack Knife", "reps": 15, "video": "./assets/workout_video/Total Body Tone/Split Jack Knife.mp4" },
+            { "exercise": "Sprinter Alternate Knee Tucks", "reps": 20, "video": "./assets/workout_video/Total Body Tone/Sprinter Alternate Knee Tucks.mp4" }
         ]
     },
     {
@@ -876,9 +876,9 @@ const workouts = [
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Single Leg Hip Bridge", "reps": 12, "video": ".assets/workout_video/Balance & Coordination/Single Leg Hip Bridge.mp4" },
-            { "exercise": "Assisted Lunge", "reps": 10, "video": ".assets/workout_video/Balance & Coordination/Assisted Lunge.mp4" },
-            { "exercise": "Standing Side Crunch", "reps": 15, "video": ".assets/workout_video/Balance & Coordination/Standing Side Crunch.mp4" }
+            { "exercise": "Single Leg Hip Bridge", "reps": 12, "video": "./assets/workout_video/Balance & Coordination/Single Leg Hip Bridge.mp4" },
+            { "exercise": "Assisted Lunge", "reps": 10, "video": "./assets/workout_video/Balance & Coordination/Assisted Lunge.mp4" },
+            { "exercise": "Standing Side Crunch", "reps": 15, "video": "./assets/workout_video/Balance & Coordination/Standing Side Crunch.mp4" }
         ]
     },
     // Yoga
@@ -892,9 +892,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Child Pose.mp4" },
-            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Downward Facing Dog.mp4" },
-            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Post-Workout Stretch/Butterfly Stretch.mp4" }
+            { "pose": "Child Pose", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Child Pose.mp4" },
+            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Downward Facing Dog.mp4" },
+            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Butterfly Stretch.mp4" }
         ]
     },
     {
@@ -907,9 +907,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Cat and Camel.mp4" },
-            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Lying Spinal Twist.mp4" },
-            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Flexibility Flow/Standing Hamstring Stretch.mp4" }
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Cat and Camel.mp4" },
+            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Lying Spinal Twist.mp4" },
+            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Standing Hamstring Stretch.mp4" }
         ]
     },
     {
@@ -922,9 +922,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cobra", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Cobra.mp4" },
-            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Bridge Stretch.mp4" },
-            { "pose": "Spinal Twist", "duration": "5 minutes", "video": ".assets/workout_video/Spine & Back Relief/Lying Spinal Twist.mp4" }
+            { "pose": "Cobra", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Cobra.mp4" },
+            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Bridge Stretch.mp4" },
+            { "pose": "Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Lying Spinal Twist.mp4" }
         ]
     },
     {
@@ -937,9 +937,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Neck Stretches", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Neck Stretches.mp4" },
-            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Shoulder Stretch.mp4" },
-            { "pose": "Chest Stretch", "duration": "3 minutes", "video": ".assets/workout_video/Neck & Shoulder Relaxation/Chest Stretch.mp4" }
+            { "pose": "Neck Stretches", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Neck Stretches.mp4" },
+            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Shoulder Stretch.mp4" },
+            { "pose": "Chest Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Chest Stretch.mp4" }
         ]
     },
     {
@@ -952,9 +952,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Arm Circle", "duration": "3 minutes", "video": ".assets/workout_video/Morning Mobility/Overhead Arm Circle.mp4" },
-            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": "assets/workout_video/Morning Mobility/Alternate Cross Stretch.mp4" },
-            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": "assets/workout_video/Morning Mobility/Hug Knees to Chest.mp4" }
+            { "pose": "Arm Circle", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Overhead Arm Circle.mp4" },
+            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Alternate Cross Stretch.mp4" },
+            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Hug Knees to Chest.mp4" }
         ]
     },
     {
@@ -967,9 +967,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Hip Flexor Reach.mp4" },
-            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Lying Hamstring Stretch.mp4" },
-            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Active Stretch Flow/Wrist Stretch.mp4" }
+            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Hip Flexor Reach.mp4" },
+            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Lying Hamstring Stretch.mp4" },
+            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Wrist Stretch.mp4" }
         ]
     },
     {
@@ -982,9 +982,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Child Pose.mp4" },
-            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Butterfly Stretch.mp4" },
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": ".assets/workout_video/Evening Wind-Down/Cat and Camel.mp4" }
+            { "pose": "Child Pose", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Child Pose.mp4" },
+            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Butterfly Stretch.mp4" },
+            { "pose": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Cat and Camel.mp4" }
         ]
     },
 ];
@@ -1103,6 +1103,9 @@ function setupWorkoutCardClick() {
                 workoutImage.style.height = 'auto';
             }
 
+            // Update exercise list
+            updateExerciseList(workout);
+
             // Show popup
             popup.classList.add('active');
         });
@@ -1117,6 +1120,7 @@ function setupWorkoutCardClick() {
         }
     });
 }
+
 
 document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
@@ -1340,11 +1344,511 @@ document.querySelectorAll('.activity-card').forEach(card => {
                     workoutImage.style.height = 'auto';
                 }
 
+                // Update exercise list - NEW
+                updateExerciseList(workout);
+
                 // Show popup
                 popup.classList.add('active');
             });
         });
     });
+});
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Exercise List
+
+// Function to create thumbnail from video path
+// function generateThumbnail(exercise) {
+//     // Extract exercise name for path building
+//     const exerciseName = exercise.exercise;
+//     const exerciseNameFormatted = exerciseName.toLowerCase().replace(/\s+/g, '_');
+
+//     // Extract workout category from video path
+//     const videoPath = exercise.video;
+//     const workoutCategory = videoPath.split('/')[3]; // Assuming format: .assets/workout_video/[Category]/[Exercise].mp4
+//     const workoutCategoryFormatted = workoutCategory ? workoutCategory.toLowerCase().replace(/\s+/g, '_') : 'general';
+
+//     // Build potential image paths with fallbacks
+//     const possibleImagePaths = [
+//         // Primary location - specific exercise thumbnail
+//         `./assets/exercise_thumbs/${exerciseNameFormatted}.jpg`,
+//         // Secondary location - based on workout category
+//         `./assets/workout_thumbs/${workoutCategoryFormatted}/${exerciseNameFormatted}.jpg`,
+//         // Tertiary location - workout category thumbnail
+//         `./assets/workout_thumbs/${workoutCategoryFormatted}.jpg`,
+//         // Final fallback - placeholder
+//         './assets/icons/video_placeholder.svg'
+//     ];
+
+//     // Generate image tag with fallback chain using onerror
+//     let imgTag = `<img src="${possibleImagePaths[0]}"`;
+
+//     // Add fallback chain using onerror
+//     for (let i = 1; i < possibleImagePaths.length; i++) {
+//         imgTag += ` onerror="if(this.src !== '${possibleImagePaths[i]}') this.src='${possibleImagePaths[i]}';"`;
+//     }
+
+//     imgTag += ` alt="${exerciseName}" class="exercise-thumb-img">`;
+
+//     // Return the complete thumbnail HTML
+//     return `<div class="exercise-thumbnail">
+//         ${imgTag}
+//         <i class="fas fa-play-circle exercise-video-icon"></i>
+//     </div>`;
+// }
+
+// Function to create exercise item
+function createExerciseItem(exercise) {
+    // Determine if we have reps or duration
+    const detailText = exercise.reps
+        ? `${exercise.reps} reps`
+        : exercise.duration
+            ? exercise.duration
+            : '';
+
+    // Create a unique ID for the video element based on the exercise name
+    const videoId = `video-${exercise.exercise.toLowerCase().replace(/\s+/g, '-')}`;
+
+    return `
+        <div class="exercise-item" data-video="${exercise.video}" data-exercise="${exercise.exercise}" data-video-id="${videoId}">
+            <div class="exercise-video-container">
+                <video id="${videoId}" class="exercise-video" preload="metadata">
+                    <source src="${exercise.video}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-overlay">
+                    <button class="play-button">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="exercise-info">
+                <div class="exercise-name">${exercise.exercise}</div>
+                <div class="exercise-details">${detailText}</div>
+            </div>
+        </div>
+    `;
+}
+
+// function openVideoPlayer(videoPath, exerciseName) {
+//     // Create modal overlay
+//     const modal = document.createElement('div');
+//     modal.className = 'video-modal-overlay';
+//     modal.innerHTML = `
+//         <div class="video-modal-content">
+//             <div class="video-modal-header">
+//                 <h3>${exerciseName}</h3>
+//                 <button class="video-modal-close">&times;</button>
+//             </div>
+//             <div class="video-player-container">
+//                 <video controls autoplay>
+//                     <source src="${videoPath}" type="video/mp4">
+//                     Your browser does not support the video tag.
+//                 </video>
+//             </div>
+//         </div>
+//     `;
+
+//     // Add modal to body
+//     document.body.appendChild(modal);
+
+//     // Handle close button
+//     modal.querySelector('.video-modal-close').addEventListener('click', () => {
+//         document.body.removeChild(modal);
+//     });
+
+//     // Close on outside click
+//     modal.addEventListener('click', (e) => {
+//         if (e.target === modal) {
+//             document.body.removeChild(modal);
+//         }
+//     });
+// }
+
+function setupVideoPlayers() {
+    // Keep track of currently playing video
+    let currentlyPlaying = null;
+
+    // Find all play buttons
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        const videoId = item.getAttribute('data-video-id');
+        const video = document.getElementById(videoId);
+        const overlay = item.querySelector('.video-overlay');
+        const playButton = item.querySelector('.play-button');
+
+        if (!video || !overlay || !playButton) return;
+
+        // Function to stop all videos
+        function stopAllVideos() {
+            if (currentlyPlaying) {
+                const oldVideo = document.getElementById(currentlyPlaying);
+                if (oldVideo) {
+                    oldVideo.pause();
+                    oldVideo.currentTime = 0;
+                }
+
+                // Show overlay for the previously playing video
+                const oldItem = document.querySelector(`[data-video-id="${currentlyPlaying}"]`);
+                if (oldItem) {
+                    const oldOverlay = oldItem.querySelector('.video-overlay');
+                    const oldButton = oldItem.querySelector('.play-button i');
+                    if (oldOverlay) oldOverlay.style.display = 'flex';
+                    if (oldButton) oldButton.className = 'fas fa-play';
+                }
+
+                currentlyPlaying = null;
+            }
+        }
+
+        // Play button click event
+        playButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling up
+
+            // If this video is already playing, pause it
+            if (currentlyPlaying === videoId) {
+                video.pause();
+                overlay.style.display = 'flex';
+                playButton.querySelector('i').className = 'fas fa-play';
+                currentlyPlaying = null;
+            } else {
+                // Stop any currently playing video
+                stopAllVideos();
+
+                // Play this video
+                video.play().catch(err => {
+                    console.error('Error playing video:', err);
+                    // Show error message if needed
+                });
+
+                // Hide overlay while playing
+                overlay.style.display = 'none';
+                playButton.querySelector('i').className = 'fas fa-pause';
+                currentlyPlaying = videoId;
+            }
+        });
+
+        // Video ended event
+        video.addEventListener('ended', () => {
+            // Reset when video ends
+            overlay.style.display = 'flex';
+            playButton.querySelector('i').className = 'fas fa-play';
+            currentlyPlaying = null;
+        });
+
+        // Video play event
+        video.addEventListener('play', () => {
+            if (currentlyPlaying !== videoId) {
+                stopAllVideos();
+                currentlyPlaying = videoId;
+            }
+        });
+    });
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Set up exercise video click events
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const videoPath = item.getAttribute('data-video');
+            const exerciseName = item.getAttribute('data-exercise');
+            if (videoPath) {
+                openVideoPlayer(videoPath, exerciseName);
+            }
+        });
+    });
+
+    // Initialize the scroll arrows after a short delay to ensure content is rendered
+    setTimeout(() => {
+        forceArrowCheck();
+        setupExerciseListArrows();
+    }, 200);
+}
+
+// Function to handle exercise list scroll arrows
+function setupExerciseListArrows() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Function to update arrow visibility
+    function updateArrowVisibility() {
+        // Get the current scroll position and dimensions
+        const isAtStart = container.scrollLeft <= 0;
+        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+        const hasOverflow = container.scrollWidth > container.clientWidth;
+
+        // Show/hide arrows based on scroll position and if there's overflow
+        leftArrow.classList.toggle('hidden', isAtStart);
+        rightArrow.classList.toggle('hidden', isAtEnd);
+
+        // Force arrows to be visible if there's overflow content and we're not at the edge
+        if (hasOverflow) {
+            if (!isAtStart) leftArrow.classList.remove('hidden');
+            if (!isAtEnd) rightArrow.classList.remove('hidden');
+        }
+
+        console.log("Container width:", container.clientWidth, "Content width:", container.scrollWidth, "Has overflow:", hasOverflow);
+    }
+
+    // Initial check - but wait for content to be fully rendered
+    setTimeout(updateArrowVisibility, 100);
+
+    // Left arrow click
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: -250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Right arrow click
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: 250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update on scroll
+    container.addEventListener('scroll', updateArrowVisibility);
+
+    // Update on window resize
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Use MutationObserver to detect when content changes
+    const observer = new MutationObserver(entries => {
+        // Wait a short time for the browser to calculate new dimensions
+        setTimeout(updateArrowVisibility, 50);
+    });
+
+    // Start observing the container for content changes
+    observer.observe(container, {
+        childList: true,    // Watch for changes to child elements
+        subtree: true,      // Watch the entire subtree
+        attributes: true    // Watch for attribute changes that might affect size
+    });
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Setup video players after adding to DOM
+    setupVideoPlayers();
+
+    // Initialize the scroll arrows after a short delay to ensure content is rendered
+    setTimeout(() => {
+        forceArrowCheck();
+        setupExerciseListArrows();
+    }, 200);
+}
+
+// Function to force arrow visibility check after content is loaded
+function forceArrowCheck() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Force recalculation of dimensions
+    const hasOverflow = container.scrollWidth > container.clientWidth;
+    const isAtStart = container.scrollLeft <= 0;
+    const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+
+    // Make sure arrows are visible if content needs scrolling
+    if (hasOverflow) {
+        if (!isAtStart) leftArrow.classList.remove('hidden');
+        if (!isAtEnd) rightArrow.classList.remove('hidden');
+
+        // Additional backup - make right arrow visible if we have multiple items
+        // and we're at the start position (common initial state)
+        if (isAtStart && container.children.length > 1) {
+            rightArrow.classList.remove('hidden');
+        }
+    }
+
+    console.log("Force check - hasOverflow:", hasOverflow, "Items:", container.children.length);
+}
+
+// Touch scroll implementation for the exercise list
+function setupExerciseListTouchScroll() {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!container) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    container.addEventListener('touchstart', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('touchend', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDown) return;
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+}
+
+function addVideoStyles() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .exercise-item {
+            width: 260px;
+            margin-right: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .exercise-video-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            background-color: #000;
+        }
+        
+        .exercise-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.8);
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.1);
+            background-color: rgba(255,255,255,0.9);
+        }
+        
+        .play-button i {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .exercise-info {
+            padding: 10px;
+        }
+        
+        .exercise-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .exercise-details {
+            font-size: 12px;
+            color: #666;
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
+// Initialize video styles when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    addVideoStyles();
+    initializeWorkoutSections();
+    setupExerciseListTouchScroll();
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
