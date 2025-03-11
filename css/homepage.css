@@ -199,8 +199,11 @@ html.dark-mode .container-side-transparent-right {
         padding-right: 0px;
     }
 
-    .s1-words h2 {
+    .greetings {
         font-size: 5vw;
+        display:flex;
+        width:100%;
+        justify-content: center;
     }
 
     .s1-words p {
@@ -325,6 +328,7 @@ to {
     align-items: center;
     height: 100px;
 }
+
 
 .fitness-summary-container p {
     font-size: 15px;
@@ -485,6 +489,8 @@ to {
     margin-top: 20px;
 }
 
+
+
 @media screen and (max-width: 935px) {
     .section2a {
         flex-direction: column;
@@ -493,11 +499,10 @@ to {
 
     .box {
         width: 90vw;
-        height: 55vw;
+        height: auto;
         margin-top: 4vw;
         padding: 15px;
     }
-
 
     #chart {
         width: 50vw;

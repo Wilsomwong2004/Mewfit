@@ -44,11 +44,11 @@ $updateStmt->execute();
 
 $day_streak = $day_streak_starting_date->diff($today)->days + 1; 
 
-// Fetch total calories burned from workouts in the last 30 days
+// Fetch total calories burned from workouts today
 $sqlWorkout = "SELECT SUM(w.calories) AS total_workout_burned 
                FROM workout_history wh 
                JOIN workout w ON wh.workout_id = w.workout_id
-               WHERE wh.member_id = ? AND wh.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+               WHERE wh.member_id = ? AND DATE(wh.date) = CURDATE()";
 $stmtWorkout = $dbConn->prepare($sqlWorkout);
 $stmtWorkout->bind_param("i", $member_id);
 $stmtWorkout->execute();
@@ -56,25 +56,40 @@ $resultWorkout = $stmtWorkout->get_result();
 $workoutData = $resultWorkout->fetch_assoc();
 $total_workout_calories_burned = $workoutData['total_workout_burned'] ?? 0; 
 
-// Fetch total calories consumed from diet in the last 30 days
-$sqlDiet = "SELECT SUM(n.calories) AS total_diet_calories 
-            FROM diet_history dh 
-            JOIN diet d ON dh.diet_id = d.diet_id
-            JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
-            JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
-            WHERE dh.member_id = ? AND dh.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+// Fetch total calories consumed from diet today
+$sqlDiet = "
+    SELECT SUM(total_calories) AS total_diet_calories 
+    FROM (
+        -- Calories from predefined diets
+        SELECT SUM(n.calories) AS total_calories
+        FROM diet_history dh 
+        JOIN diet d ON dh.diet_id = d.diet_id
+        JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
+        JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+        WHERE dh.member_id = ? AND DATE(dh.date) = CURDATE()
+        
+        UNION ALL
+        
+        -- Calories from custom diets
+        SELECT SUM(cd.calories) AS total_calories
+        FROM custom_diet cd
+        WHERE cd.member_id = ? AND DATE(cd.date) = CURDATE()
+    ) AS combined_calories;
+";
+
 $stmtDiet = $dbConn->prepare($sqlDiet);
-$stmtDiet->bind_param("i", $member_id);
+$stmtDiet->bind_param("ii", $member_id, $member_id); // Bind member_id twice
 $stmtDiet->execute();
 $resultDiet = $stmtDiet->get_result();
 $dietData = $resultDiet->fetch_assoc();
 $total_diet_calories = $dietData['total_diet_calories'] ?? 0;
 
+
 // Fetch total workout duration
 $sqlWorkoutTime = "SELECT SUM(w.duration) AS total_duration 
                    FROM workout_history wh 
                    JOIN workout w ON wh.workout_id = w.workout_id
-                   WHERE wh.member_id = ? AND wh.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                   WHERE wh.member_id = ? AND DATE(wh.date) = CURDATE()";
 $stmtWorkoutTime = $dbConn->prepare($sqlWorkoutTime);
 $stmtWorkoutTime->bind_param("i", $member_id);
 $stmtWorkoutTime->execute();
@@ -105,6 +120,11 @@ $required_calories += $calories_required_daily;
 
 // Calculate required calories to be burned through workouts daily (excluding BMR)
 $required_workout_calories = max(0, $total_diet_calories - $required_calories);
+
+$total_calories = round($total_diet_calories - $total_workout_calories_burned);
+if ($total_calories<=0){
+    $total_calories = 0;
+}
 
 // Calculate target day streak based on level
 $target_day_streak = min(10 * ceil($level / 10), 50);
@@ -138,7 +158,57 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 text-align: center; 
             }
 
-            
+            #recordWeight,#recordCalorie{
+                width:50%;
+            }
+
+            #recordWeight h6,#recordCalorie h6{
+                font-size: 18px;
+                text-align: center;
+                margin:10px;
+                font-weight: bold;
+            }
+
+            #recordWeight label,#recordCalorie label{
+                font-size: 14px;
+                margin: 15px;
+            }
+
+            .column{
+                display:flex;
+                width:100%;
+            }
+
+            input{
+                width:70%;
+                margin: 15px 0px 15px 0px;
+                border: 3px solid #FFAD84;
+                border-radius: 16px;
+            }
+
+            @media screen and (max-width: 935px) {
+
+                #recordWeight h6,#recordCalorie h6{
+                    font-size: 3.5vw;
+                }
+
+                #recordWeight label,#recordCalorie label{
+                    font-size: 3vw;
+                    margin: 15px;
+                }
+
+                .column{
+                    display:flex;
+                    width:100%;
+                }
+
+                input{
+                    width:70%;
+                    margin: 15px 0px 15px 0px;
+                    border: 3px solid #FFAD84;
+                    border-radius: 16px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -200,11 +270,9 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 <!-- ---------------------------------section 1-------------------------------- -->
                 <section class="section1">
                     <div class="s1-words">
-                        <div style="display:flex;">
-                        <?php
-                            echo "<h2 id='type'>Hello, <span style='color:#FF946E'>{$_SESSION['username']}</span></h2>";  
-                        ?>
-                        <h2 class='cursor'>|</h2>
+                        <div class="greetings" style="display:flex;">
+                            <h2 id='type'>Hello, <span style='color:#FF946E'><?php echo $_SESSION['username'];?></span></h2>  
+                            <h2 class='cursor'>|</h2>
                         </div>
                         
                         <p>Today is the workout time that you have long awaited for. <br>
@@ -236,8 +304,8 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                     <img src="./assets/icons/total calories.svg">
                                     <h4>Total Calories</h4>
                                 </div>
-                                <div class="section2-value"><span class="count-up"><?php echo round($total_diet_calories - $total_workout_calories_burned); ?> </span>
-                                    <span style="color:#515151; font-size:10px;padding-top:10px;">
+                                <div class="section2-value"><span class="count-up"><?php echo $total_calories ?> </span>
+                                    <span style="color:#515151; font-size:14px;padding-top:10px;">
                                         / <?php echo round($required_calories); ?> kcal
                                     </span>
                                 </div>
@@ -250,8 +318,8 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                     <img src="./assets/icons/calories or streak.svg" style="width:15px;">
                                     <h4>Calories Burnt</h4>
                                 </div>
-                                <div class="section2-value"><span class="count-up"><?php echo round($total_workout_calories_burned); ?></span>
-                                    <span style="color:#515151; font-size:10px;padding-top:10px;">
+                                <div class="section2-value"><span class="count-up"><?php echo $total_workout_calories_burned; ?></span>
+                                    <span style="color:#515151; font-size:14px;padding-top:10px;">
                                         / <?php echo round($required_workout_calories); ?> kcal
                                     </span>
                                 </div>
@@ -267,7 +335,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                     <h4>Workout Time</h4>
                                 </div>
                                 <div class="section2-value"><span class="count-up"><?php echo round($total_workout_time); ?></span>
-                                    <span style="color:#515151; font-size:10px;padding-top:10px;">/30 min</span>
+                                    <span style="color:#515151; font-size:14px;padding-top:10px;">/30 min</span>
                                 </div>
                                 <p>Recommended minutes for workout today</p>
                             </div>
@@ -279,7 +347,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                     <h4>Day Streaks</h4>
                                 </div>
                                 <div class="section2-value"><span class="count-up"><?php echo $day_streak; ?> </span>
-                                    <span style="color:#515151; font-size:10px;padding-top:10px;">/<?php echo $target_day_streak; ?> days</span>
+                                    <span style="color:#515151; font-size:14px;padding-top:10px;">/<?php echo $target_day_streak; ?> days</span>
                                 </div>
                                 <p>Days of consistency</p>
                             </div>
@@ -361,7 +429,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 </section>
 
                 <!-- -----------------------------------section 2a----------------------------- -->
-
+                <!-- chart and details -->
                 <?php
                 //----------------------chart 1
                 $sql2 = "
@@ -390,24 +458,34 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 //chart 2
                 $query = "
                     SELECT 
-                        DATE_FORMAT(DATE_SUB(dh.date, INTERVAL WEEKDAY(dh.date) DAY), '%d %b %Y') AS week_start_date,  
-                        AVG(nutr.calories) AS average_calories
-                    FROM diet_history dh
-                    JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
-                    JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
-                    WHERE dh.member_id = ? 
-                        AND dh.date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)  
-                    GROUP BY YEAR(dh.date), WEEK(dh.date)
-                    ORDER BY dh.date ASC;
+                        DATE_FORMAT(DATE_SUB(week_dates.week_start, INTERVAL WEEKDAY(week_dates.week_start) DAY), '%d %b %Y') AS week_start_date,  
+                        AVG(week_dates.total_calories) AS average_calories
+                    FROM (
+                        -- Calories from predefined diets
+                        SELECT dh.date AS week_start, nutr.calories AS total_calories
+                        FROM diet_history dh
+                        JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
+                        JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
+                        WHERE dh.member_id = ? 
+                            AND dh.date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)  
+
+                        UNION ALL
+                        
+                        -- Calories from custom diets
+                        SELECT cd.date AS week_start, cd.calories AS total_calories
+                        FROM custom_diet cd
+                        WHERE cd.member_id = ? 
+                            AND cd.date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                    ) AS week_dates
+                    GROUP BY YEAR(week_dates.week_start), WEEK(week_dates.week_start)
+                    ORDER BY week_dates.week_start ASC;
                 ";
 
-                // Prepare and execute the statement
                 $stmt = $dbConn->prepare($query);
-                $stmt->bind_param("i", $member_id); // Bind member ID to the SQL query
+                $stmt->bind_param("ii", $member_id, $member_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
 
-                // Fetch the results and output as JSON
                 $nutritionData = [];
                 while ($row = $result->fetch_assoc()) {
                     $nutritionData[] = $row;
@@ -432,7 +510,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 // Fetch current week's weight
                 $current_date = date('Y-m-d');
                 $current_day_of_week = date('w', strtotime($current_date));
-                $current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week; // Convert Sunday (0) to 7
+                $current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
                 $start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
                 $end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
 
@@ -463,23 +541,38 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                     $last_week_weight = $row_last_week['current_weight'];
                 }
 
-                //if no current weight from last week
-                $last_weight = "-";
-                if ($current_weight == "-") {
-                    $sql_latest = "SELECT current_weight FROM member_performance 
-                                WHERE member_id = $member_id 
-                                ORDER BY weeks_date_mon DESC LIMIT 1";
-                    $result_latest = $dbConn->query($sql_latest);
+                //if no current weight
+                $latest_weight_query = "
+                    SELECT current_weight, weeks_date_mon 
+                    FROM member_performance 
+                    WHERE member_id = ? 
+                    ORDER BY weeks_date_mon DESC 
+                    LIMIT 1
+                ";
+                
+                $latest_stmt = $dbConn->prepare($latest_weight_query);
+                if ($latest_stmt) {
+                    $latest_stmt->bind_param("i", $member_id);
+                    $latest_stmt->execute();
+                    $latest_result = $latest_stmt->get_result();
                     
-                    if ($result_latest->num_rows > 0) {
-                        $row_latest = $result_latest->fetch_assoc();
-                        $last_weight = $row_latest['current_weight'];
+                    if ($latest_result->num_rows > 0) {
+                        $latest_record = $latest_result->fetch_assoc();
+                        $last_weight = $latest_record['current_weight'];
+                        $last_week_date = $latest_record['weeks_date_mon'];
+                    } else {
+                        $last_weight = "-";
+                        $last_week_date = "-";
                     }
-                    if ($last_weight == "-" && $registered_weight != 0) {
-                        $last_weight = $registered_weight;
+                    $latest_stmt->close();
+                }
+                
+                if ($current_weight == "-") {
+                    $current_weight = $last_weight;
+                    
+                    if ($current_weight == "-") {
+                        $current_weight = $registered_weight;
                     }
-                } else {
-                    $last_weight = $current_weight;
                 }
 
                 // weekly target to hit goal
@@ -518,47 +611,97 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 //-------------------------label for chart 2
 
                 $queryToday = "
-                    SELECT SUM(nutr.calories) AS total_calories_today
-                    FROM diet_history dh
-                    JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
-                    JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
-                    WHERE dh.member_id = ? AND DATE(dh.date) = ?
+                    SELECT SUM(total_calories) AS total_calories_today
+                    FROM (
+                        -- Calories from predefined diets
+                        SELECT SUM(nutr.calories) AS total_calories
+                        FROM diet_history dh
+                        JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
+                        JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
+                        WHERE dh.member_id = ? AND DATE(dh.date) = CURDATE()
+                        
+                        UNION ALL
+                        
+                        -- Calories from custom diets
+                        SELECT SUM(cd.calories) AS total_calories
+                        FROM custom_diet cd
+                        WHERE cd.member_id = ? AND DATE(cd.date) = CURDATE()
+                    ) AS combined_calories;
                 ";
+
+                // Prepare and execute the statement
                 $stmt = $dbConn->prepare($queryToday);
-                $stmt->bind_param("is", $member_id, $current_date);
-                $stmt->execute();
-                $stmt->bind_result($totalCaloriesToday);
-                $stmt->fetch();
-                $stmt->close();
+                if ($stmt) {
+                    // Bind member_id twice for both placeholders
+                    $stmt->bind_param("ii", $member_id, $member_id);
+                    
+                    $stmt->execute();
+                    $stmt->bind_result($totalCaloriesToday);
+                    $stmt->fetch();
+                    $stmt->close();
+                }
+
                 // average calories for this week
                 $queryThisWeek = "
-                    SELECT AVG(nutr.calories) AS avg_calories_this_week
-                    FROM diet_history dh
-                    JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
-                    JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
-                    WHERE dh.member_id = ? AND dh.date BETWEEN ? AND ?
+                    SELECT AVG(total_calories) AS avg_calories_this_week
+                    FROM (
+                        -- Calories from predefined diets
+                        SELECT nutr.calories AS total_calories
+                        FROM diet_history dh
+                        JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
+                        JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
+                        WHERE dh.member_id = ? AND dh.date BETWEEN ? AND ?
+                        
+                        UNION ALL
+                        
+                        -- Calories from custom diets
+                        SELECT cd.calories AS total_calories
+                        FROM custom_diet cd
+                        WHERE cd.member_id = ? AND cd.date BETWEEN ? AND ?
+                    ) AS combined_calories;
                 ";
-                $stmt = $dbConn->prepare($queryThisWeek);
-                $stmt->bind_param("iss", $member_id, $start_of_current_week, $end_of_current_week);
-                $stmt->execute();
-                $stmt->bind_result($avgCaloriesThisWeek);
-                $stmt->fetch();
-                $stmt->close();
 
-                // average calories for last week
+                $stmt = $dbConn->prepare($queryThisWeek);
+                if ($stmt) {
+                    $stmt->bind_param("ississ", $member_id, $start_of_current_week, $end_of_current_week, $member_id, $start_of_current_week, $end_of_current_week);
+                    $stmt->execute();
+                    $stmt->bind_result($avgCaloriesThisWeek);
+                    $stmt->fetch();
+                    $stmt->close();
+                }
+
+                // Average calories for last week (including custom_diet)
                 $queryLastWeek = "
-                    SELECT AVG(nutr.calories) AS avg_calories_last_week
-                    FROM diet_history dh
-                    JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
-                    JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
-                    WHERE dh.member_id = ? AND dh.date BETWEEN ? AND ?
+                    SELECT AVG(total_calories) AS avg_calories_last_week
+                    FROM (
+                        -- Calories from predefined diets
+                        SELECT nutr.calories AS total_calories
+                        FROM diet_history dh
+                        JOIN diet_nutrition dn ON dh.diet_id = dn.diet_id
+                        JOIN nutrition nutr ON dn.nutrition_id = nutr.nutrition_id
+                        WHERE dh.member_id = ? AND dh.date BETWEEN ? AND ?
+                        
+                        UNION ALL
+                        
+                        -- Calories from custom diets
+                        SELECT cd.calories AS total_calories
+                        FROM custom_diet cd
+                        WHERE cd.member_id = ? AND cd.date BETWEEN ? AND ?
+                    ) AS combined_calories;
                 ";
+
                 $stmt = $dbConn->prepare($queryLastWeek);
-                $stmt->bind_param("iss", $member_id, $start_of_last_week, $end_of_last_week);
-                $stmt->execute();
-                $stmt->bind_result($avgCaloriesLastWeek);
-                $stmt->fetch();
-                $stmt->close();
+                if ($stmt) {
+                    $stmt->bind_param("ississ", $member_id, $start_of_last_week, $end_of_last_week, $member_id, $start_of_last_week, $end_of_last_week);
+                    $stmt->execute();
+                    $stmt->bind_result($avgCaloriesLastWeek);
+                    $stmt->fetch();
+                    $stmt->close();
+                }
+
+                $required_calories = round($required_calories);
+                $avgCaloriesThisWeek = round($avgCaloriesThisWeek);
+                $avgCaloriesLastWeek = round( $avgCaloriesLastWeek);
 
                 $totalCaloriesToday = ($totalCaloriesToday === NULL || $totalCaloriesToday == 0) ? "-" : $totalCaloriesToday;
                 $avgCaloriesThisWeek = ($avgCaloriesThisWeek === NULL || $avgCaloriesThisWeek == 0) ? "-" : $avgCaloriesThisWeek;
@@ -660,6 +803,179 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                     });
 
                 </script>
+
+                <!-- enter data -->
+                <?php
+                //enter weight
+
+                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["weight"])) {
+                    $new_weight = floatval($_POST["weight"]);
+
+                    $current_date = date('Y-m-d');
+                    $current_day_of_week = date('w', strtotime($current_date));
+                    $current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
+                    $start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
+                    $end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
+                        
+                    if ($new_weight > 0) {
+                        
+                        // Check if a record exists for this member and week
+                        $check_query = "SELECT id FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
+                        $check_stmt = $dbConn->prepare($check_query);
+                        
+                        if ($check_stmt) {
+                            $check_stmt->bind_param("si", $start_of_current_week, $member_id);
+                            $check_stmt->execute();
+                            $check_result = $check_stmt->get_result();
+                            
+                            if ($check_result->num_rows > 0) {
+                                // Record exists, update it
+                                $update_query = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
+                                $update_stmt = $dbConn->prepare($update_query);
+                                
+                                if ($update_stmt) {
+                                    $update_stmt->bind_param("dsi", $new_weight, $start_of_current_week, $member_id);
+                                    
+                                    if ($update_stmt->execute()) {
+                                        $message = "Weight updated successfully!";
+                                        $current_weight = $new_weight;
+                                    } else {
+                                        $message = "Error updating weight: " . $update_stmt->error;
+                                    }
+                                    $update_stmt->close();
+                                }
+                            } else {
+                                // Record doesn't exist, insert new one
+                                $insert_query = "INSERT INTO member_performance (weeks_date_mon, current_weight, member_id) VALUES (?, ?, ?)";
+                                $insert_stmt = $dbConn->prepare($insert_query);
+                                
+                                if ($insert_stmt) {
+                                    $insert_stmt->bind_param("sdi", $start_of_current_week, $new_weight, $member_id);
+                                    
+                                    if ($insert_stmt->execute()) {
+                                        $message = "New weight record created successfully!";
+                                        $current_weight = $new_weight;
+                                    } else {
+                                        $message = "Error creating weight record: " . $insert_stmt->error;
+                                    }
+                                    $insert_stmt->close();
+                                }
+                            }
+                            
+                            $check_stmt->close();
+                        } else {
+                            $message = "Prepare failed: " . $dbConn->error;
+                        }
+                    } else {
+                        $message = "Invalid weight value!";
+                    }
+                }
+
+                //enter calories
+                $message = "";
+
+                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["meal_name"]) && isset($_POST["calorie"])) {
+                    $meal_name = trim($_POST["meal_name"]);
+                    $calorie = floatval($_POST["calorie"]);
+                    $date = date("Y-m-d"); 
+
+                    if (!empty($meal_name) && $calorie > 0) {
+                        $query = "
+                            INSERT INTO custom_diet (date, custom_diet_name, calories, member_id)
+                            VALUES (?, ?, ?, ?)
+                        ";
+                        $stmt = $dbConn->prepare($query);
+                        if ($stmt) {
+                            $stmt->bind_param("ssdi", $date, $meal_name, $calorie, $member_id);
+                            if ($stmt->execute()) {
+                                $message = "Custom meal recorded successfully!";
+                            } else {
+                                $message = "Error recording custom meal: " . $stmt->error;
+                            }
+                            $stmt->close();
+                        } else {
+                            $message = "Prepare failed: " . $dbConn->error;
+                        }
+                    } else {
+                        $message = "Invalid input! Please provide a valid meal name and calorie value.";
+                    }
+                }
+                ?>
+                <script>
+                    function recordWeight() {
+                        document.getElementById("displayWeight").style.display = "none";
+                        document.getElementById("recordWeight").style.display = "block";
+                    }
+
+                    function goBackWeight() {
+                        document.getElementById("recordWeight").style.display = "none";
+                        document.getElementById("displayWeight").style.display = "block";
+                    }
+
+                    function recordWeightDone() {
+                        const newWeight = document.getElementById("weight").value;
+                        if (newWeight > 0) {
+                        const formData = new FormData();
+                        formData.append("weight", newWeight);
+
+                        fetch(window.location.href, {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            alert("Weight recorded!");
+                            document.getElementById("recordWeight").style.display = "none";
+                            document.getElementById("displayWeight").style.display = "block";
+                            location.reload(); 
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                        });
+                    } else {
+                        alert("Please enter a valid weight!");
+                    }
+                    }
+
+                    function recordCalorie() {
+                        document.getElementById("displayCalorie").style.display = "none";
+                        document.getElementById("recordCalorie").style.display = "block";
+                    }
+
+                    function goBackCalorie() {
+                        document.getElementById("recordCalorie").style.display = "none";
+                        document.getElementById("displayCalorie").style.display = "block";
+                    }
+
+                    function recordCalorieDone() {
+            const mealName = document.getElementById("meal_name").value;
+            const calorie = document.getElementById("calorie").value;
+
+            if (mealName.trim() !== "" && calorie > 0) {
+                // Submit the form via AJAX
+                const formData = new FormData();
+                formData.append("meal_name", mealName);
+                formData.append("calorie", calorie);
+
+                fetch(window.location.href, {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert("Meal recorded!");
+                    document.getElementById("recordCalorie").style.display = "none";
+                    document.getElementById("displayCalorie").style.display = "block";
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            } else {
+                alert("Please enter a valid meal name and calorie value!");
+            }
+        }
+                </script>
                 <section class="section2a">
                     <div class="box" style="animation-delay:2s;">
                         <div style="display:flex;">
@@ -672,7 +988,7 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                 <canvas id="weightChart"></canvas>
                             </div>
 
-                            <div>
+                            <div id="displayWeight">
                                 <h5>Current Weight</h5>
                                 <h6 id="currentWeight"><?= $current_weight ?> <span style="color:#868686;font-size:15px;">kg</span></h6>
 
@@ -693,6 +1009,18 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
 
                                 <button onclick="recordWeight()">Record Weight</button>
                             </div>
+                            <div id="recordWeight" style="display: none;">
+                                <span style="color:#868686" onclick="goBackWeight()">< Back</span>
+                                <div>
+                                    <h6>Record New Weight</h6>
+                                    <label>Current:  <span><?= $current_weight ?></span></label>
+                                    <div class="column">
+                                        <label>New:</label>
+                                        <input type="number" id="weight" name="weight" required step="0.01">
+                                    </div>
+                                </div>
+                                <button onclick="recordWeightDone()">Record Weight</button>
+                            </div>
                         </div>
                     </div>
                     <div class="box" style="animation-delay:2.5s;">
@@ -705,27 +1033,42 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                 <p class="no-chart2">Oops! No Data Available. <br>Please try again later.</p>
                                 <canvas id="dietChart"></canvas>
                             </div>
-                            <div>
+                            <div id="displayCalorie">
                                 <h5>Current Calorie Today</h5>
                                 <h6><?= $totalCaloriesToday ?><span style="color:#868686;font-size:15px;"> kcal</span></h6>
                                 <div class="section2a-description">
                                     <h3>Target today</h3> 
-                                    <p class="data-details"><?php echo round($required_calories); ?><span> kcal</span></p>
+                                    <p class="data-details"><?php echo $required_calories; ?><span> kcal</span></p>
                                 </div>
                                 <div class="section2a-description">
                                     <h3>Average this week</h3> 
-                                    <p class="data-details"><?= $avgCaloriesThisWeek ?><span> kcal</span></p>
+                                    <p class="data-details"><?php echo $avgCaloriesThisWeek ?><span> kcal</span></p>
                                 </div>
                                 <div class="section2a-description">
                                     <h3>Average last week</h3> 
-                                    <p class="data-details"><?= $avgCaloriesLastWeek ?><span> kcal</span></p>
+                                    <p class="data-details"><?php echo $avgCaloriesLastWeek ?><span> kcal</span></p>
                                 </div>
-                                <button>Record Calorie Today</button>
+                                <button onclick="recordCalorie()">Record Calorie Today</button>
+                            </div>
+                            <div id="recordCalorie" style="display: none;">
+                                <span style="color:#868686" onclick="goBackCalorie()">< Back</span>
+                                <div>
+                                    <h6>New Custom Meal</h6>
+                                    <div class="column">
+                                        <label>Name:</label>
+                                        <input type="text" id="meal_name" name="meal_name" required>
+                                    </div>
+                                    <div class="column">
+                                        <label>Calorie:</label>
+                                        <input type="number" id="calorie" name="calorie" required>
+                                    </div>
+                                </div>
+                                <button onclick="recordCalorieDone()">Record Weight</button>
                             </div>
                         </div>
                     </div>
                 </section>
-                
+
             </div>
 
             <section>
@@ -776,25 +1119,32 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
             }
 
             // Fetch the latest 6 diets and sum the calories from the nutrition table
-            $sql = "
-                SELECT d.*, 
-                    SUM(n.calories) AS total_calories
-                FROM diet_history dh
-                JOIN diet d ON dh.diet_id = d.diet_id
-                LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
-                LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
-                WHERE dh.member_id = ?
-                GROUP BY d.diet_id
-                ORDER BY dh.date DESC
-                LIMIT 6
-            ";
+            $sql = "SELECT diet_id, diet_name, difficulty, preparation_min, total_calories, diet_type, date
+                    FROM (
+                        -- Fetch standard diets
+                        SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, SUM(n.calories) AS total_calories, 'standard' AS diet_type, dh.date
+                        FROM diet_history dh
+                        JOIN diet d ON dh.diet_id = d.diet_id
+                        LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
+                        LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
+                        WHERE dh.member_id = ?
+                        GROUP BY d.diet_id, dh.date
+                        
+                        UNION ALL
+                        
+                        -- Fetch custom diets
+                        SELECT cd.custom_diet_id AS diet_id, cd.custom_diet_name AS diet_name, NULL AS difficulty, NULL AS preparation_min, cd.calories AS total_calories, 'custom' AS diet_type, cd.date
+                        FROM custom_diet cd
+                        WHERE cd.member_id = ?
+                    ) AS combined_diets
+                    ORDER BY date DESC
+                    LIMIT 6";
 
             $stmt = $dbConn->prepare($sql);
-            $stmt->bind_param("i", $member_id); // Bind the member ID to the query
+            $stmt->bind_param("ii", $member_id, $member_id);
             $stmt->execute();
             $result = $stmt->get_result();
 
-            // Fetch diets into an array
             $diets = [];
             while ($row = $result->fetch_assoc()) {
                 $diets[] = $row;
@@ -806,8 +1156,8 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                 'diets' => !empty($diets) ? $diets : ['no_data' => true]
             ];
 
-            // Output the combined result as JSON
-            json_encode($response); 
+            json_encode($response);
+
             ?>
 
             <script>
@@ -841,10 +1191,10 @@ $target_day_streak = min(10 * ceil($level / 10), 50);
                                 </div>
                                 <div class="diet-info">
                                     <h3 class="diet-title">${item.diet_name}</h3>
-                                    <span class="diet-level">${item.difficulty || ''}</span>
+                                    <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
                                     <div class="diet-stats">
-                                        <span><i class="fas fa-clock"></i> ${item.preparation_min || ''}</span>
-                                        <span><i class="fas fa-fire"></i> ${item.total_calories || 0}</span>
+                                        <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
+                                        <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
                                     </div>
                                 </div>
                             </div>

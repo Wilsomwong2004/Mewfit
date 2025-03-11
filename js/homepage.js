@@ -177,6 +177,3 @@ window.onload = function () {
     updateCats();
 };
 
-
-
-
