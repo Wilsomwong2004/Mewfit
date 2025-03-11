@@ -1365,7 +1365,7 @@ html.dark-mode .style-option.active {
     .switch-view-btn {
         display: block;
         position: fixed;
-        bottom: 105px;
+        bottom: 100px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 999;
@@ -1377,6 +1377,12 @@ html.dark-mode .style-option.active {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         cursor: pointer;
         animation: fadeIn 0.5s;
+        transition: all 0.3s ease;
+    }
+
+    .rest-card {
+        border: 1px solid #FF9967;
+        display: none;
         transition: all 0.3s ease;
     }
 
@@ -1468,7 +1474,14 @@ html.dark-mode .style-option.active {
     .workout-details {
         margin: 0 20px;
         margin-right: 0;
-        font-size: 26px;
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+}
+
+@media (max-width: 642px) {
+    .workout-name{
+        font-size: 20px;
         transition: all 0.3s ease;
     }
 }
@@ -1479,8 +1492,15 @@ html.dark-mode .style-option.active {
         transition: all 0.3s ease;
     }
 
-    .workout-name {
+    .workout-details {
         display: block;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .workout-name{
+        font-size: 16px;
+        transition: all 0.3s ease;
     }
 }
 

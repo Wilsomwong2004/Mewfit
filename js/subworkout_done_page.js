@@ -1,9 +1,22 @@
-// import { WorkoutManager } from './subworkout_page.js';
-
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        // const workoutManager = new WorkoutManager();
-        // console.log('WorkoutManager initialized:', workoutManager);
+        // Get workout stats from localStorage
+        const workoutStats = JSON.parse(localStorage.getItem('workoutStats')) || {
+            duration: '14 Minutes',
+            calories: '203 kcal'
+        };
+
+        // Update stats on the page
+        const durationStat = document.querySelector('.stat:nth-child(1)');
+        const caloriesStat = document.querySelector('.stat:nth-child(2)');
+
+        if (durationStat) {
+            durationStat.innerHTML = `<i class="fa-solid fa-stopwatch"></i> ${workoutStats.duration}`;
+        }
+
+        if (caloriesStat) {
+            caloriesStat.innerHTML = `🔥 ${workoutStats.calories}`;
+        }
 
         const doneBtn = document.getElementById('done-btn');
         const restartBtn = document.getElementById('restart-btn');
@@ -13,12 +26,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         doneBtn?.addEventListener('click', () => {
             console.log('Done button clicked');
+            // Clear stats when done
+            localStorage.removeItem('workoutStats');
             window.location.href = 'workout_page.html';
         });
 
         restartBtn?.addEventListener('click', () => {
             console.log('Restart button clicked');
-            // workoutManager.restartWorkout();
+
+            // Set restart flag in localStorage
+            localStorage.setItem('restartWorkout', 'true');
+
+            // Navigate back to workout page
             window.location.href = 'subworkout_page.html';
         });
 

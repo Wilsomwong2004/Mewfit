@@ -1188,7 +1188,7 @@ html.dark-mode .popup-content h2 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     position: absolute;
-    z-index: 2;
+    z-index: 100;
     transition: all 0.3s ease;
 }
 

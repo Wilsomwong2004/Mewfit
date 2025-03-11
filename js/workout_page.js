@@ -472,9 +472,9 @@ const workouts = [
         "type": ["All", "Cardio"],
         "sets": 2,
         "exercises": [
-            { "exercise": "Squat With Punches", "reps": 20, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Squat_Hold_With_Punches_Joanna_Soh.mp4" },
-            { "exercise": "Cross High Punches", "reps": 15, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Cross_High_Punches_Joanna_Soh.mp4" },
-            { "exercise": "Straight Punches", "reps": 30, "video": "./assets/workout_video/Stepper Cardio Blast/How_to_do_Straight_Punches_Joanna_Soh.mp4" }
+            { "exercise": "Squat With Punches", "reps": 20, "video": "./assets/workout_video/Punch & Burn/How_to_do_Squat_Hold_With_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Cross High Punches", "reps": 15, "video": "./assets/workout_video/Punch & Burn/How_to_do_Cross_High_Punches_Joanna_Soh.mp4" },
+            { "exercise": "Straight Punches", "reps": 30, "video": "./assets/workout_video/Punch & Burn/How_to_do_Straight_Punches_Joanna_Soh.mp4" }
         ]
     },
     {
@@ -892,9 +892,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Child Pose.mp4" },
-            { "pose": "Downward Facing Dog", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Downward Facing Dog.mp4" },
-            { "pose": "Butterfly Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Butterfly Stretch.mp4" }
+            { "exercise": "Child Pose", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Child Pose.mp4" },
+            { "exercise": "Downward Facing Dog", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Downward Facing Dog.mp4" },
+            { "exercise": "Butterfly Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Post-Workout Stretch/Butterfly Stretch.mp4" }
         ]
     },
     {
@@ -907,9 +907,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Cat and Camel.mp4" },
-            { "pose": "Lying Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Lying Spinal Twist.mp4" },
-            { "pose": "Standing Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Standing Hamstring Stretch.mp4" }
+            { "exercise": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Cat and Camel.mp4" },
+            { "exercise": "Lying Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Lying Spinal Twist.mp4" },
+            { "exercise": "Standing Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Flexibility Flow/Standing Hamstring Stretch.mp4" }
         ]
     },
     {
@@ -922,9 +922,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Cobra", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Cobra.mp4" },
-            { "pose": "Bridge Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Bridge Stretch.mp4" },
-            { "pose": "Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Lying Spinal Twist.mp4" }
+            { "exercise": "Cobra", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Cobra.mp4" },
+            { "exercise": "Bridge Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Bridge Stretch.mp4" },
+            { "exercise": "Spinal Twist", "duration": "5 minutes", "video": "./assets/workout_video/Spine & Back Relief/Lying Spinal Twist.mp4" }
         ]
     },
     {
@@ -937,9 +937,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Neck Stretches", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Neck Stretches.mp4" },
-            { "pose": "Shoulder Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Shoulder Stretch.mp4" },
-            { "pose": "Chest Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Chest Stretch.mp4" }
+            { "exercise": "Neck Stretches", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Neck Stretches.mp4" },
+            { "exercise": "Shoulder Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Shoulder Stretch.mp4" },
+            { "exercise": "Chest Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Neck & Shoulder Relaxation/Chest Stretch.mp4" }
         ]
     },
     {
@@ -952,9 +952,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Arm Circle", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Overhead Arm Circle.mp4" },
-            { "pose": "Alternate Cross Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Alternate Cross Stretch.mp4" },
-            { "pose": "Hug Knees to Chest", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Hug Knees to Chest.mp4" }
+            { "exercise": "Arm Circle", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Overhead Arm Circle.mp4" },
+            { "exercise": "Alternate Cross Stretch", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Alternate Cross Stretch.mp4" },
+            { "exercise": "Hug Knees to Chest", "duration": "3 minutes", "video": "./assets/workout_video/Morning Mobility/Hug Knees to Chest.mp4" }
         ]
     },
     {
@@ -967,9 +967,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Hip Flexor Reach", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Hip Flexor Reach.mp4" },
-            { "pose": "Lying Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Lying Hamstring Stretch.mp4" },
-            { "pose": "Wrist Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Wrist Stretch.mp4" }
+            { "exercise": "Hip Flexor Reach", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Hip Flexor Reach.mp4" },
+            { "exercise": "Lying Hamstring Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Lying Hamstring Stretch.mp4" },
+            { "exercise": "Wrist Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Active Stretch Flow/Wrist Stretch.mp4" }
         ]
     },
     {
@@ -982,9 +982,9 @@ const workouts = [
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
-            { "pose": "Child Pose", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Child Pose.mp4" },
-            { "pose": "Butterfly Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Butterfly Stretch.mp4" },
-            { "pose": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Cat and Camel.mp4" }
+            { "exercise": "Child Pose", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Child Pose.mp4" },
+            { "exercise": "Butterfly Stretch", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Butterfly Stretch.mp4" },
+            { "exercise": "Cat and Camel", "duration": "5 minutes", "video": "./assets/workout_video/Evening Wind-Down/Cat and Camel.mp4" }
         ]
     },
 ];
@@ -1397,23 +1397,106 @@ document.querySelectorAll('.activity-card').forEach(card => {
 //     </div>`;
 // }
 
+let globalCurrentlyPlaying = null;
+
+function initializeExerciseVideos() {
+    console.log("Initializing exercise videos...");
+
+    // Step 1: Make sure all videos are stopped and reset first
+    stopAllVideos();
+
+    // Step 2: Attach click handlers to all video elements
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        const videoId = item.getAttribute('data-video-id');
+        const video = document.getElementById(videoId);
+        const overlay = item.querySelector('.video-overlay');
+        const playButton = item.querySelector('.play-button');
+
+        if (!video || !overlay || !playButton) {
+            console.error("Missing video elements for:", videoId);
+            return;
+        }
+
+        // Remove any existing event listeners to prevent duplicates
+        item.replaceWith(item.cloneNode(true));
+
+        // Get the elements again after cloning
+        const updatedItem = document.querySelector(`[data-video-id="${videoId}"]`);
+        const updatedVideo = document.getElementById(videoId);
+        const updatedOverlay = updatedItem.querySelector('.video-overlay');
+        const updatedPlayButton = updatedItem.querySelector('.play-button');
+
+        // Main click handler for the play button
+        updatedPlayButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            console.log("Play button clicked for:", videoId);
+
+            // If this is already the currently playing video, pause it
+            if (globalCurrentlyPlaying === videoId) {
+                console.log("Pausing current video:", videoId);
+                updatedVideo.pause();
+                updatedOverlay.style.display = 'flex';
+                this.querySelector('i').className = 'fas fa-play';
+                globalCurrentlyPlaying = null;
+            }
+            // Otherwise, stop any currently playing video and play this one
+            else {
+                console.log("Playing new video:", videoId);
+                stopAllVideos();
+
+                // Try to play the video
+                updatedVideo.play().then(() => {
+                    updatedOverlay.style.display = 'none';
+                    this.querySelector('i').className = 'fas fa-pause';
+                    globalCurrentlyPlaying = videoId;
+                }).catch(err => {
+                    console.error("Error playing video:", err);
+                    alert("There was an error playing the video. Please try again.");
+                });
+            }
+        });
+
+        // Handle video ended event
+        updatedVideo.addEventListener('ended', function () {
+            console.log("Video ended:", videoId);
+            updatedOverlay.style.display = 'flex';
+            updatedPlayButton.querySelector('i').className = 'fas fa-play';
+            globalCurrentlyPlaying = null;
+        });
+    });
+
+    console.log("Video initialization complete");
+}
+
 // Function to create exercise item
 function createExerciseItem(exercise) {
+    // Validate input
+    if (!exercise || typeof exercise !== 'object') {
+        console.error('Invalid exercise object:', exercise);
+        return '';
+    }
+
+    // Ensure required properties exist with fallbacks
+    const exerciseName = exercise.exercise || exercise.name || 'unknown-exercise';
+    const videoSrc = exercise.video || '';
+
     // Determine if we have reps or duration
     const detailText = exercise.reps
         ? `${exercise.reps} reps`
         : exercise.duration
             ? exercise.duration
-            : '';
+            : (exercise.time || '5 minutes');
 
-    // Create a unique ID for the video element based on the exercise name
-    const videoId = `video-${exercise.exercise.toLowerCase().replace(/\s+/g, '-')}`;
+    // Create a unique ID for the video element
+    const videoId = `video-${exerciseName.toString().toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
 
     return `
-        <div class="exercise-item" data-video="${exercise.video}" data-exercise="${exercise.exercise}" data-video-id="${videoId}">
+        <div class="exercise-item" data-video="${videoSrc}" data-exercise="${exerciseName}" data-video-id="${videoId}">
             <div class="exercise-video-container">
                 <video id="${videoId}" class="exercise-video" preload="metadata">
-                    <source src="${exercise.video}" type="video/mp4">
+                    <source src="${videoSrc}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
                 <div class="video-overlay">
@@ -1423,7 +1506,7 @@ function createExerciseItem(exercise) {
                 </div>
             </div>
             <div class="exercise-info">
-                <div class="exercise-name">${exercise.exercise}</div>
+                <div class="exercise-name">${exerciseName}</div>
                 <div class="exercise-details">${detailText}</div>
             </div>
         </div>
@@ -1480,29 +1563,35 @@ function setupVideoPlayers() {
 
         // Function to stop all videos
         function stopAllVideos() {
-            if (currentlyPlaying) {
-                const oldVideo = document.getElementById(currentlyPlaying);
-                if (oldVideo) {
-                    oldVideo.pause();
-                    oldVideo.currentTime = 0;
-                }
+            console.log("Stopping all videos");
 
-                // Show overlay for the previously playing video
-                const oldItem = document.querySelector(`[data-video-id="${currentlyPlaying}"]`);
-                if (oldItem) {
-                    const oldOverlay = oldItem.querySelector('.video-overlay');
-                    const oldButton = oldItem.querySelector('.play-button i');
-                    if (oldOverlay) oldOverlay.style.display = 'flex';
-                    if (oldButton) oldButton.className = 'fas fa-play';
-                }
+            // First, reset the global playing state
+            globalCurrentlyPlaying = null;
 
-                currentlyPlaying = null;
-            }
+            // Then stop all videos and reset UI
+            document.querySelectorAll('.exercise-video').forEach(video => {
+                // Pause and reset the video
+                if (!video.paused) {
+                    console.log("Pausing video:", video.id);
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+
+            // Reset all UI elements
+            document.querySelectorAll('.video-overlay').forEach(overlay => {
+                overlay.style.display = 'flex';
+            });
+
+            document.querySelectorAll('.play-button i').forEach(icon => {
+                icon.className = 'fas fa-play';
+            });
         }
 
         // Play button click event
         playButton.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent event from bubbling up
+            e.preventDefault();  // Prevent default behavior
 
             // If this video is already playing, pause it
             if (currentlyPlaying === videoId) {
@@ -1517,13 +1606,19 @@ function setupVideoPlayers() {
                 // Play this video
                 video.play().catch(err => {
                     console.error('Error playing video:', err);
-                    // Show error message if needed
                 });
 
                 // Hide overlay while playing
                 overlay.style.display = 'none';
                 playButton.querySelector('i').className = 'fas fa-pause';
                 currentlyPlaying = videoId;
+            }
+        });
+
+        // Make the entire exercise item clickable for video control
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.play-button')) {
+                playButton.click();
             }
         });
 
@@ -1535,11 +1630,15 @@ function setupVideoPlayers() {
             currentlyPlaying = null;
         });
 
-        // Video play event
+        // Video play event - ensure we're tracking the correct video
         video.addEventListener('play', () => {
             if (currentlyPlaying !== videoId) {
                 stopAllVideos();
                 currentlyPlaying = videoId;
+
+                // Update UI for this video
+                overlay.style.display = 'none';
+                playButton.querySelector('i').className = 'fas fa-pause';
             }
         });
     });
@@ -1547,37 +1646,41 @@ function setupVideoPlayers() {
 
 // Function to update the exercise list in the popup
 function updateExerciseList(workout) {
+    console.log("Updating exercise list with:", workout);
     const container = document.getElementById('exercise-list-container');
 
     if (!workout || !workout.exercises || !container) {
+        console.error("Missing workout data or container");
         return;
     }
+
+    // First stop any currently playing videos
+    stopAllVideos();
 
     // Clear existing content
     container.innerHTML = '';
 
     // Add exercise items
     workout.exercises.forEach(exercise => {
+        // Ensure exercise has all required properties
+        if (!exercise.exercise) {
+            console.warn("Exercise is missing 'exercise' property:", exercise);
+            exercise.exercise = exercise.name || "Unknown Exercise";
+        }
+
         container.innerHTML += createExerciseItem(exercise);
     });
 
-    // Set up exercise video click events
-    document.querySelectorAll('.exercise-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const videoPath = item.getAttribute('data-video');
-            const exerciseName = item.getAttribute('data-exercise');
-            if (videoPath) {
-                openVideoPlayer(videoPath, exerciseName);
-            }
-        });
-    });
-
-    // Initialize the scroll arrows after a short delay to ensure content is rendered
+    // Initialize videos after DOM is updated
     setTimeout(() => {
+        initializeExerciseVideos();
+
+        // Initialize the scroll arrows
         forceArrowCheck();
         setupExerciseListArrows();
-    }, 200);
+    }, 300);
 }
+
 
 // Function to handle exercise list scroll arrows
 function setupExerciseListArrows() {
@@ -1844,6 +1947,22 @@ document.addEventListener('DOMContentLoaded', () => {
     addVideoStyles();
     initializeWorkoutSections();
     setupExerciseListTouchScroll();
+
+    // Additional styles for better video controls
+    const additionalStyles = document.createElement('style');
+    additionalStyles.textContent = `
+        .play-button {
+            cursor: pointer !important;
+            z-index: 10;
+        }
+        .exercise-item {
+            user-select: none;
+        }
+        .video-overlay {
+            z-index: 5;
+        }
+    `;
+    document.head.appendChild(additionalStyles);
 
     const defaultCard = document.querySelector('.activity-card-all');
     if (defaultCard) {
