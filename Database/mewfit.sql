@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2025 at 10:33 AM
+-- Generation Time: Mar 12, 2025 at 05:28 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `mewfit`
 --
+CREATE DATABASE IF NOT EXISTS `mewfit` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `mewfit`;
 
 -- --------------------------------------------------------
 
@@ -62,6 +64,29 @@ INSERT INTO `administrator` (`admin_id`, `username`, `password`, `name`, `gender
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `custom_diet`
+--
+
+CREATE TABLE `custom_diet` (
+  `custom_diet_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `custom_diet_name` varchar(100) NOT NULL,
+  `calories` int(11) NOT NULL,
+  `member_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `custom_diet`
+--
+
+INSERT INTO `custom_diet` (`custom_diet_id`, `date`, `custom_diet_name`, `calories`, `member_id`) VALUES
+(1, '2025-03-11', 'brwvfs', 123, 42),
+(2, '2025-03-11', 'r3efwds', 1234, 42),
+(3, '2025-03-11', 'btrf', 1000, 42);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `diet`
 --
 
@@ -70,39 +95,40 @@ CREATE TABLE `diet` (
   `diet_name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `diet_type` varchar(20) DEFAULT NULL,
+  `difficulty` varchar(50) DEFAULT NULL,
   `preparation_min` int(11) DEFAULT NULL,
   `picture` varchar(255) DEFAULT NULL,
   `directions` text DEFAULT NULL,
   `date_registered` date DEFAULT NULL,
-  `nutrition_id` int(11) DEFAULT NULL
+  `nutrition_id` int(11) NOT NULL
 ) ;
 
 --
 -- Dumping data for table `diet`
 --
 
-INSERT INTO `diet` (`diet_id`, `diet_name`, `description`, `diet_type`, `preparation_min`, `picture`, `directions`, `date_registered`, `nutrition_id`) VALUES
-(1, 'Greek Salad', 'Traditional Greek salad with feta cheese and olives', 'vegetarian', 15, 'greek_salad.jpg', 'Combine chopped cucumbers, tomatoes, red onion, olives, and feta cheese. Drizzle with olive oil and sprinkle with oregano.', '2024-01-10', 4),
-(2, 'Grilled Chicken with Vegetables', 'Simple high protein meal with seasonal vegetables', 'vegetarian', 25, 'grilled_chicken.jpg', 'Season chicken breast and grill. Steam mixed vegetables and serve together.', '2024-01-15', 2),
-(3, 'Avocado Toast', 'Healthy breakfast with whole grain bread', 'vegetarian', 10, 'avocado_toast.jpg', 'Toast bread, spread mashed avocado, add salt, pepper, and red pepper flakes.', '2024-02-05', 7),
-(4, 'Salmon with Asparagus', 'Baked salmon fillet with roasted asparagus', 'meat', 30, 'salmon_asparagus.jpg', 'Season salmon, bake at 400°F for 15 minutes. Roast asparagus with olive oil.', '2024-02-12', 13),
-(5, 'Beef and Broccoli Stir Fry', 'Quick weeknight dinner with lean beef', 'meat', 20, 'beef_broccoli.jpg', 'Stir fry sliced beef with broccoli, garlic, and soy sauce. Serve immediately.', '2024-02-25', 6),
-(6, 'Quinoa Bowl', 'Nutrient-rich bowl with mixed vegetables', 'vegan', 20, 'quinoa_bowl.jpg', 'Cook quinoa, top with roasted vegetables, chickpeas, and tahini dressing.', '2024-03-05', 5),
-(7, 'Keto Breakfast Plate', 'Low carb breakfast with eggs and avocado', 'vegan', 15, 'keto_breakfast.jpg', 'Cook eggs as desired, serve with avocado slices and bacon.', '2024-03-18', 3),
-(8, 'Mediterranean Mezze Platter', 'Assortment of small dishes and dips', 'vegan', 25, 'mezze_platter.jpg', 'Arrange hummus, tzatziki, olives, feta, and vegetables on a platter. Serve with pita bread.', '2024-03-30', 4),
-(9, 'Protein Smoothie Bowl', 'Thick smoothie topped with fruits and nuts', 'all', 10, 'smoothie_bowl.jpg', 'Blend protein powder with frozen fruits and milk. Top with fresh berries, nuts, and seeds.', '2024-04-08', 17),
-(10, 'Lentil Soup', 'Hearty vegetarian soup with vegetables', 'vegetarian', 40, 'lentil_soup.jpg', 'Simmer lentils with onions, carrots, celery, and spices until tender.', '2024-04-22', 7),
-(11, 'Baked Cod with Sweet Potato', 'Simple fish dinner with roasted vegetables', 'meat', 35, 'cod_sweet_potato.jpg', 'Season cod fillets, bake alongside sweet potato wedges.', '2024-05-03', 19),
-(12, 'Chicken and Vegetable Skewers', 'Grilled protein with colorful vegetables', 'vegetarian', 30, 'chicken_skewers.jpg', 'Thread chicken pieces and vegetables onto skewers, grill until chicken is cooked through.', '2024-05-17', 11),
-(13, 'Berry Oatmeal', 'Wholesome breakfast with mixed berries', 'vegetarian', 15, 'berry_oatmeal.jpg', 'Cook oatmeal with milk, top with mixed berries and a drizzle of honey.', '2024-06-02', 19),
-(14, 'Turkey and Spinach Stuffed Peppers', 'Bell peppers filled with lean turkey mixture', 'vegetarian', 45, 'stuffed_peppers.jpg', 'Brown turkey with onions and garlic, mix with spinach and spices, stuff into bell peppers and bake.', '2024-06-15', 1),
-(15, 'Asian Tofu Stir Fry', 'Quick vegetarian dish with mixed vegetables', 'vegan', 20, 'tofu_stir_fry.jpg', 'Stir fry firm tofu with broccoli, bell peppers, and soy sauce. Serve over rice.', '2024-07-01', 5),
-(16, 'Protein Pancakes', 'High protein breakfast option', 'all', 20, 'protein_pancakes.jpg', 'Mix protein powder with eggs and banana, cook pancakes, top with berries.', '2024-07-18', 2),
-(17, 'Spaghetti Squash with Marinara', 'Low carb alternative to pasta', 'all', 50, 'spaghetti_squash.jpg', 'Roast spaghetti squash, scrape strands, top with marinara sauce and parmesan.', '2024-08-05', 1),
-(18, 'Tuna Nicoise Salad', 'French-inspired salad with tuna and eggs', 'meat', 25, 'tuna_nicoise.jpg', 'Arrange tuna, boiled eggs, green beans, potatoes, olives on a bed of lettuce. Drizzle with vinaigrette.', '2024-08-22', 13),
-(19, 'Cauliflower Rice Bowl', 'Low carb alternative with mixed toppings', 'vegan', 30, 'cauliflower_rice.jpg', 'Pulse cauliflower into rice-like texture, sauté and top with protein and vegetables of choice.', '2024-09-10', 3),
-(20, 'Overnight Oats', 'No-cook breakfast prepared in advance', 'all', 10, 'overnight_oats.jpg', 'Combine oats with milk, chia seeds, and honey. Refrigerate overnight, top with fruit before serving.', '2024-09-25', 20),
-(47, 'test', '2', 'meat', 2, 'meal_67cb23884a59c8.76615319.jpg', '2', NULL, NULL);
+INSERT INTO `diet` (`diet_id`, `diet_name`, `description`, `diet_type`, `difficulty`, `preparation_min`, `picture`, `directions`, `date_registered`, `nutrition_id`) VALUES
+(1, 'Greek Salad', 'Traditional Greek salad with feta cheese and olives', 'vegetarian', 'intermediate', 15, 'greek_salad.jpg', 'Combine chopped cucumbers, tomatoes, red onion, olives, and feta cheese. Drizzle with olive oil and sprinkle with oregano.', '2024-01-10', 4),
+(2, 'Grilled Chicken with Vegetables', 'Simple high protein meal with seasonal vegetables', 'vegetarian', 'beginner', 25, 'grilled_chicken.jpg', 'Season chicken breast and grill. Steam mixed vegetables and serve together.', '2024-01-15', 2),
+(3, 'Avocado Toast', 'Healthy breakfast with whole grain bread', 'vegetarian', 'intermediate', 10, 'avocado_toast.jpg', 'Toast bread, spread mashed avocado, add salt, pepper, and red pepper flakes.', '2024-02-05', 7),
+(4, 'Salmon with Asparagus', 'Baked salmon fillet with roasted asparagus', 'meat', 'intermediate', 30, 'salmon_asparagus.jpg', 'Season salmon, bake at 400°F for 15 minutes. Roast asparagus with olive oil.', '2024-02-12', 13),
+(5, 'Beef and Broccoli Stir Fry', 'Quick weeknight dinner with lean beef', 'meat', 'intermediate', 20, 'beef_broccoli.jpg', 'Stir fry sliced beef with broccoli, garlic, and soy sauce. Serve immediately.', '2024-02-25', 6),
+(6, 'Quinoa Bowl', 'Nutrient-rich bowl with mixed vegetables', 'vegan', 'intermediate', 20, 'quinoa_bowl.jpg', 'Cook quinoa, top with roasted vegetables, chickpeas, and tahini dressing.', '2024-03-05', 5),
+(7, 'Keto Breakfast Plate', 'Low carb breakfast with eggs and avocado', 'vegan', 'beginner', 15, 'keto_breakfast.jpg', 'Cook eggs as desired, serve with avocado slices and bacon.', '2024-03-18', 3),
+(8, 'Mediterranean Mezze Platter', 'Assortment of small dishes and dips', 'vegan', 'intermediate', 25, 'mezze_platter.jpg', 'Arrange hummus, tzatziki, olives, feta, and vegetables on a platter. Serve with pita bread.', '2024-03-30', 4),
+(9, 'Protein Smoothie Bowl', 'Thick smoothie topped with fruits and nuts', 'all', 'intermediate', 10, 'smoothie_bowl.jpg', 'Blend protein powder with frozen fruits and milk. Top with fresh berries, nuts, and seeds.', '2024-04-08', 17),
+(10, 'Lentil Soup', 'Hearty vegetarian soup with vegetables', 'vegetarian', 'beginner', 40, 'lentil_soup.jpg', 'Simmer lentils with onions, carrots, celery, and spices until tender.', '2024-04-22', 7),
+(11, 'Baked Cod with Sweet Potato', 'Simple fish dinner with roasted vegetables', 'meat', 'advanced', 35, 'cod_sweet_potato.jpg', 'Season cod fillets, bake alongside sweet potato wedges.', '2024-05-03', 19),
+(12, 'Chicken and Vegetable Skewers', 'Grilled protein with colorful vegetables', 'vegetarian', 'advanced', 30, 'chicken_skewers.jpg', 'Thread chicken pieces and vegetables onto skewers, grill until chicken is cooked through.', '2024-05-17', 11),
+(13, 'Berry Oatmeal', 'Wholesome breakfast with mixed berries', 'vegetarian', 'beginner', 15, 'berry_oatmeal.jpg', 'Cook oatmeal with milk, top with mixed berries and a drizzle of honey.', '2024-06-02', 19),
+(14, 'Turkey and Spinach Stuffed Peppers', 'Bell peppers filled with lean turkey mixture', 'vegetarian', 'intermediate', 45, 'stuffed_peppers.jpg', 'Brown turkey with onions and garlic, mix with spinach and spices, stuff into bell peppers and bake.', '2024-06-15', 1),
+(15, 'Asian Tofu Stir Fry', 'Quick vegetarian dish with mixed vegetables', 'vegan', 'beginner', 20, 'tofu_stir_fry.jpg', 'Stir fry firm tofu with broccoli, bell peppers, and soy sauce. Serve over rice.', '2024-07-01', 5),
+(16, 'Protein Pancakes', 'High protein breakfast option', 'all', 'intermediate', 20, 'protein_pancakes.jpg', 'Mix protein powder with eggs and banana, cook pancakes, top with berries.', '2024-07-18', 2),
+(17, 'Spaghetti Squash with Marinara', 'Low carb alternative to pasta', 'all', 'intermediate', 50, 'spaghetti_squash.jpg', 'Roast spaghetti squash, scrape strands, top with marinara sauce and parmesan.', '2024-08-05', 1),
+(18, 'Tuna Nicoise Salad', 'French-inspired salad with tuna and eggs', 'meat', 'intermediate', 25, 'tuna_nicoise.jpg', 'Arrange tuna, boiled eggs, green beans, potatoes, olives on a bed of lettuce. Drizzle with vinaigrette.', '2024-08-22', 13),
+(19, 'Cauliflower Rice Bowl', 'Low carb alternative with mixed toppings', 'vegan', 'advanced', 30, 'cauliflower_rice.jpg', 'Pulse cauliflower into rice-like texture, sauté and top with protein and vegetables of choice.', '2024-09-10', 3),
+(20, 'Overnight Oats', 'No-cook breakfast prepared in advance', 'all', 'beginner', 10, 'overnight_oats.jpg', 'Combine oats with milk, chia seeds, and honey. Refrigerate overnight, top with fruit before serving.', '2024-09-25', 20),
+(47, 'test', '2', 'meat', 'intermediate', 2, 'meal_67cb23884a59c8.76615319.jpg', '2', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -113,8 +139,8 @@ INSERT INTO `diet` (`diet_id`, `diet_name`, `description`, `diet_type`, `prepara
 CREATE TABLE `diet_history` (
   `diet_history_id` int(11) NOT NULL,
   `date` date DEFAULT NULL,
-  `member_id` int(11) DEFAULT NULL,
-  `diet_id` int(11) DEFAULT NULL
+  `member_id` int(11) NOT NULL,
+  `diet_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -122,7 +148,7 @@ CREATE TABLE `diet_history` (
 --
 
 INSERT INTO `diet_history` (`diet_history_id`, `date`, `member_id`, `diet_id`) VALUES
-(1, '2024-01-05', 1, 1),
+(1, '2025-03-10', 42, 1),
 (2, '2024-01-08', 2, 3),
 (3, '2024-01-10', 3, 5),
 (4, '2024-01-12', 4, 2),
@@ -277,9 +303,9 @@ INSERT INTO `diet_nutrition` (`diet_id`, `nutrition_id`) VALUES
 
 CREATE TABLE `member` (
   `member_id` int(11) NOT NULL,
-  `member_pic` varchar(255) NOT NULL,
-  `username` varchar(100) DEFAULT NULL,
-  `email_address` varchar(180) DEFAULT NULL,
+  `member_pic` varchar(255) DEFAULT NULL,
+  `username` varchar(100) NOT NULL,
+  `email_address` varchar(180) NOT NULL,
   `password` varchar(100) DEFAULT NULL,
   `level` int(11) DEFAULT NULL,
   `height` decimal(4,1) NOT NULL,
@@ -290,6 +316,7 @@ CREATE TABLE `member` (
   `gender` varchar(10) DEFAULT NULL,
   `day_streak_starting_date` date DEFAULT NULL,
   `last_session_date` date DEFAULT NULL,
+  `weight_registered_date` date DEFAULT NULL,
   `date_registered` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -297,27 +324,29 @@ CREATE TABLE `member` (
 -- Dumping data for table `member`
 --
 
-INSERT INTO `member` (`member_id`, `member_pic`, `username`, `email_address`, `password`, `level`, `height`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `last_session_date`, `date_registered`) VALUES
-(1, 'pic1.jpg', 'user1', 'user1@example.com', 'pass123', 1, 155.0, 50.00, 25, 'Lose Weight', 48.00, 'Male', '2025-03-01', '2025-03-08', '2024-01-05'),
-(2, 'pic2.jpg', 'user2', 'user2@example.com', 'pass123', 2, 165.0, 65.00, 30, 'Gain Muscle', 70.00, 'Female', '2023-06-12', '2024-05-28', '2024-07-02'),
-(3, 'pic3.jpg', 'user3', 'user3@example.com', 'pass123', 1, 175.0, 85.00, 28, 'Maintain', 80.00, 'Male', '2023-07-01', '2025-02-28', '2024-03-15'),
-(4, 'pic4.jpg', 'user4', 'user4@example.com', 'pass123', 3, 160.0, 45.00, 24, 'Lose Weight', 50.00, 'Female', '2023-04-05', '2023-10-20', '2024-04-20'),
-(5, 'pic5.jpg', 'user5', 'user5@example.com', 'pass123', 1, 190.0, 100.00, 35, 'Gain Muscle', 105.00, 'Male', '2023-03-18', '2024-02-02', '2024-05-18'),
-(6, 'pic6.jpg', 'user6', 'user6@example.com', 'pass123', 2, 168.0, 72.00, 27, 'Lose Weight', 68.00, 'Female', '2023-09-09', '2024-04-05', '2024-06-18'),
-(7, 'pic7.jpg', 'user7', 'user7@example.com', 'pass123', 1, 178.0, 70.00, 22, 'Maintain', 72.00, 'Male', '2023-10-10', '2024-08-04', '2024-07-25'),
-(8, 'pic8.jpg', 'user8', 'user8@example.com', 'pass123', 2, 182.0, 90.00, 29, 'Gain Muscle', 95.00, 'Female', '2023-11-20', '2024-11-10', '2024-08-30'),
-(9, 'pic9.jpg', 'user9', 'user9@example.com', 'pass123', 1, 160.0, 58.00, 31, 'Lose Weight', 55.00, 'Male', '2023-02-14', '2023-03-01', '2024-09-12'),
-(10, 'pic10.jpg', 'user10', 'user10@example.com', 'pass123', 3, 170.0, 77.00, 26, 'Maintain', 74.00, 'Female', '2023-01-28', '2024-11-10', '2024-10-05'),
-(11, 'pic11.jpg', 'user11', 'user11@example.com', 'pass123', 2, 200.0, 110.00, 34, 'Gain Muscle', 115.00, 'Male', '2023-08-15', '2023-11-21', '2024-11-20'),
-(12, 'pic12.jpg', 'user12', 'user12@example.com', 'pass123', 40, 158.0, 54.00, 23, 'Lose Weight', 52.00, 'Female', '2023-07-07', '2024-01-17', '2024-12-10'),
-(13, 'pic13.jpg', 'user13', 'user13@example.com', 'pass123', 2, 176.0, 88.00, 32, 'Maintain', 85.00, 'Male', '2023-06-18', '2023-08-05', '2025-01-08'),
-(14, 'pic14.jpg', 'user14', 'user14@example.com', 'pass123', 30, 162.0, 59.00, 28, 'Gain Muscle', 63.00, 'Female', '2023-05-12', '2024-02-22', '2025-02-15'),
-(15, 'pic15.jpg', 'user15', 'user15@example.com', 'pass123', 1, 172.0, 69.00, 30, 'Lose Weight', 65.00, 'Male', '2023-03-05', '2025-01-05', '2025-03-25'),
-(16, 'pic16.jpg', 'user16', 'user16@example.com', 'pass123', 29, 168.0, 74.00, 24, 'Maintain', 72.00, 'Female', '2024-01-10', '2024-05-14', '2025-01-15'),
-(17, 'pic17.jpg', 'user17', 'user17@example.com', 'pass123', 3, 189.0, 92.00, 30, 'Gain Muscle', 98.00, 'Male', '2024-02-01', '2024-11-18', '2025-01-20'),
-(18, 'pic18.jpg', 'user18', 'user18@example.com', 'pass123', 1, 152.0, 47.00, 26, 'Lose Weight', 45.00, 'Female', '2024-02-10', '2024-11-30', '2025-01-27'),
-(19, 'pic19.jpg', 'user19', 'user19@example.com', 'pass123', 17, 195.0, 104.00, 34, 'Gain Muscle', 110.00, 'Male', '2024-02-18', '2024-09-23', '2025-02-02'),
-(20, 'pic20.jpg', 'user20', 'user20@example.com', 'pass123', 30, 162.0, 58.00, 22, 'Lose Weight', 55.00, 'Female', '2024-02-25', '2024-10-04', '2025-02-08');
+INSERT INTO `member` (`member_id`, `member_pic`, `username`, `email_address`, `password`, `level`, `height`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `last_session_date`, `weight_registered_date`, `date_registered`) VALUES
+(1, 'pic1.jpg', '1', 'user1@example.com', '0742e2ebf153794e75b88f3aacfa5e0023a0b54b18d3cb9236dcfb9b5909026b', 1, 170.0, 85.00, 25, 'Gain Muscle', 90.00, 'Male', '2025-03-01', '2025-03-09', '2024-04-10', '2024-01-05'),
+(2, 'pic2.jpg', 'user2', 'user2@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 2, 165.0, 65.00, 30, 'Gain Muscle', 70.00, 'Female', '2023-06-12', '2024-05-28', '2024-06-07', '2024-07-02'),
+(3, 'pic3.jpg', 'user3', 'user3@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 175.0, 85.00, 28, 'Maintain', 80.00, 'Male', '2023-07-01', '2025-02-28', '2025-01-08', '2024-03-15'),
+(4, 'pic4.jpg', 'user4', 'user4@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 3, 160.0, 45.00, 24, 'Lose Weight', 50.00, 'Female', '2023-04-05', '2023-10-20', '2024-03-20', '2024-04-20'),
+(5, 'pic5.jpg', 'user5', 'user5@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 190.0, 100.00, 35, 'Gain Muscle', 105.00, 'Male', '2023-03-18', '2024-02-02', '2024-04-20', '2024-05-18'),
+(6, 'pic6.jpg', 'user6', 'user6@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 2, 168.0, 72.00, 27, 'Lose Weight', 68.00, 'Female', '2023-09-09', '2024-04-05', '2024-04-19', '2024-06-18'),
+(7, 'pic7.jpg', 'user7', 'user7@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 178.0, 70.00, 22, 'Maintain', 72.00, 'Male', '2023-10-10', '2024-08-04', '2024-07-27', '2024-07-25'),
+(8, 'pic8.jpg', 'user8', 'user8@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 2, 182.0, 90.00, 29, 'Gain Muscle', 95.00, 'Female', '2023-11-20', '2024-11-10', '2024-10-24', '2024-08-30'),
+(9, 'pic9.jpg', 'user9', 'user9@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 160.0, 58.00, 31, 'Lose Weight', 55.00, 'Male', '2023-02-14', '2023-03-01', '2024-06-28', '2024-09-12'),
+(10, 'pic10.jpg', 'user10', 'user10@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 3, 170.0, 77.00, 26, 'Maintain', 74.00, 'Female', '2023-01-28', '2024-11-10', '2024-10-18', '2024-10-05'),
+(11, 'pic11.jpg', 'user11', 'user11@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 2, 200.0, 110.00, 34, 'Gain Muscle', 115.00, 'Male', '2023-08-15', '2023-11-21', '2024-06-18', '2024-11-20'),
+(12, 'pic12.jpg', 'user12', 'user12@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 40, 158.0, 54.00, 23, 'Lose Weight', 52.00, 'Female', '2023-07-07', '2024-01-17', '2024-12-03', '2024-12-10'),
+(13, 'pic13.jpg', 'user13', 'user13@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 2, 176.0, 88.00, 32, 'Maintain', 85.00, 'Male', '2023-06-18', '2023-08-05', '2023-10-29', '2025-01-08'),
+(14, 'pic14.jpg', 'user14', 'user14@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 30, 162.0, 59.00, 28, 'Gain Muscle', 63.00, 'Female', '2023-05-12', '2024-02-22', '2025-01-03', '2025-02-15'),
+(15, 'pic15.jpg', 'user15', 'user15@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 172.0, 69.00, 30, 'Lose Weight', 65.00, 'Male', '2023-03-05', '2025-01-05', '2025-03-18', '2025-03-25'),
+(16, 'pic16.jpg', 'user16', 'user16@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 29, 168.0, 74.00, 24, 'Maintain', 72.00, 'Female', '2024-01-10', '2024-05-14', '2025-01-06', '2025-01-15'),
+(17, 'pic17.jpg', 'user17', 'user17@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 3, 189.0, 92.00, 30, 'Gain Muscle', 98.00, 'Male', '2024-02-01', '2024-11-18', '2024-11-21', '2025-01-20'),
+(18, 'pic18.jpg', 'user18', 'user18@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 1, 152.0, 47.00, 26, 'Lose Weight', 45.00, 'Female', '2024-02-10', '2024-11-30', '2024-12-22', '2025-01-27'),
+(19, 'pic19.jpg', 'user19', 'user19@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 17, 195.0, 104.00, 34, 'Gain Muscle', 110.00, 'Male', '2024-02-18', '2024-09-23', '2024-12-29', '2025-02-02'),
+(20, 'pic20.jpg', 'user20', 'user20@example.com', 'ac7122c86f1e6a17c75ee7030fac7da7a72c33bdd436beff22f140b26c4d9e49', 30, 162.0, 58.00, 22, 'Lose Weight', 55.00, 'Female', '2024-02-25', '2024-10-04', '2024-12-13', '2025-02-08'),
+(41, 'Unknown_acc-removebg.png', '123', '123@gmail.com', 'e4c27bfedb2424e827ca75679b201848ff224cdf7c47e887b759be9136c595e4', 1, 160.0, 90.00, 23, 'Lose weight', 80.00, 'male', '2025-02-19', '2025-03-10', '2025-02-24', '2025-02-19'),
+(42, 'Unknown_acc-removebg.png', '12', '12@gmail.com', '$2y$10$Nc0tLrRZbvidIofxzX8zUu2JjRu0AncTC1WCTl1.Xo3tiwSAlBi3.', 50, 12.0, 12.00, 12, 'Lose Weight', 99.00, 'male', '2025-01-13', '2025-03-12', '2025-03-11', '2025-03-10');
 
 -- --------------------------------------------------------
 
@@ -328,65 +357,52 @@ INSERT INTO `member` (`member_id`, `member_pic`, `username`, `email_address`, `p
 CREATE TABLE `member_performance` (
   `performance_id` int(11) NOT NULL,
   `weeks_date_mon` date DEFAULT NULL,
+  `current_weight` decimal(5,2) DEFAULT NULL,
   `workout_history_count` int(3) DEFAULT NULL,
   `diet_history_count` int(3) DEFAULT NULL,
-  `member_id` int(11) DEFAULT NULL
+  `member_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `member_performance`
 --
 
-INSERT INTO `member_performance` (`performance_id`, `weeks_date_mon`, `workout_history_count`, `diet_history_count`, `member_id`) VALUES
-(148, '2024-06-01', 12, 8, 1),
-(149, '2024-05-05', 14, 9, 2),
-(150, '2024-06-04', 10, 7, 3),
-(151, '2024-07-01', 13, 8, 4),
-(152, '2024-07-06', 15, 10, 5),
-(153, '2024-07-03', 9, 6, 6),
-(154, '2024-07-01', 12, 7, 7),
-(155, '2024-08-05', 14, 9, 8),
-(156, '2024-09-02', 11, 8, 9),
-(157, '2024-10-07', 13, 7, 10),
-(158, '2024-11-04', 10, 6, 11),
-(159, '2024-12-02', 15, 9, 12),
-(160, '2025-01-06', 14, 10, 13),
-(161, '2025-02-03', 12, 7, 14),
-(162, '2025-03-03', 11, 6, 15),
-(163, '2025-04-07', 10, 5, 16),
-(164, '2025-05-05', 14, 9, 17),
-(165, '2025-06-02', 13, 8, 18),
-(166, '2025-07-07', 12, 6, 19),
-(167, '2025-08-04', 15, 10, 20),
-(168, '2025-09-01', 9, 5, 1),
-(169, '2025-10-06', 11, 7, 2),
-(170, '2025-11-03', 13, 8, 3),
-(171, '2025-12-01', 14, 9, 4),
-(172, '2024-01-08', 10, 6, 5),
-(173, '2024-02-12', 12, 8, 6),
-(174, '2024-03-18', 9, 7, 7),
-(175, '2024-04-22', 13, 9, 8),
-(176, '2024-05-27', 15, 10, 9),
-(177, '2024-06-24', 11, 8, 10),
-(178, '2024-07-29', 10, 6, 11),
-(179, '2024-08-26', 14, 9, 12),
-(180, '2024-09-30', 12, 7, 13),
-(181, '2024-10-28', 15, 10, 14),
-(182, '2024-11-25', 10, 5, 15),
-(183, '2025-01-13', 11, 6, 16),
-(184, '2025-02-10', 13, 9, 17),
-(185, '2025-03-17', 9, 7, 18),
-(186, '2025-04-14', 12, 8, 19),
-(187, '2025-05-19', 14, 10, 20),
-(188, '2025-06-16', 10, 6, 1),
-(189, '2025-07-14', 11, 7, 2),
-(190, '2025-08-18', 15, 10, 3),
-(191, '2025-09-22', 12, 8, 4),
-(192, '2025-10-20', 9, 6, 5),
-(193, '2025-11-17', 14, 9, 6),
-(194, '2025-12-15', 13, 8, 7),
-(195, '2024-02-19', 10, 7, 8),
-(196, '2024-04-29', 12, 9, 5);
+INSERT INTO `member_performance` (`performance_id`, `weeks_date_mon`, `current_weight`, `workout_history_count`, `diet_history_count`, `member_id`) VALUES
+(149, '2025-02-26', 87.00, 14, 9, 42),
+(151, '2024-07-01', 46.36, 13, 8, 4),
+(152, '2024-07-06', 101.92, 15, 10, 5),
+(153, '2024-07-03', 69.31, 9, 6, 6),
+(154, '2024-07-01', 71.26, 12, 7, 7),
+(155, '2024-08-05', 92.06, 14, 9, 8),
+(156, '2024-09-02', 55.15, 11, 8, 9),
+(157, '2024-10-07', 74.88, 13, 7, 10),
+(158, '2024-11-04', 110.58, 10, 6, 11),
+(159, '2024-12-02', 53.17, 15, 9, 12),
+(160, '2025-01-06', 85.09, 14, 10, 13),
+(161, '2025-02-03', 60.36, 12, 7, 14),
+(162, '2025-03-03', 65.75, 11, 6, 15),
+(163, '2025-04-07', 73.01, 10, 5, 16),
+(164, '2025-05-05', 97.47, 14, 9, 17),
+(165, '2025-06-02', 46.53, 13, 8, 18),
+(166, '2025-07-07', 106.13, 12, 6, 19),
+(167, '2025-08-04', 57.52, 15, 10, 20),
+(168, '2025-09-01', 86.42, 9, 5, 1),
+(169, '2025-10-06', 68.27, 11, 7, 2),
+(170, '2025-11-03', 82.94, 13, 8, 3),
+(171, '2025-12-01', 46.70, 14, 9, 4),
+(172, '2024-01-08', 101.41, 10, 6, 5),
+(173, '2024-02-12', 69.55, 12, 8, 6),
+(174, '2024-03-18', 70.53, 9, 7, 7),
+(175, '2024-04-22', 93.69, 13, 9, 8),
+(176, '2024-05-27', 57.66, 15, 10, 9),
+(177, '2024-06-24', 76.40, 11, 8, 10),
+(178, '2024-07-29', 110.93, 10, 6, 11),
+(179, '2024-08-26', 52.71, 14, 9, 12),
+(180, '2024-09-30', 85.26, 12, 7, 13),
+(181, '2024-10-28', 60.77, 15, 10, 14),
+(182, '2024-11-25', 67.46, 10, 5, 15),
+(191, '2025-09-22', 49.40, 12, 8, 4),
+(205, '2025-03-10', 80.00, NULL, NULL, 42);
 
 -- --------------------------------------------------------
 
@@ -409,7 +425,7 @@ CREATE TABLE `nutrition` (
 --
 
 INSERT INTO `nutrition` (`nutrition_id`, `nutrition_name`, `calories`, `fat`, `protein`, `carbohydrate`, `date_registered`) VALUES
-(1, 'Low Carb', 150, 65.50, 120.30, 50.20, '2024-02-02'),
+(1, 'Low Carb', 10000, 65.50, 120.30, 50.20, '2024-02-02'),
 (2, 'High Protein', 150, 55.00, 180.50, 80.30, '2024-10-21'),
 (3, 'Ketogenic', 150, 140.20, 95.50, 20.10, '2024-03-21'),
 (4, 'Mediterranean', 150, 70.80, 90.20, 110.50, '2025-01-16'),
@@ -420,7 +436,7 @@ INSERT INTO `nutrition` (`nutrition_id`, `nutrition_name`, `calories`, `fat`, `p
 (9, 'DASH', 150, 45.30, 85.70, 195.20, '2024-04-15'),
 (10, 'Whole30', 150, 85.20, 130.40, 75.80, '2025-02-09'),
 (11, 'Gluten Free', 150, 65.70, 95.20, 150.30, '2025-02-18'),
-(12, 'Low FODMAP', 150, 60.40, 90.60, 140.20, '2025-02-28'),
+(12, 'Low FODMAP', 10000, 60.40, 90.60, 140.20, '2025-02-28'),
 (13, 'Pescatarian', 150, 60.30, 110.50, 135.80, '2024-01-15'),
 (14, 'Flexitarian', 150, 55.60, 95.30, 160.20, '2024-04-06'),
 (15, 'Nordic', 150, 75.30, 105.60, 145.20, '2024-01-06'),
@@ -447,6 +463,7 @@ CREATE TABLE `workout` (
   `workout_id` int(11) NOT NULL,
   `workout_name` varchar(100) DEFAULT NULL,
   `workout_type` varchar(100) DEFAULT NULL,
+  `difficulty` varchar(50) DEFAULT NULL,
   `calories` int(11) DEFAULT NULL,
   `duration` int(11) DEFAULT NULL,
   `thumbnail` varchar(255) DEFAULT NULL,
@@ -461,27 +478,27 @@ CREATE TABLE `workout` (
 -- Dumping data for table `workout`
 --
 
-INSERT INTO `workout` (`workout_id`, `workout_name`, `workout_type`, `calories`, `duration`, `thumbnail`, `video`, `description`, `muscle_diagram`, `workout_step_checklist`, `date_registered`) VALUES
-(1, 'Morning Yoga', 'yoga', 150, 30, 'yoga_thumbnail_1.jpg', 'yoga_video_1.mp4', 'A beginner-friendly yoga session.', 'muscle_diagram_1.jpg', 'Warmup, Pose A, Pose B', '2025-01-01'),
-(2, 'Cardio Burn', 'cardio', 400, 60, 'cardio_thumbnail_1.jpg', 'cardio_video_1.mp4', 'High-energy cardio for fat burn.', 'muscle_diagram_2.jpg', 'Warmup, Jog, Cooldown', '2025-01-02'),
-(3, 'Evening Yoga', 'yoga', 200, 45, 'yoga_thumbnail_2.jpg', 'yoga_video_2.mp4', 'Intermediate yoga to unwind.', 'muscle_diagram_1.jpg', 'Warmup, Stretch, Pose C', '2025-01-03'),
-(4, 'HIIT Cardio Blast', 'cardio', 550, 50, 'cardio_thumbnail_2.jpg', 'cardio_video_2.mp4', 'Intense cardio session for endurance.', 'muscle_diagram_2.jpg', 'Sprint, Jumping Jacks, Rest', '2025-01-04'),
-(5, 'Weighted Squats', 'weighted', 300, 40, 'weighted_thumbnail_1.jpg', 'weighted_video_1.mp4', 'Strengthen lower body with weights.', 'muscle_diagram_3.jpg', 'Warmup, Squats, Rest', '2025-01-05'),
-(6, 'Weight-Free Core', 'weight-free', 250, 35, 'weightfree_thumbnail_1.jpg', 'weightfree_video_1.mp4', 'Core strengthening without equipment.', 'muscle_diagram_4.jpg', 'Warmup, Planks, Cooldown', '2025-01-06'),
-(7, 'Cardio Marathon', 'cardio', 700, 90, 'cardio_thumbnail_3.jpg', 'cardio_video_3.mp4', 'Long cardio endurance session.', 'muscle_diagram_2.jpg', 'Jog, Sprint, Walk', '2025-01-07'),
-(8, 'Weighted Deadlifts', 'weighted', 400, 50, 'weighted_thumbnail_2.jpg', 'weighted_video_2.mp4', 'Improve posterior strength.', 'muscle_diagram_3.jpg', 'Warmup, Deadlifts, Cooldown', '2025-01-08'),
-(9, 'Sunrise Yoga', 'yoga', 180, 40, 'yoga_thumbnail_3.jpg', 'yoga_video_3.mp4', 'A refreshing morning yoga routine.', 'muscle_diagram_1.jpg', 'Breathing, Stretch, Pose D', '2025-01-09'),
-(10, 'Bodyweight Push', 'weight-free', 220, 30, 'weightfree_thumbnail_2.jpg', 'weightfree_video_2.mp4', 'Upper body workout using bodyweight.', 'muscle_diagram_4.jpg', 'Pushups, Planks, Rest', '2025-01-10'),
-(11, 'Cardio Circuit', 'cardio', 450, 60, 'cardio_thumbnail_4.jpg', 'cardio_video_4.mp4', 'Circuit-based cardio exercises.', 'muscle_diagram_2.jpg', 'Warmup, Circuit, Cooldown', '2025-01-11'),
-(12, 'Weighted Bench Press', 'weighted', 500, 50, 'weighted_thumbnail_3.jpg', 'weighted_video_3.mp4', 'Develop chest and triceps with weights.', 'muscle_diagram_3.jpg', 'Warmup, Bench Press, Rest', '2025-01-12'),
-(13, 'Relaxing Yoga', 'yoga', 120, 25, 'yoga_thumbnail_4.jpg', 'yoga_video_4.mp4', 'Relax your body and mind.', 'muscle_diagram_1.jpg', 'Stretch, Pose A, Pose B', '2025-01-13'),
-(14, 'Weight-Free Legs', 'weight-free', 240, 35, 'weightfree_thumbnail_3.jpg', 'weightfree_video_3.mp4', 'Leg-focused exercises without equipment.', 'muscle_diagram_4.jpg', 'Lunges, Squats, Rest', '2025-01-14'),
-(15, 'Fast Cardio', 'cardio', 600, 45, 'cardio_thumbnail_5.jpg', 'cardio_video_5.mp4', 'Quick, high-intensity cardio.', 'muscle_diagram_2.jpg', 'Sprint, Jump Rope, Cooldown', '2025-01-15'),
-(16, 'Weighted Lunges', 'weighted', 320, 45, 'weighted_thumbnail_4.jpg', 'weighted_video_4.mp4', 'Target glutes and thighs with weights.', 'muscle_diagram_3.jpg', 'Warmup, Lunges, Cooldown', '2025-01-16'),
-(17, 'Evening Stretches', 'yoga', 100, 20, 'yoga_thumbnail_5.jpg', 'yoga_video_5.mp4', 'End the day with relaxing poses.', 'muscle_diagram_1.jpg', 'Pose X, Pose Y, Rest', '2025-01-17'),
-(18, 'Bodyweight Basics', 'weight-free', 180, 30, 'weightfree_thumbnail_4.jpg', 'weightfree_video_4.mp4', 'Simple movements for beginners.', 'muscle_diagram_4.jpg', 'Stretch, Pushups, Cooldown', '2025-01-18'),
-(19, 'Cardio Dance', 'cardio', 350, 40, 'cardio_thumbnail_6.jpg', 'cardio_video_6.mp4', 'Fun cardio session with dance.', 'muscle_diagram_2.jpg', 'Warmup, Dance, Stretch', '2025-01-19'),
-(20, 'Weighted Rows', 'weighted', 450, 50, 'weighted_thumbnail_5.jpg', 'weighted_video_5.mp4', 'Strengthen back with rows.', 'muscle_diagram_3.jpg', 'Warmup, Rows, Rest', '2025-01-20');
+INSERT INTO `workout` (`workout_id`, `workout_name`, `workout_type`, `difficulty`, `calories`, `duration`, `thumbnail`, `video`, `description`, `muscle_diagram`, `workout_step_checklist`, `date_registered`) VALUES
+(1, 'Morning Yoga', 'yoga', 'intermediate', 150, 30, 'yoga_thumbnail_1.jpg', 'yoga_video_1.mp4', 'A beginner-friendly yoga session.', 'muscle_diagram_1.jpg', 'Warmup, Pose A, Pose B', '2025-01-01'),
+(2, 'Cardio Burn', 'cardio', 'beginner', 400, 60, 'cardio_thumbnail_1.jpg', 'cardio_video_1.mp4', 'High-energy cardio for fat burn.', 'muscle_diagram_2.jpg', 'Warmup, Jog, Cooldown', '2025-01-02'),
+(3, 'Evening Yoga', 'yoga', 'advanced', 200, 45, 'yoga_thumbnail_2.jpg', 'yoga_video_2.mp4', 'Intermediate yoga to unwind.', 'muscle_diagram_1.jpg', 'Warmup, Stretch, Pose C', '2025-01-03'),
+(4, 'HIIT Cardio Blast', 'cardio', 'beginner', 550, 50, 'cardio_thumbnail_2.jpg', 'cardio_video_2.mp4', 'Intense cardio session for endurance.', 'muscle_diagram_2.jpg', 'Sprint, Jumping Jacks, Rest', '2025-01-04'),
+(5, 'Weighted Squats', 'weighted', 'beginner', 300, 40, 'weighted_thumbnail_1.jpg', 'weighted_video_1.mp4', 'Strengthen lower body with weights.', 'muscle_diagram_3.jpg', 'Warmup, Squats, Rest', '2025-01-05'),
+(6, 'Weight-Free Core', 'weight-free', 'advanced', 250, 35, 'weightfree_thumbnail_1.jpg', 'weightfree_video_1.mp4', 'Core strengthening without equipment.', 'muscle_diagram_4.jpg', 'Warmup, Planks, Cooldown', '2025-01-06'),
+(7, 'Cardio Marathon', 'cardio', 'beginner', 700, 90, 'cardio_thumbnail_3.jpg', 'cardio_video_3.mp4', 'Long cardio endurance session.', 'muscle_diagram_2.jpg', 'Jog, Sprint, Walk', '2025-01-07'),
+(8, 'Weighted Deadlifts', 'weighted', 'beginner', 400, 50, 'weighted_thumbnail_2.jpg', 'weighted_video_2.mp4', 'Improve posterior strength.', 'muscle_diagram_3.jpg', 'Warmup, Deadlifts, Cooldown', '2025-01-08'),
+(9, 'Sunrise Yoga', 'yoga', 'beginner', 180, 40, 'yoga_thumbnail_3.jpg', 'yoga_video_3.mp4', 'A refreshing morning yoga routine.', 'muscle_diagram_1.jpg', 'Breathing, Stretch, Pose D', '2025-01-09'),
+(10, 'Bodyweight Push', 'weight-free', 'advanced', 220, 30, 'weightfree_thumbnail_2.jpg', 'weightfree_video_2.mp4', 'Upper body workout using bodyweight.', 'muscle_diagram_4.jpg', 'Pushups, Planks, Rest', '2025-01-10'),
+(11, 'Cardio Circuit', 'cardio', 'advanced', 450, 60, 'cardio_thumbnail_4.jpg', 'cardio_video_4.mp4', 'Circuit-based cardio exercises.', 'muscle_diagram_2.jpg', 'Warmup, Circuit, Cooldown', '2025-01-11'),
+(12, 'Weighted Bench Press', 'weighted', 'intermediate', 500, 50, 'weighted_thumbnail_3.jpg', 'weighted_video_3.mp4', 'Develop chest and triceps with weights.', 'muscle_diagram_3.jpg', 'Warmup, Bench Press, Rest', '2025-01-12'),
+(13, 'Relaxing Yoga', 'yoga', 'intermediate', 120, 25, 'yoga_thumbnail_4.jpg', 'yoga_video_4.mp4', 'Relax your body and mind.', 'muscle_diagram_1.jpg', 'Stretch, Pose A, Pose B', '2025-01-13'),
+(14, 'Weight-Free Legs', 'weight-free', 'beginner', 240, 35, 'weightfree_thumbnail_3.jpg', 'weightfree_video_3.mp4', 'Leg-focused exercises without equipment.', 'muscle_diagram_4.jpg', 'Lunges, Squats, Rest', '2025-01-14'),
+(15, 'Fast Cardio', 'cardio', 'intermediate', 600, 45, 'cardio_thumbnail_5.jpg', 'cardio_video_5.mp4', 'Quick, high-intensity cardio.', 'muscle_diagram_2.jpg', 'Sprint, Jump Rope, Cooldown', '2025-01-15'),
+(16, 'Weighted Lunges', 'weighted', 'beginner', 320, 45, 'weighted_thumbnail_4.jpg', 'weighted_video_4.mp4', 'Target glutes and thighs with weights.', 'muscle_diagram_3.jpg', 'Warmup, Lunges, Cooldown', '2025-01-16'),
+(17, 'Evening Stretches', 'yoga', 'intermediate', 100, 20, 'yoga_thumbnail_5.jpg', 'yoga_video_5.mp4', 'End the day with relaxing poses.', 'muscle_diagram_1.jpg', 'Pose X, Pose Y, Rest', '2025-01-17'),
+(18, 'Bodyweight Basics', 'weight-free', 'beginner', 180, 30, 'weightfree_thumbnail_4.jpg', 'weightfree_video_4.mp4', 'Simple movements for beginners.', 'muscle_diagram_4.jpg', 'Stretch, Pushups, Cooldown', '2025-01-18'),
+(19, 'Cardio Dance', 'cardio', 'intermediate', 350, 40, 'cardio_thumbnail_6.jpg', 'cardio_video_6.mp4', 'Fun cardio session with dance.', 'muscle_diagram_2.jpg', 'Warmup, Dance, Stretch', '2025-01-19'),
+(20, 'Weighted Rows', 'weighted', 'intermediate', 450, 50, 'weighted_thumbnail_5.jpg', 'weighted_video_5.mp4', 'Strengthen back with rows.', 'muscle_diagram_3.jpg', 'Warmup, Rows, Rest', '2025-01-20');
 
 -- --------------------------------------------------------
 
@@ -501,8 +518,8 @@ CREATE TABLE `workout_history` (
 --
 
 INSERT INTO `workout_history` (`workout_history_id`, `date`, `member_id`, `workout_id`) VALUES
-(1, '2025-01-15', 20, 19),
-(2, '2024-10-27', 18, 6),
+(1, '2025-03-09', 42, 19),
+(2, '2025-03-11', 42, 6),
 (3, '2024-11-17', 6, 14),
 (4, '2024-12-27', 20, 14),
 (5, '2024-11-28', 14, 16),
@@ -714,6 +731,13 @@ ALTER TABLE `administrator`
   ADD UNIQUE KEY `username` (`username`,`email_address`,`phone_number`);
 
 --
+-- Indexes for table `custom_diet`
+--
+ALTER TABLE `custom_diet`
+  ADD PRIMARY KEY (`custom_diet_id`),
+  ADD KEY `fk_member_id` (`member_id`);
+
+--
 -- Indexes for table `diet`
 --
 ALTER TABLE `diet`
@@ -784,6 +808,12 @@ ALTER TABLE `administrator`
   MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
+-- AUTO_INCREMENT for table `custom_diet`
+--
+ALTER TABLE `custom_diet`
+  MODIFY `custom_diet_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `diet`
 --
 ALTER TABLE `diet`
@@ -799,13 +829,13 @@ ALTER TABLE `diet_history`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `member_performance`
 --
 ALTER TABLE `member_performance`
-  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
 
 --
 -- AUTO_INCREMENT for table `nutrition`
@@ -828,6 +858,12 @@ ALTER TABLE `workout_history`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `custom_diet`
+--
+ALTER TABLE `custom_diet`
+  ADD CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`);
 
 --
 -- Constraints for table `diet`

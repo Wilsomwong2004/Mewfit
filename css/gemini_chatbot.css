@@ -133,12 +133,21 @@ html.dark-mode {
 .chatbot-input input {
     flex: 1;
     padding: 0.8rem;
-    border: 1px solid var(--border-color);
+    /* border: 1px solid var(--border-color); */
     border-radius: 14px;
+}
+
+html.dark-mode .chatbot-input input {
+    background: #353536;
+    color: white;
 }
 
 .chatbot-container input::placeholder {
     color: #797979;
+}
+
+html.dark-mode .chatbot-container input::placeholder {
+    color: #9f9f9f;
 }
 
 .chatbot-img {

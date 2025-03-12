@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get workout stats from localStorage
         const workoutStats = JSON.parse(localStorage.getItem('workoutStats')) || {
             duration: '14 Minutes',
-            calories: '203 kcal'
+            calories: '200 kcal'
         };
 
         // Update stats on the page
-        const durationStat = document.querySelector('.stat:nth-child(1)');
-        const caloriesStat = document.querySelector('.stat:nth-child(2)');
+        const durationStat = document.querySelector('.duration-stat');
+        const caloriesStat = document.querySelector('.calories-stat');
 
         if (durationStat) {
             durationStat.innerHTML = `<i class="fa-solid fa-stopwatch"></i> ${workoutStats.duration}`;
