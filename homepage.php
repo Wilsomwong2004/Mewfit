@@ -893,74 +893,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
 
             <!-- enter data -->
             <?php
-
-$sqlMember = "SELECT weight, target_weight, fitness_goal FROM member WHERE member_id = ?";
-$stmtMember = $dbConn->prepare($sqlMember);
-$stmtMember->bind_param("i", $member_id);
-$stmtMember->execute();
-$resultMember = $stmtMember->get_result();
-$member = $resultMember->fetch_assoc();
-
-$weight = $member['weight'];
-$target_weight = $member['target_weight'];
-$fitness_goal = $member['fitness_goal'];
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
-    $newWeight = floatval($_POST['newweight']); 
-    $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
-
-    // Check if an entry for the current week exists
-    $sql = "SELECT * FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
-    $stmt = $dbConn->prepare($sql);
-    $stmt->bind_param("si", $currentWeekMonday, $member_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
-    } else {
-        $sql = "INSERT INTO member_performance (performance_id, weeks_date_mon, current_weight, member_id) VALUES (NULL, ?, ?, ?)";
-    }
-
-    $stmt = $dbConn->prepare($sql);
-    $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
-
-    if ($stmt->execute()) {
-        if ($newWeight <= $target_weight) {
-            echo json_encode(["status" => "success", "message" => "Weight recorded successfully!", "updateTarget" => true]);
-        } else {
-            echo json_encode(["status" => "success", "message" => "Weight recorded successfully!", "updateTarget" => false]);
-        }
-    } else {
-        echo json_encode(["status" => "error", "message" => "Error: " . $dbConn->error]);
-    }
-    exit();
-}
-
-// Handle target weight & fitness goal update
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["new_target_weight"]) && isset($_POST["new_fitness_goal"])) {
-    $newTargetWeight = floatval($_POST["new_target_weight"]);
-    $newFitnessGoal = $_POST["new_fitness_goal"];
-    
-    // Basic validation
-    if ($newTargetWeight <= 0 || empty($newFitnessGoal)) {
-        echo json_encode(["status" => "error", "message" => "Invalid weight or goal."]);
-        exit();
-    }
-    
-    $weightRegisteredDate = date('Y-m-d');
-    $sqlUpdateTarget = "UPDATE member SET weight = ?,target_weight = ?, fitness_goal = ?, weight_registered_date = ? WHERE member_id = ?";
-    $stmtUpdate = $dbConn->prepare($sqlUpdateTarget);
-    $stmtUpdate->bind_param("ddssi",$current_weight, $newTargetWeight, $newFitnessGoal, $weightRegisteredDate, $member_id);
-    
-    if ($stmtUpdate->execute()) {
-        echo json_encode(["status" => "success", "message" => "Target weight and fitness goal updated successfully!"]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Failed to update target weight: " . $dbConn->error]);
-    }
-    exit();
-}
-
             //enter calories
             $message = "";
 
@@ -990,6 +922,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["new_target_weight"]) &
                     $message = "Invalid input! Please provide a valid meal name and calorie value.";
                 }
             }
+
+            //enter weight
+
+            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
+                $newWeight = floatval($_POST['newweight']); 
+                $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
+
+                // Check if an entry for the current week exists
+                $sql = "SELECT * FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
+                $stmt = $dbConn->prepare($sql);
+                $stmt->bind_param("si", $currentWeekMonday, $member_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
+                } else {
+                    $sql = "INSERT INTO member_performance (performance_id, weeks_date_mon, current_weight, member_id) VALUES (NULL, ?, ?, ?)";
+                }
+
+                $stmt = $dbConn->prepare($sql);
+                $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
+
+                if ($stmt->execute()) {
+                    echo json_encode(["status" => "success", "message" => "Weight recorded successfully!"]);
+                } else {
+                    echo json_encode(["status" => "error", "message" => "Error: " . $dbConn->error]);
+                }
+                exit();
+            }
+
+            
             ?>
             <script>
                 function recordWeight() {
@@ -1066,10 +1030,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["new_target_weight"]) &
                 }
             </script>
 
-            <!-- level up or reenter weight -->
+            <!-- level up-->
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    //enter day streak
+                //enter day streak
                 let dayStreak = <?php echo $day_streak; ?>;
                 let targetDayStreak = <?php echo $target_day_streak; ?>;
 
@@ -1089,34 +1053,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["new_target_weight"]) &
                         form.submit();
                     }
                 }
-
-                //enter weight
-                document.getElementById("weightForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    let newWeight = document.getElementById("new_target_weight").value;
-    let newFitnessGoal = document.getElementById("new_fitness_goal").value;
-
-    updateTargetWeight(newWeight, newFitnessGoal);
-});
-
-function updateTargetWeight(newTargetWeight, newFitnessGoal) {
-    fetch("", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "new_target_weight=" + newTargetWeight + "&new_fitness_goal=" + encodeURIComponent(newFitnessGoal)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        if (data.status === "success") {
-            location.reload();
-        }
-    })
-    .catch(error => console.error("Error:", error));
-}
             });
             </script>
 
