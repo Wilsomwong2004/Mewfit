@@ -42,6 +42,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['error_message'] = "Please enter a target weight range that is less that 20 gap";
         header("Location: sign_up_page.php");
         exit;
+    } else if ((($weight < 0) || $target_weight < 0) || $height < 0) {
+        $_SESSION['error_message'] = "Please enter an appropriate weight and height";
+        header("Location: sign_up_page.php");
+        exit;
+    } else if ($age < 0 || $age > 100) {
+        $_SESSION['error_message'] = "Please enter an appropriate age";
+        header("Location: sign_up_page.php");
+        exit;
     }
 
     $sql = "SELECT * FROM member WHERE username = '$username'";
