@@ -4,7 +4,9 @@ class FitnessChatbot {
         this.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
         this.chatHistory = [];
         this.userContext = {};
+        this.userData = null; // Will store user data from database
         this.initChatbot();
+        this.fetchUserData(); // Fetch user data when chatbot loads
     }
 
     initChatbot() {
@@ -151,6 +153,63 @@ class FitnessChatbot {
         return text.replace(/\s*\*\s*/g, '\n').trim();
     }
 
+    async fetchUserData() {
+        try {
+            const response = await fetch('get_user_data.php');
+            const data = await response.json();
+
+            if (data.error) {
+                console.log('User not logged in or error:', data.error);
+                return;
+            }
+
+            this.userData = data;
+
+            // Pre-populate user context with database information
+            if (data.user) {
+                this.userContext.name = data.user.username;
+                this.userContext.goal = data.user.fitness_goal;
+                this.userContext.weight = data.user.weight;
+                this.userContext.targetWeight = data.user.target_weight;
+                this.userContext.level = data.user.level;
+                this.userContext.age = data.user.age;
+                this.userContext.gender = data.user.gender;
+
+                // Add performance data if available
+                if (data.performance) {
+                    this.userContext.currentWeight = data.performance.current_weight;
+                    this.userContext.workoutCount = data.performance.workout_history_count;
+                    this.userContext.dietCount = data.performance.diet_history_count;
+                }
+            }
+
+            console.log('User context initialized:', this.userContext);
+
+            // Update the initial message to personalize if user data is available
+            if (this.userContext.name) {
+                this.addMessage(`Welcome back, ${this.userContext.name}! How can I help with your ${this.userContext.goal} journey today?`, 'bot');
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    }
+
+    // Update the formatContextPrompt method to include more user data
+    formatContextPrompt() {
+        let context = [];
+        if (this.userContext.name) context.push(`- User's name: ${this.userContext.name}`);
+        if (this.userContext.goal) context.push(`- User's goal: ${this.userContext.goal}`);
+        if (this.userContext.level) context.push(`- User's fitness level: ${this.userContext.level}`);
+        if (this.userContext.age) context.push(`- User's age: ${this.userContext.age}`);
+        if (this.userContext.gender) context.push(`- User's gender: ${this.userContext.gender}`);
+        if (this.userContext.weight) context.push(`- Starting weight: ${this.userContext.weight} kg`);
+        if (this.userContext.currentWeight) context.push(`- Current weight: ${this.userContext.currentWeight} kg`);
+        if (this.userContext.targetWeight) context.push(`- Target weight: ${this.userContext.targetWeight} kg`);
+        if (this.userContext.workoutCount) context.push(`- Completed workouts: ${this.userContext.workoutCount}`);
+        if (this.userContext.injuries) context.push(`- Injuries: ${this.userContext.injuries}`);
+        return context.join('\n') || '- No known context yet';
+    }
+
     async getBotResponse(message) {
         try {
             const workoutData = window.workouts || [];
@@ -159,6 +218,24 @@ class FitnessChatbot {
             // Modified data access with proper error handling
             const workoutTypes = [...new Set(workoutData.flatMap(w => w.type || []))].filter(Boolean).join(', ') || 'General Fitness';
             const dietTypes = [...new Set(dietData.flatMap(d => d.type || []))].filter(Boolean).join(', ') || 'Balanced Nutrition';
+
+            // Add user-specific information to the prompt
+            let userSpecificInfo = '';
+            if (this.userData) {
+                userSpecificInfo = `
+                Current User:
+                - Username: ${this.userData.user.username}
+                - Age: ${this.userData.user.age}
+                - Gender: ${this.userData.user.gender}
+                - Fitness Goal: ${this.userData.user.fitness_goal}
+                - Current Weight: ${this.userData.performance?.current_weight || this.userData.user.weight} kg
+                - Target Weight: ${this.userData.user.target_weight} kg
+                - Height: ${this.userData.user.height} cm
+                - Level: ${this.userData.user.level}
+                - Workout History Count: ${this.userData.performance?.workout_history_count || 'Unknown'}
+                - Diet History Count: ${this.userData.performance?.diet_history_count || 'Unknown'}
+                `;
+            }
 
             const response = await fetch(`${this.apiUrl}?key=${this.apiKey}`, {
                 method: 'POST',
@@ -176,6 +253,7 @@ class FitnessChatbot {
                                 2. DATA INTEGRATION:
                                 Available Workout Types: ${workoutTypes}
                                 Available Diet Types: ${dietTypes}
+                                ${userSpecificInfo}
 
                                 3. RECOMMENDATION ENGINE:
                                 ${this.generateDataPrompt(message, workoutData, dietData)}
@@ -225,7 +303,7 @@ class FitnessChatbot {
                 })
             });
 
-
+            // Rest of the method remains the same
             if (!response.ok) {
                 throw new Error(`HTTP error: ${response.status}`);
             }

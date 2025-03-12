@@ -184,6 +184,11 @@ html.dark-mode .chatbot-container input::placeholder {
     align-self: flex-start;
 }
 
+html.dark-mode .bot-message {
+    background: #353536;
+    color: white;
+}
+
 .loading-dot {
     display: inline-block;
     width: 8px;
