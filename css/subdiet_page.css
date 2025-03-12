@@ -1,7 +1,121 @@
-body{
+:root {
+    --background-color: #ffffff;
+    --card-background: #ffffff;
+    --navbar-more-background: #353535;
+    --miniprofile-background: #ffffff;
+    --miniprofile-gmail-text: #666;
+    --settings-change-profile-text: #666;
+    --text-color: #000000;
+    --primary-color: #FFAD84;
+    --secondary-color: #999;
+    --border-color: #c7c7cc;
+    --borderline-color-light: #ddd;
+    --borderline-color-dark: #666666;
+    --box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --box-shadow-dark: 0 2px 4px rgba(255, 255, 255, 0.1);
+    --transition-speed: 0.3s;
+}
+
+html.dark-mode {
+    --background-color: #353536;
+    --card-background: #353536;
+    --miniprofile-background: #4e4e4e;
+    --miniprofile-gmail-text: #999;
+    --settings-change-profile-text: #bbbbbb;
+    --text-color: #f2f2f7;
+    --border-color: #38383a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    font-family: Inter;
+    margin: 0;
+    margin-bottom: 60px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    padding-left: 4vw;
+    padding-right: 4vw;
     padding-left:15px;
     padding-right:45px;
 }
+
+.nav-links a {
+    text-decoration: none;
+    transition-delay: 1s;
+    transition: all 0.3s;
+    color: black;
+    white-space: nowrap;
+    z-index: 3;
+    position: relative;
+}
+
+html.dark-mode .nav-links a {
+    color: white;
+}
+
+.workout-home,
+.workout-navbar,
+.workout-settings {
+    margin-top: 5px;
+    cursor: pointer;
+    font-size: 80%;
+}
+
+.workout-dietplan a {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font-size: 12px;
+    border-radius: 68px;
+    color: white;
+    cursor: pointer;
+}
+
+.container-side-transparent-left {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to right, white, transparent);
+    pointer-events: none;
+    z-index: 100;
+}
+
+html.dark-mode .container-side-transparent-left {
+    background: linear-gradient(to right, #393939, transparent);
+}
+
+.container-side-transparent-right {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to left, white, transparent);
+    pointer-events: none;
+    z-index: 100;
+}
+
+html.dark-mode .container-side-transparent-right {
+    background: linear-gradient(to left, #393939, transparent);
+}
+
 
 /* _____________________SECTION 1______________________ */
 

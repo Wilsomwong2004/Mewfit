@@ -3268,7 +3268,7 @@ class WorkoutPoseDetector {
         this.registerDetector('Plank Jacks', this.detectPlankJacks); // Reps
         this.registerDetector('Kangaroo Hops', this.detectKangarooHops); // Reps
         this.registerDetector('Ice Skater', this.detectIceSkater); // Reps
-        this.registerDetector('Step Hop Overs', this.detectStepHopOvers); // Reps
+        this.registerDetector('Step Hop Overs', this.detectStepHopOvers); // RepsSS
         this.registerDetector('Wide to Narrow Step Jump', this.detectWideNarrowJump); // Reps
         this.registerDetector('Squat With Punches', this.detectSquatPunches); // Reps
         this.registerDetector('Cross High Punches', this.detectCrossPunches); // Reps
@@ -3650,6 +3650,7 @@ class WorkoutPoseDetector {
         return { repCount: this.repCounter, feedback };
     }
 
+    // Cardio
     detectJumpingJack(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
         if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
@@ -3862,7 +3863,7 @@ class WorkoutPoseDetector {
         return { repCount: this.repCounter, feedback };
     }
 
-    detectHighKnees(keypoints) {
+    detectLowImpactHighKnee(keypoints) {
         // Get smoothed keypoint data for better detection
         const smoothedKeypoints = this.getSmoothedKeypoints();
         if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
@@ -3923,6 +3924,464 @@ class WorkoutPoseDetector {
                 isAlternating: isAlternating
             }
         };
+    }
+
+    detectBobWeave() {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
+
+        const nose = getKeypointByName(smoothedKeypoints, 'nose');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        // Error case: missing critical keypoints
+        if (!nose || !leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+            console.log("Bob & Weave error: Missing keypoints");
+            return { repCount: this.repCounter, feedback: "Cannot track upper body", feedbackType: "error" };
+        }
+
+        // Calculate the midpoint between shoulders
+        const shoulderMidX = (leftShoulder.x + rightShoulder.x) / 2;
+        const shoulderMidY = (leftShoulder.y + rightShoulder.y) / 2;
+
+        // Calculate the midpoint between hips
+        const hipMidX = (leftHip.x + rightHip.x) / 2;
+        const hipMidY = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate horizontal position of nose relative to shoulder midpoint
+        const horizontalOffset = nose.x - shoulderMidX;
+
+        // Calculate vertical position of nose relative to shoulder
+        const verticalPosition = nose.y - shoulderMidY;
+
+        // Normalize based on torso length (distance between shoulder and hip midpoints)
+        const torsoLength = Math.sqrt(Math.pow(shoulderMidX - hipMidX, 2) + Math.pow(shoulderMidY - hipMidY, 2));
+        const normalizedHorizontalOffset = horizontalOffset / torsoLength;
+        const normalizedVerticalPosition = verticalPosition / torsoLength;
+
+        // Log the calculations for debugging
+        console.log("Bob & Weave calculations:", {
+            normalizedHorizontalOffset,
+            normalizedVerticalPosition,
+            currentState: this.lastState,
+            threshold: {
+                left: -0.3,
+                right: 0.3,
+                center: 0.1,
+                duck: 0.15
+            }
+        });
+
+        let feedback = "";
+        let feedbackType = "info";
+
+        // Tracking variables
+        if (!this.feedbackCooldown) {
+            this.feedbackCooldown = 0;
+        }
+
+        // Track the bob and weave pattern 
+        if (!this.weaveDirection) {
+            this.weaveDirection = 'center'; // center, left, right
+        }
+
+        if (!this.bobPosition) {
+            this.bobPosition = 'up'; // up, down
+        }
+
+        // Reduce feedback frequency
+        if (this.feedbackCooldown > 0) {
+            this.feedbackCooldown--;
+            return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
+        }
+
+        // Detect weaving (side to side movement)
+        if (normalizedHorizontalOffset < -0.3 && this.weaveDirection !== 'left') {
+            this.weaveDirection = 'left';
+            console.log("Weave left detected");
+        } else if (normalizedHorizontalOffset > 0.3 && this.weaveDirection !== 'right') {
+            this.weaveDirection = 'right';
+            console.log("Weave right detected");
+        } else if (Math.abs(normalizedHorizontalOffset) < 0.1 &&
+            (this.weaveDirection === 'left' || this.weaveDirection === 'right')) {
+            // Coming back to center from either left or right
+            console.log("Returned to center from " + this.weaveDirection);
+
+            if (this.lastCompleteWeave && this.lastCompleteWeave !== this.weaveDirection) {
+                // We've completed a full weave pattern (left->center->right or right->center->left)
+                console.log("Full weave pattern completed");
+                feedback = "Good weaving!";
+                feedbackType = "success";
+            }
+
+            this.lastCompleteWeave = this.weaveDirection;
+            this.weaveDirection = 'center';
+        }
+
+        // Detect bobbing (up and down movement)
+        if (normalizedVerticalPosition > 0.15 && this.bobPosition !== 'down') {
+            this.bobPosition = 'down';
+            console.log("Bob down detected");
+
+            // Count a rep when we bob down with proper weaving
+            if (this.weaveDirection !== 'center') {
+                this.repCounter++;
+                feedback = "Good bob & weave!";
+                feedbackType = "success";
+
+                // Log successful rep
+                console.log("Bob & Weave rep counted:", {
+                    newCount: this.repCounter,
+                    bobPosition: 'down',
+                    weaveDirection: this.weaveDirection
+                });
+            }
+        } else if (normalizedVerticalPosition < 0 && this.bobPosition === 'down') {
+            this.bobPosition = 'up';
+            console.log("Returned to up position");
+        }
+
+        // Add form feedback
+        if (this.feedbackCooldown === 0) {
+            if (this.weaveDirection === 'center' && this.bobPosition === 'up' &&
+                !this.lastCompleteWeave && this.repCounter === 0) {
+                feedback = "Weave side to side while bobbing down";
+                feedbackType = "info";
+                this.feedbackCooldown = 45;
+            } else if (Math.abs(normalizedHorizontalOffset) < 0.2 && this.weaveDirection !== 'center') {
+                feedback = "Weave further to the sides";
+                feedbackType = "info";
+                this.feedbackCooldown = 30;
+            } else if (normalizedVerticalPosition < 0.1 && this.bobPosition === 'down') {
+                feedback = "Bob down lower";
+                feedbackType = "info";
+                this.feedbackCooldown = 30;
+            }
+        }
+
+        // Show feedback in UI if needed
+        if (feedback) {
+            showFormFeedback([feedback], feedbackType);
+
+            // Log when feedback is shown
+            console.log("Bob & Weave feedback shown:", {
+                feedback,
+                feedbackType,
+                normalizedHorizontalOffset,
+                normalizedVerticalPosition,
+                weaveDirection: this.weaveDirection,
+                bobPosition: this.bobPosition
+            });
+        }
+
+        return { repCount: this.repCounter, feedback, feedbackType };
+    }
+
+    detectKangarooHops() {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
+
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        // Error case: missing critical keypoints
+        if (!leftAnkle || !rightAnkle || !leftKnee || !rightKnee || !leftHip || !rightHip) {
+            console.log("Kangaroo Hops error: Missing keypoints");
+            return { repCount: this.repCounter, feedback: "Cannot track legs", feedbackType: "error" };
+        }
+
+        // Calculate the average Y position of ankles and knees
+        const ankleY = (leftAnkle.y + rightAnkle.y) / 2;
+        const kneeY = (leftKnee.y + rightKnee.y) / 2;
+        const hipY = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate the leg extension (smaller value means more bent legs/squat position)
+        const legExtension = (ankleY - kneeY) / (ankleY - hipY);
+
+        // Calculate the ground impact based on vertical velocity of the ankles
+        if (!this.prevAnkleY) {
+            this.prevAnkleY = ankleY;
+        }
+        const verticalVelocity = ankleY - this.prevAnkleY;
+        this.prevAnkleY = ankleY;
+
+        // Store velocity samples for detecting landing impact
+        if (!this.velocitySamples) {
+            this.velocitySamples = [];
+        }
+        this.velocitySamples.push(verticalVelocity);
+        if (this.velocitySamples.length > 5) {
+            this.velocitySamples.shift();
+        }
+
+        // Calculate average velocity
+        const avgVelocity = this.velocitySamples.reduce((sum, val) => sum + val, 0) / this.velocitySamples.length;
+
+        // Log the calculations for debugging
+        console.log("Kangaroo Hops calculations:", {
+            legExtension,
+            verticalVelocity,
+            avgVelocity,
+            currentState: this.lastState,
+            threshold: {
+                squat: 0.5,
+                jump: -0.025,
+                land: 0.025
+            }
+        });
+
+        let feedback = "";
+        let feedbackType = "info";
+
+        // Tracking variables
+        if (!this.feedbackCooldown) {
+            this.feedbackCooldown = 0;
+        }
+
+        // Reduce feedback frequency
+        if (this.feedbackCooldown > 0) {
+            this.feedbackCooldown--;
+            return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
+        }
+
+        // Track kangaroo hop states: 'squat', 'jumping', 'airborne', 'landing'
+        if (!this.lastState) {
+            this.lastState = 'standing';
+        }
+
+        // Detect the hop phases
+        if (legExtension < 0.5 && this.lastState !== 'squat') {
+            // Entering squat position
+            this.lastState = 'squat';
+            feedback = "Good prep!";
+            feedbackType = "info";
+        } else if (avgVelocity < -0.025 && this.lastState === 'squat') {
+            // Jumping upward from squat
+            this.lastState = 'jumping';
+            feedback = "";
+        } else if (avgVelocity > -0.01 && avgVelocity < 0.01 && this.lastState === 'jumping') {
+            // At peak of jump (low velocity)
+            this.lastState = 'airborne';
+            feedback = "Good height!";
+            feedbackType = "success";
+        } else if (avgVelocity > 0.025 && this.lastState === 'airborne') {
+            // Landing from jump
+            this.lastState = 'landing';
+            this.repCounter++;
+            feedback = "Good hop!";
+            feedbackType = "success";
+
+            // Log successful rep
+            console.log("Kangaroo Hop rep counted:", {
+                newCount: this.repCounter,
+                legExtension,
+                avgVelocity
+            });
+        } else if (legExtension >= 0.7 && this.lastState === 'landing') {
+            // Back to standing position
+            this.lastState = 'standing';
+            feedback = "";
+        }
+
+        // Add form feedback
+        if (this.feedbackCooldown === 0) {
+            if (this.lastState === 'standing' && this.repCounter === 0) {
+                feedback = "Squat down then jump like a kangaroo";
+                feedbackType = "info";
+                this.feedbackCooldown = 45;
+            } else if (this.lastState === 'squat' && legExtension > 0.4) {
+                feedback = "Squat lower before jumping";
+                feedbackType = "info";
+                this.feedbackCooldown = 30;
+            } else if (this.lastState === 'standing' && this.consecutiveStandingFrames > 60) {
+                feedback = "Start your next kangaroo hop";
+                feedbackType = "info";
+                this.feedbackCooldown = 45;
+                this.consecutiveStandingFrames = 0;
+            }
+        }
+
+        // Count consecutive standing frames
+        if (this.lastState === 'standing') {
+            if (!this.consecutiveStandingFrames) this.consecutiveStandingFrames = 0;
+            this.consecutiveStandingFrames++;
+        } else {
+            this.consecutiveStandingFrames = 0;
+        }
+
+        // Show feedback in UI if needed
+        if (feedback) {
+            showFormFeedback([feedback], feedbackType);
+
+            // Log when feedback is shown
+            console.log("Kangaroo Hops feedback shown:", {
+                feedback,
+                feedbackType,
+                legExtension,
+                avgVelocity,
+                state: this.lastState
+            });
+        }
+
+        return { repCount: this.repCounter, feedback, feedbackType };
+    }
+
+    detectFroggerSquat() {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
+
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        // Error case: missing critical keypoints
+        if (!leftAnkle || !rightAnkle || !leftKnee || !rightKnee || !leftHip || !rightHip || !leftShoulder || !rightShoulder) {
+            console.log("Frogger Squat error: Missing keypoints");
+            return { repCount: this.repCounter, feedback: "Cannot track body", feedbackType: "error" };
+        }
+
+        // Calculate hip position relative to ankles and knees
+        const hipY = (leftHip.y + rightHip.y) / 2;
+        const kneeY = (leftKnee.y + rightKnee.y) / 2;
+        const ankleY = (leftAnkle.y + rightAnkle.y) / 2;
+
+        // Calculate knee width relative to hip width
+        const hipWidth = Math.abs(rightHip.x - leftHip.x);
+        const kneeWidth = Math.abs(rightKnee.x - leftKnee.x);
+        const kneeWidthRatio = kneeWidth / hipWidth;
+
+        // Calculate squat depth and forward lean
+        const squatDepth = (hipY - kneeY) / (ankleY - kneeY);
+
+        // Calculate upper body position (higher values = more forward lean)
+        const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
+        const torsoAngle = (hipY - shoulderY) / hipWidth;
+
+        // Log the calculations for debugging
+        console.log("Frogger Squat calculations:", {
+            squatDepth,
+            kneeWidthRatio,
+            torsoAngle,
+            currentState: this.lastState,
+            threshold: {
+                squatDown: 0.8,
+                standUp: 0.3,
+                wideKnee: 1.5
+            }
+        });
+
+        let feedback = "";
+        let feedbackType = "info";
+
+        // Tracking variables
+        if (!this.feedbackCooldown) {
+            this.feedbackCooldown = 0;
+        }
+
+        // Reduce feedback frequency
+        if (this.feedbackCooldown > 0) {
+            this.feedbackCooldown--;
+            return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
+        }
+
+        // Track frogger squat states: 'standing', 'squatting'
+        if (!this.lastState) {
+            this.lastState = 'standing';
+        }
+
+        // Detect the squat phases
+        if (squatDepth > 0.8 && this.lastState === 'standing') {
+            // Moving to squat position
+            this.lastState = 'squatting';
+
+            // Only count as a rep if knees are wide enough (frogger position)
+            if (kneeWidthRatio > 1.5) {
+                feedback = "Good frogger position!";
+                feedbackType = "success";
+            } else {
+                feedback = "Spread knees wider like a frog";
+                feedbackType = "info";
+            }
+        } else if (squatDepth < 0.3 && this.lastState === 'squatting') {
+            // Standing back up
+            this.lastState = 'standing';
+
+            // Count the rep when returning to standing position
+            if (kneeWidthRatio > 1.5 || this.wasWideEnough) {
+                this.repCounter++;
+                feedback = "Good frogger squat!";
+                feedbackType = "success";
+
+                // Log successful rep
+                console.log("Frogger Squat rep counted:", {
+                    newCount: this.repCounter,
+                    squatDepth,
+                    kneeWidthRatio
+                });
+
+                this.wasWideEnough = false;
+            }
+        } else if (this.lastState === 'squatting' && kneeWidthRatio > 1.5) {
+            // Mark that the squat was wide enough at some point
+            this.wasWideEnough = true;
+        }
+
+        // Add form feedback
+        if (this.feedbackCooldown === 0) {
+            if (this.lastState === 'standing' && this.consecutiveStandingFrames > 60 && this.repCounter > 0) {
+                feedback = "Ready for another frogger squat";
+                feedbackType = "info";
+                this.feedbackCooldown = 45;
+            } else if (this.lastState === 'squatting' && squatDepth < 0.7 && !this.wasWideEnough) {
+                feedback = "Squat deeper and wider";
+                feedbackType = "info";
+                this.feedbackCooldown = 30;
+            } else if (this.lastState === 'squatting' && torsoAngle > 0.5) {
+                feedback = "Keep your chest up";
+                feedbackType = "info";
+                this.feedbackCooldown = 30;
+            } else if (this.lastState === 'standing' && this.repCounter === 0) {
+                feedback = "Squat down with knees wide like a frog";
+                feedbackType = "info";
+                this.feedbackCooldown = 45;
+            }
+        }
+
+        // Count consecutive standing frames
+        if (this.lastState === 'standing') {
+            if (!this.consecutiveStandingFrames) this.consecutiveStandingFrames = 0;
+            this.consecutiveStandingFrames++;
+        } else {
+            this.consecutiveStandingFrames = 0;
+        }
+
+        // Show feedback in UI if needed
+        if (feedback) {
+            showFormFeedback([feedback], feedbackType);
+
+            // Log when feedback is shown
+            console.log("Frogger Squat feedback shown:", {
+                feedback,
+                feedbackType,
+                squatDepth,
+                kneeWidthRatio,
+                torsoAngle,
+                state: this.lastState
+            });
+        }
+
+        return { repCount: this.repCounter, feedback, feedbackType };
     }
 
     // Additional exercise detectors would follow the same pattern
@@ -4519,6 +4978,1171 @@ class WorkoutPoseDetector {
         // For simplicity, reporting basic placeholder
         return { repCount: this.repCounter, feedback: "Jump wider, then narrow" };
     }
+
+    //Yoga
+    // Base function for detecting yoga poses with a time requirement
+    detectYogaPose(pose, conditions, requiredDuration = 3000) {
+        // If no pose data is available, return early
+        if (!pose || !pose.keypoints || pose.keypoints.length === 0) {
+            return { inPosition: false, timer: 0, feedback: "No pose detected" };
+        }
+
+        // Get the keypoints from the pose
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, timer: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        // Check all conditions for the pose
+        const [isInPosition, feedback] = this.checkPoseConditions(keypoints, conditions);
+
+        // Update timer and status based on position
+        const now = Date.now();
+        if (isInPosition) {
+            if (!this.poseTimer) {
+                this.poseTimer = now;
+            }
+            const elapsedTime = now - this.poseTimer;
+
+            if (elapsedTime >= requiredDuration) {
+                return { inPosition: true, timer: elapsedTime, feedback: "Great form! Hold position." };
+            } else {
+                return {
+                    inPosition: false,
+                    timer: elapsedTime,
+                    feedback: `Good! Hold for ${Math.ceil((requiredDuration - elapsedTime) / 1000)} more seconds. ${feedback}`
+                };
+            }
+        } else {
+            this.poseTimer = null;
+            return { inPosition: false, timer: 0, feedback };
+        }
+    }
+
+    // Helper to check multiple conditions and provide specific feedback
+    checkPoseConditions(keypoints, conditions) {
+        for (const condition of conditions) {
+            const [check, feedback] = condition(keypoints);
+            if (!check) {
+                return [false, feedback];
+            }
+        }
+        return [true, "Looking good!"];
+    }
+
+    // Child Pose Detection
+    detectChildPose(pose) {
+        const conditions = [
+            // Head should be low (below shoulders)
+            (kp) => {
+                const headY = kp.nose.y;
+                const shoulderY = (kp.leftShoulder.y + kp.rightShoulder.y) / 2;
+                return [headY > shoulderY, "Lower your head toward the ground"];
+            },
+
+            // Arms should be extended forward or alongside body
+            (kp) => {
+                const wristsForward =
+                    kp.leftWrist.y < kp.leftShoulder.y &&
+                    kp.rightWrist.y < kp.rightShoulder.y;
+                const wristsAlongside =
+                    Math.abs(kp.leftWrist.y - kp.leftHip.y) < 0.1 &&
+                    Math.abs(kp.rightWrist.y - kp.rightHip.y) < 0.1;
+                return [wristsForward || wristsAlongside, "Extend arms forward or rest alongside your body"];
+            },
+
+            // Hips should be elevated and near the heels
+            (kp) => {
+                const hipY = (kp.leftHip.y + kp.rightHip.y) / 2;
+                const kneeY = (kp.leftKnee.y + kp.rightKnee.y) / 2;
+                const ankleY = (kp.leftAnkle.y + kp.rightAnkle.y) / 2;
+                return [Math.abs(hipY - ankleY) < 0.15 && hipY < kneeY, "Bring your hips back toward your heels"];
+            },
+
+            // Knees should be apart
+            (kp) => {
+                const kneeDistance = Math.abs(kp.leftKnee.x - kp.rightKnee.x);
+                const shoulderWidth = Math.abs(kp.leftShoulder.x - kp.rightShoulder.x);
+                return [kneeDistance > shoulderWidth * 0.5, "Keep knees hip-width apart or wider"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 5000); // Hold for 5 seconds
+    }
+
+    // Downward Facing Dog Detection
+    detectDownwardDog(pose) {
+        const conditions = [
+            // Body should form an inverted V shape
+            (kp) => {
+                const shoulderToHipAngle = this.calculateAngle(
+                    kp.leftShoulder, kp.leftHip, kp.leftKnee
+                );
+                return [
+                    shoulderToHipAngle > 120 && shoulderToHipAngle < 160,
+                    "Form an inverted V shape with your body"
+                ];
+            },
+
+            // Arms should be straight and aligned with torso
+            (kp) => {
+                const armAngle = this.calculateAngle(
+                    kp.leftShoulder, kp.leftElbow, kp.leftWrist
+                );
+                return [
+                    armAngle > 160,
+                    "Straighten your arms and press firmly into the ground"
+                ];
+            },
+
+            // Legs should be relatively straight
+            (kp) => {
+                const legAngle = this.calculateAngle(
+                    kp.leftHip, kp.leftKnee, kp.leftAnkle
+                );
+                return [
+                    legAngle > 140,
+                    "Straighten your legs more, pressing heels toward the ground"
+                ];
+            },
+
+            // Head aligned with arms (not dropping)
+            (kp) => {
+                const neckAligned =
+                    kp.nose.y > kp.leftShoulder.y &&
+                    kp.nose.y > kp.rightShoulder.y;
+                return [
+                    neckAligned,
+                    "Relax your neck, let your head hang naturally between your arms"
+                ];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 5000); // Hold for 5 seconds
+    }
+
+    // Butterfly Stretch Detection
+    detectButterfly(pose) {
+        const conditions = [
+            // Person should be seated
+            (kp) => {
+                const isSeated =
+                    kp.leftHip.y > kp.leftKnee.y &&
+                    kp.rightHip.y > kp.rightKnee.y;
+                return [
+                    isSeated,
+                    "Sit on the floor with your back straight"
+                ];
+            },
+
+            // Knees should be out to the sides
+            (kp) => {
+                const kneeWidth = Math.abs(kp.leftKnee.x - kp.rightKnee.x);
+                const hipWidth = Math.abs(kp.leftHip.x - kp.rightHip.x);
+                return [
+                    kneeWidth > hipWidth * 1.5,
+                    "Bring your knees wider to the sides"
+                ];
+            },
+
+            // Feet should be brought together
+            (kp) => {
+                const ankleDistance = Math.abs(kp.leftAnkle.x - kp.rightAnkle.x);
+                const hipWidth = Math.abs(kp.leftHip.x - kp.rightHip.x);
+                return [
+                    ankleDistance < hipWidth * 0.5,
+                    "Bring the soles of your feet together"
+                ];
+            },
+
+            // Upper body should be upright
+            (kp) => {
+                const shoulderY = (kp.leftShoulder.y + kp.rightShoulder.y) / 2;
+                const hipY = (kp.leftHip.y + kp.rightHip.y) / 2;
+                return [
+                    shoulderY < hipY,
+                    "Keep your spine straight and sit up tall"
+                ];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 4000); // Hold for 4 seconds
+    }
+
+    // Helper function to calculate angle between three points
+    calculateAngle(pointA, pointB, pointC) {
+        const AB = Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
+        const BC = Math.sqrt(Math.pow(pointB.x - pointC.x, 2) + Math.pow(pointB.y - pointC.y, 2));
+        const AC = Math.sqrt(Math.pow(pointC.x - pointA.x, 2) + Math.pow(pointC.y - pointA.y, 2));
+
+        return Math.acos((AB * AB + BC * BC - AC * AC) / (2 * AB * BC)) * (180 / Math.PI);
+    }
+
+    // Helper function to get keypoints in an easier to use format
+    getKeypoints(pose) {
+        if (!pose || !pose.keypoints || pose.keypoints.length === 0) {
+            return null;
+        }
+
+        const keypoints = {};
+        pose.keypoints.forEach(kp => {
+            keypoints[kp.name] = {
+                x: kp.x,
+                y: kp.y,
+                score: kp.score
+            };
+        });
+
+        return keypoints;
+    }
+
+    // Cat and Camel Pose Detection
+    detectCatCamel(pose) {
+        // We need to detect both positions and alternation between them
+        if (!this.catCamelState) {
+            this.catCamelState = {
+                lastPosition: null,
+                transitions: 0,
+                lastTransitionTime: 0
+            };
+        }
+
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, timer: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        // Check if in Cat pose (spine rounded up)
+        const isCatPose = this.isCatPosition(keypoints);
+        // Check if in Camel pose (spine rounded down)
+        const isCamelPose = this.isCamelPosition(keypoints);
+
+        const now = Date.now();
+        const currentPosition = isCatPose ? "cat" : (isCamelPose ? "camel" : null);
+
+        // Detected a valid position
+        if (currentPosition) {
+            // If we transition from one valid position to another
+            if (this.catCamelState.lastPosition &&
+                this.catCamelState.lastPosition !== currentPosition) {
+                // Count transition if it's been at least 1 second since last transition
+                if (now - this.catCamelState.lastTransitionTime > 1000) {
+                    this.catCamelState.transitions++;
+                    this.catCamelState.lastTransitionTime = now;
+                }
+            }
+
+            this.catCamelState.lastPosition = currentPosition;
+
+            // Need at least 4 transitions (2 complete cycles) to count as exercise
+            if (this.catCamelState.transitions >= 4) {
+                return {
+                    inPosition: true,
+                    count: Math.floor(this.catCamelState.transitions / 2),
+                    feedback: `Great job alternating between Cat and Camel poses! ${Math.floor(this.catCamelState.transitions / 2)} cycles completed.`
+                };
+            } else {
+                return {
+                    inPosition: false,
+                    count: Math.floor(this.catCamelState.transitions / 2),
+                    feedback: currentPosition === "cat" ?
+                        "Good Cat pose, now round your back the other way for Camel" :
+                        "Good Camel pose, now round your back upward for Cat"
+                };
+            }
+        } else {
+            // Not in either position, provide guidance
+            return {
+                inPosition: false,
+                count: Math.floor(this.catCamelState.transitions / 2),
+                feedback: "Get on your hands and knees, then alternate between arching your back up (Cat) and dropping it down (Camel)"
+            };
+        }
+    }
+
+    // Helper functions for Cat and Camel
+    isCatPosition(keypoints) {
+        // In Cat, the back is rounded upward
+        const spineAngle = this.calculateAngle(
+            keypoints.rightShoulder,
+            {
+                x: (keypoints.leftHip.x + keypoints.rightHip.x) / 2,
+                y: (keypoints.leftHip.y + keypoints.rightHip.y) / 2
+            },
+            keypoints.nose
+        );
+
+        // Head should be dropped down
+        const neckAngle = this.calculateAngle(
+            {
+                x: (keypoints.leftShoulder.x + keypoints.rightShoulder.x) / 2,
+                y: (keypoints.leftShoulder.y + keypoints.rightShoulder.y) / 2
+            },
+            keypoints.nose,
+            { x: keypoints.nose.x, y: keypoints.nose.y - 0.1 } // point above nose
+        );
+
+        return spineAngle < 160 && neckAngle > 30;
+    }
+
+    isCamelPosition(keypoints) {
+        // In Camel, the back is arched downward
+        const spineAngle = this.calculateAngle(
+            keypoints.rightShoulder,
+            {
+                x: (keypoints.leftHip.x + keypoints.rightHip.x) / 2,
+                y: (keypoints.leftHip.y + keypoints.rightHip.y) / 2
+            },
+            keypoints.nose
+        );
+
+        // Head should be looking up
+        const neckAngle = this.calculateAngle(
+            {
+                x: (keypoints.leftShoulder.x + keypoints.rightShoulder.x) / 2,
+                y: (keypoints.leftShoulder.y + keypoints.rightShoulder.y) / 2
+            },
+            keypoints.nose,
+            { x: keypoints.nose.x, y: keypoints.nose.y - 0.1 } // point above nose
+        );
+
+        return spineAngle > 200 && neckAngle < 20;
+    }
+
+    // Lying Spinal Twist Detection
+    detectSpinalTwist(pose) {
+        const conditions = [
+            // Person should be lying down
+            (kp) => {
+                const isLying =
+                    Math.abs(kp.leftShoulder.y - kp.leftHip.y) < 0.2 &&
+                    Math.abs(kp.rightShoulder.y - kp.rightHip.y) < 0.2;
+                return [isLying, "Lie flat on your back first"];
+            },
+
+            // Knees should be bent to one side
+            (kp) => {
+                // Calculate the horizontal difference between knees and hips
+                const kneeHipDiffX = ((kp.leftKnee.x + kp.rightKnee.x) / 2) - ((kp.leftHip.x + kp.rightHip.x) / 2);
+                const isTwisted = Math.abs(kneeHipDiffX) > 0.2; // Knees are offset to one side
+
+                return [isTwisted, "Bend your knees and drop them to one side"];
+            },
+
+            // Shoulders should be flat on the ground (opposite the twist)
+            (kp) => {
+                const shoulderAlignment = Math.abs(kp.leftShoulder.y - kp.rightShoulder.y) < 0.1;
+                return [shoulderAlignment, "Keep both shoulders flat on the ground"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 8000); // Hold for 8 seconds
+    }
+
+    // Standing Hamstring Stretch Detection
+    detectHamstringStretch(pose) {
+        const conditions = [
+            // One leg should be extended forward
+            (kp) => {
+                // Check if either leg is extended forward
+                const leftLegForward = kp.leftAnkle.x > kp.leftHip.x + 0.2;
+                const rightLegForward = kp.rightAnkle.x > kp.rightHip.x + 0.2;
+
+                return [leftLegForward || rightLegForward, "Extend one leg forward with heel on the ground"];
+            },
+
+            // The extended leg should be straight
+            (kp) => {
+                // Determine which leg is extended
+                const leftLegForward = kp.leftAnkle.x > kp.leftHip.x + 0.2;
+
+                // Check if the extended leg is straight
+                const legAngle = leftLegForward ?
+                    this.calculateAngle(kp.leftHip, kp.leftKnee, kp.leftAnkle) :
+                    this.calculateAngle(kp.rightHip, kp.rightKnee, kp.rightAnkle);
+
+                return [legAngle > 160, "Keep your extended leg straight"];
+            },
+
+            // Upper body should be bent forward
+            (kp) => {
+                const trunkAngle = this.calculateAngle(
+                    {
+                        x: (kp.leftShoulder.x + kp.rightShoulder.x) / 2,
+                        y: (kp.leftShoulder.y + kp.rightShoulder.y) / 2
+                    },
+                    {
+                        x: (kp.leftHip.x + kp.rightHip.x) / 2,
+                        y: (kp.leftHip.y + kp.rightHip.y) / 2
+                    },
+                    {
+                        x: (kp.leftHip.x + kp.rightHip.x) / 2,
+                        y: (kp.leftHip.y + kp.rightHip.y) / 2 - 0.1
+                    } // point above hips
+                );
+
+                return [trunkAngle < 140, "Hinge forward from your hips more"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 6000); // Hold for 6 seconds
+    }
+
+    // Cobra Pose Detection
+    detectCobra(pose) {
+        const conditions = [
+            // Should be lying on stomach
+            (kp) => {
+                const isPronePosition =
+                    kp.leftShoulder.y > kp.leftHip.y - 0.1 &&
+                    kp.rightShoulder.y > kp.rightHip.y - 0.1;
+
+                return [isPronePosition, "Lie on your stomach with legs extended behind you"];
+            },
+
+            // Upper body should be lifted
+            (kp) => {
+                const chestLifted =
+                    kp.leftShoulder.y < kp.leftHip.y &&
+                    kp.rightShoulder.y < kp.rightHip.y;
+
+                return [chestLifted, "Lift your chest off the floor"];
+            },
+
+            // Arms should be supporting, elbows bent
+            (kp) => {
+                const leftElbowAngle = this.calculateAngle(kp.leftShoulder, kp.leftElbow, kp.leftWrist);
+                const rightElbowAngle = this.calculateAngle(kp.rightShoulder, kp.rightElbow, kp.rightWrist);
+                const elbowsBent = (leftElbowAngle < 160 || rightElbowAngle < 160);
+
+                return [elbowsBent, "Place your hands under your shoulders, elbows bent"];
+            },
+
+            // Head should be up, looking forward
+            (kp) => {
+                const headUp = kp.nose.y < kp.leftShoulder.y && kp.nose.y < kp.rightShoulder.y;
+                return [headUp, "Lift your head and look forward"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 5000); // Hold for 5 seconds
+    }
+
+    // Bridge Stretch Detection
+    detectBridgeStretch(pose) {
+        const conditions = [
+            // Person should be on their back
+            (kp) => {
+                const isSupine =
+                    Math.abs(kp.leftShoulder.y - kp.rightShoulder.y) < 0.1 &&
+                    Math.abs(kp.leftHip.y - kp.rightHip.y) < 0.1;
+
+                return [isSupine, "Lie on your back with knees bent"];
+            },
+
+            // Knees should be bent
+            (kp) => {
+                const leftKneeAngle = this.calculateAngle(kp.leftHip, kp.leftKnee, kp.leftAnkle);
+                const rightKneeAngle = this.calculateAngle(kp.rightHip, kp.rightKnee, kp.rightAnkle);
+                const kneesBent = (leftKneeAngle < 120 && rightKneeAngle < 120);
+
+                return [kneesBent, "Bend your knees and place feet flat on the floor"];
+            },
+
+            // Hips should be lifted off the ground
+            (kp) => {
+                const shoulderY = (kp.leftShoulder.y + kp.rightShoulder.y) / 2;
+                const hipY = (kp.leftHip.y + kp.rightHip.y) / 2;
+                const hipsLifted = hipY < shoulderY;
+
+                return [hipsLifted, "Lift your hips up toward the ceiling"];
+            },
+
+            // Shoulders should remain on the ground
+            (kp) => {
+                const headY = kp.nose.y;
+                const shoulderY = (kp.leftShoulder.y + kp.rightShoulder.y) / 2;
+                const shouldersDown = Math.abs(headY - shoulderY) < 0.2;
+
+                return [shouldersDown, "Keep your shoulders on the ground"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 5000); // Hold for 5 seconds
+    }
+
+    // Neck Stretch Detection
+    detectNeckStretch(pose) {
+        // For neck stretches, we need to detect multiple stretch directions
+        if (!this.neckStretchState) {
+            this.neckStretchState = {
+                right: false,
+                left: false,
+                forward: false,
+                timer: 0,
+                currentDirection: null,
+                lastDirectionChange: 0
+            };
+        }
+
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, timer: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        const now = Date.now();
+
+        // Check for right tilt
+        const isRightTilt = this.isNeckRightTilt(keypoints);
+        // Check for left tilt
+        const isLeftTilt = this.isNeckLeftTilt(keypoints);
+        // Check for forward tilt
+        const isForwardTilt = this.isNeckForwardTilt(keypoints);
+
+        let direction = null;
+        if (isRightTilt) direction = "right";
+        else if (isLeftTilt) direction = "left";
+        else if (isForwardTilt) direction = "forward";
+
+        // If direction changed, update state
+        if (direction && direction !== this.neckStretchState.currentDirection) {
+            // If held previous position for at least 3 seconds, mark it as completed
+            if (this.neckStretchState.currentDirection && this.neckStretchState.timer >= 3000) {
+                this.neckStretchState[this.neckStretchState.currentDirection] = true;
+            }
+
+            this.neckStretchState.currentDirection = direction;
+            this.neckStretchState.timer = 0;
+            this.neckStretchState.lastDirectionChange = now;
+        }
+
+        // Update timer if in a valid position
+        if (direction) {
+            if (this.neckStretchState.timer === 0) {
+                this.neckStretchState.timer = 1; // Start timer
+            } else {
+                this.neckStretchState.timer = now - this.neckStretchState.lastDirectionChange;
+            }
+        } else {
+            this.neckStretchState.timer = 0;
+        }
+
+        // Check if all stretches are completed
+        const allCompleted = this.neckStretchState.right &&
+            this.neckStretchState.left &&
+            this.neckStretchState.forward;
+
+        if (allCompleted) {
+            return {
+                inPosition: true,
+                timer: this.neckStretchState.timer,
+                feedback: "Great job! You've completed all neck stretches."
+            };
+        } else if (direction) {
+            const remainingTime = Math.max(0, 3000 - this.neckStretchState.timer);
+            const remainingSeconds = Math.ceil(remainingTime / 1000);
+
+            let completionStatus = "";
+            if (!this.neckStretchState.right) completionStatus += " right,";
+            if (!this.neckStretchState.left) completionStatus += " left,";
+            if (!this.neckStretchState.forward) completionStatus += " forward,";
+            completionStatus = completionStatus.substring(0, completionStatus.length - 1); // Remove trailing comma
+
+            return {
+                inPosition: false,
+                timer: this.neckStretchState.timer,
+                feedback: `Good ${direction} neck stretch! Hold for ${remainingSeconds} more seconds. Remaining stretches:${completionStatus}.`
+            };
+        } else {
+            return {
+                inPosition: false,
+                timer: 0,
+                feedback: "Tilt your head to the right, left, or forward to stretch your neck"
+            };
+        }
+    }
+
+    // Helper functions for neck stretch
+    isNeckRightTilt(keypoints) {
+        // Head tilted to the right shoulder
+        const headTilt = keypoints.rightEar.y - keypoints.leftEar.y;
+        return headTilt > 0.1; // Positive value means right ear is lower than left (tilting right)
+    }
+
+    isNeckLeftTilt(keypoints) {
+        // Head tilted to the left shoulder
+        const headTilt = keypoints.leftEar.y - keypoints.rightEar.y;
+        return headTilt > 0.1; // Positive value means left ear is lower than right (tilting left)
+    }
+
+    isNeckForwardTilt(keypoints) {
+        // Head tilted forward (chin to chest)
+        const noseToShoulderY = keypoints.nose.y - ((keypoints.leftShoulder.y + keypoints.rightShoulder.y) / 2);
+        return noseToShoulderY > 0.15; // Nose is lower than it would be in neutral position
+    }
+
+    // Shoulder Stretch Detection
+    detectShoulderStretch(pose) {
+        const conditions = [
+            // Arm should be across the chest
+            (kp) => {
+                // Check if either arm is across the chest
+                const leftAcross = kp.leftWrist.x > kp.rightShoulder.x;
+                const rightAcross = kp.rightWrist.x < kp.leftShoulder.x;
+
+                return [leftAcross || rightAcross, "Bring one arm across your chest"];
+            },
+
+            // Other arm should be supporting the stretch
+            (kp) => {
+                // If left arm is across, right should support and vice versa
+                const leftAcross = kp.leftWrist.x > kp.rightShoulder.x;
+                const rightAcross = kp.rightWrist.x < kp.leftShoulder.x;
+
+                const supportingCorrect =
+                    (leftAcross && kp.rightWrist.y < kp.leftElbow.y) ||
+                    (rightAcross && kp.leftWrist.y < kp.rightElbow.y);
+
+                return [supportingCorrect, "Use your other arm to gently pull and hold the stretch"];
+            },
+
+            // Shoulders should be relaxed, not hunched
+            (kp) => {
+                const shoulderRelaxed =
+                    Math.abs(kp.leftShoulder.y - kp.rightShoulder.y) < 0.1;
+
+                return [shoulderRelaxed, "Keep your shoulders relaxed and down"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 6000); // Hold for 6 seconds
+    }
+
+    // Chest Stretch Detection
+    detectChestStretch(pose) {
+        const conditions = [
+            // Arms should be extended to the sides
+            (kp) => {
+                const armsOut =
+                    kp.leftWrist.x < kp.leftShoulder.x - 0.2 &&
+                    kp.rightWrist.x > kp.rightShoulder.x + 0.2;
+
+                return [armsOut, "Extend your arms out to the sides"];
+            },
+
+            // Arms should be at shoulder height
+            (kp) => {
+                const armsAtShoulderHeight =
+                    Math.abs(kp.leftWrist.y - kp.leftShoulder.y) < 0.1 &&
+                    Math.abs(kp.rightWrist.y - kp.rightShoulder.y) < 0.1;
+
+                return [armsAtShoulderHeight, "Keep your arms at shoulder height"];
+            },
+
+            // Chest should be expanded
+            (kp) => {
+                const shoulderDistance = Math.abs(kp.leftShoulder.x - kp.rightShoulder.x);
+                const hipDistance = Math.abs(kp.leftHip.x - kp.rightHip.x);
+                const chestExpanded = shoulderDistance > hipDistance * 1.2;
+
+                return [chestExpanded, "Expand your chest and pull your shoulder blades together"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 5000); // Hold for 5 seconds
+    }
+
+    // Arm Circle Detection
+    detectArmCircle(pose) {
+        // We need to track arm movement over time to detect circles
+        if (!this.armCircleState) {
+            this.armCircleState = {
+                positions: [], // Stores recent wrist positions
+                circlesCompleted: 0,
+                lastQuadrant: null,
+                quadrantSequence: []
+            };
+        }
+
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, count: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        // Track wrist positions relative to shoulder
+        const leftWristRelX = keypoints.leftWrist.x - keypoints.leftShoulder.x;
+        const leftWristRelY = keypoints.leftWrist.y - keypoints.leftShoulder.y;
+        const rightWristRelX = keypoints.rightWrist.x - keypoints.rightShoulder.x;
+        const rightWristRelY = keypoints.rightWrist.y - keypoints.rightShoulder.y;
+
+        // Store position data (using average of both arms)
+        this.armCircleState.positions.push({
+            x: (leftWristRelX + rightWristRelX) / 2,
+            y: (leftWristRelY + rightWristRelY) / 2,
+            timestamp: Date.now()
+        });
+
+        // Keep only the last 20 positions (about 1-2 seconds of data at 15-30fps)
+        if (this.armCircleState.positions.length > 20) {
+            this.armCircleState.positions.shift();
+        }
+
+        // Determine current quadrant (relative to shoulder)
+        let currentQuadrant = this.getQuadrant(
+            (leftWristRelX + rightWristRelX) / 2,
+            (leftWristRelY + rightWristRelY) / 2
+        );
+
+        // If quadrant changed, update sequence
+        if (currentQuadrant !== this.armCircleState.lastQuadrant) {
+            this.armCircleState.quadrantSequence.push(currentQuadrant);
+            this.armCircleState.lastQuadrant = currentQuadrant;
+
+            // Keep sequence manageable
+            if (this.armCircleState.quadrantSequence.length > 8) {
+                this.armCircleState.quadrantSequence.shift();
+            }
+
+            // Check for complete circle pattern (1-2-3-4-1 for clockwise, 1-4-3-2-1 for counterclockwise)
+            const sequence = this.armCircleState.quadrantSequence.join('');
+            if (sequence.includes('1234') || sequence.includes('4321')) {
+                this.armCircleState.circlesCompleted++;
+                // Clear half the sequence to avoid double counting but maintain continuity
+                this.armCircleState.quadrantSequence.splice(0, 4);
+            }
+        }
+
+        // Check if arms are extended
+        const armsExtended =
+            this.calculateAngle(keypoints.leftShoulder, keypoints.leftElbow, keypoints.leftWrist) > 150 &&
+            this.calculateAngle(keypoints.rightShoulder, keypoints.rightElbow, keypoints.rightWrist) > 150;
+
+        // Determine feedback
+        let feedback;
+        if (!armsExtended) {
+            feedback = "Keep your arms straight while making circles";
+        } else if (this.armCircleState.positions.length < 10) {
+            feedback = "Start making large arm circles";
+        } else {
+            const armMovement = this.calculateArmMovement(this.armCircleState.positions);
+            if (armMovement < 0.2) {
+                feedback = "Make larger, more defined arm circles";
+            } else {
+                feedback = `Good arm circles! Completed: ${this.armCircleState.circlesCompleted}`;
+            }
+        }
+
+        return {
+            inPosition: this.armCircleState.circlesCompleted >= 5,
+            count: this.armCircleState.circlesCompleted,
+            feedback
+        };
+    }
+
+    // Helper functions for arm circles
+    getQuadrant(x, y) {
+        // Determine quadrant (1: top-right, 2: bottom-right, 3: bottom-left, 4: top-left)
+        if (x >= 0 && y < 0) return 1;
+        if (x >= 0 && y >= 0) return 2;
+        if (x < 0 && y >= 0) return 3;
+        return 4; // x < 0 && y < 0
+    }
+
+    calculateArmMovement(positions) {
+        // Calculate total distance moved to determine if making proper circles
+        let totalDistance = 0;
+        for (let i = 1; i < positions.length; i++) {
+            const dx = positions[i].x - positions[i - 1].x;
+            const dy = positions[i].y - positions[i - 1].y;
+            totalDistance += Math.sqrt(dx * dx + dy * dy);
+        }
+        return totalDistance / positions.length;
+    }
+
+    // Alternate Cross Stretch Detection
+    detectCrossStretch(pose) {
+        // We need to detect alternating across stretches
+        if (!this.crossStretchState) {
+            this.crossStretchState = {
+                rightArmUp: false,
+                leftArmUp: false,
+                rightHeld: 0,
+                leftHeld: 0,
+                lastSide: null
+            };
+        }
+
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, timer: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        // Check if right arm is up and stretched
+        const rightArmUp =
+            keypoints.rightWrist.y < keypoints.rightShoulder.y - 0.2 &&
+            keypoints.rightElbow.y < keypoints.rightShoulder.y - 0.1;
+
+        // Check if left arm is up and stretched
+        const leftArmUp =
+            keypoints.leftWrist.y < keypoints.leftShoulder.y - 0.2 &&
+            keypoints.leftElbow.y < keypoints.leftShoulder.y - 0.1;
+
+        const now = Date.now();
+
+        // Update stretch state
+        if (rightArmUp && !leftArmUp) {
+            if (this.crossStretchState.lastSide !== "right") {
+                this.crossStretchState.lastSide = "right";
+                this.crossStretchState.rightStartTime = now;
+            } else {
+                this.crossStretchState.rightHeld = now - this.crossStretchState.rightStartTime;
+                if (this.crossStretchState.rightHeld >= 3000) {
+                    this.crossStretchState.rightArmUp = true;
+                }
+            }
+        } else if (leftArmUp && !rightArmUp) {
+            if (this.crossStretchState.lastSide !== "left") {
+                this.crossStretchState.lastSide = "left";
+                this.crossStretchState.leftStartTime = now;
+            } else {
+                this.crossStretchState.leftHeld = now - this.crossStretchState.leftStartTime;
+                if (this.crossStretchState.leftHeld >= 3000) {
+                    this.crossStretchState.leftArmUp = true;
+                }
+            }
+        } else {
+            // Neither arm is correctly positioned
+            this.crossStretchState.lastSide = null;
+        }
+
+        // Determine feedback and status
+        if (this.crossStretchState.rightArmUp && this.crossStretchState.leftArmUp) {
+            return {
+                inPosition: true,
+                timer: Math.max(this.crossStretchState.rightHeld, this.crossStretchState.leftHeld),
+                feedback: "Great job! You've completed stretches on both sides."
+            };
+        } else if (rightArmUp) {
+            const remainingTime = Math.max(0, 3000 - this.crossStretchState.rightHeld);
+            const remainingSeconds = Math.ceil(remainingTime / 1000);
+            return {
+                inPosition: false,
+                timer: this.crossStretchState.rightHeld,
+                feedback: this.crossStretchState.rightArmUp ?
+                    "Right arm stretch complete! Now stretch your left arm up." :
+                    `Keep stretching your right arm up for ${remainingSeconds} more seconds.`
+            };
+        } else if (leftArmUp) {
+            const remainingTime = Math.max(0, 3000 - this.crossStretchState.leftHeld);
+            const remainingSeconds = Math.ceil(remainingTime / 1000);
+            return {
+                inPosition: false,
+                timer: this.crossStretchState.leftHeld,
+                feedback: this.crossStretchState.leftArmUp ?
+                    "Left arm stretch complete! Now stretch your right arm up." :
+                    `Keep stretching your left arm up for ${remainingSeconds} more seconds.`
+            };
+        } else {
+            return {
+                inPosition: false,
+                timer: 0,
+                feedback: "Stretch one arm up at a time, reaching toward the ceiling"
+            };
+        }
+    }
+
+    // Hug Knees to Chest Detection
+    detectHugKnees(pose) {
+        const conditions = [
+            // Person should be lying on their back
+            (kp) => {
+                const isSupine =
+                    Math.abs(kp.leftShoulder.y - kp.rightShoulder.y) < 0.1 &&
+                    Math.abs(kp.leftHip.y - kp.rightHip.y) < 0.1;
+
+                return [isSupine, "Lie on your back first"];
+            },
+
+            // Knees should be bent toward chest
+            (kp) => {
+                const kneesToChest =
+                    kp.leftKnee.y < kp.leftHip.y &&
+                    kp.rightKnee.y < kp.rightHip.y;
+
+                return [kneesToChest, "Pull your knees toward your chest"];
+            },
+
+            // Arms should be around knees (hands near knees)
+            (kp) => {
+                const armsAroundKnees =
+                    Math.abs(kp.leftWrist.y - kp.leftKnee.y) < 0.2 &&
+                    Math.abs(kp.rightWrist.y - kp.rightKnee.y) < 0.2;
+
+                return [armsAroundKnees, "Wrap your arms around your knees or behind your thighs"];
+            },
+
+            // Back should be flat
+            (kp) => {
+                const backFlat =
+                    Math.abs(kp.leftShoulder.y - kp.leftHip.y) < 0.1 &&
+                    Math.abs(kp.rightShoulder.y - kp.rightHip.y) < 0.1;
+
+                return [backFlat, "Keep your back flat against the floor"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 7000); // Hold for 7 seconds
+    }
+
+    // Hip Flexor Reach Detection
+    detectHipFlexor(pose) {
+        const conditions = [
+            // One leg should be forward in a lunge position
+            (kp) => {
+                // Check if either leg is in a lunge position
+                const leftLegForward = kp.leftKnee.x > kp.leftHip.x + 0.2;
+                const rightLegForward = kp.rightKnee.x > kp.rightHip.x + 0.2;
+
+                return [leftLegForward || rightLegForward, "Step one leg forward into a lunge position"];
+            },
+
+            // Front knee should be bent
+            (kp) => {
+                // Determine which leg is forward
+                const leftLegForward = kp.leftKnee.x > kp.leftHip.x + 0.2;
+
+                // Check if the front knee is bent
+                const kneeAngle = leftLegForward ?
+                    this.calculateAngle(kp.leftHip, kp.leftKnee, kp.leftAnkle) :
+                    this.calculateAngle(kp.rightHip, kp.rightKnee, kp.rightAnkle);
+
+                return [kneeAngle < 130, "Bend your front knee to a 90-degree angle"];
+            },
+
+            // Back leg should be extended behind
+            (kp) => {
+                // Determine which leg is back
+                const leftLegForward = kp.leftKnee.x > kp.leftHip.x + 0.2;
+                const backLegExtended = leftLegForward ?
+                    (kp.rightKnee.x < kp.rightHip.x) :
+                    (kp.leftKnee.x < kp.leftHip.x);
+
+                return [backLegExtended, "Extend your back leg straight behind you"];
+            },
+
+            // Torso should be upright
+            (kp) => {
+                const torsoAngle = this.calculateAngle(
+                    {
+                        x: (kp.leftShoulder.x + kp.rightShoulder.x) / 2,
+                        y: (kp.leftShoulder.y + kp.rightShoulder.y) / 2 - 0.1
+                    }, // point above shoulders
+                    {
+                        x: (kp.leftShoulder.x + kp.rightShoulder.x) / 2,
+                        y: (kp.leftShoulder.y + kp.rightShoulder.y) / 2
+                    },
+                    {
+                        x: (kp.leftHip.x + kp.rightHip.x) / 2,
+                        y: (kp.leftHip.y + kp.rightHip.y) / 2
+                    }
+                );
+
+                return [torsoAngle > 160, "Keep your torso upright"];
+            },
+
+            // Hip flexors should be stretched (hips should be low)
+            (kp) => {
+                const hipHeight = (kp.leftHip.y + kp.rightHip.y) / 2;
+                const kneeHeight = (kp.leftKnee.y + kp.rightKnee.y) / 2;
+                const hipsLow = hipHeight > kneeHeight - 0.1;
+
+                return [hipsLow, "Sink your hips lower to stretch the hip flexors"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 6000); // Hold for 6 seconds
+    }
+
+    // Lying Hamstring Stretch Detection
+    detectLyingHamstring(pose) {
+        const conditions = [
+            // Person should be lying on their back
+            (kp) => {
+                const isSupine =
+                    Math.abs(kp.leftShoulder.y - kp.rightShoulder.y) < 0.1 &&
+                    Math.abs(kp.leftHip.y - kp.rightHip.y) < 0.1;
+
+                return [isSupine, "Lie on your back first"];
+            },
+
+            // One leg should be extended upward
+            (kp) => {
+                // Check if either leg is raised
+                const leftLegUp = kp.leftAnkle.y < kp.leftHip.y - 0.3;
+                const rightLegUp = kp.rightAnkle.y < kp.rightHip.y - 0.3;
+
+                return [leftLegUp || rightLegUp, "Raise one leg toward the ceiling"];
+            },
+
+            // Raised leg should be straight
+            (kp) => {
+                // Determine which leg is raised
+                const leftLegUp = kp.leftAnkle.y < kp.leftHip.y - 0.3;
+
+                // Check if raised leg is straight
+                const legAngle = leftLegUp ?
+                    this.calculateAngle(kp.leftHip, kp.leftKnee, kp.leftAnkle) :
+                    this.calculateAngle(kp.rightHip, kp.rightKnee, kp.rightAnkle);
+
+                return [legAngle > 160, "Keep your raised leg straight"];
+            },
+
+            // Hands should be holding the raised leg
+            (kp) => {
+                // Determine which leg is raised
+                const leftLegUp = kp.leftAnkle.y < kp.leftHip.y - 0.3;
+
+                const handsHoldingLeg = leftLegUp ?
+                    (Math.abs(kp.leftWrist.y - kp.leftAnkle.y) < 0.2 ||
+                        Math.abs(kp.rightWrist.y - kp.leftAnkle.y) < 0.2) :
+                    (Math.abs(kp.leftWrist.y - kp.rightAnkle.y) < 0.2 ||
+                        Math.abs(kp.rightWrist.y - kp.rightAnkle.y) < 0.2);
+
+                return [handsHoldingLeg, "Hold your raised leg with both hands behind the calf or thigh"];
+            }
+        ];
+
+        return this.detectYogaPose(pose, conditions, 7000); // Hold for 7 seconds
+    }
+
+    // Wrist Stretch Detection
+    detectWristStretch(pose) {
+        // For wrist stretches, we need to detect multiple stretch positions
+        if (!this.wristStretchState) {
+            this.wristStretchState = {
+                flexion: false,  // Wrists bent down
+                extension: false,  // Wrists bent up
+                timer: 0,
+                currentPosition: null,
+                lastPositionChange: 0
+            };
+        }
+
+        const keypoints = this.getKeypoints(pose);
+        if (!keypoints) {
+            return { inPosition: false, timer: 0, feedback: "Cannot detect body keypoints" };
+        }
+
+        const now = Date.now();
+
+        // We can't directly see wrist flexion/extension from pose keypoints
+        // Instead, we'll check hand/arm position and assume proper stretch
+
+        // Check for arms extended forward with palms down (extension stretch)
+        const isExtensionStretch = this.isWristExtensionPosition(keypoints);
+
+        // Check for arms extended forward with palms up (flexion stretch)
+        const isFlexionStretch = this.isWristFlexionPosition(keypoints);
+
+        let position = null;
+        if (isExtensionStretch) position = "extension";
+        else if (isFlexionStretch) position = "flexion";
+
+        // If position changed, update state
+        if (position && position !== this.wristStretchState.currentPosition) {
+            // If held previous position for at least 5 seconds, mark it as completed
+            if (this.wristStretchState.currentPosition && this.wristStretchState.timer >= 5000) {
+                this.wristStretchState[this.wristStretchState.currentPosition] = true;
+            }
+
+            this.wristStretchState.currentPosition = position;
+            this.wristStretchState.timer = 0;
+            this.wristStretchState.lastPositionChange = now;
+        }
+
+        // Update timer if in a valid position
+        if (position) {
+            if (this.wristStretchState.timer === 0) {
+                this.wristStretchState.timer = 1; // Start timer
+            } else {
+                this.wristStretchState.timer = now - this.wristStretchState.lastPositionChange;
+            }
+        } else {
+            this.wristStretchState.timer = 0;
+        }
+
+        // Check if all stretches are completed
+        const allCompleted = this.wristStretchState.flexion && this.wristStretchState.extension;
+
+        if (allCompleted) {
+            return {
+                inPosition: true,
+                timer: this.wristStretchState.timer,
+                feedback: "Great job! You've completed all wrist stretches."
+            };
+        } else if (position) {
+            const remainingTime = Math.max(0, 5000 - this.wristStretchState.timer);
+            const remainingSeconds = Math.ceil(remainingTime / 1000);
+
+            let nextStretch = "";
+            if (position === "extension" && !this.wristStretchState.flexion) {
+                nextStretch = " Next, turn your palms up for wrist flexion stretch.";
+            } else if (position === "flexion" && !this.wristStretchState.extension) {
+                nextStretch = " Next, turn your palms down for wrist extension stretch.";
+            }
+
+            return {
+                inPosition: false,
+                timer: this.wristStretchState.timer,
+                feedback: `Good wrist ${position} stretch! Hold for ${remainingSeconds} more seconds.${nextStretch}`
+            };
+        } else {
+            return {
+                inPosition: false,
+                timer: 0,
+                feedback: "Extend your arms forward with palms up or down to stretch your wrists"
+            };
+        }
+    }
+
+    // Helper functions for wrist stretch
+    isWristExtensionPosition(keypoints) {
+        // Arms extended forward at shoulder height, assumed palms down
+        const armsForward =
+            keypoints.leftWrist.x < keypoints.leftShoulder.x - 0.2 &&
+            keypoints.rightWrist.x > keypoints.rightShoulder.x + 0.2;
+
+        const armsAtShoulderHeight =
+            Math.abs(keypoints.leftWrist.y - keypoints.leftShoulder.y) < 0.1 &&
+            Math.abs(keypoints.rightWrist.y - keypoints.rightShoulder.y) < 0.1;
+
+        const elbowsStraight =
+            this.calculateAngle(keypoints.leftShoulder, keypoints.leftElbow, keypoints.leftWrist) > 160 &&
+            this.calculateAngle(keypoints.rightShoulder, keypoints.rightElbow, keypoints.rightWrist) > 160;
+
+        return armsForward && armsAtShoulderHeight && elbowsStraight;
+    }
+
+    isWristFlexionPosition(keypoints) {
+        // Similar to extension but assumes palms are up
+        // We can't actually see the palm direction, so we'll look for slightly different arm positions
+        // Usually flexion is done with arms slightly lower
+        const armsForward =
+            keypoints.leftWrist.x < keypoints.leftShoulder.x - 0.2 &&
+            keypoints.rightWrist.x > keypoints.rightShoulder.x + 0.2;
+
+        const armsSlightlyLower =
+            keypoints.leftWrist.y > keypoints.leftShoulder.y &&
+            keypoints.leftWrist.y < keypoints.leftShoulder.y + 0.15 &&
+            keypoints.rightWrist.y > keypoints.rightShoulder.y &&
+            keypoints.rightWrist.y < keypoints.rightShoulder.y + 0.15;
+
+        const elbowsStraight =
+            this.calculateAngle(keypoints.leftShoulder, keypoints.leftElbow, keypoints.leftWrist) > 160 &&
+            this.calculateAngle(keypoints.rightShoulder, keypoints.rightElbow, keypoints.rightWrist) > 160;
+
+        return armsForward && armsSlightlyLower && elbowsStraight;
+    }
 }
 
 // Helper functions (same as in original code)
@@ -4536,115 +6160,6 @@ function calculateAngle(kp1, kp2, kp3) {
     let angle = Math.abs(radians * (180 / Math.PI));
     return angle > 180 ? 360 - angle : angle;
 }
-
-// class RepCounter {
-//     constructor(exerciseType) {
-//         this.exerciseType = exerciseType;
-//         this.repCount = 0;
-//         this.lastState = null;
-//         this.keypointHistory = [];
-//         this.repThresholds = {
-//             'Squats': { min: 0.6, max: 0.9 },
-//             'Push Ups': { min: 0.4, max: 0.8 },
-//             'Jumping Jacks': { min: 0.3, max: 0.7 }
-//         };
-//     }
-
-//     analyzePose(keypoints) {
-//         switch (this.exerciseType) {
-//             case 'Squats':
-//                 return this._analyzeSquats(keypoints);
-//             case 'Push Ups':
-//                 return this._analyzePushUps(keypoints);
-//             case 'Jumping Jacks':
-//                 return this._analyzeJumpingJacks(keypoints);
-//             default:
-//                 return 0;
-//         }
-//     }
-
-//     _analyzeSquats(keypoints) {
-//         const leftHip = keypoints.find(k => k.name === 'left_hip');
-//         const rightHip = keypoints.find(k => k.name === 'right_hip');
-//         const hipsY = (leftHip.y + rightHip.y) / 2;
-
-//         this.keypointHistory.push(hipsY);
-//         if (this.keypointHistory.length > 10) this.keypointHistory.shift();
-
-//         const avgY = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
-//         const normalizedY = (avgY - this.repThresholds.Squats.min) /
-//             (this.repThresholds.Squats.max - this.repThresholds.Squats.min);
-
-//         if (normalizedY < 0.3 && this.lastState !== 'down') {
-//             this.repCount++;
-//             this.lastState = 'down';
-//             return this.repCount;
-//         }
-//         if (normalizedY > 0.7) this.lastState = 'up';
-//         return this.repCount;
-//     }
-
-//     _analyzePushUps(keypoints) {
-//         const leftElbow = keypoints.find(k => k.name === 'left_elbow');
-//         const rightElbow = keypoints.find(k => k.name === 'right_elbow');
-//         const shoulder = keypoints.find(k => k.name === 'left_shoulder');
-//         const wrist = keypoints.find(k => k.name === 'left_wrist');
-
-//         const angle = this._calculateAngle(shoulder, leftElbow, wrist);
-//         this.keypointHistory.push(angle);
-//         if (this.keypointHistory.length > 5) this.keypointHistory.shift();
-
-//         const avgAngle = this.keypointHistory.reduce((a, b) => a + b, 0) / this.keypointHistory.length;
-
-//         if (avgAngle < 90 && this.lastState !== 'down') {
-//             this.repCount++;
-//             this.lastState = 'down';
-//         }
-//         if (avgAngle > 160) this.lastState = 'up';
-//         return this.repCount;
-//     }
-
-//     _analyzeJumpingJacks(keypoints) {
-//         const leftWrist = keypoints.find(k => k.name === 'left_wrist');
-//         const rightWrist = keypoints.find(k => k.name === 'right_wrist');
-//         const shoulderWidth = Math.abs(
-//             keypoints.find(k => k.name === 'left_shoulder').x -
-//             keypoints.find(k => k.name === 'right_shoulder').x
-//         );
-
-//         const handSpread = Math.abs(leftWrist.x - rightWrist.x);
-//         const normalizedSpread = handSpread / shoulderWidth;
-
-//         if (normalizedSpread > 2.5 && this.lastState !== 'open') {
-//             this.repCount++;
-//             this.lastState = 'open';
-//         }
-//         if (normalizedSpread < 1.2) this.lastState = 'closed';
-//         return this.repCount;
-//     }
-
-//     _calculateAngle(a, b, c) {
-//         const radians = Math.atan2(c.y - b.y, c.x - b.x) -
-//             Math.atan2(a.y - b.y, a.x - b.x);
-//         let angle = Math.abs(radians * (180 / Math.PI));
-//         return angle > 180 ? 360 - angle : angle;
-//     }
-// }
-
-// function getKeypointByName(keypoints, name) {
-//     return keypoints.find(kp => kp.name === name);
-// }
-
-// function calculateDistance(kp1, kp2) {
-//     return Math.sqrt(Math.pow(kp2.x - kp1.x, 2) + Math.pow(kp2.y - kp1.y, 2));
-// }
-
-// function calculateAngle(kp1, kp2, kp3) {
-//     const radians = Math.atan2(kp3.y - kp2.y, kp3.x - kp2.x) -
-//         Math.atan2(kp1.y - kp2.y, kp1.x - kp2.x);
-//     let angle = Math.abs(radians * (180 / Math.PI));
-//     return angle > 180 ? 360 - angle : angle;
-// }
 
 //.........................................................................................//
 // Close button Function (pop up window)
