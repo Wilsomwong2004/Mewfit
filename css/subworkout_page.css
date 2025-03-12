@@ -51,6 +51,7 @@ body {
     width: 200px;
     margin: 0 20px;
     margin-left: 40px;
+    transition: all 0.3s ease;
 }
 
 html.dark-mode .timer {
@@ -61,6 +62,7 @@ html.dark-mode .timer {
     width: 20px;
     height: 50px;
     margin-right: 10px;
+    transition: all 0.3s ease;
 }
 
 .timer-text {
@@ -73,12 +75,11 @@ html.dark-mode .timer {
     display: flex;
     width: 100%;
     justify-content: space-between;
-    ;
     align-items: center;
     font-size: 30px;
-    ;
     margin: 0 20px;
     font-weight: medium;
+    transition: all 0.3s ease;
 }
 
 .close-btn {
@@ -155,6 +156,7 @@ html.dark-mode .close-btn {
     margin: 0 20px;
     margin-left: 150px;
     z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .pause i {
@@ -162,6 +164,7 @@ html.dark-mode .close-btn {
     padding: 0 20px;
     margin: auto;
     margin-right: 5px;
+    transition: all 0.3s ease;
 }
 
 .pause-text {
@@ -262,6 +265,7 @@ html.dark-mode .popup-content {
     min-width: 250px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     color: var(--text-color);
+    background: white;
 }
 
 html.dark-mode .popup-settings {
@@ -386,7 +390,8 @@ h2#popup-title {
 }
 
 .feedback-message.warning {
-    background-color: #f89933;;
+    background-color: #f89933;
+    ;
     color: white;
 }
 
@@ -404,6 +409,38 @@ h2#popup-title {
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-50%);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
     }
 }
 
@@ -1229,6 +1266,12 @@ html.dark-mode .style-option.active {
 }
 
 /* -------------------------------------------------------------------------------------------------- */
+/* Switch View Button */
+.switch-view-btn {
+    display: none;
+}
+
+/* -------------------------------------------------------------------------------------------------- */
 /* Notification Animations */
 @keyframes slideDown {
     from {
@@ -1255,6 +1298,136 @@ html.dark-mode .style-option.active {
 }
 
 /* Responsive Adjustments */
+@media (max-width: 1048px) {
+    .workout-container {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+        padding: 40px;
+        transition: all 0.3s ease;
+    }
+
+    .workout-guide,
+    .workout-user {
+        width: 100% !important;
+        height: 72vh;
+        margin: 0;
+        transition: all 0.3s ease;
+
+    }
+
+    /* Hide user camera view by default */
+    .workout-user {
+        display: none;
+    }
+
+    /* Show camera view when active */
+    .workout-user.active {
+        display: block;
+    }
+
+    /* Hide guide when camera is active */
+    .workout-guide.inactive {
+        display: none;
+    }
+
+    /* Switch view button styling */
+    .switch-view-btn {
+        background: #ffb089;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px auto;
+        display: block;
+    }
+
+    /* Adjust control panel layout */
+    .control-panel {
+        margin-left: 30%;
+        position: relative;
+    }
+
+    .rest-overlay {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+    }
+
+    .pause {
+        margin-left: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .switch-view-btn {
+        display: block;
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999;
+        background: #ffb089;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        animation: fadeIn 0.5s;
+        transition: all 0.3s ease;
+    }
+
+    .rest-card {
+        border: 1px solid #FF9967;
+        display: none;
+        transition: all 0.3s ease;
+    }
+
+    /* Hide button on desktop */
+    @media (min-width: 1049px) {
+        .switch-view-btn {
+            display: none !important;
+        }
+    }
+}
+
+@media (max-width: 876px) {
+    .pause {
+        width: 250px;
+        min-width: 100px;
+        transition: all 0.3s ease;
+    }
+
+    .control-panel {
+        margin-left: 32%;
+    }
+
+    .pause i {
+        margin: 24px 0 24px 55px;
+        transition: all 0.3s ease;
+    }
+}
+
+@media (max-width: 800px) {
+    .pause {
+        width: 200px;
+        min-width: 100px;
+        transition: all 0.3s ease;
+    }
+
+    .control-panel {
+        margin-left: 32%;
+    }
+
+    .pause i {
+        margin: 24px 0 24px 30px;
+        transition: all 0.3s ease;
+    }
+}
+
 @media (max-width: 768px) {
     .skeleton-styles {
         grid-template-columns: repeat(2, 1fr);
@@ -1265,6 +1438,72 @@ html.dark-mode .style-option.active {
         max-width: 400px;
     }
 }
+
+@media (max-width: 724px) {
+    .music-btn {
+        display: none;
+    }
+
+    .pause {
+        width: 120px;
+        min-width: 100px;
+        transition: all 0.3s ease;
+    }
+
+    .pause p {
+        display: none;
+    }
+
+    .pause i {
+        margin: 24px 0 24px 38px;
+        transition: all 0.3s ease;
+    }
+
+    .control-panel {
+        margin-left: 32%;
+        transition: all 0.3s ease;
+    }
+
+    .timer {
+        width: 260px;
+        margin: 0;
+        margin-left: 40px;
+        transition: all 0.3s ease;
+    }
+
+    .workout-details {
+        margin: 0 20px;
+        margin-right: 0;
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+}
+
+@media (max-width: 642px) {
+    .workout-name{
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+}
+
+@media (max-width: 540px) {
+    .control-panel {
+        margin-left: 28%;
+        transition: all 0.3s ease;
+    }
+
+    .workout-details {
+        display: block;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .workout-name{
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+}
+
 
 @media (max-width: 480px) {
     .skeleton-styles {
@@ -1283,5 +1522,26 @@ html.dark-mode .style-option.active {
 
     .switch {
         align-self: flex-start;
+    }
+
+    .control-panel {
+        margin-left: 30%;
+        transition: all 0.3s ease;
+    }
+}
+
+@media (max-width: 400px) {
+    .control-panel {
+        margin-left: 20%;
+        transition: all 0.3s ease;
+    }
+
+    .switch-view-btn {
+        bottom: 85px;
+        transition: all 0.3s ease;
+    }
+
+    .workout-name {
+        display: none;
     }
 }

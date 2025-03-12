@@ -199,8 +199,11 @@ html.dark-mode .container-side-transparent-right {
         padding-right: 0px;
     }
 
-    .s1-words h2 {
+    .greetings {
         font-size: 5vw;
+        display:flex;
+        width:100%;
+        justify-content: center;
     }
 
     .s1-words p {
@@ -270,7 +273,7 @@ html.dark-mode .container-side-transparent-right {
     gap: 10px;
 }
 
-#fitness-summary-container{
+.fitness-summary-container{
     opacity: 0;
     transform: translateY(-20px); 
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
@@ -288,19 +291,20 @@ to {
 }
 }
 
-#fitness-summary-container {
+.fitness-summary-container {
     border-radius: 20px;
     padding: 10px 0px;
     box-shadow: 5px 5px 5px #0000002c;
     width: 100%;
+    transition: background-color 4s ease; 
 }
 
-#fitness-summary-container img {
+.fitness-summary-container img {
     width: 20px;
     margin-left: 15px;
 }
 
-#fitness-summary-container h4 {
+.fitness-summary-container h4 {
     padding-left: 10px;
     width: 18vw;
     font-weight: 500;
@@ -309,14 +313,14 @@ to {
     align-items: center;
 }
 
-#fitness-summary-container h5 {
+.fitness-summary-container h5 {
     display: flex;
     justify-content: flex-end;
     color: #141414;
     align-items: center;
 }
 
-#fitness-summary-container h6 {
+.section2-value {
     font-size: 45px;
     font-weight: normal;
     display: flex;
@@ -325,7 +329,8 @@ to {
     height: 100px;
 }
 
-#fitness-summary-container p {
+
+.fitness-summary-container p {
     font-size: 15px;
     text-align: center;
 }
@@ -351,14 +356,14 @@ to {
         flex-direction: column;
     }
 
-    #fitness-summary-container {
+    .fitness-summary-container {
         height: 30vw;
         width: 47%;
         margin-right: 2vw;
     }
 
 
-    #fitness-summary-container h4 {
+    .fitness-summary-container h4 {
         width: 25vw;
         font-size: 3vw;
         padding-left: 15px;
@@ -368,21 +373,21 @@ to {
         width: 92vw;
     }
 
-    #fitness-summary-container h4 {
+    .fitness-summary-container h4 {
         width: 45vw;
         font-size: 3vw;
     }
 
-    #fitness-summary-container h5 {
+    .fitness-summary-container h5 {
         font-size: 3vw;
     }
 
-    #fitness-summary-container h6 {
+    .section2-value {
         font-size: 8vw;
         height: 18vw;
     }
 
-    #fitness-summary-container p {
+    .fitness-summary-container p {
         font-size: 2.2vw;
     }
 }
@@ -418,13 +423,17 @@ to {
 
 #chart {
     width: 50%;
-    text-align: center;
-    color: #868686;
-    font-size: 12px;
-    font-weight: 500;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center !important;
+    color: #868686 !important;
+    font-weight: 500 !important;
+}
+
+.no-chart1,.no-chart2{
+    width:100%;
+    display: block;
 }
 
 .section2a h4 {
@@ -433,6 +442,7 @@ to {
     margin-left: 10px;
     margin-top: 5px;
 }
+
 
 .section2a h5 {
     font-size: 13px;
@@ -461,7 +471,7 @@ to {
     font-weight: normal;
 }
 
-.section2a p {
+.data-details {
     padding-left: 1vw;
     font-size: 15px;
     color: #FF946E;
@@ -479,6 +489,8 @@ to {
     margin-top: 20px;
 }
 
+
+
 @media screen and (max-width: 935px) {
     .section2a {
         flex-direction: column;
@@ -487,11 +499,10 @@ to {
 
     .box {
         width: 90vw;
-        height: 55vw;
+        height: auto;
         margin-top: 4vw;
         padding: 15px;
     }
-
 
     #chart {
         width: 50vw;
@@ -519,7 +530,7 @@ to {
         font-size: 2.8vw;
     }
 
-    .section2a p {
+    .data-details {
         font-size: 3vw;
     }
 
@@ -611,13 +622,8 @@ to {
 .diet-image {
     height: 200px;
     width: 100%;
-
-}
-
-.workout-image img,.diet-image img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
+
 }
 
 .workout-info,
@@ -652,4 +658,23 @@ to {
     margin-right: 0.2rem;
 }
 
-@media screen and (max-width: 935px) {}
+.pop-up{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+}
+
+#weightForm{
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+}

@@ -1,3 +1,11 @@
+<?php
+session_start();  
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
   <html lang="en">
     <head>
@@ -15,7 +23,7 @@
       <div class="no-select">
         <nav class="navbar" id="navbar">
           <div class="nav-links" id="nav-links">
-              <span class="workout-home"><a href="homepage.html">HOME</a></span>
+              <span class="workout-home"><a href="homepage.php">HOME</a></span>
               <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
               <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
               <span class="workout-dietplan"><a href="diet_page.html">DIET PLAN</a></span>
@@ -68,26 +76,17 @@
           <div class="left-frame">
             <div class="profile-section">
               <?php
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $dbname = "mewfit";
-                    
-                $conn = new mysqli($servername, $username, $password, $dbname);
+                include "conn.php";
 
-                $member_id = "10"; // replace with session variable later
-
-                if ($conn->connect_error) {
-                  die("Connection failed: " . $conn->connect_error);
-                }
+                $member_id = $_SESSION['member_id'] ?? 1; 
 
                 $sql = "SELECT * FROM member";
-                $result = $conn->query($sql); // create a variable and store the sql query result inside it
+                $result = $dbConn->query($sql); 
 
                 while ($row = $result->fetch_assoc()) {
                   if ($member_id == $row['member_id']) {
                     echo "
-                      <img src=\".uploads/{$row['member_pic']}\" alt=\"Profile\" class=\"profile-photo\"/>
+                      <img src=\".uploads/{$_SESSION['member pic']}\" alt=\"Profile\" class=\"profile-photo\"/>
                       <div class=\"profile-info-settings\">
                       <h2>{$row['username']}</h2>
                       <button class=\"change-photo\">Change profile photo</button>

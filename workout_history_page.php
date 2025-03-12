@@ -121,17 +121,10 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       </header>
 
       <?php
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mewfit";
-      
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        include "conn.php";
+
         $exist_record = false;
 
-        if ($conn->connect_error) {
-          die("Connection failed: " . $conn->connect_error);
-        }
         
         $sql = "SELECT 
                 workout_history.workout_history_id,
@@ -148,7 +141,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 ON workout_history.workout_id = workout.workout_id
                 ORDER BY workout_history.date DESC"; // connect the workout_history table and workout table
 
-        $result = $conn->query($sql); // create a variable and store the sql query result inside it
+        $result = $dbConn->query($sql); // create a variable and store the sql query result inside it
         
         function formatDate($date) {
           if ($date == date("Y-m-d")) {
@@ -166,7 +159,6 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
           if ($row['member_id'] == $_SESSION['member id']) {
             $exist_record = true;
-            // prints out the record
             echo "<div class=\"workout-date\">
                   <p>{$workout_date}</p>
                   </div>
@@ -189,7 +181,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
           echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
         }
 
-      $conn->close();
+      $dbConn->close();
       ?>
     </div>
   </body>

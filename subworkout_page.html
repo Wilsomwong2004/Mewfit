@@ -1,3 +1,12 @@
+<!-- <?php
+session_start();  
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?> -->
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -34,6 +43,7 @@
             <div class="workout-guide">
             </div>
             <div class="workout-user"></div>
+            <button class="switch-view-btn" onclick="toggleCameraView()">Switch to Camera</button> 
         </div>
         <div class="bottom">
             <div class="control-panel">

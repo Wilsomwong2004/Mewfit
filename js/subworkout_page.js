@@ -294,6 +294,8 @@ async function initPoseDetection() {
         return;
     }
 
+    await requestCameraPermission();
+
     try {
         // Access webcam
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -536,14 +538,14 @@ function showCameraOffMessage(message) {
 }
 
 // Modify initPoseDetection to check camera state
-async function initPoseDetection() {
-    if (!isCameraEnabled) {
-        showCameraOffMessage('Camera is currently turned off');
-        return;
-    }
+// async function initPoseDetection() {
+//     if (!isCameraEnabled) {
+//         showCameraOffMessage('Camera is currently turned off');
+//         return;
+//     }
 
-    await requestCameraPermission();
-}
+//     await requestCameraPermission();
+// }
 
 // Update window load event to respect camera state
 window.addEventListener('load', async () => {
@@ -618,7 +620,7 @@ function handleVisibilityFeedback(poses) {
     const currentTime = Date.now();
     const minimalVisibility = checkMinimalVisibility(poses);
     const isResting = window.workoutManager ? window.workoutManager.isResting : false;
-    
+
     // Only process when state changes or feedback interval has passed
     const visibilityChanged = (minimalVisibility !== lastVisibilityState);
     lastVisibilityState = minimalVisibility;
@@ -630,26 +632,26 @@ function handleVisibilityFeedback(poses) {
         // Do nothing here to keep the message visible
     }
     // If keypoints are not visible and NOT resting, show appropriate feedback
-    else if (!minimalVisibility && !isResting && 
-            (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
-        
+    else if (!minimalVisibility && !isResting &&
+        (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
+
         // Clear any existing timer
         if (feedbackClearTimerId) {
             clearTimeout(feedbackClearTimerId);
         }
-        
+
         // Check if any upper body is visible (partial visibility)
         const partialVisibility = checkPartialVisibility(poses);
-        
+
         if (partialVisibility) {
             showFormFeedback(["Please position your full body within the camera view"], "warning");
         } else {
             showFormFeedback(["Please position yourself within the camera view"], "error");
         }
-        
+
         isVisibilityFeedbackShown = true;
         lastFeedbackTime = currentTime;
-        
+
         // Set timer to clear the feedback after FEEDBACK_DURATION
         feedbackClearTimerId = setTimeout(() => {
             showFormFeedback([]);
@@ -675,8 +677,8 @@ function checkPartialVisibility(poses) {
     // Check visibility of upper body
     const visibleUpperBodyKeypoints = upperBodyKeypoints.filter(name => {
         const keypoint = getKeypointByName(keypoints, name);
-        return keypoint && 
-            keypoint.score > 0.2 && 
+        return keypoint &&
+            keypoint.score > 0.2 &&
             keypoint.x > 0 &&
             keypoint.x < videoElement.videoWidth &&
             keypoint.y > 0 &&
@@ -741,7 +743,7 @@ async function detectPose() {
 
         // Always draw whatever keypoints we can see, even if not enough for tracking
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
-        
+
         if (poses.length > 0) {
             const keypoints = poses[0].keypoints;
             const scale = Math.min(canvasElement.scaleX, canvasElement.scaleY);
@@ -2034,6 +2036,27 @@ document.addEventListener('DOMContentLoaded', () => {
 //.........................................................................................//
 // Connection between workout page data to subworkout page
 
+// At the beginning of your subworkout_page.js
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize the workout manager
+    const workoutManager = new WorkoutManager();
+    window.workoutManager = workoutManager; // Make it globally accessible if needed
+
+    // Check if we're restarting a workout
+    const shouldRestart = localStorage.getItem('restartWorkout') === 'true';
+
+    if (shouldRestart) {
+        // Clear the restart flag
+        localStorage.removeItem('restartWorkout');
+        console.log('Restarting workout from done page...');
+        // Call restart function
+        workoutManager.restartWorkout();
+    } else {
+        // Regular initialization
+        console.log('Starting new workout...');
+        workoutManager.startCountdown();
+    }
+});
 class WorkoutManager {
     constructor() {
         // Initialize state
@@ -2716,10 +2739,23 @@ class WorkoutManager {
                 }
             }
 
-            // Skip to next exercise
+            // Skip to next exercise and go to subworkout_done_page when last exercise is skipped
+            if (this.currentExerciseIndex >= this.exercises.length - 1) {
+                if (this.currentSet >= this.totalSets) {
+                    this.showConfirmationPopup(
+                        'End Workout',
+                        'Do you want to end the workout?',
+                        () => {
+                            this.endWorkout();
+                        }
+                    );
+                    return;
+                }
+            }
             this.skipCurrentExercise();
         });
     }
+
     skipCurrentExercise() {
         // Announce skipping exercise
         this.speakText('Skipping to next exercise');
@@ -2830,8 +2866,20 @@ class WorkoutManager {
 
         if (typeof stopDetection === 'function') stopDetection();
 
+        console.log("Restarting workout...");
         // Restart countdown
         this.startCountdown();
+    }
+
+    saveWorkoutData(workout) {
+        localStorage.setItem('currentWorkout', JSON.stringify(workout));
+    }
+
+    saveWorkoutStats(duration, calories) {
+        localStorage.setItem('workoutStats', JSON.stringify({
+            duration: duration,
+            calories: calories
+        }));
     }
 
     initializeRestOverlay() {
@@ -3112,6 +3160,17 @@ class WorkoutManager {
 
     endWorkout() {
         try {
+            // Calculate actual duration and calories based on completed exercises
+            const workoutDuration = this.totalDuration || 14; // Using total tracked duration or fallback
+            const workoutCalories = this.totalCalories || 203; // Using total tracked calories or fallback
+
+            // Save stats before navigating
+            const workoutStats = {
+                duration: `${workoutDuration} Minutes`,
+                calories: `${workoutCalories} kcal`
+            };
+            localStorage.setItem('workoutStats', JSON.stringify(workoutStats));
+
             // Stop music when workout ends
             if (this.workoutMusicPlayer) {
                 this.workoutMusicPlayer.pause();
@@ -3186,27 +3245,136 @@ class WorkoutPoseDetector {
     registerExerciseDetectors() {
         console.log("Registering exercise detectors...");
 
-        // Basic exercises
-        this.registerDetector('Squats', this.detectSquat);
-        this.registerDetector('Push Ups', this.detectPushUp);
-        this.registerDetector('Jumping Jacks', this.detectJumpingJack);
+        // ==================== CARDIO EXERCISES ====================
+        // Time-based Cardio
+        this.registerDetector('March On The Spot', this.detectMarchOnSpot); // Time
+        this.registerDetector('Low Impact High Knee', this.detectLowImpactHighKnee); // Time
+        this.registerDetector('Side to Side Step', this.detectSideToSideStep); // Time
+        this.registerDetector('Twist & Reach', this.detectTwistReach); // Time
+        this.registerDetector('Shuffle Forward and Backward', this.detectShuffle); // Time
+        this.registerDetector('Ice Ski', this.detectIceSki); // Time
+        this.registerDetector('Side Step Shuffle', this.detectSideStepShuffle); // Time
+        this.registerDetector('Sprint', this.detectSprint); // Time
+        this.registerDetector('Jog On The Spot', this.detectJogOnSpot); // Time
+        this.registerDetector('Butt Kicks', this.detectButtKicks); // Time
+        this.registerDetector('High Punches', this.detectHighPunches); // Time
+        this.registerDetector('Lateral Shuttle Steps', this.detectLateralShuttle); // Time
+        this.registerDetector('Bob Weave Circle', this.detectBobWeave); // Time
 
-        // Time-based exercises
-        this.registerDetector('March On The Spot', this.detectMarchOnSpot);
-        this.registerDetector('Side to Side Step', this.detectSideToSideStep);
-        this.registerDetector('Low Impact High Knee', this.detectHighKnee);
-        this.registerDetector('Twist & Reach', this.detectTwistReach);
+        // Rep-based Cardio/HIIT
+        this.registerDetector('Burpee', this.detectBurpee); // Reps
+        this.registerDetector('Jump Squat With Punches', this.detectJumpSquatPunches); // Reps
+        this.registerDetector('Step-Ups', this.detectStepUps); // Reps
+        this.registerDetector('Plank Jacks', this.detectPlankJacks); // Reps
+        this.registerDetector('Kangaroo Hops', this.detectKangarooHops); // Reps
+        this.registerDetector('Ice Skater', this.detectIceSkater); // Reps
+        this.registerDetector('Step Hop Overs', this.detectStepHopOvers); // Reps
+        this.registerDetector('Wide to Narrow Step Jump', this.detectWideNarrowJump); // Reps
+        this.registerDetector('Squat With Punches', this.detectSquatPunches); // Reps
+        this.registerDetector('Cross High Punches', this.detectCrossPunches); // Reps
+        this.registerDetector('Straight Punches', this.detectStraightPunches); // Reps
+        this.registerDetector('Burpee Step-Up', this.detectBurpeeStepUp); // Reps
+        this.registerDetector('Decline Mountain Climbers', this.detectDeclineClimbers); // Reps
+        this.registerDetector('Frogger To Squat', this.detectFroggerSquat); // Reps
+        this.registerDetector('Step-Ups With Knee To Elbow', this.detectStepUpsKneeElbow); // Reps
 
-        // Rep-based exercises
-        this.registerDetector('Burpee', this.detectBurpee);
-        this.registerDetector('High Knees', this.detectHighKnees);
-        this.registerDetector('Mountain Climbers', this.detectMountainClimbers);
-        this.registerDetector('Jump Squat With Punches', this.detectJumpSquatPunches);
-        this.registerDetector('Step-Ups', this.detectStepUps);
-        this.registerDetector('Step Hop Overs', this.detectStepHopOvers);
-        this.registerDetector('Wide to Narrow Step Jump', this.detectWideToNarrowStepJump);
+        // ================== WEIGHT TRAINING EXERCISES ================
+        // Rep-based Weighted
+        this.registerDetector('Dumbbell Squat', this.detectDumbbellSquat); // Reps
+        this.registerDetector('Shoulder Press', this.detectShoulderPress); // Reps
+        this.registerDetector('Reverse Lunge to Shoulder Press', this.detectLungePress); // Reps
+        this.registerDetector('Bicep Curls', this.detectBicepCurls); // Reps
+        this.registerDetector('Tricep Kickback', this.detectTricepKickback); // Reps
+        this.registerDetector('Front Raise', this.detectFrontRaise); // Reps
+        this.registerDetector('Single Arm Dumbbell Row', this.detectSingleArmRow); // Reps
+        this.registerDetector('Upright Dumbbell Row', this.detectUprightRow); // Reps
+        this.registerDetector('Dumbbell Sumo Squat', this.detectSumoSquat); // Reps
+        this.registerDetector('Walking Lunges', this.detectWalkingLunges); // Reps
+        this.registerDetector('Deadlift', this.detectDeadlift); // Reps
+        this.registerDetector('Goblet Squat', this.detectGobletSquat); // Reps
+        this.registerDetector('Woodchop', this.detectWoodchop); // Reps
+        this.registerDetector('Snatch to Shoulder Press', this.detectSnatchPress); // Reps
+        this.registerDetector('Dumbbell Swing', this.detectDumbbellSwing); // Reps
+        this.registerDetector('Overhead Squat', this.detectOverheadSquat); // Reps
+        this.registerDetector('Single Leg Deadlift', this.detectSingleLegDeadlift); // Reps
+        this.registerDetector('Reverse Fly', this.detectReverseFly); // Reps
+        this.registerDetector('Plank Row', this.detectPlankRow); // Reps
+        this.registerDetector('Y to T Raises', this.detectYTWings); // Reps
+        this.registerDetector('Alternate Elevated Lunge', this.detectElevatedLunge); // Reps
+        this.registerDetector('Tricep Dips', this.detectTricepDips); // Reps
+        this.registerDetector('Burpees with Dumbbell Press', this.detectBurpeeDBPress); // Reps
+        this.registerDetector('Dumbbells High Pulls', this.detectHighPulls); // Reps
+        this.registerDetector('Alternate Lunge & Twist', this.detectLungeTwist); // Reps
+        this.registerDetector('Head Crusher', this.detectHeadCrusher); // Reps
+        this.registerDetector('Russian Twist (Dumbbell)', this.detectRussianTwist); // Reps
+        this.registerDetector('Tricep Extension', this.detectTricepExtension); // Reps
+        this.registerDetector('Bicep Curls to Outward Abductor', this.detectCurlAbductor); // Reps
+        this.registerDetector('Squat to Shoulder Press', this.detectSquatPress); // Reps
+        this.registerDetector('Single Arm Snatch to Shoulder Press', this.detectSingleSnatch); // Reps
+        this.registerDetector('Pull Over', this.detectPullOver); // Reps
+        this.registerDetector('Fly Hip Bridge', this.detectFlyBridge); // Reps
+        this.registerDetector('Overhead Arm Circle', this.detectOverheadCircles); // Reps
+        this.registerDetector('L Rotation', this.detectLRotation); // Reps
+        this.registerDetector('Side to Front Raise', this.detectSideFrontRaise); // Reps
 
-        console.log("Total registered exercises:", Object.keys(this.exerciseDetectors));
+        // ============= BODYWEIGHT/WEIGHT-FREE EXERCISES ============
+        // Time-based Bodyweight
+        this.registerDetector('Plank', this.detectPlank); // Time
+        this.registerDetector('Hip Bridge Hold', this.detectHipBridgeHold); // Time
+        this.registerDetector('Superman', this.detectSuperman); // Time
+        this.registerDetector('Flutter Kicks', this.detectFlutterKicks); // Time
+        this.registerDetector('Windshield Wiper with Leg Extension', this.detectWindshieldWipers); // Time
+        this.registerDetector('Side Plank Hip Dips', this.detectSidePlankDips); // Time
+
+        // Rep-based Bodyweight
+        this.registerDetector('Push-Up', this.detectPushUp); // Reps
+        this.registerDetector('Russian Twist', this.detectRussianTwistBodyweight); // Reps
+        this.registerDetector('Leg Raise with Hip Thrust', this.detectLegRaiseThrust); // Reps
+        this.registerDetector('Chair Squat', this.detectChairSquat); // Reps
+        this.registerDetector('Reverse Lunge', this.detectReverseLunge); // Reps
+        this.registerDetector('Fire Hydrants', this.detectFireHydrants); // Reps
+        this.registerDetector('Lunge Pulse', this.detectLungePulse); // Reps
+        this.registerDetector('Sumo Squat', this.detectSumoSquatBodyweight); // Reps
+        this.registerDetector('Curtsy Lunge', this.detectCurtsyLunge); // Reps
+        this.registerDetector('Squat Pulse', this.detectSquatPulse); // Reps
+        this.registerDetector('Standing Side Leg Raise', this.detectStandingLegRaise); // Reps
+        this.registerDetector('Calf Raises', this.detectCalfRaises); // Reps
+        this.registerDetector('Assisted Standing Kickbacks', this.detectAssistedKickbacks); // Reps
+        this.registerDetector('Clock Lunge', this.detectClockLunge); // Reps
+        this.registerDetector('Hip Bridge Circle', this.detectHipBridgeCircle); // Reps
+        this.registerDetector('Knee Push-Up', this.detectKneePushUp); // Reps
+        this.registerDetector('Wide To Narrow Push-Up', this.detectWideNarrowPushUp); // Reps
+        this.registerDetector('Spiderman Push-Up', this.detectSpidermanPushUp); // Reps
+        this.registerDetector('Forward To Back Lunge', this.detectForwardBackLunge); // Reps
+        this.registerDetector('The Bird', this.detectBird); // Reps
+        this.registerDetector('Burpee to Push-Up', this.detectBurpeePushUp); // Reps
+        this.registerDetector('Split Jack Knife', this.detectSplitJackKnife); // Reps
+        this.registerDetector('Sprinter Alternate Knee Tucks', this.detectSprinterTucks); // Reps
+        this.registerDetector('Single Leg Hip Bridge', this.detectSingleLegBridge); // Reps
+        this.registerDetector('Assisted Lunge', this.detectAssistedLunge); // Reps
+        this.registerDetector('Standing Side Crunch', this.detectStandingCrunch); // Reps
+
+        // ====================== YOGA/STRETCHING ======================
+        // Time-based Yoga
+        this.registerDetector('Child Pose', this.detectChildPose); // Time
+        this.registerDetector('Downward Facing Dog', this.detectDownwardDog); // Time
+        this.registerDetector('Butterfly Stretch', this.detectButterfly); // Time
+        this.registerDetector('Cat and Camel', this.detectCatCamel); // Time
+        this.registerDetector('Lying Spinal Twist', this.detectSpinalTwist); // Time
+        this.registerDetector('Standing Hamstring Stretch', this.detectHamstringStretch); // Time
+        this.registerDetector('Cobra', this.detectCobra); // Time
+        this.registerDetector('Bridge Stretch', this.detectBridgeStretch); // Time
+        this.registerDetector('Neck Stretches', this.detectNeckStretch); // Time
+        this.registerDetector('Shoulder Stretch', this.detectShoulderStretch); // Time
+        this.registerDetector('Chest Stretch', this.detectChestStretch); // Time
+        this.registerDetector('Arm Circle', this.detectArmCircle); // Time
+        this.registerDetector('Alternate Cross Stretch', this.detectCrossStretch); // Time
+        this.registerDetector('Hug Knees to Chest', this.detectHugKnees); // Time
+        this.registerDetector('Hip Flexor Reach', this.detectHipFlexor); // Time
+        this.registerDetector('Lying Hamstring Stretch', this.detectLyingHamstring); // Time
+        this.registerDetector('Wrist Stretch', this.detectWristStretch); // Time
+
+        console.log(`Total registered exercises: ${Object.keys(this.exerciseDetectors).length}`);
     }
 
     // Register a specific detector function for an exercise
@@ -3520,29 +3688,29 @@ class WorkoutPoseDetector {
     detectMarchOnSpot(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
         if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data", feedbackType: "error" };
-        
+
         const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
         const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
         const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
         const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
-        
+
         // Error case: missing critical keypoints
         if (!leftKnee || !rightKnee || !leftHip || !rightHip) {
             console.log("March error: Missing keypoints");
             return { repCount: this.repCounter, feedback: "Cannot track legs", feedbackType: "error" };
         }
-        
+
         // Calculate the height of knees relative to hips
         const leftKneeHeight = leftHip.y - leftKnee.y;
         const rightKneeHeight = rightHip.y - rightKnee.y;
-        
+
         // Track the highest knee
         const highestKneeHeight = Math.max(leftKneeHeight, rightKneeHeight);
-        
+
         // Normalize based on hip position (higher value means knee is higher)
         const hipWidth = Math.abs(leftHip.x - rightHip.x);
         const normalizedHeight = highestKneeHeight / hipWidth;
-        
+
         // Log the calculations for debugging
         console.log("March calculations:", {
             leftKneeHeight,
@@ -3555,32 +3723,32 @@ class WorkoutPoseDetector {
                 low: 0.2
             }
         });
-        
+
         let feedback = "";
         let feedbackType = "info";
-        
+
         // Track which knee is active
         if (!this.lastActiveKnee) {
             this.lastActiveKnee = null;
         }
-        
+
         // Tracking variables
         if (!this.feedbackCooldown) {
             this.feedbackCooldown = 0;
         }
-        
+
         // Reduce feedback frequency - only show feedback every few frames
         if (this.feedbackCooldown > 0) {
             this.feedbackCooldown--;
             return { repCount: this.repCounter, feedback: "", feedbackType: "info" };
         }
-        
+
         // A high knee followed by a low knee counts as one rep
         if (normalizedHeight > 0.5 && this.lastState !== 'high') {
             this.lastState = 'high';
             // Only count rep when a different knee goes up
             const activeKnee = leftKneeHeight > rightKneeHeight ? 'left' : 'right';
-            
+
             if ((activeKnee === 'left' && this.lastActiveKnee === 'right') ||
                 (activeKnee === 'right' && this.lastActiveKnee === 'left') ||
                 this.lastActiveKnee === null) {
@@ -3588,7 +3756,7 @@ class WorkoutPoseDetector {
                 feedback = "Good march!";
                 feedbackType = "success";
                 this.lastActiveKnee = activeKnee;
-                
+
                 // Log successful rep
                 console.log("March rep counted:", {
                     newCount: this.repCounter,
@@ -3610,7 +3778,7 @@ class WorkoutPoseDetector {
             // Only show this feedback if the user has been in the low state for a while
             if (!this.lowStateCounter) this.lowStateCounter = 0;
             this.lowStateCounter++;
-            
+
             // Only give "lift higher" feedback after being low for a while
             if (this.lowStateCounter > 60) { // About 2 seconds at 30fps
                 feedback = "Lift your knee higher";
@@ -3624,11 +3792,11 @@ class WorkoutPoseDetector {
             // Default - no feedback when form is good
             feedback = "";
         }
-        
+
         // Only show feedback in UI if there's actual feedback
         if (feedback) {
             showFormFeedback([feedback], feedbackType);
-            
+
             // Log when feedback is shown
             console.log("March feedback shown:", {
                 feedback,
@@ -3637,7 +3805,7 @@ class WorkoutPoseDetector {
                 state: this.lastState
             });
         }
-        
+
         return { repCount: this.repCounter, feedback, feedbackType };
     }
 
@@ -3694,16 +3862,67 @@ class WorkoutPoseDetector {
         return { repCount: this.repCounter, feedback };
     }
 
-    detectHighKnee(keypoints) {
-        // Similar to March On The Spot but with higher knee lift requirements
-        const result = this.detectMarchOnSpot(keypoints);
+    detectHighKnees(keypoints) {
+        // Get smoothed keypoint data for better detection
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
 
-        // Modify feedback to emphasize high knees
-        if (result.feedback === "Lift your knee higher") {
-            result.feedback = "Lift your knee much higher for high knees";
+        // Extract knee and hip positions
+        const leftHip = smoothedKeypoints.find(kp => kp.name === "leftHip");
+        const rightHip = smoothedKeypoints.find(kp => kp.name === "rightHip");
+        const leftKnee = smoothedKeypoints.find(kp => kp.name === "leftKnee");
+        const rightKnee = smoothedKeypoints.find(kp => kp.name === "rightKnee");
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { repCount: this.repCounter, feedback: "Can't track knees and hips" };
         }
 
-        return result;
+        // Calculate midpoint between the hips
+        const hipMidpointY = (leftHip.y + rightHip.y) / 2;
+
+        // Check knee height relative to hips
+        const leftKneeHeightRatio = (hipMidpointY - leftKnee.y) / this.torsoLength;
+        const rightKneeHeightRatio = (hipMidpointY - rightKnee.y) / this.torsoLength;
+
+        // Track knee positions for movement detection
+        this.updateKneePositionsHistory(leftKnee, rightKnee);
+
+        // Detect alternating knee movement
+        const isAlternating = this.detectAlternatingKneeMovement();
+
+        // Define high knee threshold (knees should rise to at least 50% of torso length)
+        const HIGH_KNEE_THRESHOLD = 0.5;
+
+        // Check if either knee is raised high enough
+        const leftKneeHigh = leftKneeHeightRatio > HIGH_KNEE_THRESHOLD;
+        const rightKneeHigh = rightKneeHeightRatio > HIGH_KNEE_THRESHOLD;
+
+        // Detect motion and increment rep count if appropriate
+        if (this.detectKneeRepCompletion(leftKneeHigh, rightKneeHigh)) {
+            this.repCounter++;
+        }
+
+        // Generate appropriate feedback
+        let feedback = "Good form";
+
+        if (!leftKneeHigh && !rightKneeHigh) {
+            feedback = "Lift your knees much higher, aim for waist level";
+        } else if (!isAlternating) {
+            feedback = "Alternate legs for proper high knees";
+        } else if (this.detectSlowPace()) {
+            feedback = "Increase your pace for effective high knees";
+        }
+
+        return {
+            repCount: this.repCounter,
+            feedback: feedback,
+            metrics: {
+                leftKneeHeight: leftKneeHeightRatio.toFixed(2),
+                rightKneeHeight: rightKneeHeightRatio.toFixed(2),
+                pace: this.currentPace,
+                isAlternating: isAlternating
+            }
+        };
     }
 
     // Additional exercise detectors would follow the same pattern
@@ -3863,27 +4082,430 @@ class WorkoutPoseDetector {
         return false;
     }
 
-    detectHighKnees(keypoints) {
-        // Enhanced version of detectMarchOnSpot with higher requirements
-        return this.detectHighKnee(keypoints);
+    detectMountainClimbers(keypoints) {
+        // Get smoothed keypoint data for better detection
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // Extract relevant keypoints
+        const leftShoulder = smoothedKeypoints.find(kp => kp.name === "leftShoulder");
+        const rightShoulder = smoothedKeypoints.find(kp => kp.name === "rightShoulder");
+        const leftHip = smoothedKeypoints.find(kp => kp.name === "leftHip");
+        const rightHip = smoothedKeypoints.find(kp => kp.name === "rightHip");
+        const leftKnee = smoothedKeypoints.find(kp => kp.name === "leftKnee");
+        const rightKnee = smoothedKeypoints.find(kp => kp.name === "rightKnee");
+        const leftAnkle = smoothedKeypoints.find(kp => kp.name === "leftAnkle");
+        const rightAnkle = smoothedKeypoints.find(kp => kp.name === "rightAnkle");
+        const leftWrist = smoothedKeypoints.find(kp => kp.name === "leftWrist");
+        const rightWrist = smoothedKeypoints.find(kp => kp.name === "rightWrist");
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee ||
+            !leftAnkle || !rightAnkle || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Can't track full body" };
+        }
+
+        // Initialize state tracking if needed
+        if (!this.mountainClimberState) {
+            this.mountainClimberState = {
+                kneePositions: [],
+                lastRepTime: Date.now(),
+                isInPlank: false,
+                leftKneeForward: false,
+                rightKneeForward: false
+            };
+        }
+
+        // Calculate key metrics
+        const shoulderMidpoint = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const hipMidpoint = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const wristMidpoint = {
+            x: (leftWrist.x + rightWrist.x) / 2,
+            y: (leftWrist.y + rightWrist.y) / 2
+        };
+
+        // Check if in plank position
+        const torsoAngle = Math.atan2(
+            hipMidpoint.y - shoulderMidpoint.y,
+            hipMidpoint.x - shoulderMidpoint.x
+        ) * 180 / Math.PI;
+
+        const isInPlank = Math.abs(torsoAngle) < 30 &&
+            Math.abs(shoulderMidpoint.y - wristMidpoint.y) < 50;
+
+        this.mountainClimberState.isInPlank = isInPlank;
+
+        if (!isInPlank) {
+            return {
+                repCount: this.repCounter,
+                feedback: "Get into proper plank position"
+            };
+        }
+
+        // Track knee positions
+        this.mountainClimberState.kneePositions.push({
+            leftKnee: { x: leftKnee.x, y: leftKnee.y },
+            rightKnee: { x: rightKnee.x, y: rightKnee.y },
+            timestamp: Date.now()
+        });
+
+        // Keep history limited to last 30 frames
+        if (this.mountainClimberState.kneePositions.length > 30) {
+            this.mountainClimberState.kneePositions.shift();
+        }
+
+        // Check knee positions relative to shoulders
+        const leftKneeForward = leftKnee.x > shoulderMidpoint.x;
+        const rightKneeForward = rightKnee.x > shoulderMidpoint.x;
+
+        // Detect rep completion (when knee moves from behind shoulder to forward and back)
+        if (leftKneeForward && !this.mountainClimberState.leftKneeForward) {
+            this.repCounter++;
+            this.mountainClimberState.lastRepTime = Date.now();
+        } else if (rightKneeForward && !this.mountainClimberState.rightKneeForward) {
+            this.repCounter++;
+            this.mountainClimberState.lastRepTime = Date.now();
+        }
+
+        // Update knee position state
+        this.mountainClimberState.leftKneeForward = leftKneeForward;
+        this.mountainClimberState.rightKneeForward = rightKneeForward;
+
+        // Calculate pace
+        const repTimeElapsed = Date.now() - this.mountainClimberState.lastRepTime;
+        const pace = 1000 / repTimeElapsed; // reps per second
+
+        // Generate feedback
+        let feedback = "Good form";
+
+        if (!this.detectAlternatingKnees()) {
+            feedback = "Alternate knees for proper mountain climbers";
+        } else if (pace < 1.0) { // slower than 1 rep per second
+            feedback = "Increase your pace, drive knees faster";
+        } else if (!this.isProperPlankAlignment(shoulderMidpoint, hipMidpoint, wristMidpoint)) {
+            feedback = "Maintain straight line from shoulders to heels";
+        }
+
+        return {
+            repCount: this.repCounter,
+            feedback: feedback,
+            metrics: {
+                pace: pace.toFixed(2),
+                isInPlank: isInPlank,
+                plankAngle: torsoAngle.toFixed(2)
+            }
+        };
     }
 
-    detectMountainClimbers(keypoints) {
-        // Would detect plank position with alternating knee drives
-        // For simplicity, reporting basic placeholder
-        return { repCount: this.repCounter, feedback: "Maintain plank, drive knees faster" };
+    detectAlternatingKnees() {
+        if (!this.mountainClimberState ||
+            !this.mountainClimberState.kneePositions ||
+            this.mountainClimberState.kneePositions.length < 10) {
+            return false;
+        }
+
+        // Check if knees are moving in alternating pattern
+        let leftForward = false;
+        let rightForward = false;
+        let hasAlternated = false;
+
+        for (let i = 1; i < this.mountainClimberState.kneePositions.length; i++) {
+            const prev = this.mountainClimberState.kneePositions[i - 1];
+            const curr = this.mountainClimberState.kneePositions[i];
+
+            // Detect forward movement
+            const leftMovingForward = curr.leftKnee.x > prev.leftKnee.x;
+            const rightMovingForward = curr.rightKnee.x > prev.rightKnee.x;
+
+            // Check for alternating pattern
+            if (leftMovingForward && !rightMovingForward) {
+                leftForward = true;
+            } else if (!leftMovingForward && rightMovingForward) {
+                rightForward = true;
+            }
+
+            if (leftForward && rightForward) {
+                hasAlternated = true;
+                break;
+            }
+        }
+
+        return hasAlternated;
+    }
+
+    isProperPlankAlignment(shoulder, hip, wrist) {
+        // Check if shoulders, hips, and heels form a straight line
+        const shoulderToHipAngle = Math.atan2(
+            hip.y - shoulder.y,
+            hip.x - shoulder.x
+        ) * 180 / Math.PI;
+
+        // Proper plank should have angle close to horizontal
+        return Math.abs(shoulderToHipAngle) < 15;
     }
 
     detectJumpSquatPunches(keypoints) {
-        // Combination of squat detector and arm extension tracking
-        // For simplicity, reporting basic placeholder
-        return { repCount: this.repCounter, feedback: "Full squat, explosive jump, extend punches" };
+        // Get smoothed keypoint data for better detection
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // Extract relevant keypoints
+        const nose = smoothedKeypoints.find(kp => kp.name === "nose");
+        const leftShoulder = smoothedKeypoints.find(kp => kp.name === "leftShoulder");
+        const rightShoulder = smoothedKeypoints.find(kp => kp.name === "rightShoulder");
+        const leftElbow = smoothedKeypoints.find(kp => kp.name === "leftElbow");
+        const rightElbow = smoothedKeypoints.find(kp => kp.name === "rightElbow");
+        const leftWrist = smoothedKeypoints.find(kp => kp.name === "leftWrist");
+        const rightWrist = smoothedKeypoints.find(kp => kp.name === "rightWrist");
+        const leftHip = smoothedKeypoints.find(kp => kp.name === "leftHip");
+        const rightHip = smoothedKeypoints.find(kp => kp.name === "rightHip");
+        const leftKnee = smoothedKeypoints.find(kp => kp.name === "leftKnee");
+        const rightKnee = smoothedKeypoints.find(kp => kp.name === "rightKnee");
+        const leftAnkle = smoothedKeypoints.find(kp => kp.name === "leftAnkle");
+        const rightAnkle = smoothedKeypoints.find(kp => kp.name === "rightAnkle");
+
+        if (!nose || !leftShoulder || !rightShoulder || !leftElbow || !rightElbow ||
+            !leftWrist || !rightWrist || !leftHip || !rightHip || !leftKnee || !rightKnee ||
+            !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Can't track full body" };
+        }
+
+        // Initialize state tracking if needed
+        if (!this.jumpSquatPunchState) {
+            this.jumpSquatPunchState = {
+                phase: "standing", // standing, squatting, jumping, punching
+                prevNoseY: nose.y,
+                hipPositions: [],
+                armExtension: {
+                    left: false,
+                    right: false
+                },
+                lastFullRepTime: Date.now()
+            };
+        }
+
+        // Track vertical movement
+        const verticalVelocity = this.jumpSquatPunchState.prevNoseY - nose.y;
+        this.jumpSquatPunchState.prevNoseY = nose.y;
+
+        // Track hip position for squat detection
+        const hipMidpointY = (leftHip.y + rightHip.y) / 2;
+        const ankleMidpointY = (leftAnkle.y + rightAnkle.y) / 2;
+
+        this.jumpSquatPunchState.hipPositions.push({
+            y: hipMidpointY,
+            timestamp: Date.now()
+        });
+
+        // Keep history limited
+        if (this.jumpSquatPunchState.hipPositions.length > 30) {
+            this.jumpSquatPunchState.hipPositions.shift();
+        }
+
+        // Calculate key metrics
+        const bodyHeight = ankleMidpointY - nose.y;
+        const squatDepth = (hipMidpointY - ankleMidpointY) / bodyHeight;
+        const isSquatting = squatDepth < 0.3; // Lower value means deeper squat
+
+        // Detect jumping
+        const isJumping = verticalVelocity > 15; // Upward velocity threshold
+
+        // Detect arm extension for punches
+        const leftArmExtension = this.calculateArmExtension(leftShoulder, leftElbow, leftWrist);
+        const rightArmExtension = this.calculateArmExtension(rightShoulder, rightElbow, rightWrist);
+
+        const leftPunching = leftArmExtension > 0.8 && !this.jumpSquatPunchState.armExtension.left;
+        const rightPunching = rightArmExtension > 0.8 && !this.jumpSquatPunchState.armExtension.right;
+
+        this.jumpSquatPunchState.armExtension.left = leftArmExtension > 0.8;
+        this.jumpSquatPunchState.armExtension.right = rightArmExtension > 0.8;
+
+        // Update phase
+        let currentPhase = this.jumpSquatPunchState.phase;
+
+        if (isJumping) {
+            currentPhase = "jumping";
+        } else if (isSquatting) {
+            currentPhase = "squatting";
+        } else if (leftPunching || rightPunching) {
+            currentPhase = "punching";
+        } else {
+            currentPhase = "standing";
+        }
+
+        // Track phase changes for rep counting
+        if (currentPhase !== this.jumpSquatPunchState.phase) {
+            // Count a rep when completing the sequence: squat -> jump -> punch
+            if (this.jumpSquatPunchState.phase === "punching" && currentPhase === "standing") {
+                const timeElapsed = Date.now() - this.jumpSquatPunchState.lastFullRepTime;
+                if (timeElapsed > 500) { // Prevent double counting
+                    this.repCounter++;
+                    this.jumpSquatPunchState.lastFullRepTime = Date.now();
+                }
+            }
+
+            this.jumpSquatPunchState.phase = currentPhase;
+        }
+
+        // Generate feedback
+        let feedback = "Good form";
+
+        if (currentPhase === "standing" && this.jumpSquatPunchState.lastFullRepTime === 0) {
+            feedback = "Begin with a deep squat";
+        } else if (currentPhase === "squatting" && squatDepth > 0.25) {
+            feedback = "Squat deeper, at least to parallel";
+        } else if (currentPhase === "jumping" && verticalVelocity < 20) {
+            feedback = "Jump more explosively from squat";
+        } else if (currentPhase === "punching" && leftArmExtension < 0.7 && rightArmExtension < 0.7) {
+            feedback = "Extend punches fully";
+        }
+
+        return {
+            repCount: this.repCounter,
+            feedback: feedback,
+            metrics: {
+                currentPhase: currentPhase,
+                squatDepth: (1 - squatDepth).toFixed(2),
+                jumpHeight: verticalVelocity.toFixed(2),
+                leftPunchExtension: leftArmExtension.toFixed(2),
+                rightPunchExtension: rightArmExtension.toFixed(2)
+            }
+        };
+    }
+
+    calculateArmExtension(shoulder, elbow, wrist) {
+        // Calculate the actual arm length
+        const upperArmLength = Math.sqrt(
+            Math.pow(elbow.x - shoulder.x, 2) +
+            Math.pow(elbow.y - shoulder.y, 2)
+        );
+
+        const forearmLength = Math.sqrt(
+            Math.pow(wrist.x - elbow.x, 2) +
+            Math.pow(wrist.y - elbow.y, 2)
+        );
+
+        const totalArmLength = upperArmLength + forearmLength;
+
+        // Calculate the direct distance from shoulder to wrist
+        const shoulderToWristDistance = Math.sqrt(
+            Math.pow(wrist.x - shoulder.x, 2) +
+            Math.pow(wrist.y - shoulder.y, 2)
+        );
+
+        // Extension ratio: 1.0 means fully extended, lower values mean more bent
+        return shoulderToWristDistance / totalArmLength;
     }
 
     detectStepUps(keypoints) {
-        // Would need to detect vertical displacement of hips
-        // For simplicity, reporting basic placeholder
-        return { repCount: this.repCounter, feedback: "Step fully onto platform" };
+        // Get smoothed keypoint data for better detection
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // Extract relevant keypoints
+        const leftHip = smoothedKeypoints.find(kp => kp.name === "leftHip");
+        const rightHip = smoothedKeypoints.find(kp => kp.name === "rightHip");
+        const leftKnee = smoothedKeypoints.find(kp => kp.name === "leftKnee");
+        const rightKnee = smoothedKeypoints.find(kp => kp.name === "rightKnee");
+        const leftAnkle = smoothedKeypoints.find(kp => kp.name === "leftAnkle");
+        const rightAnkle = smoothedKeypoints.find(kp => kp.name === "rightAnkle");
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Can't track lower body" };
+        }
+
+        // Initialize state tracking if needed
+        if (!this.stepUpState) {
+            this.stepUpState = {
+                hipPositionHistory: [],
+                lastStepLeadLeg: null, // 'left' or 'right'
+                isOnPlatform: false,
+                lastRepTime: Date.now(),
+                stepHeight: 0
+            };
+        }
+
+        // Calculate hip midpoint
+        const hipMidpointY = (leftHip.y + rightHip.y) / 2;
+
+        // Track hip vertical position
+        this.stepUpState.hipPositionHistory.push({
+            y: hipMidpointY,
+            leftKneeY: leftKnee.y,
+            rightKneeY: rightKnee.y,
+            leftAnkleY: leftAnkle.y,
+            rightAnkleY: rightAnkle.y,
+            timestamp: Date.now()
+        });
+
+        // Keep history limited
+        if (this.stepUpState.hipPositionHistory.length > 60) { // About 2 seconds at 30fps
+            this.stepUpState.hipPositionHistory.shift();
+        }
+
+        // Detect step height
+        const ankleYDifference = Math.abs(leftAnkle.y - rightAnkle.y);
+        if (ankleYDifference > this.stepUpState.stepHeight) {
+            this.stepUpState.stepHeight = ankleYDifference;
+        }
+
+        // Detect which leg is leading the step
+        const leftLeading = leftAnkle.y < rightAnkle.y - 20; // Left foot higher
+        const rightLeading = rightAnkle.y < leftAnkle.y - 20; // Right foot higher
+
+        let leadLeg = null;
+        if (leftLeading) leadLeg = 'left';
+        else if (rightLeading) leadLeg = 'right';
+
+        // Detect if on platform (both legs at same height)
+        const isOnPlatform = ankleYDifference < 20;
+
+        // Detect step-up completion
+        if (!this.stepUpState.isOnPlatform && isOnPlatform) {
+            // Successfully stepped onto platform
+            const minHipY = Math.min(...this.stepUpState.hipPositionHistory.map(pos => pos.y));
+            const maxHipY = Math.max(...this.stepUpState.hipPositionHistory.map(pos => pos.y));
+            const verticalDisplacement = maxHipY - minHipY;
+
+            // Ensure sufficient vertical movement
+            if (verticalDisplacement > 30 && leadLeg !== this.stepUpState.lastStepLeadLeg) {
+                this.repCounter++;
+                this.stepUpState.lastRepTime = Date.now();
+                this.stepUpState.lastStepLeadLeg = leadLeg;
+            }
+        }
+
+        // Update platform state
+        this.stepUpState.isOnPlatform = isOnPlatform;
+
+        // Generate feedback
+        let feedback = "Good form";
+
+        if (!leftLeading && !rightLeading && !isOnPlatform) {
+            feedback = "Step fully onto platform";
+        } else if (isOnPlatform && this.detectPoorKneeAlignment()) {
+            feedback = "Keep knee aligned with ankle";
+        } else if (this.detectTooFastPace()) {
+            feedback = "Control your movement, avoid rushing";
+        } else if (this.detectInsufficientExtension(leftHip, rightHip, leftKnee, rightKnee)) {
+            feedback = "Fully extend hips and knees on platform";
+        }
+
+        return {
+            repCount: this.repCounter,
+            feedback: feedback,
+            metrics: {
+                leadLeg: leadLeg || "none",
+                stepHeight: this.stepUpState.stepHeight.toFixed(2)
+            }
+        };
     }
 
     detectStepHopOvers(keypoints) {
@@ -4071,3 +4693,39 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 });
+
+
+//.........................................................................................//
+// Switch camera Function
+
+let isCameraView = false;
+
+function toggleCameraView() {
+    const guide = document.querySelector('.workout-guide');
+    const userCam = document.querySelector('.workout-user');
+    const btn = document.querySelector('.switch-view-btn');
+
+    isCameraView = !isCameraView;
+
+    if (isCameraView) {
+        guide.classList.add('inactive');
+        userCam.classList.add('active');
+        btn.textContent = 'Switch to Guide';
+        // Update canvas size when switching to camera view
+        updateCanvasSize();
+    } else {
+        guide.classList.remove('inactive');
+        userCam.classList.remove('active');
+        btn.textContent = 'Switch to Camera';
+    }
+}
+
+// Add this helper function (reuse your existing canvas update logic)
+function updateCanvasSize() {
+    if (videoElement && videoElement.parentElement) {
+        const videoContainer = videoElement.parentElement;
+        const rect = videoContainer.getBoundingClientRect();
+        canvasElement.width = rect.width;
+        canvasElement.height = rect.height;
+    }
+}
