@@ -1,3 +1,12 @@
+<?php
+session_start();
+include "conn.php";
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,18 +16,19 @@
     <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="./css/subdiet_page.css">
-    <link rel="stylesheet" href="./css/workout_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <link rel="stylesheet" href="./css/gemini_chatbot.css">
+    <script src="./js/navigation_bar.js"></script>
+    <script src="./js/gemini_chatbot.js"></script>
 </head>
 <body>
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
-            <span class="workout-home"><a href="#">HOME</a></span>
-            <span class="workout-navbar"><a href="#">WORKOUT</a></span>
-            <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo">
-            <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
-            <span class="workout-settings"><a href="#">SETTINGS</a></span>
+            <span class="workout-home"><a href="homepage.php" >HOME</a></span>
+            <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
+            <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
+            <span class="workout-dietplan"><a href="#" class="active">DIET PLAN</a></span>
+            <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
         </div>
         <div class="profile">
             <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
@@ -53,6 +63,7 @@
         </div>
     </nav>
 
+    <div class="no-select">
     <section class="section-1">
         <div style="display:flex;">
             <a onclick="goBack()" class="back-button">&lt;</a>
@@ -256,6 +267,7 @@
             </div>
         </div>
     </section>
+    </div>
     
     <div class="chatbot-container">
         <div class="chatbot-header">

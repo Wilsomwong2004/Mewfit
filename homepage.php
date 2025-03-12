@@ -7,9 +7,9 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     exit;
 }
 
-$member_id = $_SESSION['member id'] ?? 1;
+$member_id = $_SESSION['member id'];
 
-$sqlMember = "SELECT weight, height, target_weight, gender, age, day_streak_starting_date, last_session_date, level 
+$sqlMember = "SELECT weight, height, target_weight,fitness_goal, gender, age, day_streak_starting_date, last_session_date, level 
               FROM member WHERE member_id = ?";
 $stmtMember = $dbConn->prepare($sqlMember);
 $stmtMember->bind_param("i", $member_id);
@@ -23,6 +23,7 @@ $target_weight = $member['target_weight'];
 $gender = $member['gender'];
 $age = $member['age'];
 $level = $member['level'];
+$fitness_goal = $member['fitness_goal'];
 
 $today = new DateTime();
 $yesterday = (clone $today)->modify('-1 day');
@@ -80,7 +81,7 @@ $sqlDiet = "
 ";
 
 $stmtDiet = $dbConn->prepare($sqlDiet);
-$stmtDiet->bind_param("ii", $member_id, $member_id); // Bind member_id twice
+$stmtDiet->bind_param("ii", $member_id, $member_id);
 $stmtDiet->execute();
 $resultDiet = $stmtDiet->get_result();
 $dietData = $resultDiet->fetch_assoc();
@@ -139,7 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     $updateStmt = $dbConn->prepare($updateQuery);
     $updateStmt->bind_param("isi", $new_level, $new_streak_start_date, $member_id);
     $updateStmt->execute(); // Add this line to execute the update
-    
+
     // If handling AJAX request
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         echo json_encode(['success' => true, 'new_level' => $new_level]);
@@ -150,6 +151,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
         exit;
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -241,6 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
 
 <body>
     <div class="no-select">
+        <!-- navigation bar -->
         <nav class="navbar" id="navbar">
             <div class="nav-links" id="nav-links">
                 <span class="workout-home"><a href="#" class="active">HOME</a></span>
@@ -287,13 +291,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                                 <span class="slider round"></span>
                             </label>
                         </li>
-                        <li><a href="#" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                        <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
                         <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
                     </ul>
                 </div>
             </div>
         </nav>
 
+        <!-- content -->
         <div class="content">
             <!-- ---------------------------------section 1-------------------------------- -->
             <section class="section1">
@@ -926,7 +931,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             //enter weight
 
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
-                $newWeight = floatval($_POST['newweight']); 
+                $newWeight = floatval($_POST['newweight']);
                 $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
 
                 // Check if an entry for the current week exists
@@ -953,7 +958,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                 exit();
             }
 
-            
+
             ?>
             <script>
                 function recordWeight() {
@@ -1033,28 +1038,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             <!-- level up-->
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                //enter day streak
-                let dayStreak = <?php echo $day_streak; ?>;
-                let targetDayStreak = <?php echo $target_day_streak; ?>;
+                    //enter day streak
+                    let dayStreak = <?php echo $day_streak; ?>;
+                    let targetDayStreak = <?php echo $target_day_streak; ?>;
+                    let level = <?php echo $level; ?>
 
-                if (dayStreak >= targetDayStreak) {
-                    if (confirm("🎉 Congratulations! You've reached your streak goal. Do you want to level up?")) {
-                        let form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = window.location.href;
-                        
-                        let input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'level_up';
-                        input.value = 'true';
-                        
-                        form.appendChild(input);
-                        document.body.appendChild(form);
-                        form.submit();
+                    if (dayStreak >= targetDayStreak && $level <= 50) {
+                        if (confirm("🎉 Congratulations! You've reached your streak goal. Do you want to level up?")) {
+                            let form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = window.location.href;
+
+                            let input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'level_up';
+                            input.value = 'true';
+
+                            form.appendChild(input);
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
                     }
-                }
-            });
+                });
             </script>
+            <?php
+            function checkWeight($currentWeight, $targetWeight, $goal)
+            {
+                $goal = strtolower($goal);
+
+                if (($goal === "lose weight" && $currentWeight <= $targetWeight) ||
+                    ($goal === "gain muscle" && $currentWeight >= $targetWeight)
+                ) {
+                    return "You have reached your target weight. Please update your personal info for your next target.";
+                }
+                return null;
+            }
+            if ($current_weight !== null && $target_weight !== null && $fitness_goal !== null) {
+                $message = checkWeight($current_weight, $target_weight, $fitness_goal);
+                if ($message) {
+                    echo "<script>alert('$message');</script>";
+                }
+            }
+            ?>
 
             <section class="section2a">
                 <div class="box" style="animation-delay:2s;">
@@ -1152,20 +1177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             </section>
         </div>
 
-        <div class="pop-up">
-            <form id="weightForm">
-                <label for="new_target_weight">Enter Your New Weight:</label>
-                <input type="number" step="0.1" id="new_target_weight" name="new_target_weight" required>
-                <label for="new_fitness_goal">Choose your fitness goal:</label>
-                <select id="new_fitness_goal" name="new_fitness_goal" required>
-                    <option value="">Select Goal</option>
-                    <option value="Lose Weight">Lose Weight</option>
-                    <option value="Gain Muscle">Gain Muscle</option>
-                </select>
-                <button type="submit">Submit</button>
-            </form>
-        </div>
-
+        <!-- workout history -->
         <section>
             <div class="section3">
                 <h3 class="section2-title"><img src="https://static.thenounproject.com/png/2216254-200.png">Workout history</h3>
@@ -1178,6 +1190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             <div class="workout-history-grid"></div>
         </section>
 
+        <!-- diet history -->
         <section>
             <div class="section3">
                 <h3 class="section2-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:24px;">
@@ -1193,6 +1206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             <div class="diet-history-grid"></div>
         </section>
 
+        <!-- load workout and diet history -->
         <?php
         $sql = "
                 SELECT w.*
@@ -1204,7 +1218,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             ";
 
         $stmt = $dbConn->prepare($sql);
-        $stmt->bind_param("i", $member_id); 
+        $stmt->bind_param("i", $member_id);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -1259,55 +1273,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
 
             const createCard = (item, type) => {
                 const imageSrc = item.image || './assets/icons/error.svg';
+                const cardId = type === 'workout' ? item.workout_id : item.diet_id;
 
                 if (type === 'workout') {
                     return `
-                            <div class="workout-card-content">
-                                <div>
-                                    <img src="${imageSrc}" alt="${item.workout_name}" class="workout-image">
-                                </div>
-                                <div class="workout-info">
-                                    <h3 class="workout-title">${item.workout_name}</h3>
-                                    <span class="workout-level">${item.difficulty || ''}</span>
-                                    <div class="workout-stats">
-                                        <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
-                                        <span><i class="fas fa-fire"></i> ${item.calories || 0}</span>
-                                    </div>
-                                </div>
+                    <div class="workout-card-content" data-id="${cardId}">
+                        <div>
+                            <img src="${imageSrc}" alt="${item.workout_name}" class="workout-image">
+                        </div>
+                        <div class="workout-info">
+                            <h3 class="workout-title">${item.workout_name}</h3>
+                            <span class="workout-level">${item.difficulty || ''}</span>
+                            <div class="workout-stats">
+                                <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
+                                <span><i class="fas fa-fire"></i> ${item.calories || 0}</span>
                             </div>
-                        `;
+                        </div>
+                    </div>
+                `;
                 } else if (type === 'diet') {
                     return `
-                            <div class="diet-card-content">
-                                <div >
-                                    <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
-                                </div>
-                                <div class="diet-info">
-                                    <h3 class="diet-title">${item.diet_name}</h3>
-                                    <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
-                                    <div class="diet-stats">
-                                        <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
-                                        <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
-                                    </div>
-                                </div>
+                    <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
+                        <div>
+                            <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
+                        </div>
+                        <div class="diet-info">
+                            <h3 class="diet-title">${item.diet_name}</h3>
+                            <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
+                            <div class="diet-stats">
+                                <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
+                                <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
                             </div>
-                        `;
+                        </div>
+                    </div>
+                `;
                 }
             };
 
-            // Assuming workout-history-grid and diet-history-grid are present in the HTML
             const workoutGrid = document.querySelector('.workout-history-grid');
             const dietGrid = document.querySelector('.diet-history-grid');
 
-            // Check if the workouts and diets have data
             if (response.workouts && !response.workouts.no_data) {
                 workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
+
+                const workoutCards = workoutGrid.querySelectorAll('.workout-card-content');
+                workoutCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const workoutId = card.getAttribute('data-id');
+                        window.location.href = `subworkout_page.php?workout_id=${workoutId}`;
+                    });
+                    card.style.cursor = 'pointer';
+                });
             } else {
                 workoutGrid.innerHTML = '<div class="no-history">No workout available.</div>';
             }
 
             if (response.diets && !response.diets.no_data) {
                 dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
+
+                const dietCards = dietGrid.querySelectorAll('.diet-card-content');
+                dietCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const dietId = card.getAttribute('data-id');
+                        const dietType = card.getAttribute('data-type');
+
+                        if (dietType === 'custom') {
+
+                        } else {
+                            window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+                        }
+                    });
+                    card.style.cursor = 'pointer';
+                });
             } else {
                 dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
             }
@@ -1343,181 +1380,186 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
 <!-- -------cat tower------- -->
 <script>
     // ------------------Cat Tower Stuff-----------------------------
-// Create new cat elements
-let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10) || 1;
+    // Create new cat elements
+    let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10) || 1;
 
-const maxLevel = 50;
-const catsPerLevel = 9;
-const catDesigns = [
-    './assets/icons/lvl 1 cat.svg',
-    './assets/icons/lvl 2 cat.svg',
-    './assets/icons/lvl 3 cat.svg',
-    './assets/icons/lvl 4 cat.svg',
-    './assets/icons/lvl 5 cat.svg',
-];
+    const maxLevel = 50;
+    const catsPerLevel = 9;
+    const catDesigns = [
+        './assets/icons/lvl 1 cat.svg',
+        './assets/icons/lvl 2 cat.svg',
+        './assets/icons/lvl 3 cat.svg',
+        './assets/icons/lvl 4 cat.svg',
+        './assets/icons/lvl 5 cat.svg',
+    ];
 
-function updateCats() {
-    const container = document.getElementById('cat-tower-section');
+    function updateCats() {
+        const container = document.getElementById('cat-tower-section');
 
-    let numCats = Math.min(userLevel, catsPerLevel); //to make sure the max num of cats is 9
+        let numCats = Math.min(userLevel, catsPerLevel); // Ensure max 9 cats
 
-    let currentDesignIndex = Math.floor(userLevel / 10);
-    let prevDesignIndex = Math.max(0, currentDesignIndex - 1);
+        let currentDesignIndex = Math.floor(userLevel / 10);
+        let prevDesignIndex = Math.max(0, currentDesignIndex - 1);
 
-    let newDesignCount = userLevel % 10;
-    if (newDesignCount === 0 && userLevel > 0) {
-        newDesignCount = 1;
-    }
-
-    let oldDesignCount = catsPerLevel - newDesignCount;
-
-    for (let i = 0; i < numCats; i++) {
-        const newCat = document.createElement('img');
-        newCat.className = 'cat';
-
-        if (i < oldDesignCount) {
-            newCat.src = catDesigns[prevDesignIndex];
-        } else {
-            newCat.src = catDesigns[currentDesignIndex];
+        let newDesignCount = userLevel % 10;
+        if (newDesignCount === 0 && userLevel > 0) {
+            newDesignCount = 1;
         }
 
-        // Random position inside container
-        const randomX = Math.random() * (container.clientWidth - 50);
-        const randomY = Math.random() * (container.clientHeight - 50);
-        newCat.style.left = `${randomX}px`;
-        newCat.style.top = `${randomY}px`;
+        let oldDesignCount = catsPerLevel - newDesignCount;
 
-        container.appendChild(newCat);
+        for (let i = 0; i < numCats; i++) {
+            const newCat = document.createElement('img');
+            newCat.className = 'cat';
+
+            if (userLevel >= maxLevel) {
+                newCat.src = catDesigns[catDesigns.length - 1];
+            } else {
+                if (i < oldDesignCount) {
+                    newCat.src = catDesigns[prevDesignIndex];
+                } else {
+                    newCat.src = catDesigns[currentDesignIndex];
+                }
+            }
+
+            // Random position inside container
+            const randomX = Math.random() * (container.clientWidth - 50);
+            const randomY = Math.random() * (container.clientHeight - 50);
+            newCat.style.left = `${randomX}px`;
+            newCat.style.top = `${randomY}px`;
+
+            container.appendChild(newCat);
+        }
+
+        attachSpeechBubbles();
+        move();
     }
 
-    attachSpeechBubbles();
-    move();
-}
 
-// speech bubbles
-function attachSpeechBubbles() {
-    const cats = document.querySelectorAll('.cat');
+    // speech bubbles
+    function attachSpeechBubbles() {
+        const cats = document.querySelectorAll('.cat');
 
-    cats.forEach(cat => {
-        cat.addEventListener('mouseover', (event) => {
-            const speech = document.createElement('div');
-            speech.className = 'speech-bubble';
-            speech.textContent = getRandomSpeech();
+        cats.forEach(cat => {
+            cat.addEventListener('mouseover', (event) => {
+                const speech = document.createElement('div');
+                speech.className = 'speech-bubble';
+                speech.textContent = getRandomSpeech();
 
-            document.body.appendChild(speech);
+                document.body.appendChild(speech);
 
-            // Position the speech bubble above the cat
-            const catRect = cat.getBoundingClientRect();
-            speech.style.left = `${catRect.left + catRect.width / 2}px`;
-            speech.style.top = `${catRect.top - 30}px`;
+                // Position the speech bubble above the cat
+                const catRect = cat.getBoundingClientRect();
+                speech.style.left = `${catRect.left + catRect.width / 2}px`;
+                speech.style.top = `${catRect.top - 30}px`;
 
-            setTimeout(() => {
-                speech.remove();
-            }, 1500);
+                setTimeout(() => {
+                    speech.remove();
+                }, 1500);
+            });
+
+            cat.addEventListener('mouseout', () => {
+                removeSpeechBubble();
+            });
+
+            cat.addEventListener('mousedown', () => {
+                removeSpeechBubble();
+            });
+        });
+    }
+
+    function removeSpeechBubble() {
+        const existingBubble = document.querySelector('.speech-bubble');
+        if (existingBubble) {
+            existingBubble.remove();
+        }
+    }
+
+    const speechTexts = [
+        "Meow!",
+        "cHonKy",
+        "Leg day bro",
+        "Feed me!",
+        "Let's play!",
+        "Nappy naps",
+        "What's up dude?",
+        "I'm watching you"
+    ];
+
+    function getRandomSpeech() {
+        const randomIndex = Math.floor(Math.random() * speechTexts.length);
+        return speechTexts[randomIndex];
+    }
+
+    // moving any cat
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+    let selectedElement = null;
+
+    const move = function() {
+        const elements = document.querySelectorAll('.cat');
+        const container = document.getElementById('cat-tower-section');
+
+        elements.forEach(element => {
+            element.addEventListener('mousedown', dragStart);
         });
 
-        cat.addEventListener('mouseout', () => {
-            removeSpeechBubble();
-        });
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
 
-        cat.addEventListener('mousedown', () => {
-            removeSpeechBubble();
-        });
-    });
-}
+        function dragStart(e) {
+            selectedElement = e.target;
+            const rect = selectedElement.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
 
-function removeSpeechBubble() {
-    const existingBubble = document.querySelector('.speech-bubble');
-    if (existingBubble) {
-        existingBubble.remove();
-    }
-}
+            initialX = e.clientX - rect.left;
+            initialY = e.clientY - rect.top;
 
-const speechTexts = [
-    "Meow!",
-    "cHonKy",
-    "Leg day bro",
-    "Feed me!",
-    "Let's play!",
-    "Nappy naps",
-    "What's up dude?",
-    "I'm watching you"
-];
+            currentX = rect.left - containerRect.left;
+            currentY = rect.top - containerRect.top;
 
-function getRandomSpeech() {
-    const randomIndex = Math.floor(Math.random() * speechTexts.length);
-    return speechTexts[randomIndex];
-}
+            isDragging = true;
+        }
 
-// moving any cat
-let isDragging = false;
-let currentX;
-let currentY;
-let initialX;
-let initialY;
-let xOffset = 0;
-let yOffset = 0;
-let selectedElement = null;
+        function drag(e) {
+            if (!isDragging || !selectedElement) return;
 
-const move = function () {
-    const elements = document.querySelectorAll('.cat');
-    const container = document.getElementById('cat-tower-section');
+            e.preventDefault();
 
-    elements.forEach(element => {
-        element.addEventListener('mousedown', dragStart);
-    });
+            const containerRect = container.getBoundingClientRect();
 
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
+            // Calculate the new position
+            let newX = e.clientX - containerRect.left - initialX;
+            let newY = e.clientY - containerRect.top - initialY;
 
-    function dragStart(e) {
-        selectedElement = e.target;
-        const rect = selectedElement.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+            // Apply boundaries
+            const maxX = containerRect.width - selectedElement.offsetWidth;
+            const maxY = containerRect.height - selectedElement.offsetHeight;
 
-        initialX = e.clientX - rect.left;
-        initialY = e.clientY - rect.top;
+            newX = Math.min(Math.max(0, newX), maxX);
+            newY = Math.min(Math.max(0, newY), maxY);
 
-        currentX = rect.left - containerRect.left;
-        currentY = rect.top - containerRect.top;
+            selectedElement.style.left = `${newX}px`;
+            selectedElement.style.top = `${newY}px`;
 
-        isDragging = true;
-    }
+            currentX = newX;
+            currentY = newY;
+        }
 
-    function drag(e) {
-        if (!isDragging || !selectedElement) return;
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+            selectedElement = null;
+        }
+    };
 
-        e.preventDefault();
-
-        const containerRect = container.getBoundingClientRect();
-
-        // Calculate the new position
-        let newX = e.clientX - containerRect.left - initialX;
-        let newY = e.clientY - containerRect.top - initialY;
-
-        // Apply boundaries
-        const maxX = containerRect.width - selectedElement.offsetWidth;
-        const maxY = containerRect.height - selectedElement.offsetHeight;
-
-        newX = Math.min(Math.max(0, newX), maxX);
-        newY = Math.min(Math.max(0, newY), maxY);
-
-        selectedElement.style.left = `${newX}px`;
-        selectedElement.style.top = `${newY}px`;
-
-        currentX = newX;
-        currentY = newY;
-    }
-
-    function dragEnd(e) {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-        selectedElement = null;
-    }
-};
-
-window.onload = function () {
-    updateCats();
-};
+    window.onload = function() {
+        updateCats();
+    };
 </script>
