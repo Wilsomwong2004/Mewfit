@@ -2353,9 +2353,22 @@ class WorkoutManager {
             nextIndex++;
         }
 
+        console.log(`Showing video for next exercise: ${nextIndex} in set ${nextSet}`);
         const nextExercise = this.exercises[nextIndex];
         if (nextExercise && nextExercise.video) {
-            this.showExerciseVideo(nextExercise);
+            // Make sure we're not in a rest period when updating the video
+            if (!this.isResting) {
+                return;
+            }
+
+            let videoElement = this.workoutGuide.querySelector('video');
+            if (videoElement) {
+                videoElement.src = nextExercise.video;
+                videoElement.load();
+                videoElement.play().catch(error => {
+                    console.error('Error playing next exercise video:', error);
+                });
+            }
         }
     }
 
@@ -2513,13 +2526,16 @@ class WorkoutManager {
 
         if (this.currentExerciseIndex >= this.exercises.length - 1) {
             if (this.currentSet >= this.totalSets) {
+                console.log("Workout complete - all exercises and sets finished");
                 this.endWorkout();
                 return;
             }
             this.currentSet++;
             this.currentExerciseIndex = 0;
+            console.log(`Moving to set ${this.currentSet}`);
         } else {
             this.currentExerciseIndex++;
+            console.log(`Moving to exercise ${this.currentExerciseIndex + 1} in set ${this.currentSet}`);
         }
 
         this.showRestScreen();
@@ -2922,24 +2938,59 @@ class WorkoutManager {
         this.clearAllTimers();
         this.isResting = true;
 
-        const nextExerciseIndex = (this.currentExerciseIndex >= this.exercises.length - 1) ?
-            (this.currentSet >= this.totalSets ? -1 : 0) :
-            this.currentExerciseIndex + 1;
+        // Calculate the next exercise index correctly
+        let nextExerciseIndex;
+        let nextSet = this.currentSet; // Default to the current set
 
+        console.log("Current Exercise Index:", this.currentExerciseIndex);
+
+        if (this.currentExerciseIndex >= this.exercises.length - 1) {
+            // If we're at the last exercise in the current set
+            if (this.currentSet >= this.totalSets - 1) {
+                // If this is the last set, there's no next exercise
+                nextExerciseIndex = -1;
+                console.log("Reached the last exercise of the last set.");
+            } else {
+                // Move to the first exercise of the next set
+                nextExerciseIndex = 0;
+                nextSet = this.currentSet + 1;
+                console.log("Moving to the first exercise of the next set.");
+            }
+        } else {
+            // Move to the next exercise in the current set
+            nextExerciseIndex = this.currentExerciseIndex;
+            console.log("Moving to the next exercise in the current set.");
+        }
+
+        // Assign the next exercise (if any)
         const nextExercise = (nextExerciseIndex >= 0) ? this.exercises[nextExerciseIndex] : null;
+
+        // Debugging to ensure values are correct
+        console.log("Next Exercise Index:", nextExerciseIndex);
+        console.log("Next Set:", nextSet);
+        console.log("Next Exercise:", nextExercise);
 
         // Announce rest period
         this.speakText('Rest time. Take a break.');
 
         if (nextExercise) {
-            this.workoutNameElement.textContent = `Next: ${nextExercise.exercise}`;
+            this.workoutNameElement.textContent = `Next: ${nextExercise.exercise || nextExercise.pose}`;
             // Announce next exercise after a short delay
             setTimeout(() => {
-                this.speakText(`Coming up next: ${nextExercise.exercise}`);
+                this.speakText(`Coming up next: ${nextExercise.exercise || nextExercise.pose}`);
             }, 2000);
 
             // Show next exercise video during rest
-            this.showNextExerciseVideo();
+            if (nextExercise.video) {
+                let videoElement = this.workoutGuide.querySelector('video');
+                if (videoElement) {
+                    videoElement.src = nextExercise.video;
+                    videoElement.load();
+                    videoElement.play().catch(error => {
+                        console.error('Error playing next exercise video:', error);
+                    });
+                }
+            }
         }
 
         this.restOverlay.style.display = 'flex';
@@ -3158,7 +3209,10 @@ class WorkoutManager {
         }
     }
 
+    // Enhanced endWorkout method
     endWorkout() {
+        console.log("Ending workout - preparing to navigate to completion page");
+
         try {
             // Calculate actual duration and calories based on completed exercises
             const workoutDuration = this.totalDuration || 14; // Using total tracked duration or fallback
@@ -3170,6 +3224,7 @@ class WorkoutManager {
                 calories: `${workoutCalories} kcal`
             };
             localStorage.setItem('workoutStats', JSON.stringify(workoutStats));
+            console.log("Workout stats saved:", workoutStats);
 
             // Stop music when workout ends
             if (this.workoutMusicPlayer) {
@@ -3177,15 +3232,21 @@ class WorkoutManager {
             }
 
             // Announce workout completion
-            this.speakText('Congratulations! Workout complete.', () => {
+            this.speakText('Congratulations! Workout complete.');
+
+            // Use timeout to ensure announcement is heard before navigating
+            setTimeout(() => {
                 if (typeof pause === 'function') {
                     pause();
                 }
                 localStorage.removeItem('currentWorkout');
+                console.log("Navigating to completion page...");
                 window.location.href = 'subworkout_done_page.html';
-            });
+            }, 2000);
         } catch (error) {
             console.error('Error ending workout:', error);
+            // Fallback navigation in case of error
+            alert("Workout complete! Redirecting to completion page.");
             localStorage.removeItem('currentWorkout');
             window.location.href = 'subworkout_done_page.html';
         }
@@ -3216,8 +3277,78 @@ class WorkoutPoseDetector {
         this.FEEDBACK_INTERVAL = 5000; // 5 seconds between feedback
         this.lastGeneratedFeedback = null;
         this.exerciseType = null; // 'reps' or 'time'
+        this.poseTimer = null; // For tracking yoga poses
 
+        // Create empty detector methods first, then register them
+        this.createEmptyDetectors();
         this.registerExerciseDetectors();
+    }
+
+    createEmptyDetectors() {
+        // List all detector method names here
+        const detectorNames = [
+            // ==================== CARDIO EXERCISES ====================
+            // Time-based Cardio
+            'detectMarchOnSpot', 'detectLowImpactHighKnee', 'detectSideToSideStep',
+            'detectTwistReach', 'detectShuffle', 'detectIceSki',
+            'detectSideStepShuffle', 'detectSprint', 'detectJogOnSpot',
+            'detectButtKicks', 'detectHighPunches', 'detectLateralShuttle',
+            'detectBobWeave',
+
+            // Rep-based Cardio/HIIT
+            'detectBurpee', 'detectJumpSquatPunches', 'detectStepUps',
+            'detectPlankJacks', 'detectKangarooHops', 'detectIceSkater',
+            'detectStepHopOvers', 'detectWideNarrowJump', 'detectSquatPunches',
+            'detectCrossPunches', 'detectStraightPunches', 'detectBurpeeStepUp',
+            'detectDeclineClimbers', 'detectFroggerSquat', 'detectStepUpsKneeElbow',
+
+            // ================== WEIGHT TRAINING EXERCISES ================
+            'detectDumbbellSquat', 'detectShoulderPress', 'detectLungePress',
+            'detectBicepCurls', 'detectTricepKickback', 'detectFrontRaise',
+            'detectSingleArmRow', 'detectUprightRow', 'detectSumoSquat',
+            'detectWalkingLunges', 'detectDeadlift', 'detectGobletSquat',
+            'detectWoodchop', 'detectSnatchPress', 'detectDumbbellSwing',
+            'detectOverheadSquat', 'detectSingleLegDeadlift', 'detectReverseFly',
+            'detectPlankRow', 'detectYTWings', 'detectElevatedLunge',
+            'detectTricepDips', 'detectBurpeeDBPress', 'detectHighPulls',
+            'detectLungeTwist', 'detectHeadCrusher', 'detectRussianTwist',
+            'detectTricepExtension', 'detectCurlAbductor', 'detectSquatPress',
+            'detectSingleSnatch', 'detectPullOver', 'detectFlyBridge',
+            'detectOverheadCircles', 'detectLRotation', 'detectSideFrontRaise',
+
+            // ============= BODYWEIGHT/WEIGHT-FREE EXERCISES ============
+            // Time-based Bodyweight
+            'detectPlank', 'detectHipBridgeHold', 'detectSuperman',
+            'detectFlutterKicks', 'detectWindshieldWipers', 'detectSidePlankDips',
+
+            // Rep-based Bodyweight
+            'detectPushUp', 'detectRussianTwistBodyweight', 'detectLegRaiseThrust',
+            'detectChairSquat', 'detectReverseLunge', 'detectFireHydrants',
+            'detectLungePulse', 'detectSumoSquatBodyweight', 'detectCurtsyLunge',
+            'detectSquatPulse', 'detectStandingLegRaise', 'detectCalfRaises',
+            'detectAssistedKickbacks', 'detectClockLunge', 'detectHipBridgeCircle',
+            'detectKneePushUp', 'detectWideNarrowPushUp', 'detectSpidermanPushUp',
+            'detectForwardBackLunge', 'detectBird', 'detectBurpeePushUp',
+            'detectSplitJackKnife', 'detectSprinterTucks', 'detectSingleLegBridge',
+            'detectAssistedLunge', 'detectStandingCrunch',
+
+            // ====================== YOGA/STRETCHING ======================
+            'detectChildPose', 'detectDownwardDog', 'detectButterfly',
+            'detectCatCamel', 'detectSpinalTwist', 'detectHamstringStretch',
+            'detectCobra', 'detectBridgeStretch', 'detectNeckStretch',
+            'detectShoulderStretch', 'detectChestStretch', 'detectArmCircle',
+            'detectCrossStretch', 'detectHugKnees', 'detectHipFlexor',
+            'detectLyingHamstring', 'detectWristStretch'
+        ];
+
+        detectorNames.forEach(method => {
+            if (!this[method]) {
+                this[method] = function (pose) {
+                    console.log(`${method} called but not yet implemented`);
+                    return { state: null, feedback: null };
+                };
+            }
+        });
     }
 
     // Initialize with the current exercise
