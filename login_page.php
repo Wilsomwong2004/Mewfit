@@ -60,27 +60,29 @@
       </div>
       <div class="modal-body">
         <div class="otp-input-wrapper">
-          <div class="verify-email-wrapper">
-            <input
-              type="email"
-              id="email-verify"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div class="otp-wrapper">
-            <input
-              type="number"
-              id="email-otp"
-              placeholder="Vertification Code"
-            />
-          </div>
-          <div class="countdown"></div>
-          <div class="modal-buttons">
-            <button class="otp-verify" type="button" onclick="sendOTP()">Verify</button>
-            <button class="otp-button">Send OTP</button>
-          </div>
-          <div class="reset-vertification-btn"></div>
-        </div>
+          <form action="">
+            <div class="verify-email-wrapper">
+              <input
+                type="email"
+                id="email-verify"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div class="otp-wrapper">
+              <input
+                type="number"
+                id="email-otp"
+                placeholder="Vertification Code"
+              />
+            </div>
+            <div class="countdown"></div>
+            <div class="modal-buttons">
+              <button class="otp-verify" type="button" onclick="sendOTP()">Verify</button>
+              <button class="otp-button">Send OTP</button>
+            </div>
+            <div class="reset-vertification-btn"></div>
+                    </div>
+          </form>
       </div>
     </div>
     <div id="overlay"></div>
