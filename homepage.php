@@ -933,30 +933,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
                 $newWeight = floatval($_POST['newweight']);
                 $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
-
+            
                 // Check if an entry for the current week exists
                 $sql = "SELECT * FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
                 $stmt = $dbConn->prepare($sql);
                 $stmt->bind_param("si", $currentWeekMonday, $member_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
-
+            
                 if ($result->num_rows > 0) {
+                    // If the record exists, update it
                     $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
+                    $stmt = $dbConn->prepare($sql);
+                    $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
                 } else {
-                    $sql = "INSERT INTO member_performance (performance_id, weeks_date_mon, current_weight, member_id) VALUES (NULL, ?, ?, ?)";
+                    // If the record does not exist, insert a new one
+                    $sql = "INSERT INTO member_performance (weeks_date_mon, current_weight, member_id, diet_history_count, workout_history_count) 
+                            VALUES (?, ?, ?, 0, 0)";
+                    $stmt = $dbConn->prepare($sql);
+                    $stmt->bind_param("sdi", $currentWeekMonday, $newWeight, $member_id);
                 }
-
-                $stmt = $dbConn->prepare($sql);
-                $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
-
+            
+                // Execute the query
                 if ($stmt->execute()) {
                     echo json_encode(["status" => "success", "message" => "Weight recorded successfully!"]);
                 } else {
-                    echo json_encode(["status" => "error", "message" => "Error: " . $dbConn->error]);
+                    echo json_encode(["status" => "error", "message" => "Error: " . $stmt->error]);
                 }
+            
                 exit();
             }
+            
 
 
             ?>
@@ -1245,8 +1252,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                         FROM custom_diet cd
                         WHERE cd.member_id = ?
                     ) AS combined_diets
-                    ORDER BY date DESC
+                    ORDER BY date DESC, COALESCE(diet_id) DESC
                     LIMIT 6";
+
 
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("ii", $member_id, $member_id);

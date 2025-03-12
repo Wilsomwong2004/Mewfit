@@ -405,17 +405,13 @@ h3{
     padding-top:2vw;
 }
 
+
+
 .other-recipes img{
     width:14vw;
     height:9vw;
     border-radius: 10px;
-}
-
-.other-recipes h5{
-    font-size:20px;
-    padding-left:2vw;
-    margin: auto;
-    width:50%;
+    object-fit: cover;
 }
 
 .section-3a{
