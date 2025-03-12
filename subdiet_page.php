@@ -20,6 +20,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     <link rel="stylesheet" href="./css/gemini_chatbot.css">
     <script src="./js/navigation_bar.js"></script>
     <script src="./js/gemini_chatbot.js"></script>
+    <script src="./js/subdiet_page.js"></script>
 </head>
 <body>
     <nav class="navbar" id="navbar">
@@ -56,7 +57,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                         <span class="slider round"></span>
                     </label>
                     </li>
-                    <li><a href="#" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                    <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
                     <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
                 </ul>
             </div>
