@@ -76,15 +76,15 @@ html.dark-mode .nav-links a {
     color: white;
 }
 
-.diet-home,
-.diet-dietplan,
+.workout-home,
+.workout-navbar,
 .workout-settings {
     margin-top: 5px;
     cursor: pointer;
     font-size: 80%;
 }
 
-.workout-navbar a {
+.workout-dietplan a {
     margin-top: 5px;
     display: flex;
     justify-content: space-between;
@@ -92,7 +92,7 @@ html.dark-mode .nav-links a {
     padding: 5px 20px;
     font-size: 12px;
     border-radius: 68px;
-    color: white;
+    color: white !important;
     cursor: pointer;
 }
 

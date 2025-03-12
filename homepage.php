@@ -250,7 +250,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                 <span class="workout-home"><a href="#" class="active">HOME</a></span>
                 <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-                <span class="workout-dietplan"><a href="diet_page.html">DIET PLAN</a></span>
+                <span class="workout-dietplan"><a href="diet_page.php">DIET PLAN</a></span>
                 <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
             </div>
             <div class="header-right">

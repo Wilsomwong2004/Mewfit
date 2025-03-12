@@ -10,15 +10,18 @@
         <link rel="stylesheet" href="./css/diet_page.css">
         <link rel="stylesheet" href="./css/navigation_bar.css">
         <link rel="stylesheet" href="./css/gemini_chatbot.css">
+        <script src="./js/diet_page.js"></script>
+        <script src="./js/navigation_bar.js"></script>
+        <script src="./js/gemini_chatbot.js"></script>
     </head>
     <body>
         <div class="no-select">
             <nav class="navbar" id="navbar">
                 <div class="nav-links" id="nav-links">
                     <span class="workout-home"><a href="homepage.php">HOME</a></span>
-                    <span class="workout-navbar"><a href="workout_page.html" class="active">WORKOUT</a></span>
+                    <span class="workout-navbar"><a href="workout_page.html" >WORKOUT</a></span>
                     <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
-                    <span class="workout-dietplan"><a href="#">DIET PLAN</a></span>
+                    <span class="workout-dietplan"><a href="#" class="active">DIET PLAN</a></span>
                     <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
                 </div>
                 <div class="header-right">
@@ -133,9 +136,7 @@
             <div class="container-side-transparent-right"></div>
         </div>
     </body>
-    <script src="./js/diet_page.js"></script>
-    <script src="./js/navigation_bar.js"></script>
-    <script src="./js/gemini_chatbot.js"></script>
+    
 </html>
 
 
