@@ -39,8 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    if (($target_weight - $weight > 20) || ($weight - $target_weight > 20)) {
-        $_SESSION['error_message'] = "Please enter a target weight range that is less that 20 gap";
+    if (($target_weight - $weight > 4) || ($weight - $target_weight > 4)) {
+        $_SESSION['error_message'] = "Please enter a target weight range that is less that 4 gap";
         header("Location: sign_up_page.php");
         exit;
     } else if ((($weight < 0) || $target_weight < 0) || $height < 0) {
