@@ -13,6 +13,7 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
     $error = false;
     $errorMessage = "";
 
