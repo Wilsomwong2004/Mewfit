@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 
   while ($row = $result->fetch_assoc()) {
-    if (($row['username'] == $username) && password_verify($password, $row['password'])) {
+    if ((($row['username'] == $username) && password_verify($password, $row['password'])) || (($row['email_address'] == $username) && password_verify($password, $row['password']))) {
       $login = true;
       
       $_SESSION["logged_in"] = true;

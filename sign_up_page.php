@@ -3,10 +3,10 @@ session_start();
 
 if (!empty($_SESSION['error_message'])) {
     echo "
-    <div class='error-popup'>
-        <p>{$_SESSION['error_message']}</p>
-        <button class='close-error' onclick='this.parentElement.style.display=\"none\"'>&times;</button>
-    </div>
+        <div class='error-popup'>
+          <p>{$_SESSION['error_message']}</p>
+          <button class='close-error' onclick='this.parentElement.style.display=\"none\"'>&times;</button>
+        </div>
     ";
     unset($_SESSION['error_message']);
 }
