@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
+    <style>
+        #logout-profile{
+            width:32px;
+            margin-right: 3vw;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <?php
 include "conn.php";
@@ -42,6 +49,7 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
                 <span></span>
             </button>
         </div>
+        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
     </nav>
 
     <div id="heading">
