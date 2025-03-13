@@ -360,7 +360,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ?>
           </div>
           <ul>
-            <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+            <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
             <li>
               <i class="fas fa-moon"></i> Dark Mode
               <label class="switch">

@@ -1,8 +1,8 @@
 <?php
 session_start();
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-  header("Location: prelogin.html");
-  exit;
+    header("Location: prelogin.html");
+    exit;
 }
 
 include "conn.php";
@@ -75,7 +75,7 @@ $email_address = $member['email_address'];
                         ?>
                     </div>
                     <ul>
-                        <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                        <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
                         <li>
                             <i class="fas fa-moon"></i> Dark Mode
                             <label class="switch">
@@ -141,7 +141,7 @@ $email_address = $member['email_address'];
 
         <section class="diet-body">
             <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recent Meals</h2>
-            <div class="diet-grid"></div>
+            <div class="diet-history-grid"></div>
         </section>
 
 
@@ -171,3 +171,73 @@ $email_address = $member['email_address'];
 </body>
 
 </html>
+<?php
+// Fetch the latest 6 standard diets and sum the calories from the nutrition table
+$sql = "SELECT diet_id, diet_name, difficulty, preparation_min, total_calories, diet_type, date
+        FROM (
+            SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, SUM(n.calories) AS total_calories, 'standard' AS diet_type, dh.date
+            FROM diet_history dh
+            JOIN diet d ON dh.diet_id = d.diet_id
+            LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
+            LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
+            WHERE dh.member_id = ?
+            GROUP BY d.diet_id, dh.date
+        ) AS combined_diets
+        ORDER BY date DESC, COALESCE(diet_id) DESC";
+
+$stmt = $dbConn->prepare($sql);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$diets = [];
+while ($row = $result->fetch_assoc()) {
+    $diets[] = $row;
+}
+
+$response = [
+    'diets' => !empty($diets) ? $diets : ['no_data' => true]
+];
+
+json_encode($response);
+?>
+
+<script>
+    const response = <?php echo json_encode($response); ?>;
+
+    const createCard = (item) => {
+        const imageSrc = item.image || './assets/icons/error.svg';
+        return `
+            <div class="diet-card-content" data-id="${item.diet_id}" data-type="${item.diet_type}">
+                <div>
+                    <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
+                </div>
+                <div class="diet-info">
+                    <h3 class="diet-title">${item.diet_name}</h3>
+                    <span class="diet-level">${item.difficulty || ''}</span>
+                    <div class="diet-stats">
+                        <span><i class="fas fa-clock"></i> ${item.preparation_min || '-'}</span>
+                        <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const dietGrid = document.querySelector('.diet-history-grid');
+
+    if (response.diets && !response.diets.no_data) {
+        dietGrid.innerHTML = response.diets.map(diet => createCard(diet)).join('');
+
+        const dietCards = dietGrid.querySelectorAll('.diet-card-content');
+        dietCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const dietId = card.getAttribute('data-id');
+                window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+            });
+            card.style.cursor = 'pointer';
+        });
+    } else {
+        dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
+    }
+</script>
