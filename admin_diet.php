@@ -12,6 +12,13 @@
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/navigation_bar.js"></script>
     <script src="js/admin_diet.js"></script>
+    <style>
+        #logout-profile{
+            width:32px;
+            margin-right: 3vw;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <script>
         window.onresize = function() {
@@ -127,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <span></span>
             </button>
         </div>
+        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
     </nav>
 
     <div id="heading">

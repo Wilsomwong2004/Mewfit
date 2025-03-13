@@ -6,6 +6,12 @@
     <title>Workout Management</title>
     <link rel="stylesheet" href="./css/admin_workout.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
+    <style>
+        #logout-profile{
+            width:32px;
+            margin-right: 3vw;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -24,6 +30,7 @@
                 <span></span>
             </button>
         </div>
+        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
     </nav>
 
     <div class="container">

@@ -8,6 +8,14 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 }
 
 $member_id = $_SESSION['member id'];
+$sqlMember = "SELECT email_address FROM member WHERE member_id = ?";
+$stmtMember = $dbConn->prepare($sqlMember);
+$stmtMember->bind_param("i", $member_id);
+$stmtMember->execute();
+$resultMember = $stmtMember->get_result();
+$member = $resultMember->fetch_assoc();
+$email_address = $member['email_address'];
+
 $diet_id = isset($_GET['diet_id']) ? intval($_GET['diet_id']) : 0;
 
 // get diet
@@ -324,42 +332,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
             <span class="workout-home"><a href="homepage.php">HOME</a></span>
-            <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
+            <span class="workout-navbar"><a href="workout_page.php">WORKOUT</a></span>
             <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
             <span class="workout-dietplan"><a href="#" class="active">DIET PLAN</a></span>
             <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
         </div>
+
         <div class="profile">
-            <img src="./assets/icons/Unknown_acc-removebg.png" alt="Profile" id="profile-pic">
-            <div class="header-right">
-                <button id="hamburger-menu" aria-label="Menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-            <div class="profile-dropdown" id="profile-dropdown">
-                <div class="profile-info">
-                    <img src="./assets/icons/Unknown_acc-removebg.png" alt="unknown cat">
-                    <div>
-                        <h3>unknown</h3>
-                        <p>unknown</p>
-                    </div>
-                </div>
-                <ul>
-                    <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
-                    <li>
-                        <i class="fas fa-moon"></i> Dark Mode
-                        <label class="switch">
-                            <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
-                            <span class="slider round"></span>
-                        </label>
-                    </li>
-                    <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
-                    <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
-                </ul>
-            </div>
+        <div>
+          <?php
+          echo "
+            <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+            ";
+          ?>
         </div>
+
+        <div class="profile-dropdown" id="profile-dropdown">
+          <div class="profile-info">
+            <?php
+            echo "
+                <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                <div>
+                    <h3 style = 'padding:0px;'>{$_SESSION["username"]}</h3>
+                    <p>{$email_address}</p>
+                </div>
+                ";
+            ?>
+          </div>
+          <ul>
+            <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+            <li>
+              <i class="fas fa-moon"></i> Dark Mode
+              <label class="switch">
+                <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
+                <span class="slider round"></span>
+              </label>
+            </li>
+            <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+            <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
+          </ul>
+        </div>
+      </div>
     </nav>
 
     <div class="no-select">
@@ -520,8 +533,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <button class="chatbot-toggle">
         <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
     </button>
-    <script src="./js/navigation_bar.js"></script>
-    <script src="./js/gemini_chatbot.js"></script>
+    
 </body>
 
 </html>
