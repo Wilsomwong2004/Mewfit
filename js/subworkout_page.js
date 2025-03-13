@@ -3714,6 +3714,9 @@ class WorkoutPoseDetector {
     }
 
     /* Exercise-specific detection methods */
+    //------------------------------------------------------------------------------
+    // ================== OTEHRS/BASIC EXERCISES ================
+    //------------------------------------------------------------------------------
 
     detectSquat(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
@@ -3747,40 +3750,10 @@ class WorkoutPoseDetector {
 
         return { repCount: this.repCounter, feedback };
     }
-
-    detectPushUp(keypoints) {
-        const smoothedKeypoints = this.getSmoothedKeypoints();
-        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
-
-        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
-        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
-        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
-        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
-
-        if (!leftElbow || !rightElbow || !leftShoulder || !leftWrist) {
-            return { repCount: this.repCounter, feedback: "Cannot track arms" };
-        }
-
-        const angle = calculateAngle(leftShoulder, leftElbow, leftWrist);
-
-        let feedback = "";
-
-        if (angle < 90 && this.lastState !== 'down') {
-            this.repCounter++;
-            this.lastState = 'down';
-            feedback = "Good push-up!";
-        } else if (angle > 160 && this.lastState === 'down') {
-            this.lastState = 'up';
-            feedback = "Ready for next rep";
-        } else if (this.lastState === 'down') {
-            feedback = "Push back up";
-        } else if (angle > 120) {
-            feedback = "Lower your body";
-        }
-
-        return { repCount: this.repCounter, feedback };
-    }
-
+    
+    //------------------------------------------------------------------------------
+    // ================== CARDIO EXERCISES ================
+    //------------------------------------------------------------------------------
     // Cardio
     detectJumpingJack(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
@@ -6653,7 +6626,343 @@ class WorkoutPoseDetector {
         return { repCount: this.repCounter, feedback };
     }
 
-    //Yoga
+    //------------------------------------------------------------------------------
+    // ================== WEIGHT TRAINING EXERCISES ================
+    //------------------------------------------------------------------------------
+
+    detectDumbbellSquat(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track lower body" };
+        }
+
+        // Calculate the angle of the knees (squat depth)
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Average knee angle
+        const kneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        let feedback = "";
+
+        // Detect squat states
+        if (kneeAngle < 120 && this.lastState !== 'down') {
+            // In squat position
+            this.lastState = 'down';
+            feedback = "Good squat depth";
+        } else if (kneeAngle > 160 && this.lastState === 'down') {
+            // Standing up, count the rep
+            this.repCounter++;
+            this.lastState = 'up';
+            feedback = "Good rep!";
+        } else if (this.lastState === 'down') {
+            feedback = "Stand up fully";
+        } else {
+            feedback = "Squat down";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectShoulderPress(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate the vertical position of wrists relative to shoulders
+        const leftWristToShoulder = leftShoulder.y - leftWrist.y;
+        const rightWristToShoulder = rightShoulder.y - rightWrist.y;
+
+        // Average vertical position (higher values mean hands are higher above shoulders)
+        const wristHeight = (leftWristToShoulder + rightWristToShoulder) / 2;
+
+        // Calculate elbow angles
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+        const elbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        let feedback = "";
+
+        // Detect press states
+        if (wristHeight > 100 && elbowAngle > 160 && this.lastState !== 'up') {
+            // Arms extended overhead
+            this.lastState = 'up';
+            feedback = "Good extension";
+        } else if (wristHeight < 20 && elbowAngle < 100 && this.lastState === 'up') {
+            // Arms down at shoulder level, count the rep
+            this.repCounter++;
+            this.lastState = 'down';
+            feedback = "Good rep!";
+        } else if (this.lastState === 'up') {
+            feedback = "Lower weights to shoulders";
+        } else {
+            feedback = "Press weights overhead";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectBicepCurls(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate elbow angles
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        // Use the minimum angle (the more bent arm)
+        const elbowAngle = Math.min(leftElbowAngle, rightElbowAngle);
+
+        let feedback = "";
+
+        // Detect curl states
+        if (elbowAngle < 80 && this.lastState !== 'up') {
+            // Arms curled up
+            this.lastState = 'up';
+            feedback = "Good curl";
+        } else if (elbowAngle > 150 && this.lastState === 'up') {
+            // Arms extended down, count the rep
+            this.repCounter++;
+            this.lastState = 'down';
+            feedback = "Good rep!";
+        } else if (this.lastState === 'up') {
+            feedback = "Extend arms fully";
+        } else {
+            feedback = "Curl weights up";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSingleArmRow(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // For single arm exercises, we need to detect which side is active
+        // Let's first check both sides
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Determine which arm is doing the row (the one that moves more)
+        // This is simplified - in a real application, you might need a more robust method
+        const leftArmMovement = Math.abs(leftWrist.y - this.previousLeftWristY || 0);
+        const rightArmMovement = Math.abs(rightWrist.y - this.previousRightWristY || 0);
+
+        // Store current positions for next frame
+        this.previousLeftWristY = leftWrist.y;
+        this.previousRightWristY = rightWrist.y;
+
+        let activeElbow, activeShoulder, activeWrist, sideName;
+
+        if (leftArmMovement > rightArmMovement) {
+            activeElbow = leftElbow;
+            activeShoulder = leftShoulder;
+            activeWrist = leftWrist;
+            sideName = "left";
+        } else {
+            activeElbow = rightElbow;
+            activeShoulder = rightShoulder;
+            activeWrist = rightWrist;
+            sideName = "right";
+        }
+
+        // Calculate elbow angle for the active arm
+        const elbowAngle = calculateAngle(activeShoulder, activeElbow, activeWrist);
+
+        // Calculate horizontal distance from wrist to shoulder (for rowing motion)
+        const wristToShoulderHorizontal = Math.abs(activeWrist.x - activeShoulder.x);
+
+        let feedback = "";
+
+        // Detect row states
+        if (elbowAngle < 100 && wristToShoulderHorizontal < 50 && this.lastState !== 'up') {
+            // Arm pulled up in row position
+            this.lastState = 'up';
+            feedback = `Good ${sideName} arm row`;
+        } else if (elbowAngle > 150 && this.lastState === 'up') {
+            // Arm extended down, count the rep
+            this.repCounter++;
+            this.lastState = 'down';
+            feedback = "Good rep!";
+        } else if (this.lastState === 'up') {
+            feedback = "Extend arm fully";
+        } else {
+            feedback = "Pull weight up to side";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectLungePress(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // Track lower body for lunge
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        // Track upper body for press
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle ||
+            !leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Calculate knee angles for lunge detection
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Check which leg is lunging (smaller angle)
+        const minKneeAngle = Math.min(leftKneeAngle, rightKneeAngle);
+
+        // Calculate arm position for press
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        // Vertical position of wrists relative to shoulders
+        const leftWristToShoulder = leftShoulder.y - leftWrist.y;
+        const rightWristToShoulder = rightShoulder.y - rightWrist.y;
+        const avgWristHeight = (leftWristToShoulder + rightWristToShoulder) / 2;
+
+        let feedback = "";
+
+        // State machine for the combined exercise
+        // We need 4 states: standing, lunging, pressing, recovery
+        if (!this.exercisePhase) {
+            this.exercisePhase = 'standing';
+        }
+
+        switch (this.exercisePhase) {
+            case 'standing':
+                if (minKneeAngle < 120) {
+                    this.exercisePhase = 'lunging';
+                    feedback = "Good lunge, prepare to press";
+                } else {
+                    feedback = "Step back into lunge";
+                }
+                break;
+
+            case 'lunging':
+                if (avgElbowAngle > 160 && avgWristHeight > 100) {
+                    this.exercisePhase = 'pressing';
+                    feedback = "Good press!";
+                } else {
+                    feedback = "Press weights overhead";
+                }
+                break;
+
+            case 'pressing':
+                if (avgElbowAngle < 100 && minKneeAngle > 160) {
+                    this.exercisePhase = 'recovery';
+                    feedback = "Good recovery";
+                } else {
+                    feedback = "Return to standing position";
+                }
+                break;
+
+            case 'recovery':
+                if (avgElbowAngle < 90 && minKneeAngle > 170) {
+                    this.exercisePhase = 'standing';
+                    this.repCounter++;
+                    feedback = "Complete rep!";
+                } else {
+                    feedback = "Bring weights to shoulders";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    //------------------------------------------------------------------------------
+    // ================== BODYWEIGHT/WEIGHTFREE TRAINING EXERCISES ================
+    //------------------------------------------------------------------------------
+
+    detectPushUp(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+
+        if (!leftElbow || !rightElbow || !leftShoulder || !leftWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        const angle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+
+        let feedback = "";
+
+        if (angle < 90 && this.lastState !== 'down') {
+            this.repCounter++;
+            this.lastState = 'down';
+            feedback = "Good push-up!";
+        } else if (angle > 160 && this.lastState === 'down') {
+            this.lastState = 'up';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'down') {
+            feedback = "Push back up";
+        } else if (angle > 120) {
+            feedback = "Lower your body";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    //------------------------------------------------------------------------------
+    // ================== YOGA ================
+    //------------------------------------------------------------------------------
     // Base function for detecting yoga poses with a time requirement
     detectYogaPose(pose, conditions, requiredDuration = 3000) {
         // If no pose data is available, return early
