@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit Admin</title>
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <link rel="stylesheet" href="./css/admin_homepage.css">
     <script src="js/navigation_bar.js"></script>

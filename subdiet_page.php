@@ -139,14 +139,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("i", $member_id);
         $stmt->execute();
 
-        // If no rows were affected, insert a new row into member_performance
-        if ($stmt->affected_rows === 0) {
-            $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
-            $sql = "INSERT INTO member_performance (weeks_date_mon, diet_history_count, member_id) VALUES (?, 1, ?)";
-            $stmt = $dbConn->prepare($sql);
-            $stmt->bind_param("si", $currentWeekMonday, $member_id);
-            $stmt->execute();
-        }
         $stmt->close();
     } else {
         echo json_encode(["success" => false, "error" => "Invalid input"]);
@@ -163,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit</title>
-    <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="./css/subdiet_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">

@@ -8,8 +8,33 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 }
 
 $member_id = $_SESSION['member id'];
+$current_date = date('Y-m-d');
+$current_day_of_week = date('w', strtotime($current_date));
+$current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
+$start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
+$end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
 
-$sqlMember = "SELECT weight, height, target_weight,fitness_goal, gender, age, day_streak_starting_date, last_session_date, level 
+$query = "SELECT * FROM member_performance 
+          WHERE member_id = ? AND weeks_date_mon = ?";
+$stmt = $dbConn->prepare($query);
+$stmt->bind_param("is", $member_id, $start_of_current_week);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    $diet_history_count = 0; 
+    $workout_history_count = 0;
+
+    $insert_query = "INSERT INTO member_performance 
+                     (member_id, weeks_date_mon, diet_history_count, workout_history_count) 
+                     VALUES (?, ?, ?, ?)";
+    $insert_stmt = $dbConn->prepare($insert_query);
+    $insert_stmt->bind_param("isii", $member_id, $start_of_current_week, $diet_history_count, $workout_history_count);
+    $insert_stmt->execute();
+    $insert_stmt->close();
+}
+
+$sqlMember = "SELECT email_address,weight, height, target_weight,fitness_goal, gender, age, day_streak_starting_date, last_session_date, level 
               FROM member WHERE member_id = ?";
 $stmtMember = $dbConn->prepare($sqlMember);
 $stmtMember->bind_param("i", $member_id);
@@ -17,6 +42,7 @@ $stmtMember->execute();
 $resultMember = $stmtMember->get_result();
 $member = $resultMember->fetch_assoc();
 
+$email_address = $member['email_address'];
 $weight = $member['weight'];
 $height = $member['height'];
 $target_weight = $member['target_weight'];
@@ -162,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit</title>
-    <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="./css/homepage.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
@@ -265,7 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                 <div>
                     <?php
                     echo "
-                        <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                        <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
                         ";
                     ?>
                 </div>
@@ -274,10 +300,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                     <div class="profile-info">
                         <?php
                         echo "
-                                <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                                <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
                                 <div>
                                     <h3>{$_SESSION["username"]}</h3>
-                                    <p>unknown</p>
+                                    <p>{$email_address}</p>
                                 </div>
                                 ";
                         ?>
@@ -548,12 +574,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             }
 
             // Fetch current week's weight
-            $current_date = date('Y-m-d');
-            $current_day_of_week = date('w', strtotime($current_date));
-            $current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
-            $start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
-            $end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
-
             $sql_current = "SELECT current_weight FROM member_performance 
                                 WHERE member_id = $member_id 
                                 AND weeks_date_mon BETWEEN '$start_of_current_week' AND '$end_of_current_week' 
@@ -564,6 +584,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($result_current->num_rows > 0) {
                 $row_current = $result_current->fetch_assoc();
                 $current_weight = $row_current['current_weight'];
+                if ($current_weight == null){
+                    $current_weight = "-";
+                }
             }
 
             // Fetch last week's weight
@@ -946,12 +969,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                     $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
                     $stmt = $dbConn->prepare($sql);
                     $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
-                } else {
-                    // If the record does not exist, insert a new one
-                    $sql = "INSERT INTO member_performance (weeks_date_mon, current_weight, member_id, diet_history_count, workout_history_count) 
-                            VALUES (?, ?, ?, 0, 0)";
-                    $stmt = $dbConn->prepare($sql);
-                    $stmt->bind_param("sdi", $currentWeekMonday, $newWeight, $member_id);
                 }
             
                 // Execute the query
