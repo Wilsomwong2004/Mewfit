@@ -7,18 +7,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diet Management</title>
+    <title>Mewfit Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_diet.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/navigation_bar.js"></script>
     <script src="js/admin_diet.js"></script>
-    <style>
-        #logout-profile{
-            width:32px;
-            margin-right: 3vw;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <script>
         window.onresize = function() {
@@ -269,14 +264,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="column">
                     <label for="desc">Description</label>
-                    <textarea id="desc" name="desc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
+                    <textarea id="desc" name="desc" rows="4" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
                 </div>
             </div>
 
             <label for="directions">Directions</label>
             <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['directions'] ?? ''); ?></textarea>
 
-            <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+            <div style="display:flex;justify-content: center;white-space: nowrap;">
                 <button type="submit" id="add-profile-btn">Create New</button>
             </div>
             </form>
@@ -422,7 +417,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 
             </div>  
-            <div class="add-profile" id="nadd-profile" style="height:540px;">
+            <div class="add-profile" id="nadd-profile" style="height:730px;">
                 <center>
                     <h2>Add New <span>Nutrition</span></h2>
                 </center>
@@ -453,7 +448,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="carb">Carbohydrate (g)</label>
                 <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
 
-                <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
+                <div style="display: flex; justify-content: center; white-space: nowrap;">
                     <button type="submit" id="nadd-profile-btn">Create New</button>
                 </div>
                 </form>

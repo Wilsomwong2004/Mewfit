@@ -5,18 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
     <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
-    <style>
-        #logout-profile{
-            width:32px;
-            margin-right: 3vw;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <?php
 include "conn.php";
@@ -253,7 +247,7 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
         </div>
 
         <div class="table-option">
-            <button id="member-delete-btn" disabled>Delete</button>
+            <button id="member-delete-btn" style="margin-right: 50px; margin-top: 10px;"> Delete</button>
         </div>
         <div class="mpopup" id="mpopup">
             <div class="popup-content">

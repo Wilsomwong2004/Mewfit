@@ -1,5 +1,5 @@
 * {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
@@ -29,10 +29,22 @@ body {
     /* Space for logo */
 }
 
+.nav-logo {
+    width: 60px !important;
+    height: 60px !important;
+    z-index: 5;
+}
+
+.nav-links-indicator {
+    bottom: 15px !important;
+}
+
 .nav-links {
     display: flex;
     gap: 2.5rem;
     align-items: center;
+    font-weight: 500;
+    /* Added font-weight*/
     margin: 0 auto;
     position: absolute;
     left: auto !important;
@@ -48,6 +60,12 @@ body {
     white-space: nowrap;
     z-index: 3;
     position: relative;
+}
+
+#logout-profile {
+    width: 26px;
+    margin-right: 3vw;
+    cursor: pointer;
 }
 
 .admin-dashboard,
@@ -152,7 +170,7 @@ body {
 
 .box,
 .nutri-box {
-    height: 680px;
+    height: 670px;
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
@@ -266,6 +284,7 @@ table tr.selected {
 .table-option {
     display: flex;
     justify-content: end;
+    margin-top: 10px;
 }
 
 .table-option button {
@@ -361,7 +380,7 @@ table tr.selected {
     padding: 30px;
     border-radius: 20px;
     position: relative;
-    top: 80px;
+    top: 75px;
 }
 
 .add-profile h2,
@@ -379,7 +398,7 @@ table tr.selected {
 .edit-profile label {
     font-weight: bold;
     display: block;
-    margin-top: 23px;
+    margin-top: 18px;
     margin-bottom: 10px;
 }
 
@@ -596,6 +615,15 @@ input.exercise-checkbox {
         margin-left: 30px;
     }
 
+    .nav-links-indicator {
+        bottom: 350px !important;
+    }
+
+    #logout-profile {
+        width: 26px;
+        margin-right: 8vw;
+    }
+
     .header-right {
         margin-left: 15px;
     }
@@ -616,6 +644,11 @@ input.exercise-checkbox {
     .navbar {
         padding: 1.5rem 0 !important;
         margin-left: 0px;
+    }
+
+    #logout-profile {
+        width: 26px;
+        margin-right: 3vw;
     }
 
     #heading {
