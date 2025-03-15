@@ -221,9 +221,9 @@ session_start();
 
         if (target_weight - weight > 4) {
           document.getElementById("target-warning").textContent = "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
-        } else {
-          document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
         }
+
+        document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
       }
     </script>
 
