@@ -422,10 +422,7 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Simple moves to get your heart pumping.",
-<<<<<<< HEAD
-=======
         "longDescription": "This workout is perfect for beginners looking to ease into cardio exercises. It features a series of simple yet effective moves to elevate your heart rate and improve cardiovascular health.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/jump.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
@@ -442,10 +439,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-intensity intervals for explosive results.",
-<<<<<<< HEAD
-=======
         "longDescription": "Get ready for an intense workout that combines high-energy movements and explosive intervals to burn calories and build endurance. This session is ideal for those seeking a challenge.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Power_HIIT.jpg',
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
@@ -462,10 +456,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for dynamic movements.",
-<<<<<<< HEAD
-=======
         "longDescription": "This intermediate workout uses a stepper to add intensity to classic cardio moves. Perfect for those wanting to improve lower-body strength while keeping their heart rate elevated.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Stepper_cardio.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
@@ -481,10 +472,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Cardio with boxing-inspired moves.",
-<<<<<<< HEAD
-=======
         "longDescription": "Combine cardio with boxing-inspired drills to boost endurance and coordination. This intermediate workout alternates between explosive punches and lower-body movements, offering a fun way to burn calories while relieving stress.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/punchnburn.jpg',
         "type": ["All", "Cardio"],
         "sets": 2,
@@ -500,10 +488,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle cardio for joint-friendly sweating.",
-<<<<<<< HEAD
-=======
         "longDescription": "A joint-friendly cardio session designed for beginners or active recovery days. The steady-paced movements keep your heart rate in a fat-burning zone without stressing joints, making it ideal for long-term consistency.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Low_Impact.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
@@ -519,10 +504,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Mix of jumps and agility drills.",
-<<<<<<< HEAD
-=======
         "longDescription": "This intermediate routine blends agility drills, jumps, and sprints to challenge your entire body. Improve speed, coordination, and cardiovascular health with movements inspired by athletic training.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Full_Body.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
@@ -538,10 +520,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Intermediate",
         "description": "Elevate your heart rate with step-ups.",
-<<<<<<< HEAD
-=======
         "longDescription": "Elevate your fitness (literally!) with step-ups and plyometric variations. This intermediate workout builds lower-body power and endurance while keeping your heart rate soaring.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Step_up.jpg',
         "type": ["All", "Cardio"],
         "sets": 4,
@@ -557,10 +536,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Beginner",
         "description": "Fun moves to keep you moving.",
-<<<<<<< HEAD
-=======
         "longDescription": "Shake off the stress with upbeat, dance-inspired moves. Perfect for beginners, this workout makes cardio feel like a party while improving rhythm and coordination.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Dance_cardio.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
@@ -576,14 +552,9 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Blast fat while engaging your core.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/HIIT&Core.jpg',
-        "type": ["All", "Cardio", "HIIT"],
-=======
         "longDescription": "An advanced session that pairs heart-pounding HIIT with core-centric exercises. Torch calories while strengthening your abs, obliques, and stability muscles for a double-duty challenge.",
         "image": './assets/workout_pics/HIIT&Core.jpg',
         "type": ["All", "Cardio"],
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "sets": 4,
         "exercises": [
             { "exercise": "Plank Jacks", "reps": 20, "video": "./assets/workout_video/HIIT & Core Combo/Plank Jacks.mp4" },
@@ -597,12 +568,8 @@ const workouts = [
         "calories": "90Kcal",
         "level": "Beginner",
         "description": "Fast routine to kickstart your day.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
-=======
         "longDescription": "Jumpstart your day with this fast-paced, beginner-friendly routine. Simple moves like jogging and punches boost energy and metabolism without overwhelming your schedule.",
         "image": './assets/workout_pics/Morning_Cardio.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -618,10 +585,7 @@ const workouts = [
         "calories": "250Kcal",
         "level": "Intermediate",
         "description": "Compound lifts for total strength.",
-<<<<<<< HEAD
-=======
         "longDescription": "Push your limits with a balanced mix of compound lifts to build full-body strength and coordination. Perfect for burning calories and boosting muscle tone.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -638,12 +602,8 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Target arms, shoulders, and back.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/UpperBody_Script.jpg', 
-=======
         "longDescription": "Zero in on your upper body with targeted exercises for your arms, shoulders, and back. Build strength and definition while improving posture.",
         "image": './assets/workout_pics/UpperBody_Sculpt.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -659,12 +619,8 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Intermediate",
         "description": "Build lower body power.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/LegDay_Steregth.jpg',
-=======
         "longDescription": "Strengthen and tone your lower body with lunges, squats, and deadlifts. This workout is all about building stability, power, and endurance.",
         "image": './assets/workout_pics/LegDay_Strength.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -680,12 +636,8 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Real-world movement patterns.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Functional_Steregth.jpg',
-=======
         "longDescription": "Move smarter with real-world functional exercises. Perfect for enhancing balance, flexibility, and overall strength in just 20 minutes.",
         "image": './assets/workout_pics/Functional_Strength.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -701,10 +653,7 @@ const workouts = [
         "calories": "190Kcal",
         "level": "Advanced",
         "description": "Strengthen posterior chain.",
-<<<<<<< HEAD
-=======
         "longDescription": "Refine your upper body with a focus on back and shoulder muscles. Improve strength, posture, and stability with controlled movements.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Back&Shoulders_Focus.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -721,12 +670,8 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for resistance.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Stepper_Strength.jpg', 
-=======
         "longDescription": "Incorporate a stepper for added resistance and variety. This workout is perfect for building lower body strength and cardiovascular endurance.",
         "image": './assets/workout_pics/Stepper_Strength.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -741,10 +686,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Full-body endurance with weights.",
-<<<<<<< HEAD
-=======
         "longDescription": "Tackle this dynamic, advanced-level workout that combines power, endurance, and strength. A full-body challenge to test your limits.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/TotalBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
@@ -761,10 +703,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Strengthen arms and abs.",
-<<<<<<< HEAD
-=======
         "longDescription": "Focus on your arms and core with a mix of targeted exercises. Tone and strengthen key muscle groups for a leaner, more defined look.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Arm&Core.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -780,10 +719,7 @@ const workouts = [
         "calories": "210Kcal",
         "level": "Advanced",
         "description": "Build stamina with weights.",
-<<<<<<< HEAD
-=======
         "longDescription": "Combine strength and stamina in this high-intensity session. Perfect for building explosive power and long-lasting endurance.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Power_Endurance.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
@@ -800,12 +736,8 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Improve movement quality.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Functional_Mobility.jpg',
-=======
         "longDescription": "Enhance joint range and movement patterns with rotational and overhead exercises. Ideal for intermediate lifters looking to improve workout efficiency and reduce injury risk.",
         "image": './assets/workout_pics/Funtional_Mobility.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -821,12 +753,8 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Target abs with no equipment.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Core_Crasher.jpg',
-=======
         "longDescription": "No equipment needed just relentless ab work. This intermediate routine uses planks, twists, and leg raises to target every inch of your core.",
         "image": './assets/workout_pics/Core_Crusher.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -842,10 +770,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle moves for joint health.",
-<<<<<<< HEAD
-=======
         "longDescription": "Gentle on joints but tough on muscles. Perfect for beginners, this workout uses chair-assisted moves to build foundational strength safely.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Low_impact.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
@@ -862,10 +787,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "No equipment, full-body focus.",
-<<<<<<< HEAD
-=======
         "longDescription": "A versatile, equipment-free routine targeting all major muscle groups. Push-ups, squats, and supermans build endurance and functional fitness.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Full_Body.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
@@ -882,10 +804,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Advanced",
         "description": "Advanced ab challenges.",
-<<<<<<< HEAD
-=======
         "longDescription": "Advanced ab drills that challenge stability and control. Windshield wipers and up-down planks push your core to its limits for athletic performance.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Dynamic_Core.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
@@ -901,12 +820,8 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Focus on legs and glutes.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Lower_Body_Burning.jpg',
-=======
         "longDescription": "Fire up your legs and glutes with pulses, raises, and lunges. This intermediate workout emphasizes muscle endurance for toning and definition.",
         "image": './assets/workout_pics/Lower_Body_Burn.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -922,10 +837,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Beginner",
         "description": "Improve balance and control.",
-<<<<<<< HEAD
-=======
         "longDescription": "Improve balance and joint health with controlled bodyweight movements. Ideal for beginners or active recovery days.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Mobility&Stability.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
@@ -941,10 +853,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Master push-up variations.",
-<<<<<<< HEAD
-=======
         "longDescription": "Master push-ups from knees to advanced variations. Build upper-body strength and core stability progressively.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Push-Up_Progression.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
@@ -960,10 +869,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Beginner",
         "description": "Enhance movement range.",
-<<<<<<< HEAD
-=======
         "longDescription": "Increase range of motion with stretches that mimic daily movements. Perfect for post-workout cooldowns or rest-day active recovery.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Functional_Flexibility.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
@@ -980,10 +886,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-effort bodyweight moves.",
-<<<<<<< HEAD
-=======
         "longDescription": "High-intensity bodyweight moves like burpees and sprinter tucks. Advanced users will torch calories while improving agility and power.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Total_Body_Tone.jpg',
         "type": ["All", "Weight-free"],
         "sets": 4,
@@ -999,10 +902,7 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Improve stability.",
-<<<<<<< HEAD
-=======
         "longDescription": "Beginner-friendly drills to enhance stability and body awareness. Single-leg bridges and assisted lunges build confidence in movement.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Balance&Coordination.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
@@ -1019,10 +919,7 @@ const workouts = [
         "calories": "60Kcal",
         "level": "Beginner",
         "description": "Relax and recover.",
-<<<<<<< HEAD
-=======
         "longDescription": "Gentle stretches to release muscle tension and improve flexibility after exercise. Focuses on hips, hamstrings, and lower back for recovery.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Post_Workout_Stretch.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
@@ -1038,10 +935,7 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Improve mobility and posture.",
-<<<<<<< HEAD
-=======
         "longDescription": "Dynamic stretches to improve posture and mobility. Ideal for desk workers or anyone seeking fluid, pain-free movement.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Flexibility_Flow.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
@@ -1057,12 +951,8 @@ const workouts = [
         "calories": "70Kcal",
         "level": "Intermediate",
         "description": "Ease back stiffness.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Signed&Back_Relief.jpg', 
-=======
         "longDescription": "Alleviate stiffness with yoga-inspired stretches for the spine and lower back. Cobra poses and twists promote spinal health.",
         "image": './assets/workout_pics/Spine&Back_Relief.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -1077,12 +967,8 @@ const workouts = [
         "calories": "30Kcal",
         "level": "Beginner",
         "description": "Release upper body tension.",
-<<<<<<< HEAD
-        "image": './assets/workout_pics/Next&Shoulder_Relaxation.jpg',
-=======
         "longDescription": "Release tension from sedentary habits or stress. Gentle stretches target tight neck, shoulders, and chest muscles.",
         "image": './assets/workout_pics/Neck&Shoulder_Relaxation.jpg',
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -1097,10 +983,7 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Wake up your body gently.",
-<<<<<<< HEAD
-=======
         "longDescription": "Wake up your body with gentle stretches and joint circles. Prepares you for the day by improving circulation and range of motion.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Morning_Mobility.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
@@ -1116,10 +999,7 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Dynamic stretching for athletes.",
-<<<<<<< HEAD
-=======
         "longDescription": "Dynamic stretches for athletes or pre-workout priming. Enhances performance and reduces injury risk with movement-based flexibility.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Active_Stretch_Flow.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
@@ -1135,10 +1015,7 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Unwind before bed.",
-<<<<<<< HEAD
-=======
         "longDescription": "Calm your mind and body before bed with restorative poses. Focuses on relaxation and stress relief for better sleep quality.",
->>>>>>> 73970a28f19dce917c15d01228e80d49b495ab1e
         "image": './assets/workout_pics/Evening_Wind-Down.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
