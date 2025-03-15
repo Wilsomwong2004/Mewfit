@@ -804,3 +804,78 @@ html.dark-mode .diet-stats {
         font-size: 0.5rem;
     }
 }
+
+.diet-history-grid {
+    display: flex;
+    gap: 20px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    margin-left: 3vw;
+}
+
+.diet-history-grid.scroll-layout {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-bottom: 15px;
+}
+
+.diet-history-grid.grid-layout {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.diet-history-grid.scroll-layout::-webkit-scrollbar {
+    display: none;
+}
+
+.diet-card-content {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px #0000002c;
+    border-radius: 16px;
+    flex: 0 0 300px;
+}
+
+.diet-card-content:hover {
+    box-shadow: 0 4px 12px #0000002c;
+    cursor: pointer;
+}
+
+.diet-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+
+}
+
+.diet-info {
+    padding: 1rem;
+    font-size: 80%;
+}
+
+.diet-title {
+    font-size: 18px;
+    margin: 10px 0px;
+}
+
+.diet-level {
+    padding: 0.1rem 0.5rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    margin: 100px 0;
+}
+
+.diet-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.8rem;
+    font-size: 0.8rem;
+    color: #666;
+    margin-right: 0.2rem;
+}

@@ -77,6 +77,12 @@
                 display:none;
             }
         }
+
+        #logout-profile{
+            width:32px;
+            margin-right: 3vw;
+            cursor: pointer;
+        }
     </style>
 </head>
 <?php include "conn.php" ?>
@@ -95,8 +101,10 @@
                 <span></span>
                 <span></span>
             </button>
-        </div>
+        </div>  
+        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>      
     </nav>
+    
 
     <div class="content">
         <!-- greetings -->

@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="navbar">
-        <button class="nav-button">Back</button>
+        <button class="nav-button" onclick="goBack()">Back</button>
         <span class="material-icons">
             arrow_back_ios_new
             </span>
@@ -134,5 +134,10 @@
             </section>
         </div></div></p>
 </body>
-    <script src="./js/back_button.js"></script>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
 </html>

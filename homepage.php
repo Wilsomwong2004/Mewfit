@@ -22,7 +22,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows == 0) {
-    $diet_history_count = 0; 
+    $diet_history_count = 0;
     $workout_history_count = 0;
 
     $insert_query = "INSERT INTO member_performance 
@@ -309,7 +309,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                         ?>
                     </div>
                     <ul>
-                        <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                        <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
                         <li>
                             <i class="fas fa-moon"></i> Dark Mode
                             <label class="switch">
@@ -499,27 +499,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             <?php
             //----------------------chart 1
             $sql2 = "
-                    SELECT 
-                        DATE_FORMAT(weeks_date_mon, '%d %b %Y') AS period_label,  -- Format as '02 Feb 2025'
-                        AVG(current_weight) AS avg_weight
-                    FROM member_performance 
-                    WHERE member_id = ? 
-                        AND weeks_date_mon >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)  -- Limit to the past 3 months
-                    GROUP BY YEAR(weeks_date_mon), WEEK(weeks_date_mon)  -- Group by year and week
-                    ORDER BY weeks_date_mon ASC;
-                ";
+    SELECT
+        DATE_FORMAT(weeks_date_mon, '%d %b %Y') AS period_label,
+        AVG(current_weight) AS avg_weight
+    FROM member_performance 
+    WHERE member_id = ?
+        AND weeks_date_mon >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+    GROUP BY YEAR(weeks_date_mon), WEEK(weeks_date_mon)
+    ORDER BY weeks_date_mon ASC;
+";
 
-            $stmt = $dbConn->prepare($sql2);
-            $stmt->bind_param("i", $member_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+$stmt = $dbConn->prepare($sql2);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-            $labels = [];
-            $weights = [];
-            while ($row = $result->fetch_assoc()) {
-                $labels[] = $row["period_label"];
-                $weights[] = $row["avg_weight"];
-            }
+$labels = [];
+$weights = [];
+$hasValidWeights = false;
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $labels[] = $row["period_label"];
+        $weights[] = $row["avg_weight"];
+        
+        // Check if we have at least one non-null weight value
+        if ($row["avg_weight"] !== null) {
+            $hasValidWeights = true;
+        }
+    }
+}
+
+// If we have no rows OR all weights are null, run the fallback query
+if ($result->num_rows == 0 || !$hasValidWeights) {
+    // Clear the arrays before populating with fallback data
+    $labels = [];
+    $weights = [];
+    
+    $sqlFallback = "
+        SELECT weight, DATE_FORMAT(weight_registered_date, '%d %b %Y') AS period_label
+        FROM member
+        WHERE member_id = ?
+    ";
+    
+    $stmtFallback = $dbConn->prepare($sqlFallback);
+    $stmtFallback->bind_param("i", $member_id);
+    $stmtFallback->execute();
+    $resultFallback = $stmtFallback->get_result();
+    
+    if ($resultFallback->num_rows > 0) {
+        while ($row = $resultFallback->fetch_assoc()) {
+            $labels[] = $row["period_label"];
+            $weights[] = $row["weight"];
+        }
+    } else {
+        $labels[] = "No data available";
+        $weights[] = null;
+    }
+}
 
             //chart 2
             $query = "
@@ -584,7 +621,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($result_current->num_rows > 0) {
                 $row_current = $result_current->fetch_assoc();
                 $current_weight = $row_current['current_weight'];
-                if ($current_weight == null){
+                if ($current_weight == null) {
                     $current_weight = "-";
                 }
             }
@@ -956,31 +993,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
                 $newWeight = floatval($_POST['newweight']);
                 $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
-            
+
                 // Check if an entry for the current week exists
                 $sql = "SELECT * FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
                 $stmt = $dbConn->prepare($sql);
                 $stmt->bind_param("si", $currentWeekMonday, $member_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
-            
+
                 if ($result->num_rows > 0) {
                     // If the record exists, update it
                     $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
                     $stmt = $dbConn->prepare($sql);
                     $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
                 }
-            
+
                 // Execute the query
                 if ($stmt->execute()) {
                     echo json_encode(["status" => "success", "message" => "Weight recorded successfully!"]);
                 } else {
                     echo json_encode(["status" => "error", "message" => "Error: " . $stmt->error]);
                 }
-            
+
                 exit();
             }
-            
+
 
 
             ?>
