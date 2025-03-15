@@ -110,11 +110,6 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                   </a>
                 </li>
                 <li>
-                  <label class="toggle-item">
-                    Two Factor Authentication
-                    <input type="checkbox" class="toggle-switch" checked />
-                    <span class="slider-settings"></span>
-                  </label>
                 </li>
                 <li>
                   <div class="setting-item">
@@ -125,26 +120,16 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     <span class="cheval-left">></span>
                   </div>
                 </li>
-              </ul>
-            </div>
-
-            <div class="settings-group">
-              <h3>Preferences</h3>
-              <ul>
-                <li>
-                  <label class="toggle-item">
-                    Dark Mode
-                    <input type="checkbox" class="toggle-switch" id="settings-darkmode-toggle" />
-                    <span class="slider-settings"></span>
-                  </label>
-                </li>
-                <li>
-                  <label class="toggle-item">
-                    Push Notifications
-                    <input type="checkbox" class="toggle-switch" checked />
-                    <span class="slider-settings"></span>
-                  </label>
-                </li>
+                <ul>
+                  <li>
+                    <label class="toggle-item">
+                      Dark Mode
+                      <input type="checkbox" class="toggle-switch" id="settings-darkmode-toggle" />
+                      <span class="slider-settings"></span>
+                    </label>
+                  </li>
+                  <li>
+                  </li>
               </ul>
             </div>
 
@@ -197,6 +182,87 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 </li>
               </ul>
             </div>
+        </div>
+      </div>
+      <div class="modal-overlay" id="updateModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Update Personal Information</h3>
+            <span class="close-modal">&times;</span>
+          </div>
+          <form class="modal-body" id="updateForm">
+            <?php
+              // 获取当前用户数据
+              $member_id = $_SESSION['member_id'] ?? 1;
+              $sql = "SELECT * FROM member WHERE member_id = $member_id";
+              $result = $dbConn->query($sql);
+              $user = $result->fetch_assoc();
+            ?>
+            
+            <div class="form-group">
+              <label>Username:</label>
+              <input type="text" name="username" value="<?php echo $user['username']; ?>">
+            </div>
+            
+            <div class="form-group">
+              <label>Email:</label>
+              <input type="email" name="email_address" value="<?php echo $user['email_address']; ?>">
+            </div>
+            
+            <div class="form-group">
+              <label>Password:</label>
+              <input type="password" name="password" placeholder="Enter new password">
+            </div>
+            
+            <div class="form-group">
+              <label>Level:</label>
+              <select name="level">
+                <option value="beginner" <?php echo ($user['level'] == 'beginner') ? 'selected' : ''; ?>>Beginner</option>
+                <option value="intermediate" <?php echo ($user['level'] == 'intermediate') ? 'selected' : ''; ?>>Intermediate</option>
+                <option value="advanced" <?php echo ($user['level'] == 'advanced') ? 'selected' : ''; ?>>Advanced</option>
+              </select>
+            </div>
+            
+            <!-- 不可编辑字段 -->
+            <div class="form-group disabled">
+              <label>Height (cm):</label>
+              <input type="number" value="<?php echo $user['height']; ?>" readonly>
+            </div>
+            
+            <div class="form-group disabled">
+              <label>Weight (kg):</label>
+              <input type="number" value="<?php echo $user['weight']; ?>" readonly>
+            </div>
+            
+            <div class="form-group">
+              <label>Age:</label>
+              <input type="number" name="age" value="<?php echo $user['age']; ?>">
+            </div>
+            
+            <div class="form-group disabled">
+              <label>Fitness Goal:</label>
+              <input type="text" value="<?php echo $user['fitness_goal']; ?>" readonly>
+            </div>
+            
+            <div class="form-group disabled">
+              <label>Target Weight (kg):</label>
+              <input type="number" value="<?php echo $user['target_weight']; ?>" readonly>
+            </div>
+            
+            <div class="form-group">
+              <label>Gender:</label>
+              <select name="gender">
+                <option value="male" <?php echo ($user['gender'] == 'male') ? 'selected' : ''; ?>>Male</option>
+                <option value="female" <?php echo ($user['gender'] == 'female') ? 'selected' : ''; ?>>Female</option>
+                <option value="other" <?php echo ($user['gender'] == 'other') ? 'selected' : ''; ?>>Other</option>
+              </select>
+            </div>
+            
+            <div class="modal-actions">
+              <button type="button" class="cancel-btn">Cancel</button>
+              <button type="submit" class="confirm-btn">Save Changes</button>
+            </div>
+          </form>
         </div>
       </div>
     </body>

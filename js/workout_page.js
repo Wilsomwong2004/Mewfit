@@ -421,7 +421,7 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Simple moves to get your heart pumping.",
-        "image": '',
+        "image": './assets/workout_pics/jump.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
@@ -437,7 +437,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-intensity intervals for explosive results.",
-        "image": '',
+        "image": './assets/workout_pics/Power_HIIT.jpg',
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
@@ -453,7 +453,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for dynamic movements.",
-        "image": '',
+        "image": './assets/workout_pics/Stepper_cardio.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
@@ -468,7 +468,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Cardio with boxing-inspired moves.",
-        "image": '',
+        "image": './assets/workout_pics/punchnburn.jpg',
         "type": ["All", "Cardio"],
         "sets": 2,
         "exercises": [
@@ -483,7 +483,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle cardio for joint-friendly sweating.",
-        "image": '',
+        "image": './assets/workout_pics/Low_Impact.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -498,7 +498,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Mix of jumps and agility drills.",
-        "image": '',
+        "image": './assets/workout_pics/Full_Body.jpg',
         "type": ["All", "Cardio"],
         "sets": 3,
         "exercises": [
@@ -513,7 +513,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Intermediate",
         "description": "Elevate your heart rate with step-ups.",
-        "image": '',
+        "image": './assets/workout_pics/Step_up.jpg',
         "type": ["All", "Cardio"],
         "sets": 4,
         "exercises": [
@@ -528,7 +528,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Beginner",
         "description": "Fun moves to keep you moving.",
-        "image": '',
+        "image": './assets/workout_pics/Dance_cardio.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -543,7 +543,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Blast fat while engaging your core.",
-        "image": '',
+        "image": './assets/workout_pics/HIIT&Core.jpg',
         "type": ["All", "Cardio", "HIIT"],
         "sets": 4,
         "exercises": [
@@ -558,7 +558,7 @@ const workouts = [
         "calories": "90Kcal",
         "level": "Beginner",
         "description": "Fast routine to kickstart your day.",
-        "image": '',
+        "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -574,7 +574,7 @@ const workouts = [
         "calories": "250Kcal",
         "level": "Intermediate",
         "description": "Compound lifts for total strength.",
-        "image": '',
+        "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -590,7 +590,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Target arms, shoulders, and back.",
-        "image": '',
+        "image": './assets/workout_pics/UpperBody_Script.jpg', 
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -606,7 +606,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Intermediate",
         "description": "Build lower body power.",
-        "image": '',
+        "image": './assets/workout_pics/LegDay_Steregth.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -622,7 +622,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Real-world movement patterns.",
-        "image": '',
+        "image": './assets/workout_pics/Functional_Steregth.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -638,7 +638,7 @@ const workouts = [
         "calories": "190Kcal",
         "level": "Advanced",
         "description": "Strengthen posterior chain.",
-        "image": '',
+        "image": './assets/workout_pics/Back&Shoulders_Focus.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -654,7 +654,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for resistance.",
-        "image": '',
+        "image": './assets/workout_pics/Stepper_Strength.jpg', 
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -669,7 +669,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Full-body endurance with weights.",
-        "image": '',
+        "image": './assets/workout_pics/TotalBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
@@ -685,7 +685,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Strengthen arms and abs.",
-        "image": '',
+        "image": './assets/workout_pics/Arm&Core.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -700,7 +700,7 @@ const workouts = [
         "calories": "210Kcal",
         "level": "Advanced",
         "description": "Build stamina with weights.",
-        "image": '',
+        "image": './assets/workout_pics/Power_Endurance.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
         "exercises": [
@@ -716,7 +716,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Improve movement quality.",
-        "image": '',
+        "image": './assets/workout_pics/Functional_Mobility.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -732,7 +732,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Target abs with no equipment.",
-        "image": '',
+        "image": './assets/workout_pics/Core_Crasher.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -748,7 +748,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Beginner",
         "description": "Gentle moves for joint health.",
-        "image": '',
+        "image": './assets/workout_pics/Low_impact.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -764,7 +764,7 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "No equipment, full-body focus.",
-        "image": '',
+        "image": './assets/workout_pics/Full_Body.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -780,7 +780,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Advanced",
         "description": "Advanced ab challenges.",
-        "image": '',
+        "image": './assets/workout_pics/Dynamic_Core.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -795,7 +795,7 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Focus on legs and glutes.",
-        "image": '',
+        "image": './assets/workout_pics/Lower_Body_Burning.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -811,7 +811,7 @@ const workouts = [
         "calories": "140Kcal",
         "level": "Beginner",
         "description": "Improve balance and control.",
-        "image": '',
+        "image": './assets/workout_pics/Mobility&Stability.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
@@ -826,7 +826,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Master push-up variations.",
-        "image": '',
+        "image": './assets/workout_pics/Push-Up_Progression.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -841,7 +841,7 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Beginner",
         "description": "Enhance movement range.",
-        "image": '',
+        "image": './assets/workout_pics/Functional_Flexibility.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
@@ -857,7 +857,7 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Advanced",
         "description": "High-effort bodyweight moves.",
-        "image": '',
+        "image": './assets/workout_pics/Total_Body_Tone.jpg',
         "type": ["All", "Weight-free"],
         "sets": 4,
         "exercises": [
@@ -872,7 +872,7 @@ const workouts = [
         "calories": "130Kcal",
         "level": "Beginner",
         "description": "Improve stability.",
-        "image": '',
+        "image": './assets/workout_pics/Balance&Coordination.jpg',
         "type": ["All", "Weight-free"],
         "sets": 2,
         "exercises": [
@@ -888,7 +888,7 @@ const workouts = [
         "calories": "60Kcal",
         "level": "Beginner",
         "description": "Relax and recover.",
-        "image": '',
+        "image": './assets/workout_pics/Post_Workout_Stretch.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -903,7 +903,7 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Improve mobility and posture.",
-        "image": '',
+        "image": './assets/workout_pics/Flexibility_Flow.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -918,7 +918,7 @@ const workouts = [
         "calories": "70Kcal",
         "level": "Intermediate",
         "description": "Ease back stiffness.",
-        "image": '',
+        "image": './assets/workout_pics/Signed&Back_Relief.jpg', 
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -933,7 +933,7 @@ const workouts = [
         "calories": "30Kcal",
         "level": "Beginner",
         "description": "Release upper body tension.",
-        "image": '',
+        "image": './assets/workout_pics/Next&Shoulder_Relaxation.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -948,7 +948,7 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Wake up your body gently.",
-        "image": '',
+        "image": './assets/workout_pics/Morning_Mobility.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -963,7 +963,7 @@ const workouts = [
         "calories": "80Kcal",
         "level": "Intermediate",
         "description": "Dynamic stretching for athletes.",
-        "image": '',
+        "image": './assets/workout_pics/Active_Stretch_Flow.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -978,7 +978,7 @@ const workouts = [
         "calories": "40Kcal",
         "level": "Beginner",
         "description": "Unwind before bed.",
-        "image": '',
+        "image": './assets/workout_pics/Evening_Wind-Down.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
