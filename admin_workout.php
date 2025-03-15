@@ -50,7 +50,7 @@ $exercises = json_decode($jsonFile, true);
     <div class="container">
         <!-- Workout Table -->
         <div class="profile-table">
-            <h2>WORKOUT <span>LIST</span></h2>
+            <h2 class="title"> WORKOUT <span>PROFILE</span></h2>
             <input type="text" class="search-bar" placeholder="Search">
             <div class="box">
                 <table>
@@ -96,6 +96,10 @@ $exercises = json_decode($jsonFile, true);
                     ?>
                 </table>
             </div>
+            <div class="table-option">
+                <button id="edit-btn" disabled>Edit</button>
+                <button id="delete-btn" disabled>Delete</button>
+            </div>
         </div>
 
         <!-- Add New Workout Form -->
@@ -104,44 +108,59 @@ $exercises = json_decode($jsonFile, true);
                 <h2>Add New <span>Workout</span></h2>
             </center>
             <form method="POST" action="" enctype="multipart/form-data">
-                <label for="workout-name">Workout Name</label>
-                <input type="text" id="workout-name" name="workout-name" required>
-                
-                <label for="workout-type">Workout Type</label>
-                <select id="workout-type" name="workout-type" required>
-                    <option value="">Select Type</option>
-                    <option value="Cardio">Cardio</option>
-                    <option value="Strength">Strength</option>
-                    <option value="Flexibility">Flexibility</option>
-                </select>
-                
-                <label for="difficulty">Difficulty Level</label>
-                <select id="difficulty" name="difficulty" required>
-                    <option value="">Select Difficulty</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                </select>
+            <div class="form-columns">
+                <div class="column">
+                    <label for="workout-name">Workout Name</label>
+                    <input type="text" id="workout-name" name="workout-name" placeholder=" E.g. Morning Workout" required>
+                </div>
+                <div class="column">
+                        <label for="workout-type">Workout Type</label>
+                        <select id="workout-type" name="workout-type" required>
+                            <option value="">Select Type</option>
+                            <option value="Cardio">Cardio</option>
+                            <option value="Weighted">Weighted</option>
+                            <option value="Weight-free">Weight-free</option>
+                            <option value="Yoga">Yoga</option>
+                        </select>
+                    </div>
+            </div>
 
                 <div class="form-columns">
                     <div class="column">
                         <label for="calorie">Calorie (kcal)</label>
-                        <input type="number" id="calorie" name="calorie" required>
+                        <input type="number" id="calorie" name="calorie" placeholder=" E.g. 200" required>
                     </div>
                     <div class="column">
                         <label for="minutes">Minutes</label>
-                        <input type="number" id="minutes" name="minutes" required>
+                        <input type="number" id="minutes" name="minutes" placeholder=" E.g. 10" required>
+                    </div>
+                    <div class="column">
+                        <label for="sets">Sets</label>
+                        <input type="number" id="sets" name="sets" placeholder=" E.g. 3" required>
                     </div>
                 </div>
 
-                <label for="workout-image">Workout Image</label>
-                <input type="file" id="workout-image" name="workout-image" accept="image/*" required>
+                <div class="form-columns">
+                    <div class="column">
+                        <label for="difficulty">Difficulty Level</label>
+                        <select id="difficulty" name="difficulty" required>
+                            <option value="">Select Difficulty</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="column">
+                        <label for="workout-image">Workout Image</label>
+                        <input type="file" id="workout-image" name="workout-image" accept="image/*" required>
+                    </div>
+                </div>
 
                 <label for="description">Short Description</label>
                 <textarea id="description" name="description" rows="2" required placeholder="Brief description shown in workout listings"></textarea>
                 
                 <label for="long-description">Long Description</label>
-                <textarea id="long-description" name="long-description" rows="4" required placeholder="Detailed description of the workout"></textarea>
+                <textarea id="long-description" name="long-description" rows="3" required placeholder="Detailed description of the workout"></textarea>
 
                 <div class="form-group">
                     <label for="exercise-select">Exercise Checklist</label>
@@ -160,9 +179,9 @@ $exercises = json_decode($jsonFile, true);
                                 <?php else: ?>
                                     <?php foreach ($exercises as $exercise): ?>
                                     <div class="exercise-item">
-                                        <label>
-                                            <input type="checkbox" name="exercises[]" value="<?php echo $exercise['id']; ?>" class="exercise-checkbox">
+                                        <label class="exercise-label">
                                             (<?php echo $exercise['id']; ?>) <?php echo $exercise['exercise']; ?>
+                                            <input type="checkbox" name="exercises[]" value="<?php echo $exercise['id']; ?>" class="exercise-checkbox">
                                         </label>
                                     </div>
                                     <?php endforeach; ?>
@@ -173,7 +192,7 @@ $exercises = json_decode($jsonFile, true);
                 </div>
 
                 <center>
-                    <button type="submit">Create Workout</button>
+                    <button id="add-profile-btn" type="submit">Create Workout</button>
                 </center>
             </form>
         </div>
@@ -185,6 +204,7 @@ $exercises = json_decode($jsonFile, true);
             // Get form data
             $name = $_POST['workout-name'] ?? '';
             $type = $_POST['workout-type'] ?? '';
+            $sets = $_POST['sets'] ?? 0;
             $difficulty = $_POST['difficulty'] ?? '';
             $calories = $_POST['calorie'] ?? 0;
             $duration = $_POST['minutes'] ?? 0;
@@ -212,18 +232,17 @@ $exercises = json_decode($jsonFile, true);
             }
             
             // Format the exercise_checklist as shown in your example [3, [1, 2, 3, 4]]
-            $exercise_count = count($exercise_checklist);
-            $formatted_exercise_list = "[$exercise_count, [" . implode(", ", $exercise_checklist) . "]]";
+            $formatted_exercise_list = "[" . implode(", ", $exercise_checklist) . "]";
             
             // Current date for registration
             $date_registered = date('Y-m-d');
             
             // Insert data into workout table
-            $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, exercise_checklist, date_registered) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, sets, exercise_checklist, date_registered)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     
             $stmt = $dbConn->prepare($sql);
-            $stmt->bind_param("sssiisssss", $name, $type, $difficulty, $calories, $duration, $image, $description, $long_description, $formatted_exercise_list, $date_registered);
+            $stmt->bind_param("sssiisssiss", $name, $type, $difficulty, $calories, $duration, $image, $description, $long_description, $sets, $formatted_exercise_list, $date_registered);
             
             if ($stmt->execute()) {
                 echo "<script>alert('Successfully inserted workout data');</script>";

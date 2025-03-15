@@ -6,6 +6,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    overflow: hidden;
 }
 
 .content {
@@ -129,9 +130,8 @@ body {
 }
 
 .title {
-    padding-top: 30px;
-    padding-left: 50px;
     padding-right: 50px;
+    padding-bottom: 30px;
     font-size: 30px;
     margin: 0;
 }
@@ -152,7 +152,7 @@ body {
 
 .box,
 .nutri-box {
-    height: 650px;
+    height: 680px;
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
@@ -329,7 +329,7 @@ table tr.selected {
     padding: 20px;
     border-radius: 20px;
     text-align: center;
-    width: 300px;
+    width: 400px;
 }
 
 .popup-content button {
@@ -355,13 +355,13 @@ table tr.selected {
 
 .add-profile,
 .edit-profile {
-    width: 37%;
+    width: 40%;
+    height: 730px;
     background: #ffe8d6;
     padding: 30px;
     border-radius: 20px;
     position: relative;
-    top: 20px;
-    min-height: 700px;
+    top: 80px;
 }
 
 .add-profile h2,
@@ -387,7 +387,7 @@ table tr.selected {
 .add-profile select,
 .edit-profile input,
 .edit-profile select {
-    width: 98%;
+    width: 100%;
     padding: 6px;
     background-color: white;
     border: 3px solid #FFAD84;
@@ -407,7 +407,10 @@ table tr.selected {
     font-weight: bold;
     cursor: pointer;
     border-radius: 15px;
+}
 
+#add-profile-btn {
+    margin-top: 10px;
 }
 
 .picture {
@@ -441,33 +444,28 @@ table tr.selected {
     flex: 1;
 }
 
-.add-profile {
-    width: 40%;
-}
-
 textarea {
     width: 95%;
     padding: 10px;
     border: 3px solid #FFAD84;
     border-radius: 16px;
+    resize: none;
 }
 
 .add-profile input,
 .add-profile select {
-    width: calc(100% - 30px);
-    padding: 6px;
+    /* width: calc(100% - 30px); */
+    padding: 8px;
     margin-top: 10px;
     background-color: white;
     border: 3px solid #FFAD84;
     border-radius: 16px;
     box-sizing: border-box;
-    /* 新增 */
 }
 
 .form-columns .column {
     flex: 1;
     box-sizing: border-box;
-    /* 新增 */
 }
 
 /* Dropdown styling */
@@ -480,8 +478,9 @@ textarea {
 .select-dropdown input[type="text"] {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    margin-top: 5px;
+    border: 3px solid #FFAD84;
+    border-radius: 16px;
     cursor: pointer;
 }
 
@@ -489,14 +488,15 @@ textarea {
     display: none;
     position: absolute;
     width: 100%;
-    max-height: 300px;
+    max-height: 460px;
     overflow-y: auto;
     background-color: #fff;
-    border: 1px solid #ccc;
+    bottom: 50px;
+    border: 3px solid #FFAD84;
     border-top: none;
-    border-radius: 0 0 4px 4px;
+    border-radius: 12px;
     z-index: 100;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-box {
@@ -539,8 +539,15 @@ textarea {
 }
 
 .exercise-item label {
-    display: block;
+    display: flex;
     cursor: pointer;
+    margin-top: 0px;
+}
+
+input.exercise-checkbox {
+    margin-top: 5px;
+    margin-right: 10px;
+    width: 40px;
 }
 
 /* 📌 Responsive Design */
@@ -796,104 +803,6 @@ textarea {
     display: none;
 }
 
-Arial,
-sans-serif;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #ffffff;
-}
-
-.content {
-    height: auto;
-    width: auto;
-}
-
-/* Navigation Bar */
-
-.navbar {
-    padding: 2.5rem 0 !important;
-}
-
-.logo-space {
-    width: 80px;
-    /* Space for logo */
-}
-
-.nav-links {
-    display: flex;
-    gap: 2.5rem;
-    align-items: center;
-    margin: 0 auto;
-    position: absolute;
-    left: auto !important;
-    margin-left: 320px !important;
-    transform: translateX(-50%);
-}
-
-.nav-links a {
-    text-decoration: none;
-    transition-delay: 1s;
-    transition: all 0.3s;
-    color: black;
-    white-space: nowrap;
-    z-index: 3;
-    position: relative;
-}
-
-.admin-dashboard,
-.admin-workout,
-.admin-user {
-    margin-top: 5px;
-    cursor: pointer;
-    font-size: 80%;
-}
-
-.admin-meals a {
-    margin-top: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 20px;
-    font-size: 12px;
-    border-radius: 68px;
-    color: white;
-    cursor: pointer;
-}
-
-/* user section */
-.meal-section {
-    border: 2px solid #ffc6aa;
-    display: flex;
-    border-radius: 10px;
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 25px;
-}
-
-.meal-section li {
-    margin: 0;
-    flex: 1;
-}
-
-.meal-section a {
-    display: block;
-    text-decoration: none;
-    transition: background-color 0.3s;
-    color: black;
-    padding: 10px;
-    padding-left: 40px;
-    padding-right: 40px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.meal-section a.active {
-    background-color: #ffc6aa;
-}
-
 /* Main Container */
 #heading {
     display: flex;
@@ -912,7 +821,7 @@ body {
 /* Profile Table */
 .profile-table {
     width: 55%;
-    padding: 20px;
+    padding: 10px 20px;
     border-radius: 10px;
     height: auto;
 }
@@ -922,18 +831,6 @@ body {
     padding-bottom: 0px;
 }
 
-.title {
-    padding-top: 30px;
-    padding-left: 50px;
-    padding-right: 50px;
-    font-size: 30px;
-    margin: 0;
-}
-
-.title span {
-    color: #FFAD84;
-}
-
 .search-bar,
 .id-search-bar {
     padding: 10px;
@@ -941,106 +838,7 @@ body {
     padding-right: 0px;
     border: 1px solid #ccc;
     border-radius: 15px;
-    width: 96%;
-}
-
-.box,
-.nutri-box {
-    height: 650px;
-    border: 3px solid #FFAD84;
-    border-radius: 10px;
-    overflow-y: auto;
-    overflow-x: auto;
-    position: relative;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    display: block;
-}
-
-th {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-}
-
-th,
-td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #FFAD84;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-}
-
-tr:hover {
-    background-color: #ffe8d6;
-}
-
-.diet-container,
-.nutrition-container {
-    display: none;
-}
-
-.box th:hover,
-.nutri-box th:hover,
-.no-data {
-    background-color: white !important;
-}
-
-.box th,
-.nutri-box th {
-    background-color: white;
-}
-
-.box th:nth-child(1),
-td:nth-child(1),
-.box th:nth-child(5),
-td:nth-child(5) {
-    width: 10%;
-}
-
-.box th:nth-child(2),
-td:nth-child(2),
-.box th:nth-child(3),
-td:nth-child(3),
-.box th:nth-child(4),
-td:nth-child(4),
-.box th:nth-child(6),
-td:nth-child(6),
-.box th:nth-child(7),
-td:nth-child(7) {
-    width: 20%;
-}
-
-.nutri-box th:nth-child(1),
-td:nth-child(1),
-.nutri-box th:nth-child(5),
-td:nth-child(5) {
-    width: 5%;
-}
-
-.nutri-box th:nth-child(2),
-td:nth-child(2),
-.nutri-box th:nth-child(3),
-td:nth-child(3),
-.nutri-box th:nth-child(4),
-td:nth-child(4),
-.nutri-box th:nth-child(6),
-td:nth-child(6),
-.nutri-box th:nth-child(7),
-td:nth-child(7),
-.nutri-box th:nth-child(8),
-td:nth-child(8),
-.nutri-box th:nth-child(9),
-td:nth-child(9),
-.nutri-box th:nth-child(10),
-td:nth-child(10) {
-    width: 10%;
+    width: 98%;
 }
 
 .no-data td {
@@ -1144,126 +942,6 @@ table tr.selected {
 .edit-profile {
     display: none;
 }
-
-/* Add Profile Section */
-
-.add-profile,
-.edit-profile {
-    width: 37%;
-    background: #ffe8d6;
-    padding: 30px;
-    border-radius: 20px;
-    position: relative;
-    top: 20px;
-    min-height: 700px;
-}
-
-.add-profile h2,
-.edit-profile h2 {
-    margin-top: 0;
-    color: black;
-}
-
-.add-profile h2 span,
-.edit-profile h2 span {
-    color: #FFAD84;
-}
-
-.add-profile label,
-.edit-profile label {
-    font-weight: bold;
-    display: block;
-    margin-top: 23px;
-    margin-bottom: 10px;
-}
-
-.add-profile input,
-.add-profile select,
-.edit-profile input,
-.edit-profile select {
-    width: 98%;
-    padding: 6px;
-    background-color: white;
-    border: 3px solid #FFAD84;
-    border-radius: 16px;
-}
-
-#add-profile-btn,
-#nadd-profile-btn,
-#confirm-btn {
-    margin-top: 30px;
-    width: 35%;
-    height: 40px;
-    padding: 9px;
-    background-color: #FFAD84;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 15px;
-
-}
-
-.picture {
-    width: 97.5%;
-    height: 70%;
-    background: #ffffff;
-    border: 3px dashed #FFAD84;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.picture:hover {
-    background: #fff0e6;
-}
-
-.picture p {
-    color: #666;
-    text-align: center;
-}
-
-.form-columns {
-    display: flex;
-    gap: 15px;
-}
-
-.column {
-    flex: 1;
-}
-
-.add-profile {
-    width: 40%;
-}
-
-textarea {
-    width: 95%;
-    padding: 10px;
-    border: 3px solid #FFAD84;
-    border-radius: 16px;
-}
-
-.add-profile input,
-.add-profile select {
-    width: calc(100% - 30px);
-    padding: 6px;
-    margin-top: 10px;
-    background-color: white;
-    border: 3px solid #FFAD84;
-    border-radius: 16px;
-    box-sizing: border-box;
-    /* 新增 */
-}
-
-.form-columns .column {
-    flex: 1;
-    box-sizing: border-box;
-    /* 新增 */
-}
-
 
 /* 📌 Responsive Design */
 @media (max-width: 1200px) {
