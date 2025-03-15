@@ -144,114 +144,217 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
 // --------------------------------------DIET-----------------------------------------
-case 'diet':
-    // Retrieve and sanitize form data
-    $name = htmlspecialchars(trim($_POST['ediet-name']));
-    $type = htmlspecialchars(trim($_POST['ediet-type']));
-    $duration = (int)$_POST['epreparation_min'];
-    $description = htmlspecialchars(trim($_POST['edesc']));
-    $directions = htmlspecialchars(trim($_POST['edirections']));
+        case 'diet':
+            // Retrieve and sanitize form data
+            $name = htmlspecialchars(trim($_POST['ediet-name']));
+            $type = htmlspecialchars(trim($_POST['ediet-type']));
+            $duration = (int)$_POST['epreparation_min'];
+            $description = htmlspecialchars(trim($_POST['edesc']));
+            $directions = htmlspecialchars(trim($_POST['edirections']));
 
-    // Process nutrition IDs
-    $nutrition_ids = [];
-    if (!empty($_POST['edietnutrition_ids'])) {
-        $nutrition_ids = array_map('intval', explode(',', $_POST['edietnutrition_ids']));
-    }
+            // Process nutrition IDs
+            $nutrition_ids = [];
+            if (!empty($_POST['edietnutrition_ids'])) {
+                $nutrition_ids = array_map('intval', explode(',', $_POST['edietnutrition_ids']));
+            }
 
-    $dieterrors = [];
+            $dieterrors = [];
 
-    // Validation
-    if ($duration <= 0) {
-        $dieterrors[] = "Preparation time must be a positive number.";
-    }
-    if (empty($nutrition_ids)) {
-        $dieterrors[] = "At least one ingredient must be selected.";
-    }
+            // Validation
+            if ($duration <= 0) {
+                $dieterrors[] = "Preparation time must be a positive number.";
+            }
+            if (empty($nutrition_ids)) {
+                $dieterrors[] = "At least one ingredient must be selected.";
+            }
 
-    // Handle image upload
-    $final_picture = $current_picture; // Default to current picture
-    if (!empty($_FILES["meal_picture"]["name"])) {
-        $targetDir = "./uploads/";
-        if (!file_exists($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
+            // Handle image upload
+            $final_picture = $current_picture; // Default to current picture
+            if (!empty($_FILES["meal_picture"]["name"])) {
+                $targetDir = "./uploads/";
+                if (!file_exists($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
 
-        $fileName = basename($_FILES["meal_picture"]["name"]);
-        $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $allowedTypes = ["jpg", "jpeg", "png"];
+                $fileName = basename($_FILES["meal_picture"]["name"]);
+                $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                $allowedTypes = ["jpg", "jpeg", "png"];
 
-        if (!in_array($fileType, $allowedTypes)) {
-            $dieterrors[] = "Error: Only JPG, JPEG, PNG files are allowed.";
-        } else {
-            $newFileName = uniqid("meal_", true) . "." . $fileType;
-            $targetFilePath = $targetDir . $newFileName;
+                if (!in_array($fileType, $allowedTypes)) {
+                    $dieterrors[] = "Error: Only JPG, JPEG, PNG files are allowed.";
+                } else {
+                    $newFileName = uniqid("meal_", true) . "." . $fileType;
+                    $targetFilePath = $targetDir . $newFileName;
 
-            if (move_uploaded_file($_FILES["meal_picture"]["tmp_name"], $targetFilePath)) {
-                $final_picture = $newFileName; // Save the new file name
+                    if (move_uploaded_file($_FILES["meal_picture"]["tmp_name"], $targetFilePath)) {
+                        $final_picture = $newFileName; // Save the new file name
+                    } else {
+                        $dieterrors[] = "Error: Failed to upload image.";
+                    }
+                }
+            } elseif (isset($_POST['remove_image']) && $_POST['remove_image'] == 1) {
+                // If the image is removed, set final_picture to null
+                $final_picture = null; 
+            }
+
+            // Check if meal name already exists
+            $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM diet WHERE diet_name = ? AND diet_id != ?");
+            $checkStmt->bind_param("si", $name, $selectedDietId);
+            $checkStmt->execute();
+            $checkStmt->bind_result($count);
+            $checkStmt->fetch();
+            $checkStmt->close();
+
+            if ($count > 0) {
+                $dieterrors[] = "Meal name already exists.";
+            }
+
+            // Process if no errors
+            if (empty($dieterrors)) {
+                $directions_array = array_map('trim', explode("\n", $directions));
+                $directions_array = array_filter($directions_array, fn($step) => !empty($step));
+                $directions_str = implode(";", $directions_array);
+
+                // Update the diet entry in the database
+                $updateStmt = $dbConn->prepare("UPDATE diet SET diet_name = ?, description = ?, diet_type = ?, preparation_min = ?, picture = ?, directions = ? WHERE diet_id = ?");
+                $updateStmt->bind_param("sssissi", $name, $description, $type, $duration, $final_picture, $directions_str, $selectedDietId);
+
+                if ($updateStmt->execute()) {
+                    // Delete existing nutrition IDs
+                    $deleteNutritionStmt = $dbConn->prepare("DELETE FROM diet_nutrition WHERE diet_id = ?");
+                    $deleteNutritionStmt->bind_param("i", $selectedDietId);
+                    $deleteNutritionStmt->execute();
+                    $deleteNutritionStmt->close();
+
+                    // Insert new nutrition IDs
+                    $insertNutritionStmt = $dbConn->prepare("INSERT INTO diet_nutrition (diet_id, nutrition_id) VALUES (?, ?)");
+                    foreach ($nutrition_ids as $nutrition_id) {
+                        $insertNutritionStmt->bind_param("ii", $selectedDietId, $nutrition_id);
+                        $insertNutritionStmt->execute();
+                    }
+                    $insertNutritionStmt->close();
+
+                    // Clear session data
+                    unset($_SESSION['e_diet_errors']);
+                    unset($_SESSION['e_diet_old_data']);
+                    unset($_SESSION['temp_image']);
+                    unset($_SESSION['temp_image_name']);
+
+                    $_SESSION['diet_success_message'] = "Meal updated successfully!";
+                    header("Location: admin_diet.php");
+                    exit ();
+                } else {
+                    $dieterrors[] = "Error updating meal: " . $dbConn->error;
+                }
             } else {
-                $dieterrors[] = "Error: Failed to upload image.";
+                // Handle errors
+                $_SESSION['e_diet_errors'] = $dieterrors;
+                $_SESSION['e_diet_old_data'] = $_POST; // Store old data for repopulation
+                header("Location: admin_diet.php?id=" . $selectedDietId."#diet");
+                exit();
+            }
+
+// -------------------------------------- WORKOUT -----------------------------------------
+        case 'workout':
+            // Retrieve and sanitize form data
+            $name = htmlspecialchars(trim($_POST['eworkout-name']));
+            $type = htmlspecialchars(trim($_POST['eworkout-type']));
+            $difficulty = htmlspecialchars(trim($_POST['edifficulty']));
+            $calories = (int)$_POST['ecalorie'];
+            $duration = (int)$_POST['eminutes'];
+            $sets = (int)$_POST['esets'];
+            $description = htmlspecialchars(trim($_POST['edescription']));
+            $long_description = htmlspecialchars(trim($_POST['elong-description']));
+            
+            // Process exercise checklist
+            $exercise_ids = [];
+            if (isset($_POST['eexercises']) && is_array($_POST['eexercises'])) {
+                $exercise_ids = array_map('intval', $_POST['eexercises']);
+            }
+            
+            $workoutErrors = [];
+            
+            // Validation
+            if ($calories <= 0) {
+                $workoutErrors[] = "Calories must be a positive number.";
+            }
+            if ($duration <= 0) {
+                $workoutErrors[] = "Duration must be a positive number.";
+            }
+            if ($sets <= 0) {
+                $workoutErrors[] = "Sets must be a positive number.";
+            }
+            if (empty($exercise_ids)) {
+                $workoutErrors[] = "At least one exercise must be selected.";
+            }
+            
+            // Handle image upload
+            $final_image = $current_image; // Default to current image
+            if (!empty($_FILES["workout_image"]["name"])) {
+                $targetDir = "assets/workout_pics/";
+                if (!file_exists($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+                
+                $fileName = basename($_FILES["workout_image"]["name"]);
+                $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                $allowedTypes = ["jpg", "jpeg", "png", "gif"];
+                
+                if (!in_array($fileType, $allowedTypes)) {
+                    $workoutErrors[] = "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+                } else {
+                    $newFileName = strtolower(str_replace(' ', '_', $name)) . "." . $fileType;
+                    $targetFilePath = $targetDir . $newFileName;
+                    
+                    if (move_uploaded_file($_FILES["workout_image"]["tmp_name"], $targetFilePath)) {
+                        $final_image = $targetFilePath; // Save the new file path
+                    } else {
+                        $workoutErrors[] = "Error: Failed to upload image.";
+                    }
+                }
+            } elseif (isset($_POST['remove_image']) && $_POST['remove_image'] == 1) {
+                // If the image is removed, set final_image to null
+                $final_image = null;
+            }
+            
+            // Check if workout name already exists
+            $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM workout WHERE workout_name = ? AND workout_id != ?");
+            $checkStmt->bind_param("si", $name, $selectedWorkoutId);
+            $checkStmt->execute();
+            $checkStmt->bind_result($count);
+            $checkStmt->fetch();
+            $checkStmt->close();
+            
+            if ($count > 0) {
+                $workoutErrors[] = "Workout name already exists.";
+            }
+            
+            // Process if no errors
+            if (empty($workoutErrors)) {
+                // Format the exercise checklist as array notation
+                $formatted_exercise_list = "[" . implode(", ", $exercise_ids) . "]";
+                
+                // Update the workout entry in the database
+                $updateStmt = $dbConn->prepare("UPDATE workout SET workout_name = ?, workout_type = ?, difficulty = ?, calories = ?, duration = ?, image = ?, description = ?, long_description = ?, sets = ?, exercise_checklist = ? WHERE workout_id = ?");
+                $updateStmt->bind_param("sssiisssiisi", $name, $type, $difficulty, $calories, $duration, $final_image, $description, $long_description, $sets, $formatted_exercise_list, $selectedWorkoutId);
+                
+                if ($updateStmt->execute()) {
+                    // Clear session data
+                    unset($_SESSION['e_workout_errors']);
+                    unset($_SESSION['e_workout_old_data']);
+                    
+                    $_SESSION['workout_success_message'] = "Workout updated successfully!";
+                    header("Location: admin_workout.php");
+                    exit();
+                } else {
+                    $workoutErrors[] = "Error updating workout: " . $dbConn->error;
+                }
+            } else {
+                // Handle errors
+                $_SESSION['e_workout_errors'] = $workoutErrors;
+                $_SESSION['e_workout_old_data'] = $_POST; // Store old data for repopulation
+                header("Location: admin_workout.php?id=" . $selectedWorkoutId . "#workout");
+                exit();
             }
         }
-    } elseif (isset($_POST['remove_image']) && $_POST['remove_image'] == 1) {
-        // If the image is removed, set final_picture to null
-        $final_picture = null; 
-    }
-
-    // Check if meal name already exists
-    $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM diet WHERE diet_name = ? AND diet_id != ?");
-    $checkStmt->bind_param("si", $name, $selectedDietId);
-    $checkStmt->execute();
-    $checkStmt->bind_result($count);
-    $checkStmt->fetch();
-    $checkStmt->close();
-
-    if ($count > 0) {
-        $dieterrors[] = "Meal name already exists.";
-    }
-
-    // Process if no errors
-    if (empty($dieterrors)) {
-        $directions_array = array_map('trim', explode("\n", $directions));
-        $directions_array = array_filter($directions_array, fn($step) => !empty($step));
-        $directions_str = implode(";", $directions_array);
-
-        // Update the diet entry in the database
-        $updateStmt = $dbConn->prepare("UPDATE diet SET diet_name = ?, description = ?, diet_type = ?, preparation_min = ?, picture = ?, directions = ? WHERE diet_id = ?");
-        $updateStmt->bind_param("sssissi", $name, $description, $type, $duration, $final_picture, $directions_str, $selectedDietId);
-
-        if ($updateStmt->execute()) {
-            // Delete existing nutrition IDs
-            $deleteNutritionStmt = $dbConn->prepare("DELETE FROM diet_nutrition WHERE diet_id = ?");
-            $deleteNutritionStmt->bind_param("i", $selectedDietId);
-            $deleteNutritionStmt->execute();
-            $deleteNutritionStmt->close();
-
-            // Insert new nutrition IDs
-            $insertNutritionStmt = $dbConn->prepare("INSERT INTO diet_nutrition (diet_id, nutrition_id) VALUES (?, ?)");
-            foreach ($nutrition_ids as $nutrition_id) {
-                $insertNutritionStmt->bind_param("ii", $selectedDietId, $nutrition_id);
-                $insertNutritionStmt->execute();
-            }
-            $insertNutritionStmt->close();
-
-            // Clear session data
-            unset($_SESSION['e_diet_errors']);
-            unset($_SESSION['e_diet_old_data']);
-            unset($_SESSION['temp_image']);
-            unset($_SESSION['temp_image_name']);
-
-            $_SESSION['diet_success_message'] = "Meal updated successfully!";
-            header("Location: admin_diet.php");
-            exit ();
-        } else {
-            $dieterrors[] = "Error updating meal: " . $dbConn->error;
-        }
-    } else {
-        // Handle errors
-        $_SESSION['e_diet_errors'] = $dieterrors;
-        $_SESSION['e_diet_old_data'] = $_POST; // Store old data for repopulation
-        header("Location: admin_diet.php?id=" . $selectedDietId."#diet");
-        exit();
-    }
-}
 }
