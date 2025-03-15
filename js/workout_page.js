@@ -569,7 +569,7 @@ const workouts = [
         "level": "Beginner",
         "description": "Fast routine to kickstart your day.",
         "longDescription": "Jumpstart your day with this fast-paced, beginner-friendly routine. Simple moves like jogging and punches boost energy and metabolism without overwhelming your schedule.",
-        "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
+        "image": './assets/workout_pics/Morning_Cardio.jpg',
         "type": ["All", "Cardio"],
         "sets": 1,
         "exercises": [
@@ -585,6 +585,7 @@ const workouts = [
         "calories": "250Kcal",
         "level": "Intermediate",
         "description": "Compound lifts for total strength.",
+        "longDescription": "Push your limits with a balanced mix of compound lifts to build full-body strength and coordination. Perfect for burning calories and boosting muscle tone.",
         "image": './assets/workout_pics/FullBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -601,7 +602,8 @@ const workouts = [
         "calories": "200Kcal",
         "level": "Intermediate",
         "description": "Target arms, shoulders, and back.",
-        "image": './assets/workout_pics/UpperBody_Script.jpg',
+        "longDescription": "Zero in on your upper body with targeted exercises for your arms, shoulders, and back. Build strength and definition while improving posture.",
+        "image": './assets/workout_pics/UpperBody_Sculpt.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -617,7 +619,8 @@ const workouts = [
         "calories": "220Kcal",
         "level": "Intermediate",
         "description": "Build lower body power.",
-        "image": './assets/workout_pics/LegDay_Steregth.jpg',
+        "longDescription": "Strengthen and tone your lower body with lunges, squats, and deadlifts. This workout is all about building stability, power, and endurance.",
+        "image": './assets/workout_pics/LegDay_Strength.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -633,7 +636,8 @@ const workouts = [
         "calories": "180Kcal",
         "level": "Intermediate",
         "description": "Real-world movement patterns.",
-        "image": './assets/workout_pics/Functional_Steregth.jpg',
+        "longDescription": "Move smarter with real-world functional exercises. Perfect for enhancing balance, flexibility, and overall strength in just 20 minutes.",
+        "image": './assets/workout_pics/Functional_Strength.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -649,6 +653,7 @@ const workouts = [
         "calories": "190Kcal",
         "level": "Advanced",
         "description": "Strengthen posterior chain.",
+        "longDescription": "Refine your upper body with a focus on back and shoulder muscles. Improve strength, posture, and stability with controlled movements.",
         "image": './assets/workout_pics/Back&Shoulders_Focus.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -665,6 +670,7 @@ const workouts = [
         "calories": "170Kcal",
         "level": "Intermediate",
         "description": "Use a stepper for resistance.",
+        "longDescription": "Incorporate a stepper for added resistance and variety. This workout is perfect for building lower body strength and cardiovascular endurance.",
         "image": './assets/workout_pics/Stepper_Strength.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -680,6 +686,7 @@ const workouts = [
         "calories": "240Kcal",
         "level": "Advanced",
         "description": "Full-body endurance with weights.",
+        "longDescription": "Tackle this dynamic, advanced-level workout that combines power, endurance, and strength. A full-body challenge to test your limits.",
         "image": './assets/workout_pics/TotalBody_Dumbbell.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
@@ -696,6 +703,7 @@ const workouts = [
         "calories": "160Kcal",
         "level": "Intermediate",
         "description": "Strengthen arms and abs.",
+        "longDescription": "Focus on your arms and core with a mix of targeted exercises. Tone and strengthen key muscle groups for a leaner, more defined look.",
         "image": './assets/workout_pics/Arm&Core.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
@@ -711,6 +719,7 @@ const workouts = [
         "calories": "210Kcal",
         "level": "Advanced",
         "description": "Build stamina with weights.",
+        "longDescription": "Combine strength and stamina in this high-intensity session. Perfect for building explosive power and long-lasting endurance.",
         "image": './assets/workout_pics/Power_Endurance.jpg',
         "type": ["All", "Weighted"],
         "sets": 4,
@@ -727,7 +736,8 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Improve movement quality.",
-        "image": './assets/workout_pics/Functional_Mobility.jpg',
+        "longDescription": "Enhance joint range and movement patterns with rotational and overhead exercises. Ideal for intermediate lifters looking to improve workout efficiency and reduce injury risk.",
+        "image": './assets/workout_pics/Funtional_Mobility.jpg',
         "type": ["All", "Weighted"],
         "sets": 3,
         "exercises": [
@@ -743,8 +753,8 @@ const workouts = [
         "calories": "150Kcal",
         "level": "Intermediate",
         "description": "Target abs with no equipment.",
-        "No equipment needed – just relentless ab work. This intermediate routine uses planks, twists, and leg raises to target every inch of your core.",
-        "image": './assets/workout_pics/Core_Crasher.jpg',
+        "longDescription": "No equipment needed just relentless ab work. This intermediate routine uses planks, twists, and leg raises to target every inch of your core.",
+        "image": './assets/workout_pics/Core_Crusher.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -811,7 +821,7 @@ const workouts = [
         "level": "Intermediate",
         "description": "Focus on legs and glutes.",
         "longDescription": "Fire up your legs and glutes with pulses, raises, and lunges. This intermediate workout emphasizes muscle endurance for toning and definition.",
-        "image": './assets/workout_pics/Lower_Body_Burning.jpg',
+        "image": './assets/workout_pics/Lower_Body_Burn.jpg',
         "type": ["All", "Weight-free"],
         "sets": 3,
         "exercises": [
@@ -942,7 +952,7 @@ const workouts = [
         "level": "Intermediate",
         "description": "Ease back stiffness.",
         "longDescription": "Alleviate stiffness with yoga-inspired stretches for the spine and lower back. Cobra poses and twists promote spinal health.",
-        "image": './assets/workout_pics/Signed&Back_Relief.jpg',
+        "image": './assets/workout_pics/Spine&Back_Relief.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -958,7 +968,7 @@ const workouts = [
         "level": "Beginner",
         "description": "Release upper body tension.",
         "longDescription": "Release tension from sedentary habits or stress. Gentle stretches target tight neck, shoulders, and chest muscles.",
-        "image": './assets/workout_pics/Next&Shoulder_Relaxation.jpg',
+        "image": './assets/workout_pics/Neck&Shoulder_Relaxation.jpg',
         "type": ["All", "Yoga"],
         "sets": 1,
         "exercises": [
@@ -1020,7 +1030,7 @@ const workouts = [
 
 // Helper function to create a workout card
 const createWorkoutCard = (workout, index) => {
-    const image = workout.image ? `./assets/workouts/${workout.image}` : './assets/icons/error.svg';
+    const image = workout.image ? `${workout.image}` : './assets/icons/error.svg';
 
     return `
         <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
