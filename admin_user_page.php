@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>MewFit Admin</title>
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
+    <style>
+        #logout-profile{
+            width:32px;
+            margin-right: 3vw;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<?php 
-    include "conn.php";
-    session_start();
+<?php
+include "conn.php";
+session_start();
 
-    $errors = $_SESSION['admin_errors'] ?? [];
-    $old_data = $_SESSION['old_data'] ?? [];
-    $showEditForm = $_SESSION['show_edit_form'] ?? false;
+$errors = $_SESSION['admin_errors'] ?? [];
+$old_data = $_SESSION['old_data'] ?? [];
+$showEditForm = $_SESSION['show_edit_form'] ?? false;
 
-    if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-        unset($_SESSION['admin_errors']);
-        unset($_SESSION['old_data']);
-        unset($_SESSION['show_edit_form']);
-    }
+if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
+    unset($_SESSION['admin_errors']);
+    unset($_SESSION['old_data']);
+    unset($_SESSION['show_edit_form']);
+}
 ?>
+
 <body>
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
@@ -30,7 +40,7 @@
             <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
             <span class="admin-user"><a href="#" class="active">USER</a></span>
             <span class="admin-workout"><a href="admin_workout.php">WORKOUT</a></span>
-            <span class="admin-meals"><a href="admin_diet.php" >MEALS</a></span>
+            <span class="admin-meals"><a href="admin_diet.php">MEALS</a></span>
         </div>
         <div class="header-right">
             <button id="hamburger-menu" aria-label="Menu">
@@ -39,6 +49,7 @@
                 <span></span>
             </button>
         </div>
+        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
     </nav>
 
     <div id="heading">
@@ -48,7 +59,7 @@
             <li><a href="#member" class="member-link">MEMBER</a></li>
         </ul>
     </div>
-    
+
     <div class="content">
         <div class="admin-container">
             <div class="section1">
@@ -70,20 +81,20 @@
                         $result = mysqli_query($dbConn, $sql);
                         if (mysqli_num_rows($result) > 0) {
                             while ($rows = mysqli_fetch_array($result)) {
-                                echo "<tr admin-id='".$rows['admin_id']."'>";
-                                echo "<td>".$rows['admin_id']."</td>";
-                                echo "<td>".$rows['username']."</td>";
-                                echo "<td>".$rows['password']."</td>";
-                                echo "<td>".$rows['name']."</td>";
-                                echo "<td>".$rows['gender']."</td>";
-                                echo "<td>".$rows['email_address']."</td>";
-                                echo "<td>".$rows['phone_number']."</td>";
-                                echo "<td>".$rows['date_registered']."</td>";
+                                echo "<tr admin-id='" . $rows['admin_id'] . "'>";
+                                echo "<td>" . $rows['admin_id'] . "</td>";
+                                echo "<td>" . $rows['username'] . "</td>";
+                                echo "<td>" . $rows['password'] . "</td>";
+                                echo "<td>" . $rows['name'] . "</td>";
+                                echo "<td>" . $rows['gender'] . "</td>";
+                                echo "<td>" . $rows['email_address'] . "</td>";
+                                echo "<td>" . $rows['phone_number'] . "</td>";
+                                echo "<td>" . $rows['date_registered'] . "</td>";
                                 echo "</tr>";
                             }
                         } else {
                             echo "<tr class='no-data'><td colspan='7'>No data available</td></tr>";
-                            $sql="TRUNCATE TABLE administrator";
+                            $sql = "TRUNCATE TABLE administrator";
                         }
                         ?>
                     </table>
@@ -97,12 +108,12 @@
             <!--Add New Profile Form -->
             <div class="add-profile">
                 <center>
-                <h2>Add New <span>Profile</span></h2> 
+                    <h2>Add New <span>Profile</span></h2>
                 </center>
                 <form method="post" action="">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
-                    
+
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
 
@@ -129,7 +140,7 @@
             </div>
             <div class="edit-profile">
                 <center>
-                <h2>Edit <span>Profile</span></h2> 
+                    <h2>Edit <span>Profile</span></h2>
                 </center>
                 <?php
                 if (!empty($errors)) {
@@ -138,40 +149,39 @@
                         echo "<p style='color:red;'>$error</p>";
                     }
                     echo '</div>';
-                    
                 }
                 ?>
                 <form method="POST" action="edit.php" id="administrator">
-                <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
-                <input type="hidden" id="table" name="table" value="administrator">
-                    
-                <label for="eusername">Username</label>
-                <input type="text" id="eusername" name="eusername" value="<?php echo htmlspecialchars($old_data['eusername'] ?? ''); ?>" required>
+                    <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
+                    <input type="hidden" id="table" name="table" value="administrator">
 
-                <label for="epassword">Password</label>
-                <input type="text" id="epassword" name="epassword" value="<?php echo htmlspecialchars($old_data['epassword'] ?? ''); ?>" required>
+                    <label for="eusername">Username</label>
+                    <input type="text" id="eusername" name="eusername" value="<?php echo htmlspecialchars($old_data['eusername'] ?? ''); ?>" required>
 
-                <label for="ename">Name</label>
-                <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
+                    <label for="epassword">Password</label>
+                    <input type="text" id="epassword" name="epassword" value="<?php echo htmlspecialchars($old_data['epassword'] ?? ''); ?>" required>
 
-                <label for="egender">Gender</label>
-                <select id="egender" name="egender" required style="width:98%;">
-                    <option value="">Select Gender</option>
-                    <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
-                    <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
-                </select>
+                    <label for="ename">Name</label>
+                    <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
 
-                <label for="eemail">Email Address</label>
-                <input type="email" id="eemail" name="eemail" value="<?php echo htmlspecialchars($old_data['eemail'] ?? ''); ?>" required>
+                    <label for="egender">Gender</label>
+                    <select id="egender" name="egender" required style="width:98%;">
+                        <option value="">Select Gender</option>
+                        <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
+                        <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
+                    </select>
 
-                <label for="ephonenum">Phone Number</label>
-                <input type="text" id="ephonenum" name="ephonenum" value="<?php echo htmlspecialchars($old_data['ephonenum'] ?? ''); ?>" required>
+                    <label for="eemail">Email Address</label>
+                    <input type="email" id="eemail" name="eemail" value="<?php echo htmlspecialchars($old_data['eemail'] ?? ''); ?>" required>
 
-                <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
-                    <button type="button" id="discard-btn">Discard Changes</button>
-                    <button type="submit" id="confirm-btn">Update Changes</button>
-                </div>
-            </form>
+                    <label for="ephonenum">Phone Number</label>
+                    <input type="text" id="ephonenum" name="ephonenum" value="<?php echo htmlspecialchars($old_data['ephonenum'] ?? ''); ?>" required>
+
+                    <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
+                        <button type="button" id="discard-btn">Discard Changes</button>
+                        <button type="submit" id="confirm-btn">Update Changes</button>
+                    </div>
+                </form>
             </div>
             <div class="popup" id="popup">
                 <div class="popup-content">
@@ -188,61 +198,77 @@
                 <table>
                     <tr>
                         <th>ID</th>
+                        <th>Picture</th>
                         <th>Username</th>
+                        <th>Email Address</th>
                         <th>Password</th>
                         <th>Level</th>
-                        <th>Weight</th>
                         <th>Age</th>
-                        <th>Fitness Goal</th>
-                        <th>Target Weight</th>
                         <th>Gender</th>
-                        <th>Day Streak Starting Date</th>
+                        <th>Fitness Goal</th>
+                        <th>Height</th>
+                        <th>Weight</th>
+                        <th>Target Weight</th>
                         <th>Registration Date</th>
                     </tr>
-                    
+
                     <?php
-                        $sql = "SELECT * FROM member";
-                        $result = mysqli_query($dbConn, $sql);
-                        if (mysqli_num_rows($result) > 0) {
-                            while ($rows = mysqli_fetch_array($result)) {
-                                echo "<tr member-id='".$rows['member_id']."'>";
-                                echo "<td>".$rows['member_id']."</td>";
-                                echo "<td>".$rows['username']."</td>";
-                                echo "<td>".$rows['password']."</td>";
-                                echo "<td>".$rows['level']."</td>";
-                                echo "<td>".$rows['weight']."</td>";
-                                echo "<td>".$rows['age']."</td>";
-                                echo "<td>".$rows['fitness_goal']."</td>";
-                                echo "<td>".$rows['target_weight']."</td>";
-                                echo "<td>".$rows['gender']."</td>";
-                                echo "<td>".$rows['day_streak_starting_date']."</td>";
-                                echo "<td>".$rows['date_registered']."</td>";
-                                echo "</tr>";
+                    // Database connection (Ensure $dbConn is properly initialized)
+                    $sql = "SELECT * FROM member";
+                    $result = mysqli_query($dbConn, $sql);
+
+                    if (mysqli_num_rows($result) > 0) {
+                        while ($rows = mysqli_fetch_array($result)) {
+                            echo "<tr member-id='" . $rows['member_id'] . "'>";
+                            echo "<td>" . htmlspecialchars($rows['member_id']) . "</td>";
+
+                            // Picture Preview
+                            echo "<td>";
+                            if (!empty($rows['profile_picture'])) {
+                                echo "<img src='uploads/" . htmlspecialchars($rows['profile_picture']) . "' alt='Profile' width='50' height='50'>";
+                            } else {
+                                echo "<img src='uploads/default.jpg' alt='No Image' width='50' height='50'>";
                             }
-                        } else {
-                            echo "<tr class='no-data'><td colspan='10' >No data available</td></tr>";
-                            $sql="TRUNCATE TABLE member";
+                            echo "</td>";
+
+                            echo "<td>" . htmlspecialchars($rows['username']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['email_address']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['password']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['level']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['age']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['gender']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['fitness_goal']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['height']) . " cm</td>";
+                            echo "<td>" . htmlspecialchars($rows['weight']) . " kg</td>";
+                            echo "<td>" . htmlspecialchars($rows['target_weight']) . " kg</td>";
+                            echo "<td>" . htmlspecialchars($rows['date_registered']) . "</td>";
+                            echo "</tr>";
                         }
+                    } else {
+                        echo "<tr class='no-data'><td colspan='13'>No data available</td></tr>";
+                    }
                     ?>
                 </table>
             </div>
-            <div class="table-option">
-                <button id="member-delete-btn" disabled>Delete</button>
-            </div>
-            <div class="mpopup" id="mpopup">
-                <div class="popup-content">
-                    <h2>Confirm Deletion</h2>
-                    <p>Are you sure you want to delete this record?</p>
-                    <button class="confirmDelete">Yes, Delete</button>
-                    <button class="cancelDelete">Cancel</button>
-                </div>
+        </div>
+
+        <div class="table-option">
+            <button id="member-delete-btn" disabled>Delete</button>
+        </div>
+        <div class="mpopup" id="mpopup">
+            <div class="popup-content">
+                <h2>Confirm Deletion</h2>
+                <p>Are you sure you want to delete this record?</p>
+                <button class="confirmDelete">Yes, Delete</button>
+                <button class="cancelDelete">Cancel</button>
             </div>
         </div>
+    </div>
     </div>
     <script>
         window.onresize = function() {
             if (window.innerWidth > 1200) {
-                window.scrollTo(0, 0); 
+                window.scrollTo(0, 0);
             }
         };
         document.addEventListener("DOMContentLoaded", function() {
@@ -256,10 +282,12 @@
         });
     </script>
 </body>
+
 </html>
 <?php
 // enter new data
-function validateInput($dbConn, $username, $email, $phone_num) {
+function validateInput($dbConn, $username, $email, $phone_num)
+{
     $errors = [];
 
     if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
@@ -270,7 +298,7 @@ function validateInput($dbConn, $username, $email, $phone_num) {
     }
 
     $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE username = ? OR email_address = ? OR phone_number = ?");
-    
+
     if ($stmt) {
         $stmt->bind_param("sss", $username, $email, $phone_num);
         $stmt->execute();
@@ -299,7 +327,7 @@ function validateInput($dbConn, $username, $email, $phone_num) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
+
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
     $name = trim($_POST['name']);
@@ -307,8 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $phone_num = trim($_POST['phonenum']);
 
-    if (!empty($username)){
-        $errors = validateInput($dbConn,$username,$email,  $phone_num);
+    if (!empty($username)) {
+        $errors = validateInput($dbConn, $username, $email,  $phone_num);
         if (empty($errors)) {
             $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
                                       VALUES (?, ?, ?, ?, ?, ?, CURDATE())");

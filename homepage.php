@@ -8,8 +8,33 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 }
 
 $member_id = $_SESSION['member id'];
+$current_date = date('Y-m-d');
+$current_day_of_week = date('w', strtotime($current_date));
+$current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
+$start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
+$end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
 
-$sqlMember = "SELECT weight, height, target_weight,fitness_goal, gender, age, day_streak_starting_date, last_session_date, level 
+$query = "SELECT * FROM member_performance 
+          WHERE member_id = ? AND weeks_date_mon = ?";
+$stmt = $dbConn->prepare($query);
+$stmt->bind_param("is", $member_id, $start_of_current_week);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    $diet_history_count = 0;
+    $workout_history_count = 0;
+
+    $insert_query = "INSERT INTO member_performance 
+                     (member_id, weeks_date_mon, diet_history_count, workout_history_count) 
+                     VALUES (?, ?, ?, ?)";
+    $insert_stmt = $dbConn->prepare($insert_query);
+    $insert_stmt->bind_param("isii", $member_id, $start_of_current_week, $diet_history_count, $workout_history_count);
+    $insert_stmt->execute();
+    $insert_stmt->close();
+}
+
+$sqlMember = "SELECT email_address,weight, height, target_weight,fitness_goal, gender, age, day_streak_starting_date, last_session_date, level 
               FROM member WHERE member_id = ?";
 $stmtMember = $dbConn->prepare($sqlMember);
 $stmtMember->bind_param("i", $member_id);
@@ -17,6 +42,7 @@ $stmtMember->execute();
 $resultMember = $stmtMember->get_result();
 $member = $resultMember->fetch_assoc();
 
+$email_address = $member['email_address'];
 $weight = $member['weight'];
 $height = $member['height'];
 $target_weight = $member['target_weight'];
@@ -162,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit</title>
-    <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
+    <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="./css/homepage.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
@@ -265,7 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                 <div>
                     <?php
                     echo "
-                        <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                        <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
                         ";
                     ?>
                 </div>
@@ -274,16 +300,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                     <div class="profile-info">
                         <?php
                         echo "
-                                <img src=\"./uploads/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                                <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
                                 <div>
                                     <h3>{$_SESSION["username"]}</h3>
-                                    <p>unknown</p>
+                                    <p>{$email_address}</p>
                                 </div>
                                 ";
                         ?>
                     </div>
                     <ul>
-                        <li><a href="#" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                        <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
                         <li>
                             <i class="fas fa-moon"></i> Dark Mode
                             <label class="switch">
@@ -473,27 +499,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             <?php
             //----------------------chart 1
             $sql2 = "
-                    SELECT 
-                        DATE_FORMAT(weeks_date_mon, '%d %b %Y') AS period_label,  -- Format as '02 Feb 2025'
-                        AVG(current_weight) AS avg_weight
-                    FROM member_performance 
-                    WHERE member_id = ? 
-                        AND weeks_date_mon >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)  -- Limit to the past 3 months
-                    GROUP BY YEAR(weeks_date_mon), WEEK(weeks_date_mon)  -- Group by year and week
-                    ORDER BY weeks_date_mon ASC;
-                ";
+    SELECT
+        DATE_FORMAT(weeks_date_mon, '%d %b %Y') AS period_label,
+        AVG(current_weight) AS avg_weight
+    FROM member_performance 
+    WHERE member_id = ?
+        AND weeks_date_mon >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+    GROUP BY YEAR(weeks_date_mon), WEEK(weeks_date_mon)
+    ORDER BY weeks_date_mon ASC;
+";
 
-            $stmt = $dbConn->prepare($sql2);
-            $stmt->bind_param("i", $member_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+$stmt = $dbConn->prepare($sql2);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-            $labels = [];
-            $weights = [];
-            while ($row = $result->fetch_assoc()) {
-                $labels[] = $row["period_label"];
-                $weights[] = $row["avg_weight"];
-            }
+$labels = [];
+$weights = [];
+$hasValidWeights = false;
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $labels[] = $row["period_label"];
+        $weights[] = $row["avg_weight"];
+        
+        // Check if we have at least one non-null weight value
+        if ($row["avg_weight"] !== null) {
+            $hasValidWeights = true;
+        }
+    }
+}
+
+// If we have no rows OR all weights are null, run the fallback query
+if ($result->num_rows == 0 || !$hasValidWeights) {
+    // Clear the arrays before populating with fallback data
+    $labels = [];
+    $weights = [];
+    
+    $sqlFallback = "
+        SELECT weight, DATE_FORMAT(weight_registered_date, '%d %b %Y') AS period_label
+        FROM member
+        WHERE member_id = ?
+    ";
+    
+    $stmtFallback = $dbConn->prepare($sqlFallback);
+    $stmtFallback->bind_param("i", $member_id);
+    $stmtFallback->execute();
+    $resultFallback = $stmtFallback->get_result();
+    
+    if ($resultFallback->num_rows > 0) {
+        while ($row = $resultFallback->fetch_assoc()) {
+            $labels[] = $row["period_label"];
+            $weights[] = $row["weight"];
+        }
+    } else {
+        $labels[] = "No data available";
+        $weights[] = null;
+    }
+}
 
             //chart 2
             $query = "
@@ -548,12 +611,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             }
 
             // Fetch current week's weight
-            $current_date = date('Y-m-d');
-            $current_day_of_week = date('w', strtotime($current_date));
-            $current_day_of_week = ($current_day_of_week == 0) ? 7 : $current_day_of_week;
-            $start_of_current_week = date('Y-m-d', strtotime($current_date . ' -' . ($current_day_of_week - 1) . ' days'));
-            $end_of_current_week = date('Y-m-d', strtotime($start_of_current_week . ' +6 days'));
-
             $sql_current = "SELECT current_weight FROM member_performance 
                                 WHERE member_id = $member_id 
                                 AND weeks_date_mon BETWEEN '$start_of_current_week' AND '$end_of_current_week' 
@@ -564,6 +621,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($result_current->num_rows > 0) {
                 $row_current = $result_current->fetch_assoc();
                 $current_weight = $row_current['current_weight'];
+                if ($current_weight == null) {
+                    $current_weight = "-";
+                }
             }
 
             // Fetch last week's weight
@@ -933,37 +993,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
                 $newWeight = floatval($_POST['newweight']);
                 $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
-            
+
                 // Check if an entry for the current week exists
                 $sql = "SELECT * FROM member_performance WHERE weeks_date_mon = ? AND member_id = ?";
                 $stmt = $dbConn->prepare($sql);
                 $stmt->bind_param("si", $currentWeekMonday, $member_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
-            
+
                 if ($result->num_rows > 0) {
                     // If the record exists, update it
                     $sql = "UPDATE member_performance SET current_weight = ? WHERE weeks_date_mon = ? AND member_id = ?";
                     $stmt = $dbConn->prepare($sql);
                     $stmt->bind_param("dsi", $newWeight, $currentWeekMonday, $member_id);
-                } else {
-                    // If the record does not exist, insert a new one
-                    $sql = "INSERT INTO member_performance (weeks_date_mon, current_weight, member_id, diet_history_count, workout_history_count) 
-                            VALUES (?, ?, ?, 0, 0)";
-                    $stmt = $dbConn->prepare($sql);
-                    $stmt->bind_param("sdi", $currentWeekMonday, $newWeight, $member_id);
                 }
-            
+
                 // Execute the query
                 if ($stmt->execute()) {
                     echo json_encode(["status" => "success", "message" => "Weight recorded successfully!"]);
                 } else {
                     echo json_encode(["status" => "error", "message" => "Error: " . $stmt->error]);
                 }
-            
+
                 exit();
             }
-            
+
 
 
             ?>
