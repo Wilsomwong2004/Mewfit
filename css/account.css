@@ -507,6 +507,10 @@ button {
   color: black;
 }
 
+#target-warning {
+  color: red;
+}
+
 @media only screen and (max-width: 768px) {
   form {
     padding: 0px;

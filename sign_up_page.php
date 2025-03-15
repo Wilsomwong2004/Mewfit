@@ -139,7 +139,7 @@ session_start();
                     type="number" 
                     id="height" 
                     name="height"
-                    oninput="calculateBMI()"
+                    oninput="calculateBMI(); calculateTargetBMI()"
                   />
                   <select id="height-unit" name="height-unit">
                     <option value="cm">CM</option>
@@ -154,7 +154,7 @@ session_start();
               <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
-                <select id="fitness-goal" name="fitness-goal">
+                <select id="fitness-goal" name="fitness-goal" onchange="calculateTargetBMI()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
@@ -162,11 +162,12 @@ session_start();
               </div>
 
               <div class="inputs">
-                <label for="target-weight">Target Weight: </label>
+                <label for="target-weight">Target Weight: <span id="target-warning"></span></label>
                 <input
                   type="number"
                   id="target-weight"
                   name="target-weight"
+                  oninput="calculateTargetBMI()"
                 />
                 <select id="target-weight-unit" name="target-weight-unit">
                   <option value="kg">KG</option>
@@ -174,7 +175,7 @@ session_start();
                 </select>
               </div>
 
-              <p>Target BMI:</p>
+              <p>Target BMI: <span id="target-bmi">0</span></p>
 
               <!-- Sign up button -->
               <div class="button-inputs">
@@ -200,10 +201,28 @@ session_start();
         let height = parseFloat(document.getElementById('height').value) / 100 || 0;
         let bmi = (weight) / (height ** 2);
 
-        if (bmi > 100) {
+        if (bmi > 300 || bmi < 7) {
           document.getElementById("bmi").textContent = "Please enter appropriate weight and height";
         } else {
           document.getElementById("bmi").textContent = bmi.toFixed(2);
+        }
+      }
+
+      function calculateTargetBMI() {
+        // let fitness_goal = document.getElementById('fitness_goal').value;
+
+        document.getElementById("target-warning").textContent = "";
+
+        let weight = parseFloat(document.getElementById('weight').value) || 0;
+        let height = parseFloat(document.getElementById('height').value) / 100 || 0;
+        let target_weight = parseFloat(document.getElementById('target-weight').value) || 0;
+
+        let target_bmi = (target_weight) / (height ** 2);
+
+        if (target_weight - weight > 4) {
+          document.getElementById("target-warning").textContent = "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
+        } else {
+          document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
         }
       }
     </script>
