@@ -1,15 +1,5 @@
 <?php
 session_start();
-
-if (!empty($_SESSION['error_message'])) {
-    echo "
-        <div class='error-popup'>
-          <p>{$_SESSION['error_message']}</p>
-          <button class='close-error' onclick='this.parentElement.style.display=\"none\"'>&times;</button>
-        </div>
-    ";
-    unset($_SESSION['error_message']);
-}
 ?>
 
 
@@ -30,6 +20,17 @@ if (!empty($_SESSION['error_message'])) {
     />
   </head>
   <body>
+    <?php
+    if (!empty($_SESSION['error_message'])) {
+      echo "
+          <div class='error-popup'>
+            <p>{$_SESSION['error_message']}</p>
+            <button class='close-error' onclick='this.parentElement.style.display=\"none\"'>&times;</button>
+          </div>
+      ";
+      unset($_SESSION['error_message']);
+    }
+    ?>
 
     <div class="outer-form">
       <div class="form-wrapper">
@@ -39,28 +40,41 @@ if (!empty($_SESSION['error_message'])) {
         </div>
         <form action="sign_up_member.php" method="post">
           <div class="sign-in-steps">
-            <div class="pages slide_page">
+
+            <!-- First page -->
+            <section class="pages slide_page">
+
               <div class="sign-in-description">
                 <p>Let’s us know more about you.</p>
               </div>
 
+              <!-- Username input -->
               <div class="inputs">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"/>
               </div>
+
+              <!-- Email-input -->
               <div class="inputs">
                 <label for="e-mail">Email</label>
                 <input type="email" id="e-mail" name="e-mail"/>
               </div>
+
+              <!-- Password input -->
               <div class="inputs">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"/>
               </div>
+
               <div class="half-input-wrapper">
+
+                <!-- Age input -->
                 <div class="half-inputs">
                   <label for="age">Your Age</label>
                   <input type="number" id="age" name="age"/>
                 </div>
+
+                <!-- Gender input -->
                 <div class="gender-inputs">
                   <label for="gender">Your Gender</label>
                   <select id="gender" name="gender">
@@ -71,7 +85,10 @@ if (!empty($_SESSION['error_message'])) {
                     <option value="female">Female</option>
                   </select>
                 </div>
+
               </div>
+
+              <!-- account rules -->
               <div class="account-rules">
                 <ul>
                   <li>Use 8 or more characters</li>
@@ -80,49 +97,72 @@ if (!empty($_SESSION['error_message'])) {
                   <li>Use a symbol (e.g. !@#$)</li>
                 </ul>
               </div>
+
+              <!-- Next Button -->
               <div class="button-inputs next_button">
                 <button type="button">Next</button>
               </div>
-            </div>
 
-            <div class="pages slide_page">
+            </section>
+
+            <!-- Second page -->
+            <section class="pages slide_page">
+
               <div class="sign-in-description">
                 <p>
                   We still need your information for let’s us more accuracy on
                   recommand
                 </p>
               </div>
+
               <div class="half-input-wrapper">
+
+                <!-- Weight input -->
                 <div class="half-inputs">
                   <label for="weight">Your Weight</label>
-                  <input type="number" id="weight" name="weight"/>
+                  <input 
+                    type="number" 
+                    id="weight" 
+                    name="weight" 
+                    oninput="calculateBMI()"
+                  />
                   <select id="weight-unit" name="weight-unit">
                     <option value="kg">KG</option>
                     <option value="lbs">LBS</option>
                   </select>
                 </div>
+
+                <!-- Height input -->
                 <div class="half-inputs">
                   <label for="height">Your Height</label>
-                  <input type="number" id="height" name="height"/>
+                  <input 
+                    type="number" 
+                    id="height" 
+                    name="height"
+                    oninput="calculateBMI()"
+                  />
                   <select id="height-unit" name="height-unit">
                     <option value="cm">CM</option>
                     <option value="feet">FEET</option>
                   </select>
                 </div>
+
               </div>
-              <p>Current BMI:</p>
+
+              <p>Current BMI: <span id="bmi">0</span></p>
+
+              <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
                 <select id="fitness-goal" name="fitness-goal">
                   <option value="" disabled selected>Pick a fitness goal</option>
-                  <option value="Maintain">Maintain</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
-                  <option value="Gain muscle">Gain muscle</option>
                 </select>
               </div>
+
               <div class="inputs">
-                <label for="target-weight">Target Weight: (MewFit personalized plan will help you achieve you goal in 1 month)</label>
+                <label for="target-weight">Target Weight: </label>
                 <input
                   type="number"
                   id="target-weight"
@@ -135,10 +175,13 @@ if (!empty($_SESSION['error_message'])) {
               </div>
 
               <p>Target BMI:</p>
+
+              <!-- Sign up button -->
               <div class="button-inputs">
                 <button type="submit">Sign up</button>
               </div>
-            </div>
+
+            </section>
           </div>
         </form>
         <div class="policy">
@@ -150,11 +193,21 @@ if (!empty($_SESSION['error_message'])) {
         </div>
       </div>
     </div>
-    <script src="js/sign-in-steps.js"></script>
+
     <script>
-      function calculateSum() {
+      function calculateBMI() {
+        let weight = parseFloat(document.getElementById('weight').value) || 0;
+        let height = parseFloat(document.getElementById('height').value) / 100 || 0;
+        let bmi = (weight) / (height ** 2);
+
+        if (bmi > 100) {
+          document.getElementById("bmi").textContent = "Please enter appropriate weight and height";
+        } else {
+          document.getElementById("bmi").textContent = bmi.toFixed(2);
+        }
       }
     </script>
-    <script src="js/login_page.js"></script>
+
+    <script src="js/sign-in-steps.js"></script>
   </body>
 </html>
