@@ -741,6 +741,84 @@ class SearchImplementation {
     }
 }
 
+function setupScrollArrows(grid) {
+    // Remove any existing wrapper and arrows
+    const existingWrapper = grid.parentElement.querySelector('.grid-wrapper');
+    if (existingWrapper) {
+        const originalGrid = existingWrapper.querySelector('.workout-grid');
+        if (originalGrid) {
+            existingWrapper.replaceWith(originalGrid);
+        }
+    }
+
+    // Create new wrapper and elements
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'grid-wrapper';
+    grid.parentNode.insertBefore(gridWrapper, grid);
+    gridWrapper.appendChild(grid);
+
+    const gradientLeft = document.createElement('div');
+    gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+    const gradientRight = document.createElement('div');
+    gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'scroll-arrow scroll-arrow-left';
+    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'scroll-arrow scroll-arrow-right';
+    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+    gridWrapper.appendChild(gradientLeft);
+    gridWrapper.appendChild(gradientRight);
+    gridWrapper.appendChild(leftArrow);
+    gridWrapper.appendChild(rightArrow);
+
+    const updateArrowVisibility = () => {
+        const isAtStart = grid.scrollLeft <= 0;
+        const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+        const hasOverflow = grid.scrollWidth > grid.clientWidth;
+
+        // Only show arrows and gradients if there's overflow
+        const showControls = hasOverflow && grid.children.length > 0;
+
+        gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+        leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+        gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+        rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+    };
+
+    // Handle arrow clicks with stopPropagation
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: -300,
+            behavior: 'smooth'
+        });
+    });
+
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: 300,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update arrow visibility on various events
+    grid.addEventListener('scroll', updateArrowVisibility);
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Initial check
+    updateArrowVisibility();
+
+    // Add mutation observer to watch for content changes
+    const observer = new MutationObserver(updateArrowVisibility);
+    observer.observe(grid, { childList: true, subtree: true });
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new SearchImplementation();
