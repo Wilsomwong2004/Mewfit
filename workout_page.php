@@ -61,8 +61,50 @@ function fetchExercisesForWorkout($exerciseIds) {
     return $workoutExercises;
 }
 
+// Function to get one random workout from each activity type for the carousel
+function getCarouselWorkouts($workouts) {
+    // Define the activity types
+    $activityTypes = ['Cardio', 'Weighted', 'Weight-free', 'Yoga'];
+    $carouselWorkouts = [];
+    
+    // For each activity type, find one random workout
+    foreach ($activityTypes as $type) {
+        $typeWorkouts = array_filter($workouts, function($workout) use ($type) {
+            return in_array($type, $workout['type']);
+        });
+        
+        if (!empty($typeWorkouts)) {
+            // Get random workout from this type
+            $randomIndex = array_rand($typeWorkouts);
+            $carouselWorkouts[] = $typeWorkouts[$randomIndex];
+        }
+    }
+    
+    // If we don't have enough workouts, fill remaining slots with random ones
+    while (count($carouselWorkouts) < 4 && !empty($workouts)) {
+        $randomIndex = array_rand($workouts);
+        // Check if this workout is already in our carousel list
+        $isDuplicate = false;
+        foreach ($carouselWorkouts as $existing) {
+            if ($existing['id'] == $workouts[$randomIndex]['id']) {
+                $isDuplicate = true;
+                break;
+            }
+        }
+        
+        if (!$isDuplicate) {
+            $carouselWorkouts[] = $workouts[$randomIndex];
+        }
+    }
+    
+    return $carouselWorkouts;
+}
+
 // Fetch all workouts
 $workouts = fetchWorkouts($dbConn);
+
+// Get carousel workouts
+$carouselWorkouts = getCarouselWorkouts($workouts);
 
 // Get user profile info if logged in
 $userProfile = [
@@ -142,7 +184,7 @@ mysqli_close($dbConn);
                             <span class="slider round"></span>
                         </label>
                         </li>
-                        <li><a href="help_center.php" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                        <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
                         <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
                     </ul>
                 </div>
@@ -307,6 +349,7 @@ mysqli_close($dbConn);
     <script>
         // Pass PHP workout data to JavaScript
         const workouts = <?php echo json_encode($workouts); ?>;
+        const carouselWorkouts = <?php echo json_encode($carouselWorkouts); ?>;
         
         // Track currently selected workout
         let selectedWorkout = null;

@@ -114,12 +114,12 @@ body {
 #page1-pic {
     display: flex;
     justify-content: flex-end;
-    padding-top: 130px;
+    padding-top: 23vh;
 }
 
 @media (max-width: 1024px) {
     #page1 img {
-        width: 700px;
+        width: 750px;
         padding-right: 20%;
         transition: all 0.8s;
         transform: translateX(-4vw);
@@ -228,7 +228,7 @@ body {
 }
 
 #page2-heading h1 {
-    font-size: 70px;
+    font-size: 50px;
     margin: 6px;
 }
 
@@ -239,6 +239,7 @@ body {
 }
 
 #page2-word h2 {
+    display: flex;
     font-size: 150px;
     background: linear-gradient(0deg, #ffe0c0, #FFAD84);
     -webkit-text-fill-color: transparent;
@@ -301,118 +302,154 @@ body {
 }
 
 /* ___________________PAGE 3______________________ */
+
+/* Apple-style scroll section */
 #page3 {
-    display: flex;
-    min-height: 800px;
-    background: linear-gradient(180deg, white 80%, #FFE6DA);
+    position: relative;
+    height: 300vh;
+    /* Height for 3 sections */
+    background: white;
 }
 
-#fix {
-    display: flex;
+/* Container for all slides */
+.content-slides {
+    position: relative;
+    height: 100%;
+}
+
+/* Individual slide */
+.content-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100vh;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease;
+}
+
+/* Slide container for content alignment */
+.slide-container {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    position: fixed;
-    transition: opacity 0.5s ease;
-    height: 800px;
+    width: 100%;
+    height: 100vh;
+    padding: 0 5vw;
+}
+
+/* Active slide */
+.content-slide.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Text content styling */
+/* .page1n3-words {
+    max-width: 50%;
+    transform: translateY(30px);
+    transition: transform 0.8s ease, opacity 0.8s ease;
+    opacity: 0;
+} */
+
+.active .page1n3-words {
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .header-style {
     font-size: 40px;
     color: #FFAD84;
+    margin-bottom: 20px;
 }
 
 .content-style {
     font-size: 20px;
     line-height: 30px;
-    margin-right: 10px;
+    color: #333;
 }
 
-.hidden {
-    display: none;
+/* Image content */
+.page3-pic {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    transform: translateY(30px);
+    transition: transform 0.8s ease 0.2s, opacity 0.8s ease 0.2s;
+    opacity: 0;
+}
+
+.active .page3-pic {
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .image-style {
-    width: 500px;
-    height: 500px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     border-radius: 20px;
     position: relative;
+    z-index: 3;
+}
+
+/* Decorative rectangles */
+.color-rect1,
+.color-rect2 {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    transition: transform 0.8s ease;
+}
+
+.color-rect1 {
+    background: #ffe0c0;
+    transform: translateY(40px);
     z-index: 1;
 }
 
-#page3-pic {
-    display: flex;
-    justify-content: flex-end;
-    position: relative;
-    padding-right: 4vw;
-}
-
-#color-rect1,
-#color-rect2 {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    border-radius: 30px;
-    transition: transform 0.2s ease;
-}
-
-#color-rect1 {
-    background: #ffe0c0;
-    transform: translateY(40px);
-}
-
-#color-rect2 {
+.color-rect2 {
     background: #FFAD84;
+    transform: translateY(20px);
+    z-index: 2;
+}
+
+.active .color-rect1 {
     transform: translateY(20px);
 }
 
+.active .color-rect2 {
+    transform: translateY(10px);
+}
+
+/* Responsive styles */
 @media (max-width: 800px) {
-    #page3 {
-        height: 210vw;
+    .slide-container {
         flex-direction: column;
         justify-content: center;
-        align-items: center;
     }
 
-    #fix {
-        width: 100%;
-        flex-direction: column;
-        position: fixed;
-        transition: opacity 0.5s ease;
-        height: 180vw;
+    .page1n3-words {
+        max-width: 90%;
+        text-align: center;
+        margin-bottom: 40px;
     }
 
     .header-style {
-        padding-top: 25vw;
         font-size: 10vw;
-        text-align: center;
-        margin: 2vw;
         line-height: 11vw;
     }
 
     .content-style {
         font-size: 4.5vw;
-        text-align: center;
-        margin-left: 1vw;
         line-height: 5vw;
-        margin-bottom: 10vw;
     }
 
-    .image-style {
+    .page3-pic {
         width: 75vw;
         height: 75vw;
-        margin-top: 5vw;
-    }
-
-    #page3-pic {
-        padding-right: 0vw;
-    }
-
-    #color-rect1,
-    #color-rect2 {
-        width: 75vw;
-        height: 75vw;
-        margin-top: 5vw;
     }
 }
 

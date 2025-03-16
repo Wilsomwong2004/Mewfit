@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Done button clicked');
             // Clear stats when done
             localStorage.removeItem('workoutStats');
-            window.location.href = 'workout_page.html';
+            window.location.href = 'workout_page.php';
         });
 
         restartBtn?.addEventListener('click', () => {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('restartWorkout', 'true');
 
             // Navigate back to workout page
-            window.location.href = 'subworkout_page.html';
+            window.location.href = 'subworkout_page.php';
         });
 
     } catch (error) {

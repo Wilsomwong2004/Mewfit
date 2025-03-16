@@ -6,9 +6,9 @@ function checkScroll() {
     const windowHeight = window.innerHeight;
     rightAnimation.forEach(element => {
         const rightHeight = element.getBoundingClientRect();
-      
+
         if (rightHeight.top < windowHeight && rightHeight.bottom > 0) {
-            element.classList.add('visible'); 
+            element.classList.add('visible');
         }
     })
     leftAnimation.forEach(element => {
@@ -25,102 +25,122 @@ checkScroll();
 
 
 //for page 3 color rect animation
-const rectangle = document.getElementById('color-rect1');
-const rectangle2 = document.getElementById('color-rect2');
-const page3 = document.getElementById('page3');
+document.addEventListener('DOMContentLoaded', function () {
+    // Get all slides
+    const slides = document.querySelectorAll('.content-slide');
+    const totalSlides = slides.length;
 
-window.addEventListener('scroll', function() {
-    const page3Rect = page3.getBoundingClientRect(); // position of page 3
-    const viewportHeight = window.innerHeight; 
+    // Set initial state
+    let currentSlideIndex = 0;
+    let isScrolling = false;
 
-    // Calculate the amount of page 3 that is visible
-    const visibleHeight = Math.min(viewportHeight - 250, page3Rect.bottom) - Math.max(-200, page3Rect.top);    
-    const page3Height = page3Rect.height;
+    // Activate first slide
+    slides[0].classList.add('active');
 
-    // Calculate the exposure percentage
-    const exposurePercentage = Math.max(0, Math.min(1, visibleHeight / page3Height));
+    // Get the page3 section
+    const page3 = document.getElementById('page3');
 
-    // Map the exposure percentage to the rectangle's Y position
-    const newYPosition1 = -50 + (exposurePercentage * 100); 
-    const newYPosition2 = -20 + (exposurePercentage * 40);
+    // Track if we're currently within page3
+    let isInPage3 = false;
 
-    rectangle.style.transform = `translateY(${newYPosition1}px)`;
-    rectangle2.style.transform = `translateY(${newYPosition2}px)`;
+    // Check if user is in page3 section
+    function checkIfInPage3() {
+        const rect = page3.getBoundingClientRect();
+        const isFullyInView = rect.top <= 0 && rect.bottom >= window.innerHeight;
+        const isPartiallyInView = rect.top < window.innerHeight && rect.bottom > 0;
+
+        return isFullyInView || (isPartiallyInView && rect.top <= 0);
+    }
+
+    // Update scroll position to show current slide properly
+    function scrollToCurrentSlide(behavior = 'smooth') {
+        const page3Top = page3.offsetTop;
+        const slideHeight = window.innerHeight;
+
+        window.scrollTo({
+            top: page3Top + (currentSlideIndex * slideHeight),
+            behavior: behavior
+        });
+    }
+
+    // Update active slide
+    function updateActiveSlide(index) {
+        if (index === currentSlideIndex) return;
+
+        isScrolling = true;
+
+        // Remove active class from current slide
+        slides[currentSlideIndex].classList.remove('active');
+
+        // Add active class to new slide
+        slides[index].classList.add('active');
+
+        // Update current slide index
+        currentSlideIndex = index;
+
+        // Reset scrolling flag after animation completes
+        setTimeout(function () {
+            isScrolling = false;
+        }, 800);
+    }
+
+    // Main scroll handler
+    window.addEventListener('scroll', function () {
+        // Check if we're in page3
+        const wasInPage3 = isInPage3;
+        isInPage3 = checkIfInPage3();
+
+        // If we just entered page3, scroll to current slide
+        if (isInPage3 && !wasInPage3) {
+            scrollToCurrentSlide('auto');
+            return;
+        }
+
+        // If we're not in page3, don't do anything special
+        if (!isInPage3) return;
+
+        // If we're in page3, determine which slide should be active
+        const page3Top = page3.offsetTop;
+        const currentScroll = window.scrollY - page3Top;
+        const slideHeight = window.innerHeight;
+
+        const targetSlideIndex = Math.min(
+            Math.floor(currentScroll / slideHeight),
+            totalSlides - 1
+        );
+
+        if (targetSlideIndex >= 0 && !isScrolling) {
+            updateActiveSlide(targetSlideIndex);
+        }
+    });
+
+    // Handle wheel events for smooth navigation between slides
+    window.addEventListener('wheel', function (e) {
+        // Only handle wheel events when we're in page3
+        if (!isInPage3 || isScrolling) return;
+
+        // Get scroll direction
+        const direction = e.deltaY > 0 ? 1 : -1;
+
+        // Calculate target slide
+        let targetSlide = currentSlideIndex + direction;
+
+        // Ensure target slide is within bounds
+        if (targetSlide >= 0 && targetSlide < totalSlides) {
+            e.preventDefault();
+
+            // Update active slide
+            updateActiveSlide(targetSlide);
+
+            // Scroll to the target slide
+            scrollToCurrentSlide();
+        }
+    }, { passive: false });
+
+    // Handle resize
+    window.addEventListener('resize', function () {
+        if (isInPage3) {
+            scrollToCurrentSlide('auto');
+        }
+    });
 });
-
-
-//for page 3 transition animation
-let scrollProgress = 0;
-const fixedContent = document.getElementById("fix");
-const scrollableSection = document.getElementById("page3");
-
-const scrollText = document.getElementById("header");
-scrollText.classList.add("header-style");
-
-const scrollText2 = document.getElementById("content");
-scrollText2.classList.add("content-style");
-
-const img = document.getElementById("image");
-img.classList.add("image-style");
-
-isAnimating = false;
-
-window.addEventListener("wheel", (event) => {
-    const rect = scrollableSection.getBoundingClientRect();
-    const sectionHeight = scrollableSection.clientHeight;
-    const viewportHeight = window.innerHeight;
-
-    // Check if 80% of the section is within the viewport
-    const isFullyVisible =
-        rect.top >= -sectionHeight * 0.15 &&
-        rect.bottom <= viewportHeight + sectionHeight * 0.15;
-
-    if (!isFullyVisible|| isAnimating) {
-        return; 
-    }
-    
-    const direction = event.deltaY > 0 ? 1 : -1;
-    const newProgress = scrollProgress + direction;
-
-    if (newProgress >= 0 && newProgress <= 3 && Math.abs(newProgress - scrollProgress) === 1) {
-        scrollProgress = newProgress;
-        handleTextUpdate(scrollProgress);
-
-        document.body.style.overflow = "hidden";
-        
-    }
-    if (scrollProgress >3 && scrollProgress < 0) {
-            document.body.style.overflow = "auto";
-    }
-});
-
-function handleTextUpdate(progress) {
-    switch (progress) {
-        case 0:
-            scrollText.innerHTML = "Unleash Fun with <br> MEWFIT's Cat Tower!";
-            scrollText2.innerHTML = "MEWFIT engages users through a unique cat tower game,<br> transforming workouts into fun challenges that keep you motivated.";
-            img.src = "./assets/workout_pics/workout1.jpeg";
-            break;
-        case 1:
-            scrollText.innerHTML = "Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!";
-            scrollText2.innerHTML = "MEWFIT offers tailored diet plans with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.";
-            img.src = "./assets/workout_pics/workout2.jpeg";
-            break;
-        case 2:
-            scrollText.innerHTML = "Effortless Calorie Tracking <br>and Beyond!";
-            scrollText2.innerHTML = "Keep tabs on your daily calories burnt and consumed, <br> plus a host of other fitness metrics with <br> MEWFIT's comprehensive tracking features.";
-            img.src = "./assets/workout_pics/workout3.jpeg";
-            break;
-        case 3:
-            fixedContent.classList.add("hidden");
-            break;
-    }
-
-    isAnimating = true; // Set the flag to true
-    fixedContent.style.opacity = 0;
-    setTimeout(() => {
-        fixedContent.style.opacity = 1; 
-        isAnimating = false; 
-        document.body.style.overflow = "auto"; 
-    }, 900);
-}

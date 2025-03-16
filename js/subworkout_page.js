@@ -2722,7 +2722,7 @@ class WorkoutManager {
                     // Clear all timers and stop detection before exiting
                     this.clearAllTimers();
                     if (typeof stopDetection === 'function') stopDetection();
-                    window.location.href = 'workout_page.html';
+                    window.location.href = 'workout_page.php';
                 }
             );
         });
@@ -3115,7 +3115,7 @@ class WorkoutManager {
                 }
                 this.countdownOverlay.style.display = 'none';
                 this.endWorkout();
-                window.location.href = 'workout_page.html';
+                window.location.href = 'workout_page.php';
             }
         });
     }
@@ -3245,14 +3245,14 @@ class WorkoutManager {
                 }
                 localStorage.removeItem('currentWorkout');
                 console.log("Navigating to completion page...");
-                window.location.href = 'subworkout_done_page.html';
+                window.location.href = 'subworkout_done_page.php';
             }, 2000);
         } catch (error) {
             console.error('Error ending workout:', error);
             // Fallback navigation in case of error
             alert("Workout complete! Redirecting to completion page.");
             localStorage.removeItem('currentWorkout');
-            window.location.href = 'subworkout_done_page.html';
+            window.location.href = 'subworkout_done_page.php';
         }
     }
 }
@@ -12431,8 +12431,7 @@ document.getElementById('close-btn').addEventListener('click', function (e) {
         workoutManager.clearAllTimers();
         workoutManager.endWorkout();
 
-        // Navigate to workout_page.html
-        window.location.href = 'workout_page.html';
+        window.location.href = 'workout_page.php';
     });
 
     document.getElementById('confirm-no').addEventListener('click', () => {
@@ -12477,7 +12476,6 @@ function toggleCameraView() {
     }
 }
 
-// Add this helper function (reuse your existing canvas update logic)
 function updateCanvasSize() {
     if (videoElement && videoElement.parentElement) {
         const videoContainer = videoElement.parentElement;

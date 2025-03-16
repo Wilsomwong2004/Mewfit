@@ -1,79 +1,105 @@
 <?php
-// Enable CORS for local development
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
+
+require_once 'conn.php';
 session_start();
 
-include 'conn.php';
-
 // Check if user is logged in
-if (!isset($_SESSION['member_id'])) {
-    echo json_encode(["error" => "User not logged in"]);
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode([
+        'error' => 'User not logged in',
+        'isLoggedIn' => false,
+        'userData' => null
+    ]);
     exit;
 }
 
-$member_id = $_SESSION['member_id'];
+$userId = $_SESSION['user_id'];
+$response = [];
 
 try {
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Get comprehensive user info
+    $query = "SELECT username, email, profile_pic, height, weight, 
+              fitness_goal, fitness_level, age, gender 
+              FROM users WHERE id = ?";
+    $stmt = mysqli_prepare($dbConn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     
-    // Get all workout data (accessible to all users)
-    $stmt_workouts = $conn->prepare("SELECT workout_id, workout_name, workout_type, difficulty, calories, duration, description FROM workout");
-    $stmt_workouts->execute();
-    $workouts = $stmt_workouts->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get all diet data (accessible to all users)
-    $stmt_diets = $conn->prepare("SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.difficulty, d.preparation_min, n.calories 
-                                FROM diet d 
-                                JOIN nutrition n ON d.nutrition_id = n.nutrition_id");
-    $stmt_diets->execute();
-    $diets = $stmt_diets->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get user's workout history (only for logged-in user)
-    $stmt_workout_history = $conn->prepare("SELECT wh.date, w.workout_name, w.calories, w.duration 
-                                          FROM workout_history wh 
-                                          JOIN workout w ON wh.workout_id = w.workout_id 
-                                          WHERE wh.member_id = :member_id 
-                                          ORDER BY wh.date DESC");
-    $stmt_workout_history->bindParam(':member_id', $member_id);
-    $stmt_workout_history->execute();
-    $workout_history = $stmt_workout_history->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get user's diet history (only for logged-in user)
-    $stmt_diet_history = $conn->prepare("SELECT dh.date, d.diet_name, n.calories 
-                                       FROM diet_history dh 
-                                       JOIN diet d ON dh.diet_id = d.diet_id 
-                                       JOIN nutrition n ON d.nutrition_id = n.nutrition_id 
-                                       WHERE dh.member_id = :member_id 
-                                       ORDER BY dh.date DESC");
-    $stmt_diet_history->bindParam(':member_id', $member_id);
-    $stmt_diet_history->execute();
-    $diet_history = $stmt_diet_history->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get user's custom diets (only for logged-in user)
-    $stmt_custom_diets = $conn->prepare("SELECT date, custom_diet_name, calories 
-                                       FROM custom_diet 
-                                       WHERE member_id = :member_id 
-                                       ORDER BY date DESC");
-    $stmt_custom_diets->bindParam(':member_id', $member_id);
-    $stmt_custom_diets->execute();
-    $custom_diets = $stmt_custom_diets->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Combine all data
+    if ($row = mysqli_fetch_assoc($result)) {
+        $userData = [
+            'name' => $row['username'],
+            'email' => $row['email'],
+            'profilePic' => $row['profile_pic'],
+            'height' => floatval($row['height'] ?: 0),
+            'weight' => floatval($row['weight'] ?: 0),
+            'goal' => $row['fitness_goal'] ?: 'maintain',
+            'fitnessLevel' => $row['fitness_level'] ?: 'beginner',
+            'age' => intval($row['age'] ?: 0),
+            'gender' => $row['gender'] ?: '',
+            'preferences' => [],
+            'completedWorkouts' => [],
+            'healthConditions' => []
+        ];
+        
+        // Get user workout preferences
+        $prefQuery = "SELECT workout_type FROM user_preferences WHERE user_id = ?";
+        $prefStmt = mysqli_prepare($dbConn, $prefQuery);
+        mysqli_stmt_bind_param($prefStmt, "i", $userId);
+        mysqli_stmt_execute($prefStmt);
+        $prefResult = mysqli_stmt_get_result($prefStmt);
+        
+        while ($prefRow = mysqli_fetch_assoc($prefResult)) {
+            $userData['preferences'][] = $prefRow['workout_type'];
+        }
+        
+        // Get recently completed workouts (last 7 days)
+        $historyQuery = "SELECT workout_id FROM workout_history 
+                        WHERE user_id = ? AND completion_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        $historyStmt = mysqli_prepare($dbConn, $historyQuery);
+        mysqli_stmt_bind_param($historyStmt, "i", $userId);
+        mysqli_stmt_execute($historyStmt);
+        $historyResult = mysqli_stmt_get_result($historyStmt);
+        
+        while ($historyRow = mysqli_fetch_assoc($historyResult)) {
+            $userData['completedWorkouts'][] = $historyRow['workout_id'];
+        }
+        
+        // Get user health conditions
+        $healthQuery = "SELECT condition_name FROM user_health_conditions WHERE user_id = ?";
+        $healthStmt = mysqli_prepare($dbConn, $healthQuery);
+        mysqli_stmt_bind_param($healthStmt, "i", $userId);
+        mysqli_stmt_execute($healthStmt);
+        $healthResult = mysqli_stmt_get_result($healthStmt);
+        
+        while ($healthRow = mysqli_fetch_assoc($healthResult)) {
+            $userData['healthConditions'][] = $healthRow['condition_name'];
+        }
+        
+        // Construct final response
+        $response = [
+            'isLoggedIn' => true,
+            'userData' => $userData
+        ];
+    } else {
+        $response = [
+            'error' => 'User not found',
+            'isLoggedIn' => false,
+            'userData' => null
+        ];
+    }
+} catch (Exception $e) {
     $response = [
-        "workouts" => $workouts,
-        "diets" => $diets,
-        "user_workout_history" => $workout_history,
-        "user_diet_history" => $diet_history,
-        "user_custom_diets" => $custom_diets
+        'error' => 'Database error: ' . $e->getMessage(),
+        'isLoggedIn' => false,
+        'userData' => null
     ];
-    
-    echo json_encode($response);
-    
-} catch(PDOException $e) {
-    echo json_encode(["error" => "Database error: " . $e->getMessage()]);
+} finally {
+    // Close the database connection
+    mysqli_close($dbConn);
 }
 
-$conn = null;
+// Return the user profile data as JSON
+header('Content-Type: application/json');
+echo json_encode($response);
 ?>
