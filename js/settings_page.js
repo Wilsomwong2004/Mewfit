@@ -108,6 +108,30 @@ class DarkModeSync {
   }
 }
 
+  document.addEventListener('DOMContentLoaded', function() {
+    // 显示模态框
+    document.querySelector('.setting-item[href="#"]').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('updateModal').style.display = 'block';
+    });
+
+    // 关闭模态框
+    document.querySelectorAll('.close-modal, .cancel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('updateModal').style.display = 'none';
+      });
+    });
+
+    // 表单提交处理
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // 这里添加AJAX提交逻辑
+      console.log('Form data:', new FormData(this));
+      alert('Changes saved!');
+      document.getElementById('updateModal').style.display = 'none';
+    });
+  });
+
 // 确保单例运行
 if (!window.darkModeSyncInstance) {
   window.darkModeSyncInstance = new DarkModeSync();

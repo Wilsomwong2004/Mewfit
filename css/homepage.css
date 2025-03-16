@@ -1,3 +1,21 @@
+:root {
+    --background-color: #ffffff;
+    --card-background: #ffffff;
+    --navbar-more-background: #353535;
+    --miniprofile-background: #ffffff;
+    --miniprofile-gmail-text: #666;
+    --settings-change-profile-text: #666;
+    --text-color: #000000;
+    --primary-color: #FFAD84;
+    --secondary-color: #999;
+    --border-color: #c7c7cc;
+    --borderline-color-light: #ddd;
+    --borderline-color-dark: #666666;
+    --box-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --box-shadow-dark: 0 2px 4px rgba(255, 255, 255, 0.1);
+    --transition-speed: 0.3s;
+}
+
 html.dark-mode {
     --background-color: #353536;
     --card-background: #353536;
@@ -6,6 +24,16 @@ html.dark-mode {
     --settings-change-profile-text: #bbbbbb;
     --text-color: #f2f2f7;
     --border-color: #38383a;
+}
+
+html.dark-mode .workout-card-content,
+html.dark-mode .diet-card-content{
+    background-color: #4e4e4e;
+}
+
+html.dark-mode .workout-stats,
+html.dark-mode .diet-stats{
+    color:#999;
 }
 
 * {
@@ -604,13 +632,14 @@ to {
 
 .workout-card-content,
 .diet-card-content {
-    background: white;
     border-radius: 0.5rem;
     overflow: hidden;
     box-shadow: 0 2px 4px #0000002c;
     border-radius: 16px;
     flex: 0 0 300px;
 }
+
+
 
 .workout-card-content:hover,
 .diet-card-content:hover {
