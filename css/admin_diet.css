@@ -1,11 +1,13 @@
-*{
-    font-family: Arial, sans-serif;
+* {
+    font-family: 'Inter', sans-serif;
 }
 
 body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    overflow: hidden;
+    /* Prevents scrolling (We need this)*/
 }
 
 .content {
@@ -19,9 +21,25 @@ body {
     padding: 2.5rem 0 !important;
 }
 
+#logout-profile {
+    width: 26px;
+    margin-right: 3vw;
+    cursor: pointer;
+}
+
 .logo-space {
     width: 80px;
     /* Space for logo */
+}
+
+.nav-logo {
+    width: 60px !important;
+    height: 60px !important;
+    z-index: 5;
+}
+
+.nav-links-indicator {
+    bottom: 15px !important;
 }
 
 .nav-links {
@@ -30,6 +48,7 @@ body {
     align-items: center;
     margin: 0 auto;
     position: absolute;
+    font-weight: 500;
     left: auto !important;
     margin-left: 320px !important;
     transform: translateX(-50%);
@@ -64,6 +83,7 @@ body {
     color: white;
     cursor: pointer;
 }
+
 /* user section */
 .meal-section {
     border: 2px solid #ffc6aa;
@@ -98,9 +118,11 @@ body {
 /* Main Container */
 #heading {
     display: flex;
+    margin-top: -20px;
 }
 
-.diet-container,.nutrition-container {
+.diet-container,
+.nutrition-container {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -134,18 +156,19 @@ body {
     color: #FFAD84;
 }
 
-.search-bar,.id-search-bar {
+.search-bar,
+.id-search-bar {
     padding: 10px;
     margin-bottom: 15px;
     padding-right: 0px;
     border: 1px solid #ccc;
     border-radius: 15px;
-    width: 96%;
+    width: 98%;
 }
 
 .box,
 .nutri-box {
-    height: 650px;
+    height: 680px;
     border: 3px solid #FFAD84;
     border-radius: 10px;
     overflow-y: auto;
@@ -180,7 +203,8 @@ tr:hover {
     background-color: #ffe8d6;
 }
 
-.diet-container,.nutrition-container {
+.diet-container,
+.nutrition-container {
     display: none;
 }
 
@@ -282,7 +306,8 @@ table tr.selected {
     display: none;
 }
 
-#discard-btn, #ndiscard-btn {
+#discard-btn,
+#ndiscard-btn {
     margin-top: 30px;
     width: 37%;
     height: 40px;
@@ -296,11 +321,13 @@ table tr.selected {
     margin-left: 10px;
 }
 
-#discard-btn:hover, #ndiscard-btn:hover{
+#discard-btn:hover,
+#ndiscard-btn:hover {
     background-color: #b93232;
 }
 
-.popup, .mpopup {
+.popup,
+.mpopup {
     display: none;
     position: fixed;
     top: 0;
@@ -368,7 +395,7 @@ table tr.selected {
 .edit-profile label {
     font-weight: bold;
     display: block;
-    margin-top: 23px;
+    margin-top: 18px;
     margin-bottom: 10px;
 }
 
@@ -383,7 +410,8 @@ table tr.selected {
     border-radius: 16px;
 }
 
-#add-profile-btn,#nadd-profile-btn,
+#add-profile-btn,
+#nadd-profile-btn,
 #confirm-btn {
     margin-top: 30px;
     width: 35%;
@@ -400,7 +428,7 @@ table tr.selected {
 
 .picture {
     width: 97.5%;
-    height: 70%;
+    height: 60%;
     background: #ffffff;
     border: 3px dashed #FFAD84;
     border-radius: 16px;
@@ -438,22 +466,25 @@ textarea {
     padding: 10px;
     border: 3px solid #FFAD84;
     border-radius: 16px;
+    resize: none;
 }
 
 .add-profile input,
 .add-profile select {
     width: calc(100% - 30px);
-    padding: 6px;
+    padding: 8px;
     margin-top: 10px;
     background-color: white;
     border: 3px solid #FFAD84;
     border-radius: 16px;
-    box-sizing: border-box; /* 新增 */
+    box-sizing: border-box;
+    /* 新增 */
 }
 
 .form-columns .column {
     flex: 1;
-    box-sizing: border-box; /* 新增 */
+    box-sizing: border-box;
+    /* 新增 */
 }
 
 
@@ -467,7 +498,8 @@ textarea {
         margin: 0 auto;
     }
 
-    .diet-container,.nutrition-container  {
+    .diet-container,
+    .nutrition-container {
         flex-direction: column;
         align-items: center;
         height: 1500px;
@@ -502,6 +534,15 @@ textarea {
         margin-left: 30px;
     }
 
+    .nav-links-indicator {
+        bottom: 350px !important;
+    }
+
+    #logout-profile {
+        width: 26px;
+        margin-right: 8vw;
+    }
+
     .header-right {
         margin-left: 15px;
     }
@@ -524,13 +565,19 @@ textarea {
         margin-left: 0px;
     }
 
+    #logout-profile {
+        width: 26px;
+        margin-right: 3vw;
+    }
+
     #heading {
         flex-direction: column;
         align-items: center;
         width: 100vw;
     }
 
-    .diet-container,.nutrition-container {
+    .diet-container,
+    .nutrition-container {
         height: 1200px;
         gap: 0px;
         padding-bottom: 0px;
@@ -565,7 +612,8 @@ textarea {
         flex-direction: column;
     }
 
-    .diet-container,.nutrition-container {
+    .diet-container,
+    .nutrition-container {
         height: 1200px;
         gap: 0px;
         padding-bottom: 0px;
@@ -582,7 +630,7 @@ textarea {
     padding-top: 10px;
     position: relative;
     margin-bottom: 25px;
-    width:96.5%;
+    width: 96.5%;
 }
 
 .custom-select {
@@ -643,7 +691,7 @@ textarea {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.custom-select.open + .options {
+.custom-select.open+.options {
     display: block;
 }
 
@@ -695,10 +743,12 @@ textarea {
     margin-top: 5px;
 }
 
-#dadd-profile{
-    height:800px;
+#dadd-profile {
+    height: 730px;
 }
-#imagePreview,#eimagePreview {
+
+#imagePreview,
+#eimagePreview {
     margin-top: 10px;
     max-width: 100%;
     max-height: 100px;

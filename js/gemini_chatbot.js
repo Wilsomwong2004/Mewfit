@@ -5,6 +5,11 @@ class FitnessChatbot {
         this.chatHistory = [];
         this.userContext = {};
         this.userData = null; // Will store user data from database
+        this.allWorkouts = [];
+        this.allDiets = [];
+        this.userWorkoutHistory = [];
+        this.userDietHistory = [];
+        this.userCustomDiets = [];
         this.initChatbot();
         this.fetchUserData(); // Fetch user data when chatbot loads
     }
@@ -155,32 +160,45 @@ class FitnessChatbot {
 
     async fetchUserData() {
         try {
-            const response = await fetch('get_user_data.php');
-            const data = await response.json();
+            // Fetch user profile data
+            const userResponse = await fetch('get_user_data.php');
+            const userData = await userResponse.json();
 
-            if (data.error) {
-                console.log('User not logged in or error:', data.error);
+            if (userData.error) {
+                console.log('User not logged in or error:', userData.error);
                 return;
             }
 
-            this.userData = data;
+            this.userData = userData;
 
             // Pre-populate user context with database information
-            if (data.user) {
-                this.userContext.name = data.user.username;
-                this.userContext.goal = data.user.fitness_goal;
-                this.userContext.weight = data.user.weight;
-                this.userContext.targetWeight = data.user.target_weight;
-                this.userContext.level = data.user.level;
-                this.userContext.age = data.user.age;
-                this.userContext.gender = data.user.gender;
+            if (userData.user) {
+                this.userContext.name = userData.user.username;
+                this.userContext.goal = userData.user.fitness_goal;
+                this.userContext.weight = userData.user.weight;
+                this.userContext.targetWeight = userData.user.target_weight;
+                this.userContext.level = userData.user.level;
+                this.userContext.age = userData.user.age;
+                this.userContext.gender = userData.user.gender;
 
                 // Add performance data if available
-                if (data.performance) {
-                    this.userContext.currentWeight = data.performance.current_weight;
-                    this.userContext.workoutCount = data.performance.workout_history_count;
-                    this.userContext.dietCount = data.performance.diet_history_count;
+                if (userData.performance) {
+                    this.userContext.currentWeight = userData.performance.current_weight;
+                    this.userContext.workoutCount = userData.performance.workout_history_count;
+                    this.userContext.dietCount = userData.performance.diet_history_count;
                 }
+            }
+
+            // Fetch workout/diet data
+            const workoutDietResponse = await fetch('get_workout_diet_data.php');
+            const workoutDietData = await workoutDietResponse.json();
+
+            if (!workoutDietData.error) {
+                this.allWorkouts = workoutDietData.workouts || [];
+                this.allDiets = workoutDietData.diets || [];
+                this.userWorkoutHistory = workoutDietData.user_workout_history || [];
+                this.userDietHistory = workoutDietData.user_diet_history || [];
+                this.userCustomDiets = workoutDietData.user_custom_diets || [];
             }
 
             console.log('User context initialized:', this.userContext);
@@ -192,6 +210,32 @@ class FitnessChatbot {
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
+    }
+
+    formatWorkoutDietData() {
+        // Format workout data
+        let workoutTypes = [...new Set(this.allWorkouts.map(w => w.workout_type))].join(', ');
+        let difficultyLevels = [...new Set(this.allWorkouts.map(w => w.difficulty))].join(', ');
+
+        // Format diet data
+        let dietTypes = [...new Set(this.allDiets.map(d => d.diet_type))].join(', ');
+
+        // Format user history
+        let recentWorkouts = this.userWorkoutHistory.slice(0, 5).map(w =>
+            `${w.workout_name} (${w.date})`
+        ).join(', ');
+
+        let recentDiets = this.userDietHistory.slice(0, 5).map(d =>
+            `${d.diet_name} (${d.date})`
+        ).join(', ');
+
+        return {
+            workoutTypes,
+            difficultyLevels,
+            dietTypes,
+            recentWorkouts,
+            recentDiets
+        };
     }
 
     // Update the formatContextPrompt method to include more user data
@@ -212,12 +256,13 @@ class FitnessChatbot {
 
     async getBotResponse(message) {
         try {
-            const workoutData = window.workouts || [];
-            const dietData = window.diets || [];
+            const workoutDietData = this.formatWorkoutDietData();
 
             // Modified data access with proper error handling
-            const workoutTypes = [...new Set(workoutData.flatMap(w => w.type || []))].filter(Boolean).join(', ') || 'General Fitness';
-            const dietTypes = [...new Set(dietData.flatMap(d => d.type || []))].filter(Boolean).join(', ') || 'Balanced Nutrition';
+            const workoutTypes = workoutDietData.workoutTypes || 'General Fitness';
+            const dietTypes = workoutDietData.dietTypes || 'Balanced Nutrition';
+            const recentWorkouts = workoutDietData.recentWorkouts || 'No recent workouts';
+            const recentDiets = workoutDietData.recentDiets || 'No recent diets';
 
             // Add user-specific information to the prompt
             let userSpecificInfo = '';
@@ -234,6 +279,8 @@ class FitnessChatbot {
                 - Level: ${this.userData.user.level}
                 - Workout History Count: ${this.userData.performance?.workout_history_count || 'Unknown'}
                 - Diet History Count: ${this.userData.performance?.diet_history_count || 'Unknown'}
+                - Recent Workouts: ${recentWorkouts}
+                - Recent Diets: ${recentDiets}
                 `;
             }
 
@@ -243,12 +290,13 @@ class FitnessChatbot {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Act as a human-like fitness expert. Follow these rules:
+                            text: `Act as a human-like fitness expert for the MewFit application. Follow these rules:
                         
                                 1. RESPONSE POLICY:
                                 - Only answer fitness/diet/nutrition questions
                                 - For other topics: "I specialize in fitness/health. How can I assist?"
                                 - Never mention celebrities or unrelated figures
+                                - Only provide data about the currently logged-in user, never about other users
 
                                 2. DATA INTEGRATION:
                                 Available Workout Types: ${workoutTypes}
@@ -256,14 +304,16 @@ class FitnessChatbot {
                                 ${userSpecificInfo}
 
                                 3. RECOMMENDATION ENGINE:
-                                ${this.generateDataPrompt(message, workoutData, dietData)}
+                                ${this.generateDataPrompt(message)}
 
                                 4. RESPONSE FORMAT:
-                                - Use workout/diet data from app
+                                - Use workout/diet data from the app
                                 - Suggest specific routines from these categories:
-                                Beginner: ${workoutData.filter(w => w?.level === 'Beginner').length} options
-                                Intermediate: ${workoutData.filter(w => w?.level === 'Intermediate').length} options
-                                Advanced: ${workoutData.filter(w => w?.level === 'Advanced').length} options
+                                Beginner: suitable for new users
+                                Intermediate: for users with some experience
+                                Advanced: for experienced users
+                                - When the user asks about their workout or diet history, provide information from their personal history data
+                                - When the user asks about their progress, reference their current weight vs. target weight
 
                                 5. USER CONTEXT:
                                 ${this.chatHistory.slice(-3).map(m => `${m.role}: ${m.text}`).join('\n')}
@@ -279,21 +329,13 @@ class FitnessChatbot {
                                 - Ask follow-up questions after 3 exchanges
                                 - Admit uncertainty when needed ("Great question! While I'm not a doctor...")
                                 - Use analogies ("Building muscle is like saving money...")
+                                - If the user asks about another user's data, politely explain you can only provide information about the currently logged-in user
 
-                                9.SPECIAL CASE HANDLING:
+                                9. SPECIAL CASE HANDLING:
                                 - If user requests specific workout type (like cardio):
                                 1. Acknowledge the request positively
                                 2. List 3 matching workouts with duration/calories
                                 3. Add follow-up question
-
-                                Example cardio response:
-                                "Great choice! Cardio workouts boost endurance and heart health. 
-                                Here are our top cardio routines:
-                                - 10 Minute Cardio (10 mins, 150 kcal) - Quick energy boost
-                                - No Joke Cardio (30 mins, 350 kcal) - High-intensity challenge
-                                - Quick Cardio Starter (10 mins, 80 kcal) - Perfect for beginners
-                                
-                                Would you like detailed instructions for any of these?"
 
                             User Query: ${message}
                             
@@ -303,7 +345,6 @@ class FitnessChatbot {
                 })
             });
 
-            // Rest of the method remains the same
             if (!response.ok) {
                 throw new Error(`HTTP error: ${response.status}`);
             }
@@ -325,37 +366,112 @@ class FitnessChatbot {
         }
     }
 
-    generateDataPrompt(message, workouts, diets) {
+    generateDataPrompt(message) {
         let prompt = '';
         const lowerMessage = message.toLowerCase();
 
         // Workout recommendations
         if (/workout|exercise|training/i.test(message)) {
-            const levels = ['beginner', 'intermediate', 'advanced'];
-            const matchedLevel = levels.find(l => lowerMessage.includes(l)) || 'beginner';
+            let level = 'beginner';
+            if (/intermediate/i.test(lowerMessage)) level = 'intermediate';
+            if (/advanced/i.test(lowerMessage)) level = 'advanced';
 
-            prompt += `Recommend from ${matchedLevel} workouts:\n${workouts.filter(w => w?.level?.toLowerCase() === matchedLevel)
-                .slice(0, 3)
-                .map(w => `- ${w.title} (${w.duration}, ${w.calories})`)
-                .join('\n') || 'No workout data available'
-                }`;
+            // Filter workouts by level
+            const filteredWorkouts = this.allWorkouts.filter(w =>
+                w.difficulty.toLowerCase() === level
+            ).slice(0, 3);
+
+            if (filteredWorkouts.length > 0) {
+                prompt += `Recommended ${level} workouts:\n`;
+                filteredWorkouts.forEach(w => {
+                    prompt += `- ${w.workout_name} (${w.duration} mins, ${w.calories} calories): ${w.description}\n`;
+                });
+            }
         }
 
         // Diet recommendations
         if (/diet|nutrition|meal/i.test(message)) {
-            const dietTypes = ['vegetarian', 'vegan', 'meat'];
-            const matchedType = dietTypes.find(t => lowerMessage.includes(t)) || 'balanced';
+            let type = 'balanced';
+            if (/vegetarian/i.test(lowerMessage)) type = 'vegetarian';
+            if (/vegan/i.test(lowerMessage)) type = 'vegan';
 
-            prompt += `Suggest ${matchedType} diets:\n${diets.filter(d => d?.type?.includes(matchedType))
-                .slice(0, 3)
-                .map(d => `- ${d.title} (${d.duration}, ${d.calories})`)
-                .join('\n') || 'No diet data available'
-                }`;
+            // Filter diets by type
+            const filteredDiets = this.allDiets.filter(d =>
+                d.diet_type && d.diet_type.toLowerCase().includes(type)
+            ).slice(0, 3);
+
+            if (filteredDiets.length > 0) {
+                prompt += `Recommended ${type} diets:\n`;
+                filteredDiets.forEach(d => {
+                    prompt += `- ${d.diet_name} (${d.preparation_min} mins, ${d.calories} calories): ${d.description}\n`;
+                });
+            }
+        }
+
+        // User history
+        if (/history|progress|recent/i.test(message)) {
+            if (/workout/i.test(message)) {
+                prompt += "User's recent workout history:\n";
+                this.userWorkoutHistory.slice(0, 5).forEach(w => {
+                    prompt += `- ${w.date}: ${w.workout_name} (${w.duration} mins, ${w.calories} calories)\n`;
+                });
+            }
+
+            if (/diet/i.test(message)) {
+                prompt += "User's recent diet history:\n";
+                this.userDietHistory.slice(0, 5).forEach(d => {
+                    prompt += `- ${d.date}: ${d.diet_name} (${d.calories} calories)\n`;
+                });
+            }
+        }
+
+        // Progress tracking
+        if (/progress|weight|goal/i.test(message)) {
+            if (this.userData && this.userData.user) {
+                const currentWeight = this.userData.performance?.current_weight || this.userData.user.weight;
+                const targetWeight = this.userData.user.target_weight;
+                const goal = this.userData.user.fitness_goal;
+
+                prompt += `Weight progress:\n`;
+                prompt += `- Starting weight: ${this.userData.user.weight} kg\n`;
+                prompt += `- Current weight: ${currentWeight} kg\n`;
+                prompt += `- Target weight: ${targetWeight} kg\n`;
+                prompt += `- Goal: ${goal}\n`;
+
+                // Calculate progress percentage
+                if (goal === 'Lose Weight' && currentWeight < this.userData.user.weight) {
+                    const weightToLose = this.userData.user.weight - targetWeight;
+                    const weightLost = this.userData.user.weight - currentWeight;
+                    const progressPercentage = Math.round((weightLost / weightToLose) * 100);
+                    prompt += `- Progress: ${progressPercentage}% toward goal\n`;
+                } else if (goal === 'Gain Muscle' && currentWeight > this.userData.user.weight) {
+                    const weightToGain = targetWeight - this.userData.user.weight;
+                    const weightGained = currentWeight - this.userData.user.weight;
+                    const progressPercentage = Math.round((weightGained / weightToGain) * 100);
+                    prompt += `- Progress: ${progressPercentage}% toward goal\n`;
+                }
+            }
         }
 
         return prompt;
     }
 
+    formatContextPrompt() {
+        let context = [];
+        if (this.userContext.name) context.push(`- User's name: ${this.userContext.name}`);
+        if (this.userContext.goal) context.push(`- User's goal: ${this.userContext.goal}`);
+        if (this.userContext.level) context.push(`- User's fitness level: ${this.userContext.level}`);
+        if (this.userContext.age) context.push(`- User's age: ${this.userContext.age}`);
+        if (this.userContext.gender) context.push(`- User's gender: ${this.userContext.gender}`);
+        if (this.userContext.weight) context.push(`- Starting weight: ${this.userContext.weight} kg`);
+        if (this.userContext.currentWeight) context.push(`- Current weight: ${this.userContext.currentWeight} kg`);
+        if (this.userContext.targetWeight) context.push(`- Target weight: ${this.userContext.targetWeight} kg`);
+        if (this.userContext.workoutCount) context.push(`- Completed workouts: ${this.userContext.workoutCount}`);
+        if (this.userContext.injuries) context.push(`- Injuries: ${this.userContext.injuries}`);
+        return context.join('\n') || '- No known context yet';
+    }
+
+    // The remaining methods are unchanged
     addMessage(content, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);

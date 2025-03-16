@@ -2524,12 +2524,15 @@ class WorkoutManager {
         this.repCounter = null;
         this.clearAllTimers();
 
+        // Check if this was the last exercise in the last set
+        if (this.currentExerciseIndex >= this.exercises.length - 1 && this.currentSet >= this.totalSets) {
+            console.log("Workout complete - all exercises and sets finished");
+            this.endWorkout();
+            return;
+        }
+
+        // Otherwise, increment exercise or set
         if (this.currentExerciseIndex >= this.exercises.length - 1) {
-            if (this.currentSet >= this.totalSets) {
-                console.log("Workout complete - all exercises and sets finished");
-                this.endWorkout();
-                return;
-            }
             this.currentSet++;
             this.currentExerciseIndex = 0;
             console.log(`Moving to set ${this.currentSet}`);
@@ -2538,6 +2541,7 @@ class WorkoutManager {
             console.log(`Moving to exercise ${this.currentExerciseIndex + 1} in set ${this.currentSet}`);
         }
 
+        // Show rest screen before the next exercise
         this.showRestScreen();
     }
 
@@ -2773,18 +2777,18 @@ class WorkoutManager {
     }
 
     skipCurrentExercise() {
+        // If we're already resting, end the rest and go to next exercise
+        if (this.isResting) {
+            this.endRest();
+            return;
+        }
+
         // Announce skipping exercise
         this.speakText('Skipping to next exercise');
 
         // Clear timers and rep counter
         this.repCounter = null;
         this.clearAllTimers();
-
-        // If we're already resting, end the rest and go to next exercise
-        if (this.isResting) {
-            this.endRest();
-            return;
-        }
 
         // Move to the next exercise
         this.nextExercise();
@@ -3750,7 +3754,7 @@ class WorkoutPoseDetector {
 
         return { repCount: this.repCounter, feedback };
     }
-    
+
     //------------------------------------------------------------------------------
     // ================== CARDIO EXERCISES ================
     //------------------------------------------------------------------------------
@@ -6923,9 +6927,2344 @@ class WorkoutPoseDetector {
         return { repCount: this.repCounter, feedback };
     }
 
+    // Tricep Kickback
+    detectTricepKickback(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!rightElbow || !rightWrist || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track right arm" };
+        }
+
+        // Calculate angles
+        const armAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        let feedback = "";
+
+        // Check if arm is extended backward (kickback position)
+        if (armAngle > 160 && this.lastState !== 'extended') {
+            this.repCounter++;
+            this.lastState = 'extended';
+            feedback = "Good kickback!";
+        } else if (armAngle < 110 && this.lastState === 'extended') {
+            this.lastState = 'bent';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'extended') {
+            feedback = "Bend your arm";
+        } else {
+            feedback = "Extend your arm back";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Front Raise
+    detectFrontRaise(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!rightShoulder || !rightElbow || !rightWrist || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track right arm and hip" };
+        }
+
+        // Calculate angle between arm and torso
+        const shoulderToHipAngle = calculateAngle(rightElbow, rightShoulder, rightHip);
+
+        let feedback = "";
+
+        // Check if arm is raised to shoulder level
+        if (shoulderToHipAngle < 50 && this.lastState !== 'raised') {
+            this.repCounter++;
+            this.lastState = 'raised';
+            feedback = "Good front raise!";
+        } else if (shoulderToHipAngle > 80 && this.lastState === 'raised') {
+            this.lastState = 'lowered';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'raised') {
+            feedback = "Lower your arms";
+        } else {
+            feedback = "Raise your arms to shoulder height";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Upright Dumbbell Row
+    detectUprightRow(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+
+        if (!leftElbow || !rightElbow || !leftShoulder || !rightShoulder || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate elbow height relative to shoulders
+        const leftElbowHeight = leftShoulder.y - leftElbow.y;
+        const rightElbowHeight = rightShoulder.y - rightElbow.y;
+        const avgElbowHeight = (leftElbowHeight + rightElbowHeight) / 2;
+
+        let feedback = "";
+
+        // Check if elbows are raised above shoulders
+        if (avgElbowHeight > 0.15 && this.lastState !== 'raised') {
+            this.repCounter++;
+            this.lastState = 'raised';
+            feedback = "Good upright row!";
+        } else if (avgElbowHeight < -0.15 && this.lastState === 'raised') {
+            this.lastState = 'lowered';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'raised') {
+            feedback = "Lower your elbows";
+        } else {
+            feedback = "Raise your elbows above shoulders";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Dumbbell Sumo Squat
+    detectSumoSquat(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angle
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const avgKneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        // Calculate feet width
+        const feetWidth = Math.abs(leftAnkle.x - rightAnkle.x);
+        const hipWidth = Math.abs(leftHip.x - rightHip.x);
+        const normalizedFeetWidth = feetWidth / hipWidth;
+
+        let feedback = "";
+
+        // Check for sumo stance
+        if (normalizedFeetWidth < 1.5) {
+            feedback = "Widen your stance for sumo position";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Check squat depth
+        if (avgKneeAngle < 130 && this.lastState !== 'squatting') {
+            this.repCounter++;
+            this.lastState = 'squatting';
+            feedback = "Good sumo squat!";
+        } else if (avgKneeAngle > 160 && this.lastState === 'squatting') {
+            this.lastState = 'standing';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'squatting') {
+            feedback = "Stand up straight";
+        } else {
+            feedback = "Squat down, keep wide stance";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Walking Lunges
+    detectWalkingLunges(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Calculate front-back distance between feet
+        const feetDistance = Math.abs(leftAnkle.y - rightAnkle.y);
+        const heightNormalization = Math.abs(leftHip.y - leftAnkle.y);
+        const normalizedFeetDistance = feetDistance / heightNormalization;
+
+        let feedback = "";
+
+        if (normalizedFeetDistance < 0.5) {
+            feedback = "Step forward or backward into lunge position";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Check if either knee is bent in lunge position
+        if ((leftKneeAngle < 110 || rightKneeAngle < 110) && this.lastState !== 'lunging') {
+            this.repCounter++;
+            this.lastState = 'lunging';
+            feedback = "Good lunge!";
+        } else if (leftKneeAngle > 160 && rightKneeAngle > 160 && this.lastState === 'lunging') {
+            this.lastState = 'standing';
+            feedback = "Ready for next step";
+        } else if (this.lastState === 'lunging') {
+            feedback = "Return to standing position";
+        } else {
+            feedback = "Lunge deeper, bend your knee";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Deadlift
+    detectDeadlift(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Calculate hip angle
+        const hipAngle = calculateAngle(
+            { x: (leftShoulder.x + rightShoulder.x) / 2, y: (leftShoulder.y + rightShoulder.y) / 2 },
+            { x: (leftHip.x + rightHip.x) / 2, y: (leftHip.y + rightHip.y) / 2 },
+            { x: (leftKnee.x + rightKnee.x) / 2, y: (leftKnee.y + rightKnee.y) / 2 }
+        );
+
+        let feedback = "";
+
+        // Check deadlift position
+        if (hipAngle > 160 && this.lastState !== 'standing') {
+            this.repCounter++;
+            this.lastState = 'standing';
+            feedback = "Good deadlift!";
+        } else if (hipAngle < 110 && this.lastState === 'standing') {
+            this.lastState = 'bent';
+            feedback = "Keep your back straight";
+        } else if (this.lastState === 'standing') {
+            feedback = "Bend at the hips";
+        } else {
+            feedback = "Stand up straight";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Goblet Squat
+    detectGobletSquat(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const avgKneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        let feedback = "";
+
+        // Check squat depth
+        if (avgKneeAngle < 120 && this.lastState !== 'squatting') {
+            this.repCounter++;
+            this.lastState = 'squatting';
+            feedback = "Good goblet squat!";
+        } else if (avgKneeAngle > 160 && this.lastState === 'squatting') {
+            this.lastState = 'standing';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'squatting') {
+            feedback = "Stand up straight";
+        } else {
+            feedback = "Squat down deeper";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Woodchop
+    detectWoodchop(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftShoulder || !rightShoulder || !leftWrist || !rightWrist || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms and hips" };
+        }
+
+        // Calculate average positions
+        const avgWrist = {
+            x: (leftWrist.x + rightWrist.x) / 2,
+            y: (leftWrist.y + rightWrist.y) / 2
+        };
+        const avgShoulder = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+        const avgHip = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        // Calculate diagonal movement
+        const topPosition = avgWrist.y < avgShoulder.y - 0.2;
+        const bottomPosition = avgWrist.y > avgHip.y + 0.2;
+
+        let feedback = "";
+
+        // Check woodchop movement (high to low)
+        if (bottomPosition && this.lastState === 'top') {
+            this.repCounter++;
+            this.lastState = 'bottom';
+            feedback = "Good woodchop!";
+        } else if (topPosition && this.lastState === 'bottom') {
+            this.lastState = 'top';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'bottom' || !this.lastState) {
+            this.lastState = 'top';
+            feedback = "Raise weight to shoulder height";
+        } else {
+            feedback = "Bring weight down across body";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSnatchPress(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms and hips" };
+        }
+
+        // Calculate wrist positions relative to shoulders
+        const avgWristHeight = ((leftShoulder.y - leftWrist.y) + (rightShoulder.y - rightWrist.y)) / 2;
+        const normalizedWristHeight = avgWristHeight / Math.abs(leftShoulder.y - leftHip.y);
+
+        let feedback = "";
+
+        // Define the states: low (below hips), middle (at shoulders), and overhead
+        if (normalizedWristHeight > 1.5 && this.lastState === 'middle') {
+            // Wrists are overhead (press completed)
+            this.lastState = 'overhead';
+            feedback = "Good press!";
+        } else if (normalizedWristHeight < 0 && this.lastState === 'overhead') {
+            // Wrists below shoulders, going down for next rep
+            this.lastState = 'low';
+            feedback = "Ready for next rep";
+        } else if (normalizedWristHeight > 0.8 && normalizedWristHeight < 1.2 && this.lastState === 'low') {
+            // Wrists at shoulder height (snatch completed)
+            this.lastState = 'middle';
+            this.repCounter++;
+            feedback = "Good snatch!";
+        } else if (this.lastState === 'overhead') {
+            feedback = "Lower weight for next rep";
+        } else if (this.lastState === 'middle') {
+            feedback = "Press overhead";
+        } else {
+            feedback = "Raise weight to shoulders";
+            if (!this.lastState) this.lastState = 'low';
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Dumbbell Swing
+    detectDumbbellSwing(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms and hips" };
+        }
+
+        // Calculate average wrist position
+        const avgWrist = {
+            x: (leftWrist.x + rightWrist.x) / 2,
+            y: (leftWrist.y + rightWrist.y) / 2
+        };
+
+        // Calculate average shoulder and hip positions
+        const avgShoulder = {
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const avgHip = {
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        // Calculate normalized wrist height
+        const shoulderToHipDistance = Math.abs(avgShoulder.y - avgHip.y);
+        const wristToShoulderHeight = avgShoulder.y - avgWrist.y;
+        const normalizedWristHeight = wristToShoulderHeight / shoulderToHipDistance;
+
+        let feedback = "";
+
+        // Check swing phases
+        if (normalizedWristHeight > 0.8 && this.lastState === 'down') {
+            // Wrists are raised to shoulder level or above (top of swing)
+            this.repCounter++;
+            this.lastState = 'up';
+            feedback = "Good swing!";
+        } else if (normalizedWristHeight < -0.5 && this.lastState === 'up') {
+            // Wrists are below hips (bottom of swing)
+            this.lastState = 'down';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'up') {
+            feedback = "Swing weight down";
+        } else {
+            feedback = "Swing weight up to shoulder height";
+            if (!this.lastState) this.lastState = 'down';
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Overhead Squat
+    detectOverheadSquat(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder ||
+            !leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body position" };
+        }
+
+        // Check if arms are overhead
+        const avgWristHeight = ((leftShoulder.y - leftWrist.y) + (rightShoulder.y - rightWrist.y)) / 2;
+        const shoulderToHipDistance = Math.abs((leftShoulder.y + rightShoulder.y) / 2 - (leftHip.y + rightHip.y) / 2);
+        const normalizedWristHeight = avgWristHeight / shoulderToHipDistance;
+
+        // Calculate knee angles for squat depth
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const avgKneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        let feedback = "";
+
+        // Check if arms are overhead
+        if (normalizedWristHeight < 1.2) {
+            feedback = "Raise arms fully overhead";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Check squat depth with arms overhead
+        if (avgKneeAngle < 130 && this.lastState !== 'squatting') {
+            this.repCounter++;
+            this.lastState = 'squatting';
+            feedback = "Good overhead squat!";
+        } else if (avgKneeAngle > 160 && this.lastState === 'squatting') {
+            this.lastState = 'standing';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'squatting') {
+            feedback = "Stand up, keep arms overhead";
+        } else {
+            feedback = "Squat down, keep arms overhead";
+            if (!this.lastState) this.lastState = 'standing';
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Single Leg Deadlift
+    detectSingleLegDeadlift(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip ||
+            !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body position" };
+        }
+
+        // Calculate torso angle (shoulders to hips)
+        const avgShoulder = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const avgHip = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        // Check if one foot is elevated (using ankle height difference)
+        const ankleHeightDiff = Math.abs(leftAnkle.y - rightAnkle.y);
+        const hipToAnkleDistance = Math.abs(avgHip.y - ((leftAnkle.y + rightAnkle.y) / 2));
+        const normalizedAnkleHeightDiff = ankleHeightDiff / hipToAnkleDistance;
+
+        // Calculate torso to vertical angle
+        const torsoAngle = calculateAngle(
+            { x: avgShoulder.x, y: avgShoulder.y - 1 }, // Point above shoulders (vertical reference)
+            avgShoulder,
+            avgHip
+        );
+
+        let feedback = "";
+
+        // Check if user is on one leg
+        if (normalizedAnkleHeightDiff < 0.2) {
+            feedback = "Lift one leg behind you";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Check deadlift position
+        if (torsoAngle > 150 && this.lastState === 'bent') {
+            this.repCounter++;
+            this.lastState = 'standing';
+            feedback = "Good single leg deadlift!";
+        } else if (torsoAngle < 110 && this.lastState !== 'bent') {
+            this.lastState = 'bent';
+            feedback = "Good hip hinge, now stand up";
+        } else if (this.lastState === 'standing' || !this.lastState) {
+            feedback = "Hinge at the hips, keep back flat";
+            if (!this.lastState) this.lastState = 'standing';
+        } else {
+            feedback = "Stand up straight";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Reverse Fly
+    detectReverseFly(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate arm spread (distance between wrists relative to shoulder width)
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const wristWidth = Math.abs(leftWrist.x - rightWrist.x);
+        const normalizedWristWidth = wristWidth / shoulderWidth;
+
+        let feedback = "";
+
+        // Check fly movement
+        if (normalizedWristWidth > 1.8 && this.lastState !== 'spread') {
+            this.repCounter++;
+            this.lastState = 'spread';
+            feedback = "Good reverse fly!";
+        } else if (normalizedWristWidth < 1.2 && this.lastState === 'spread') {
+            this.lastState = 'center';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'spread') {
+            feedback = "Bring arms together";
+        } else {
+            feedback = "Spread arms wider";
+            if (!this.lastState) this.lastState = 'center';
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Plank Row
+    detectPlankRow(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder ||
+            !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body position" };
+        }
+
+        // Check if in plank position first
+        const avgShoulder = {
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const avgHip = {
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const avgAnkle = {
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        // Check if body is horizontal
+        const bodyAngleTop = calculateAngle(
+            { x: avgShoulder.x, y: avgShoulder.y - 1 }, // Point above shoulders (vertical reference)
+            avgShoulder,
+            avgHip
+        );
+
+        const bodyAngleBottom = calculateAngle(
+            avgShoulder,
+            avgHip,
+            avgAnkle
+        );
+
+        // Check which arm is performing the row
+        const leftElbowBend = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowBend = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        let rowingSide = null;
+        if (leftElbowBend < 100) rowingSide = 'left';
+        if (rightElbowBend < 100) rowingSide = 'right';
+
+        let feedback = "";
+
+        // Check if in proper plank position
+        if (bodyAngleTop < 160 || bodyAngleBottom < 160) {
+            feedback = "Get in proper plank position, body straight";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Check row movement
+        if (rowingSide && this.lastState !== 'rowing') {
+            this.repCounter++;
+            this.lastState = 'rowing';
+            feedback = `Good ${rowingSide} arm row!`;
+        } else if (!rowingSide && this.lastState === 'rowing') {
+            this.lastState = 'plank';
+            feedback = "Ready for next rep";
+        } else if (this.lastState !== 'rowing') {
+            feedback = "Pull one arm up while maintaining plank";
+            if (!this.lastState) this.lastState = 'plank';
+        } else {
+            feedback = "Lower arm back to ground";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Y to T Raises
+    detectYTWings(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate arm angles
+        const leftArmAngle = calculateAngle(
+            { x: leftShoulder.x, y: leftShoulder.y - 1 }, // Point above shoulders (vertical reference)
+            leftShoulder,
+            leftElbow
+        );
+
+        const rightArmAngle = calculateAngle(
+            { x: rightShoulder.x, y: rightShoulder.y - 1 }, // Point above shoulders (vertical reference)
+            rightShoulder,
+            rightElbow
+        );
+
+        // Calculate arm spread
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const wristWidth = Math.abs(leftWrist.x - rightWrist.x);
+        const normalizedWristWidth = wristWidth / shoulderWidth;
+
+        let feedback = "";
+
+        // Detect Y position (arms raised diagonally)
+        const inYPosition = (leftArmAngle < 55 && rightArmAngle < 55) && normalizedWristWidth > 1.7;
+
+        // Detect T position (arms horizontal)
+        const inTPosition = (leftArmAngle > 70 && leftArmAngle < 110 &&
+            rightArmAngle > 70 && rightArmAngle < 110) &&
+            normalizedWristWidth > 1.8;
+
+        // Detect rest position (arms down)
+        const inRestPosition = (leftArmAngle > 160 && rightArmAngle > 160);
+
+        if (inYPosition && (this.lastState === 'rest' || this.lastState === 'T')) {
+            this.lastState = 'Y';
+            feedback = "Good Y position!";
+            if (this.lastState === 'T') this.repCounter++; // Count a rep when completing the sequence
+        } else if (inTPosition && this.lastState === 'Y') {
+            this.lastState = 'T';
+            feedback = "Good T position!";
+        } else if (inRestPosition && this.lastState === 'T') {
+            this.lastState = 'rest';
+            feedback = "Ready for next rep";
+        } else if (!this.lastState || this.lastState === 'rest') {
+            feedback = "Raise arms in Y position";
+            if (!this.lastState) this.lastState = 'rest';
+        } else if (this.lastState === 'Y') {
+            feedback = "Move to T position (arms horizontal)";
+        } else {
+            feedback = "Lower arms to rest";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Alternate Elevated Lunge
+    detectElevatedLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Calculate ankle height difference to detect elevation
+        const ankleHeightDiff = Math.abs(leftAnkle.y - rightAnkle.y);
+        const hipHeight = Math.abs((leftHip.y + rightHip.y) / 2 - ((leftAnkle.y + rightAnkle.y) / 2));
+        const normalizedAnkleHeightDiff = ankleHeightDiff / hipHeight;
+
+        let feedback = "";
+
+        // Check if feet are at different heights (one foot elevated)
+        if (normalizedAnkleHeightDiff < 0.15) {
+            feedback = "Place one foot on an elevated surface";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Determine which leg is in lunge position
+        let lungeLeg = null;
+        if (leftKneeAngle < 130) lungeLeg = 'left';
+        if (rightKneeAngle < 130) lungeLeg = 'right';
+
+        if (lungeLeg && this.lastState !== 'lunging') {
+            this.repCounter++;
+            this.lastState = 'lunging';
+            feedback = `Good ${lungeLeg} elevated lunge!`;
+        } else if (!lungeLeg && this.lastState === 'lunging') {
+            this.lastState = 'standing';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'lunging') {
+            feedback = "Return to starting position";
+        } else {
+            feedback = "Lunge down, bend front knee";
+            if (!this.lastState) this.lastState = 'standing';
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    // Tricep Dips
+    detectTricepDips(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+
+        if (!leftElbow || !rightElbow || !leftShoulder || !rightShoulder || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate elbow angles
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        let feedback = "";
+
+        // Detect dip movement
+        if (avgElbowAngle < 110 && this.lastState !== 'dipping') {
+            this.lastState = 'dipping';
+            feedback = "Good dip depth";
+        } else if (avgElbowAngle > 160 && this.lastState === 'dipping') {
+            this.repCounter++;
+            this.lastState = 'extended';
+            feedback = "Good tricep dip!";
+        } else if (this.lastState === 'extended' || !this.lastState) {
+            feedback = "Lower your body by bending elbows";
+            if (!this.lastState) this.lastState = 'extended';
+        } else {
+            feedback = "Push up by extending arms";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectBurpeeDBPress(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body" };
+        }
+
+        // Calculate height difference to detect squat/standing positions
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+        const shoulderHeight = (leftShoulder.y + rightShoulder.y) / 2;
+        const ankleHeight = (leftAnkle.y + rightAnkle.y) / 2;
+
+        // Hip to ankle height ratio (smaller when in squat position)
+        const standRatio = (hipHeight - ankleHeight) / (shoulderHeight - ankleHeight);
+
+        // Wrists above shoulders for press detection
+        const wristsAboveShoulders = (leftWrist.y < leftShoulder.y) && (rightWrist.y < rightShoulder.y);
+
+        // Track burpee stages: 0-standing, 1-squat, 2-plank, 3-squat, 4-press
+        if (!this.burpeeStage) this.burpeeStage = 0;
+
+        let feedback = "";
+
+        // State machine for burpee with press
+        switch (this.burpeeStage) {
+            case 0: // Standing
+                if (standRatio < 0.4) {
+                    this.burpeeStage = 1;
+                    feedback = "Good squat, now go down to plank";
+                } else {
+                    feedback = "Start by squatting down";
+                }
+                break;
+
+            case 1: // Squat position going to plank
+                // Check if in plank - shoulders aligned with hips horizontally
+                if (Math.abs(shoulderHeight - hipHeight) < 20) {
+                    this.burpeeStage = 2;
+                    feedback = "Good plank, now return to squat";
+                } else {
+                    feedback = "Move into plank position";
+                }
+                break;
+
+            case 2: // Plank position returning to squat
+                if (standRatio < 0.4) {
+                    this.burpeeStage = 3;
+                    feedback = "Now stand up with press";
+                } else {
+                    feedback = "Return to squat position";
+                }
+                break;
+
+            case 3: // Squat returning to stand with press
+                if (standRatio > 0.7 && wristsAboveShoulders) {
+                    this.burpeeStage = 0;
+                    this.repCounter++;
+                    feedback = "Good rep! Dumbbells pressed overhead";
+                } else if (standRatio > 0.7) {
+                    feedback = "Stand tall and press dumbbells overhead";
+                } else {
+                    feedback = "Stand up with dumbbell press";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectHighPulls(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Check if wrists are at shoulder height or higher (high pull position)
+        const wristsAtShoulder =
+            (leftWrist.y <= leftShoulder.y + 20) &&
+            (rightWrist.y <= rightShoulder.y + 20);
+
+        // Check if wrists are below waist (starting position)
+        const wristsLow =
+            (leftWrist.y > leftShoulder.y + 100) &&
+            (rightWrist.y > rightShoulder.y + 100);
+
+        let feedback = "";
+
+        if (wristsAtShoulder && this.lastState !== 'up') {
+            this.lastState = 'up';
+            feedback = "Good high pull!";
+        } else if (wristsLow && this.lastState === 'up') {
+            this.lastState = 'down';
+            this.repCounter++;
+            feedback = "Lower weights controlled";
+        } else if (this.lastState === 'up') {
+            feedback = "Lower weights to starting position";
+        } else {
+            feedback = "Pull weights up to chest/chin level";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectLungeTwist(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Initialize lunge side tracking if not present
+        if (!this.lungeSide) this.lungeSide = 'center';
+        if (!this.twistComplete) this.twistComplete = false;
+
+        // Detect lunge by knee position
+        const leftLunge = leftKnee.y > rightKnee.y + 50;
+        const rightLunge = rightKnee.y > leftKnee.y + 50;
+
+        // Detect twist by shoulder alignment with hips
+        const shoulderAngle = Math.atan2(rightShoulder.y - leftShoulder.y, rightShoulder.x - leftShoulder.x);
+        const hipAngle = Math.atan2(rightHip.y - leftHip.y, rightHip.x - leftHip.x);
+        const twistAngle = Math.abs(shoulderAngle - hipAngle);
+        const isTwisting = twistAngle > 0.3; // Approximately 17 degrees
+
+        let feedback = "";
+
+        // State machine for alternate lunge and twist
+        if (this.lungeSide === 'center') {
+            if (leftLunge) {
+                this.lungeSide = 'left';
+                feedback = "Left lunge, now twist";
+            } else if (rightLunge) {
+                this.lungeSide = 'right';
+                feedback = "Right lunge, now twist";
+            } else {
+                feedback = "Step into a lunge position";
+            }
+        } else if (this.lungeSide === 'left') {
+            if (isTwisting && !this.twistComplete) {
+                this.twistComplete = true;
+                feedback = "Good twist, return to center";
+            } else if (!leftLunge) {
+                if (this.twistComplete) {
+                    this.lungeSide = 'center';
+                    this.twistComplete = false;
+                    this.repCounter++;
+                    feedback = "Good rep! Now alternate sides";
+                } else {
+                    this.lungeSide = 'center';
+                    feedback = "Lunge complete, but missing twist";
+                }
+            } else if (!this.twistComplete) {
+                feedback = "Twist your torso";
+            } else {
+                feedback = "Return to standing position";
+            }
+        } else if (this.lungeSide === 'right') {
+            if (isTwisting && !this.twistComplete) {
+                this.twistComplete = true;
+                feedback = "Good twist, return to center";
+            } else if (!rightLunge) {
+                if (this.twistComplete) {
+                    this.lungeSide = 'center';
+                    this.twistComplete = false;
+                    this.repCounter++;
+                    feedback = "Good rep! Now alternate sides";
+                } else {
+                    this.lungeSide = 'center';
+                    feedback = "Lunge complete, but missing twist";
+                }
+            } else if (!this.twistComplete) {
+                feedback = "Twist your torso";
+            } else {
+                feedback = "Return to standing position";
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectHeadCrusher(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const nose = getKeypointByName(smoothedKeypoints, 'nose');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder || !nose) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms and head" };
+        }
+
+        // Calculate the vertical position of wrists relative to head
+        const wristsNearHead =
+            Math.abs(leftWrist.y - nose.y) < 50 &&
+            Math.abs(rightWrist.y - nose.y) < 50;
+
+        // Calculate the vertical position of wrists relative to shoulders (extended arms)
+        const armsExtended =
+            (leftWrist.y < leftShoulder.y - 100) &&
+            (rightWrist.y < rightShoulder.y - 100);
+
+        let feedback = "";
+
+        if (wristsNearHead && this.lastState !== 'down') {
+            this.lastState = 'down';
+            feedback = "Good, now extend arms";
+        } else if (armsExtended && this.lastState === 'down') {
+            this.lastState = 'up';
+            this.repCounter++;
+            feedback = "Good rep!";
+        } else if (this.lastState === 'down') {
+            feedback = "Extend arms upward";
+        } else {
+            feedback = "Lower weights toward head";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectRussianTwist(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftHip || !rightHip || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Initialize twist side tracking if not present
+        if (!this.twistSide) this.twistSide = 'center';
+
+        // Calculate hip center position
+        const hipCenterX = (leftHip.x + rightHip.x) / 2;
+
+        // Calculate wrist position relative to hip center (for twist detection)
+        const wristsToLeftSide =
+            (leftWrist.x < hipCenterX - 50) &&
+            (rightWrist.x < hipCenterX - 50);
+
+        const wristsToRightSide =
+            (leftWrist.x > hipCenterX + 50) &&
+            (rightWrist.x > hipCenterX + 50);
+
+        // Check if V-sit position (knees up)
+        const shoulderToHipY = (leftShoulder.y + rightShoulder.y) / 2 - (leftHip.y + rightHip.y) / 2;
+        const isVSitPosition = Math.abs(shoulderToHipY) < 50; // Shoulders and hips at similar height
+
+        let feedback = "";
+
+        if (!isVSitPosition) {
+            feedback = "Sit in V position with knees bent";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        // Detect twists and count reps
+        if (wristsToLeftSide && this.twistSide !== 'left') {
+            if (this.twistSide === 'right') {
+                this.repCounter++;
+                feedback = "Good rep!";
+            } else {
+                feedback = "Twist to the right side";
+            }
+            this.twistSide = 'left';
+        } else if (wristsToRightSide && this.twistSide !== 'right') {
+            if (this.twistSide === 'left') {
+                this.repCounter++;
+                feedback = "Good rep!";
+            } else {
+                feedback = "Twist to the left side";
+            }
+            this.twistSide = 'right';
+        } else if (this.twistSide === 'center') {
+            feedback = "Start twisting to either side";
+        } else if (this.twistSide === 'left') {
+            feedback = "Twist to the right side";
+        } else {
+            feedback = "Twist to the left side";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectTricepExtension(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Calculate elbow angle for tricep extension
+        const leftElbowAngle = calculateAngle(
+            [leftShoulder.x, leftShoulder.y],
+            [leftElbow.x, leftElbow.y],
+            [leftWrist.x, leftWrist.y]
+        );
+
+        const rightElbowAngle = calculateAngle(
+            [rightShoulder.x, rightShoulder.y],
+            [rightElbow.x, rightElbow.y],
+            [rightWrist.x, rightWrist.y]
+        );
+
+        // Check if elbows are positioned above shoulders (proper tricep extension position)
+        const elbowsOverhead =
+            (leftElbow.y < leftShoulder.y) &&
+            (rightElbow.y < rightShoulder.y);
+
+        // Arms extended = large angle at elbow
+        const armsExtended =
+            (leftElbowAngle > 150 && rightElbowAngle > 150);
+
+        // Arms bent = small angle at elbow
+        const armsBent =
+            (leftElbowAngle < 90 && rightElbowAngle < 90);
+
+        let feedback = "";
+
+        if (!elbowsOverhead) {
+            feedback = "Position elbows above shoulders";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        if (armsBent && this.lastState !== 'bent') {
+            this.lastState = 'bent';
+            feedback = "Now extend arms";
+        } else if (armsExtended && this.lastState === 'bent') {
+            this.lastState = 'extended';
+            this.repCounter++;
+            feedback = "Good tricep extension!";
+        } else if (this.lastState === 'bent') {
+            feedback = "Extend arms fully";
+        } else {
+            feedback = "Bend elbows behind head";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectCurlAbductor(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Track the exercise state if not initialized
+        if (!this.curlState) this.curlState = 'start'; // start -> curl -> abduct -> start
+
+        // Calculate elbow angles
+        const leftElbowAngle = calculateAngle(
+            [leftShoulder.x, leftShoulder.y],
+            [leftElbow.x, leftElbow.y],
+            [leftWrist.x, leftWrist.y]
+        );
+
+        const rightElbowAngle = calculateAngle(
+            [rightShoulder.x, rightShoulder.y],
+            [rightElbow.x, rightElbow.y],
+            [rightWrist.x, rightWrist.y]
+        );
+
+        // Arms extended down (starting position)
+        const armsDown =
+            (leftElbowAngle > 150 && rightElbowAngle > 150) &&
+            (leftWrist.y > leftElbow.y && rightWrist.y > rightElbow.y);
+
+        // Arms curled (bicep curl position)
+        const armsCurled =
+            (leftElbowAngle < 90 && rightElbowAngle < 90);
+
+        // Arms abducted (wrists away from center line)
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const wristWidth = Math.abs(leftWrist.x - rightWrist.x);
+        const armsAbducted = wristWidth > shoulderWidth * 1.5 && armsCurled;
+
+        let feedback = "";
+
+        // State machine for curl to abductor
+        switch (this.curlState) {
+            case 'start':
+                if (armsCurled && !armsAbducted) {
+                    this.curlState = 'curl';
+                    feedback = "Good curl, now abduct arms outward";
+                } else {
+                    feedback = "Start with a bicep curl";
+                }
+                break;
+
+            case 'curl':
+                if (armsAbducted) {
+                    this.curlState = 'abduct';
+                    feedback = "Good abduction, now lower arms";
+                } else {
+                    feedback = "Abduct arms outward while keeping elbows bent";
+                }
+                break;
+
+            case 'abduct':
+                if (armsDown) {
+                    this.curlState = 'start';
+                    this.repCounter++;
+                    feedback = "Good rep! Repeat movement";
+                } else {
+                    feedback = "Lower arms to starting position";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSquatPress(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body" };
+        }
+
+        // Initialize exercise state if needed
+        if (!this.squatPressState) this.squatPressState = 'stand'; // stand -> squat -> stand+press -> stand
+
+        // Detect squat by knee angles and hip position
+        const leftKneeAngle = calculateAngle(
+            [leftHip.x, leftHip.y],
+            [leftKnee.x, leftKnee.y],
+            [leftAnkle.x, leftAnkle.y]
+        );
+
+        const rightKneeAngle = calculateAngle(
+            [rightHip.x, rightHip.y],
+            [rightKnee.x, rightKnee.y],
+            [rightAnkle.x, rightAnkle.y]
+        );
+
+        const isSquatting = (leftKneeAngle < 120 && rightKneeAngle < 120);
+
+        // Detect shoulder press by wrist position relative to shoulders
+        const wristsAboveShoulders =
+            (leftWrist.y < leftShoulder.y - 50) &&
+            (rightWrist.y < rightShoulder.y - 50);
+
+        let feedback = "";
+
+        // State machine for squat to press
+        switch (this.squatPressState) {
+            case 'stand':
+                if (isSquatting) {
+                    this.squatPressState = 'squat';
+                    feedback = "Good squat, now stand and press";
+                } else {
+                    feedback = "Start with a squat";
+                }
+                break;
+
+            case 'squat':
+                if (!isSquatting && wristsAboveShoulders) {
+                    this.squatPressState = 'press';
+                    feedback = "Good press, complete the rep";
+                } else if (!isSquatting) {
+                    feedback = "Stand and press weights overhead";
+                } else {
+                    feedback = "Stand up from squat position";
+                }
+                break;
+
+            case 'press':
+                if (!wristsAboveShoulders) {
+                    this.squatPressState = 'stand';
+                    this.repCounter++;
+                    feedback = "Good rep! Repeat movement";
+                } else {
+                    feedback = "Lower weights to shoulder level";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSingleSnatch(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track full body" };
+        }
+
+        // Initialize state tracking for active arm and exercise phase
+        if (!this.snatchArm) this.snatchArm = 'none'; // none, left, right
+        if (!this.snatchState) this.snatchState = 'start'; // start -> snatch -> press -> start
+
+        // Detect low position (starting)
+        const leftWristLow = leftWrist.y > leftHip.y;
+        const rightWristLow = rightWrist.y > rightHip.y;
+
+        // Detect shoulder level position (snatch)
+        const leftWristAtShoulder = Math.abs(leftWrist.y - leftShoulder.y) < 30;
+        const rightWristAtShoulder = Math.abs(rightWrist.y - rightShoulder.y) < 30;
+
+        // Detect overhead position (press)
+        const leftWristOverhead = leftWrist.y < leftShoulder.y - 50;
+        const rightWristOverhead = rightWrist.y < rightShoulder.y - 50;
+
+        let feedback = "";
+
+        // Determine which arm is active if not yet set
+        if (this.snatchArm === 'none') {
+            if (leftWristLow && !rightWristLow) {
+                this.snatchArm = 'left';
+                feedback = "Start snatch with left arm";
+            } else if (!leftWristLow && rightWristLow) {
+                this.snatchArm = 'right';
+                feedback = "Start snatch with right arm";
+            } else {
+                feedback = "Start with one arm low, one arm high";
+                return { repCount: this.repCounter, feedback };
+            }
+        }
+
+        // State machine for single arm snatch to press
+        if (this.snatchArm === 'left') {
+            switch (this.snatchState) {
+                case 'start':
+                    if (leftWristAtShoulder) {
+                        this.snatchState = 'snatch';
+                        feedback = "Good snatch, now press overhead";
+                    } else if (leftWristOverhead) {
+                        this.snatchState = 'press';
+                        feedback = "Now lower to complete the rep";
+                    } else {
+                        feedback = "Pull dumbbell to shoulder level";
+                    }
+                    break;
+
+                case 'snatch':
+                    if (leftWristOverhead) {
+                        this.snatchState = 'press';
+                        feedback = "Good press, now lower to complete";
+                    } else {
+                        feedback = "Press dumbbell overhead";
+                    }
+                    break;
+
+                case 'press':
+                    if (leftWristLow) {
+                        this.snatchState = 'start';
+                        this.repCounter++;
+                        feedback = "Good rep! Repeat movement";
+                    } else {
+                        feedback = "Lower dumbbell to starting position";
+                    }
+                    break;
+            }
+        } else if (this.snatchArm === 'right') {
+            switch (this.snatchState) {
+                case 'start':
+                    if (rightWristAtShoulder) {
+                        this.snatchState = 'snatch';
+                        feedback = "Good snatch, now press overhead";
+                    } else if (rightWristOverhead) {
+                        this.snatchState = 'press';
+                        feedback = "Now lower to complete the rep";
+                    } else {
+                        feedback = "Pull dumbbell to shoulder level";
+                    }
+                    break;
+
+                case 'snatch':
+                    if (rightWristOverhead) {
+                        this.snatchState = 'press';
+                        feedback = "Good press, now lower to complete";
+                    } else {
+                        feedback = "Press dumbbell overhead";
+                    }
+                    break;
+
+                case 'press':
+                    if (rightWristLow) {
+                        this.snatchState = 'start';
+                        this.repCounter++;
+                        feedback = "Good rep! Repeat movement";
+                    } else {
+                        feedback = "Lower dumbbell to starting position";
+                    }
+                    break;
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectPullOver(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track upper body" };
+        }
+
+        // Check if lying on back (shoulders and hips at similar y positions)
+        const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
+        const hipY = (leftHip.y + rightHip.y) / 2;
+        const isLyingFlat = Math.abs(shoulderY - hipY) < 30;
+
+        if (!isLyingFlat) {
+            return { repCount: this.repCounter, feedback: "Lie flat on your back" };
+        }
+
+        // Wrists position relative to shoulders for pullover motion
+        const wristsAboveChest =
+            (leftWrist.y < shoulderY - 30) &&
+            (rightWrist.y < shoulderY - 30) &&
+            (Math.abs(leftWrist.x - rightWrist.x) < 50); // Hands together
+
+        const wristsBehindHead =
+            (leftWrist.y > shoulderY + 30) &&
+            (rightWrist.y > shoulderY + 30) &&
+            (Math.abs(leftWrist.x - rightWrist.x) < 50); // Hands together
+
+        let feedback = "";
+
+        if (wristsAboveChest && this.lastState !== 'chest') {
+            this.lastState = 'chest';
+            feedback = "Good, now pull over behind head";
+        } else if (wristsBehindHead && this.lastState === 'chest') {
+            this.lastState = 'behind';
+            this.repCounter++;
+            feedback = "Good rep!";
+        } else if (this.lastState === 'chest') {
+            feedback = "Lower weight behind head";
+        } else {
+            feedback = "Raise weight above chest";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectFlyBridge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Check if in bridge position (hips elevated)
+        const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
+        const hipY = (leftHip.y + rightHip.y) / 2;
+        const hipElevated = hipY < shoulderY - 20;
+
+        // Calculate arm positions for fly movement
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const wristWidth = Math.abs(leftWrist.x - rightWrist.x);
+
+        // Arms wide (fly out)
+        const armsWide = wristWidth > shoulderWidth * 1.5;
+
+        // Arms close (fly in)
+        const armsClose = wristWidth < shoulderWidth * 0.8;
+
+        let feedback = "";
+
+        if (!hipElevated) {
+            feedback = "Lift hips into bridge position";
+            return { repCount: this.repCounter, feedback };
+        }
+
+        if (armsClose && this.lastState !== 'close') {
+            this.lastState = 'close';
+            feedback = "Good, now spread arms wide";
+        } else if (armsWide && this.lastState === 'close') {
+            this.lastState = 'wide';
+            this.repCounter++;
+            feedback = "Good rep!";
+        } else if (this.lastState === 'close') {
+            feedback = "Spread arms wide for fly";
+        } else {
+            feedback = "Bring arms together";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectOverheadCircles(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Initialize position tracking
+        if (!this.circlePositions) {
+            this.circlePositions = [];
+            this.circleQuadrants = { top: false, right: false, bottom: false, left: false };
+            this.circleComplete = false;
+        }
+
+        // Record wrist positions for tracking circle movement
+        // Use average of both wrists
+        const avgWristX = (leftWrist.x + rightWrist.x) / 2;
+        const avgWristY = (leftWrist.y + rightWrist.y) / 2;
+
+        // Add current position to history (limit history to prevent memory issues)
+        this.circlePositions.push({ x: avgWristX, y: avgWristY });
+        if (this.circlePositions.length > 30) {
+            this.circlePositions.shift();
+        }
+
+        // Calculate center point (around shoulder level)
+        const centerX = (leftShoulder.x + rightShoulder.x) / 2;
+        const centerY = (leftShoulder.y + rightShoulder.y) / 2;
+
+        // Check which quadrant the arms are in relative to center
+        const inTopQuadrant = avgWristY < centerY - 50;
+        const inRightQuadrant = avgWristX > centerX + 50;
+        const inBottomQuadrant = avgWristY > centerY + 50;
+        const inLeftQuadrant = avgWristX < centerX - 50;
+
+        // Track if wrists have moved through each quadrant
+        if (inTopQuadrant) this.circleQuadrants.top = true;
+        if (inRightQuadrant) this.circleQuadrants.right = true;
+        if (inBottomQuadrant) this.circleQuadrants.bottom = true;
+        if (inLeftQuadrant) this.circleQuadrants.left = true;
+
+        // Check if a complete circle has been made
+        const hasCompletedCircle =
+            this.circleQuadrants.top &&
+            this.circleQuadrants.right &&
+            this.circleQuadrants.bottom &&
+            this.circleQuadrants.left;
+
+        let feedback = "";
+
+        if (hasCompletedCircle && !this.circleComplete) {
+            this.circleComplete = true;
+            this.repCounter++;
+            feedback = "Good circle!";
+
+            // Reset for next circle
+            this.circleQuadrants = { top: false, right: false, bottom: false, left: false };
+            setTimeout(() => {
+                this.circleComplete = false;
+            }, 500);
+        } else if (!hasCompletedCircle) {
+            // Provide feedback on which direction to move
+            if (!this.circleQuadrants.top) {
+                feedback = "Raise arms overhead";
+            } else if (!this.circleQuadrants.right) {
+                feedback = "Move arms to the right";
+            } else if (!this.circleQuadrants.bottom) {
+                feedback = "Lower arms down";
+            } else if (!this.circleQuadrants.left) {
+                feedback = "Move arms to the left";
+            } else {
+                feedback = "Continue the circular motion";
+            }
+        } else {
+            feedback = "Continue making circles";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectLRotation(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftWrist || !rightWrist || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Initialize L-shape detection for each arm
+        if (!this.lRotationState) {
+            this.lRotationState = {
+                left: 'none', // none, l-shape, rotated
+                right: 'none',
+                leftComplete: false,
+                rightComplete: false
+            };
+        }
+
+        // Detect L-shape for both arms
+        // Left arm L-shape: elbow bent at ~90 degrees, upper arm horizontal
+        const leftUpperArmAngle = Math.atan2(
+            leftElbow.y - leftShoulder.y,
+            leftElbow.x - leftShoulder.x
+        ) * 180 / Math.PI;
+
+        const leftLowerArmAngle = Math.atan2(
+            leftWrist.y - leftElbow.y,
+            leftWrist.x - leftElbow.x
+        ) * 180 / Math.PI;
+
+        // Normalize angles to 0-360
+        const normLeftUpper = (leftUpperArmAngle + 360) % 360;
+        const normLeftLower = (leftLowerArmAngle + 360) % 360;
+
+        // L-shape: upper arm horizontal (0 or 180 ±30°), lower arm vertical (90 or 270 ±30°)
+        const isLeftLShape =
+            ((Math.abs(normLeftUpper - 0) < 30 || Math.abs(normLeftUpper - 180) < 30) &&
+                (Math.abs(normLeftLower - 90) < 30 || Math.abs(normLeftLower - 270) < 30));
+
+        // Rotated: both upper and lower arm not in L formation
+        const isLeftRotated = !isLeftLShape;
+
+        // Right arm calculations (similar logic)
+        const rightUpperArmAngle = Math.atan2(
+            rightElbow.y - rightShoulder.y,
+            rightElbow.x - rightShoulder.x
+        ) * 180 / Math.PI;
+
+        const rightLowerArmAngle = Math.atan2(
+            rightWrist.y - rightElbow.y,
+            rightWrist.x - rightElbow.x
+        ) * 180 / Math.PI;
+
+        const normRightUpper = (rightUpperArmAngle + 360) % 360;
+        const normRightLower = (rightLowerArmAngle + 360) % 360;
+
+        const isRightLShape =
+            ((Math.abs(normRightUpper - 0) < 30 || Math.abs(normRightUpper - 180) < 30) &&
+                (Math.abs(normRightLower - 90) < 30 || Math.abs(normRightLower - 270) < 30));
+
+        const isRightRotated = !isRightLShape;
+
+        let feedback = "";
+
+        // State machines for L rotation detection
+        // Left arm
+        if (isLeftLShape && this.lRotationState.left === 'none') {
+            this.lRotationState.left = 'l-shape';
+            feedback = "Good L position with left arm, now rotate";
+        } else if (isLeftRotated && this.lRotationState.left === 'l-shape') {
+            this.lRotationState.left = 'rotated';
+            feedback = "Good rotation with left arm";
+        } else if (isLeftLShape && this.lRotationState.left === 'rotated') {
+            this.lRotationState.left = 'l-shape';
+            this.lRotationState.leftComplete = true;
+            feedback = "Left arm rotation complete";
+        }
+
+        // Right arm
+        if (isRightLShape && this.lRotationState.right === 'none') {
+            this.lRotationState.right = 'l-shape';
+            feedback = "Good L position with right arm, now rotate";
+        } else if (isRightRotated && this.lRotationState.right === 'l-shape') {
+            this.lRotationState.right = 'rotated';
+            feedback = "Good rotation with right arm";
+        } else if (isRightLShape && this.lRotationState.right === 'rotated') {
+            this.lRotationState.right = 'l-shape';
+            this.lRotationState.rightComplete = true;
+            feedback = "Right arm rotation complete";
+        }
+
+        // Count rep when both arms complete rotation
+        if (this.lRotationState.leftComplete && this.lRotationState.rightComplete) {
+            this.repCounter++;
+            this.lRotationState.leftComplete = false;
+            this.lRotationState.rightComplete = false;
+            feedback = "Good rep! Repeat L rotations";
+        } else if (this.lRotationState.left === 'none' && this.lRotationState.right === 'none') {
+            feedback = "Form L shapes with both arms";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSideFrontRaise(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+
+        if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder || !leftElbow || !rightElbow) {
+            return { repCount: this.repCounter, feedback: "Cannot track arms" };
+        }
+
+        // Initialize state tracking
+        if (!this.raiseState) {
+            this.raiseState = 'down'; // down -> side -> front -> down
+        }
+
+        // Arms at sides (starting position)
+        const armsDown =
+            (leftWrist.y > leftShoulder.y + 50) &&
+            (rightWrist.y > rightShoulder.y + 50);
+
+        // Arms raised to sides (side raise)
+        const armsSideRaise =
+            Math.abs(leftWrist.y - leftShoulder.y) < 30 &&
+            Math.abs(rightWrist.y - rightShoulder.y) < 30 &&
+            leftWrist.x < leftShoulder.x - 30 &&
+            rightWrist.x > rightShoulder.x + 30;
+
+        // Arms raised to front (front raise)
+        const shoulderMidpointX = (leftShoulder.x + rightShoulder.x) / 2;
+        const armsFrontRaise =
+            Math.abs(leftWrist.y - leftShoulder.y) < 30 &&
+            Math.abs(rightWrist.y - rightShoulder.y) < 30 &&
+            Math.abs(leftWrist.x - shoulderMidpointX) < 50 &&
+            Math.abs(rightWrist.x - shoulderMidpointX) < 50;
+
+        let feedback = "";
+
+        // State machine for side to front raise
+        switch (this.raiseState) {
+            case 'down':
+                if (armsSideRaise) {
+                    this.raiseState = 'side';
+                    feedback = "Good side raise, now bring arms to front";
+                } else if (armsFrontRaise) {
+                    this.raiseState = 'front';
+                    feedback = "Good front raise, now lower arms";
+                } else {
+                    feedback = "Start with arms at sides, then raise to shoulder height";
+                }
+                break;
+
+            case 'side':
+                if (armsFrontRaise) {
+                    this.raiseState = 'front';
+                    feedback = "Good transition to front, now lower arms";
+                } else if (armsDown) {
+                    this.raiseState = 'down';
+                    feedback = "Raise arms to the side first";
+                } else {
+                    feedback = "Bring arms forward to shoulder height";
+                }
+                break;
+
+            case 'front':
+                if (armsDown) {
+                    this.raiseState = 'down';
+                    this.repCounter++;
+                    feedback = "Good rep! Repeat movement";
+                } else {
+                    feedback = "Lower arms to complete the rep";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
     //------------------------------------------------------------------------------
     // ================== BODYWEIGHT/WEIGHTFREE TRAINING EXERCISES ================
     //------------------------------------------------------------------------------
+
+    detectPlank(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) {
+            return { timeHeld: this.timer, feedback: "Cannot track body position" };
+        }
+
+        // Calculate body angle to check if body is straight
+        const shoulderMidpoint = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const hipMidpoint = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const ankleMidpoint = {
+            x: (leftAnkle.x + rightAnkle.x) / 2,
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        // Check if shoulders, hips, and ankles form a straight line
+        const shoulderToHipAngle = Math.atan2(hipMidpoint.y - shoulderMidpoint.y, hipMidpoint.x - shoulderMidpoint.x);
+        const hipToAnkleAngle = Math.atan2(ankleMidpoint.y - hipMidpoint.y, ankleMidpoint.x - hipMidpoint.x);
+
+        const angleDifference = Math.abs(shoulderToHipAngle - hipToAnkleAngle);
+
+        // Check if body is parallel to ground
+        const isHorizontal = Math.abs(hipMidpoint.y - shoulderMidpoint.y) < 0.15; // Allowing slight variation
+
+        let feedback = "";
+
+        if (angleDifference < 0.15 && isHorizontal) { // Proper plank form
+            this.timer += this.frameTime;
+            feedback = "Good plank form!";
+        } else if (!isHorizontal) {
+            this.timer = 0;
+            feedback = "Keep your body parallel to the ground";
+        } else {
+            this.timer = 0;
+            feedback = "Straighten your body";
+        }
+
+        return { timeHeld: this.timer, feedback };
+    }
+
+    detectHipBridgeHold(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { timeHeld: this.timer, feedback: "Cannot track body position" };
+        }
+
+        // Calculate midpoints
+        const shoulderMidpoint = {
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const hipMidpoint = {
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const kneeMidpoint = {
+            y: (leftKnee.y + rightKnee.y) / 2
+        };
+
+        // Hip bridge requires hips to be elevated above knees and shoulders
+        const isHipElevated = hipMidpoint.y < shoulderMidpoint.y && hipMidpoint.y < kneeMidpoint.y;
+
+        // Calculate hip to knee angle to ensure proper form
+        const leftHipKneeAngle = calculateAngle(leftHip, leftKnee, leftShoulder);
+        const rightHipKneeAngle = calculateAngle(rightHip, rightKnee, rightShoulder);
+
+        // Proper hip bridge should have approximately 90 degree angles at knees
+        const properKneeAngle = (Math.abs(leftHipKneeAngle - 90) < 20) && (Math.abs(rightHipKneeAngle - 90) < 20);
+
+        let feedback = "";
+
+        if (isHipElevated && properKneeAngle) {
+            this.timer += this.frameTime;
+            feedback = "Good hip bridge form!";
+        } else if (!isHipElevated) {
+            this.timer = 0;
+            feedback = "Raise your hips higher";
+        } else {
+            this.timer = 0;
+            feedback = "Adjust your knee position";
+        }
+
+        return { timeHeld: this.timer, feedback };
+    }
+
+    detectSuperman(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftWrist || !rightWrist ||
+            !leftHip || !rightHip || !leftAnkle || !rightAnkle) {
+            return { timeHeld: this.timer, feedback: "Cannot track body position" };
+        }
+
+        // Calculate midpoints
+        const shoulderMidpoint = {
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const hipMidpoint = {
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const wristMidpoint = {
+            y: (leftWrist.y + rightWrist.y) / 2
+        };
+
+        const ankleMidpoint = {
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        // Superman pose: arms and legs extended, chest and thighs off ground
+        // Arms should be extended forward (wrists above or below shoulders)
+        const armsExtended = wristMidpoint.y < shoulderMidpoint.y;
+
+        // Legs should be extended (ankles above or level with hips)
+        const legsExtended = ankleMidpoint.y <= hipMidpoint.y + 0.1;
+
+        // Chest should be lifted (shoulders above hips)
+        const chestLifted = shoulderMidpoint.y < hipMidpoint.y;
+
+        let feedback = "";
+
+        if (armsExtended && legsExtended && chestLifted) {
+            this.timer += this.frameTime;
+            feedback = "Great superman form!";
+        } else if (!armsExtended) {
+            this.timer = 0;
+            feedback = "Extend your arms forward";
+        } else if (!legsExtended) {
+            this.timer = 0;
+            feedback = "Lift your legs higher";
+        } else if (!chestLifted) {
+            this.timer = 0;
+            feedback = "Lift your chest";
+        } else {
+            this.timer = 0;
+            feedback = "Adjust your position";
+        }
+
+        return { timeHeld: this.timer, feedback };
+    }
+
+    detectFlutterKicks(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { timeHeld: this.timer, feedback: "Cannot track legs" };
+        }
+
+        // Calculate the vertical difference between ankles (to detect alternating leg movement)
+        const ankleYDifference = Math.abs(leftAnkle.y - rightAnkle.y);
+
+        // Ensure legs are relatively straight
+        const leftLegStraightness = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightLegStraightness = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        const legsAreRelativelyStraight = leftLegStraightness > 160 && rightLegStraightness > 160;
+
+        // Check that legs are low (flutter kicks are typically performed close to ground)
+        const hipMidpoint = {
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const ankleMidpoint = {
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        const legsLowEnough = ankleMidpoint.y > hipMidpoint.y;
+
+        // Flutter kicks require alternating legs with appropriate distance between them
+        const properAlternatingMovement = ankleYDifference > 0.1 && ankleYDifference < 0.4;
+
+        let feedback = "";
+
+        if (legsAreRelativelyStraight && legsLowEnough && properAlternatingMovement) {
+            this.timer += this.frameTime;
+
+            // Track movement speed
+            if (this.previousAnkleDifference &&
+                ((this.previousAnkleDifference < 0.1 && ankleYDifference > 0.2) ||
+                    (this.previousAnkleDifference > 0.2 && ankleYDifference < 0.1))) {
+                this.kickCounter++;
+            }
+
+            this.previousAnkleDifference = ankleYDifference;
+
+            const kicksPerSecond = this.kickCounter / (this.timer / 1000);
+
+            if (kicksPerSecond < 0.5) {
+                feedback = "Speed up your kicks";
+            } else if (kicksPerSecond > 3) {
+                feedback = "Good pace, maintain control";
+            } else {
+                feedback = "Good flutter kicks!";
+            }
+        } else if (!legsAreRelativelyStraight) {
+            this.timer = 0;
+            feedback = "Keep your legs straighter";
+        } else if (!legsLowEnough) {
+            this.timer = 0;
+            feedback = "Keep your legs lower";
+        } else {
+            this.timer = 0;
+            feedback = "Alternate legs with small movements";
+        }
+
+        return { timeHeld: this.timer, kickCount: this.kickCounter, feedback };
+    }
+
+    detectWindshieldWipers(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { timeHeld: this.timer, feedback: "Cannot track legs" };
+        }
+
+        // Calculate hip midpoint
+        const hipMidpoint = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        // Calculate ankle midpoint
+        const ankleMidpoint = {
+            x: (leftAnkle.x + rightAnkle.x) / 2,
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        // For windshield wipers, legs should be extended and moving side to side
+        // Check leg extension
+        const leftLegExtension = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightLegExtension = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        const legsExtended = leftLegExtension > 150 && rightLegExtension > 150;
+
+        // Check lateral movement (x-axis difference between current and previous position)
+        if (!this.previousAnkleMidpoint) {
+            this.previousAnkleMidpoint = ankleMidpoint;
+        }
+
+        const lateralMovement = Math.abs(ankleMidpoint.x - this.previousAnkleMidpoint.x);
+
+        // Track the direction of movement
+        const movingRight = ankleMidpoint.x > this.previousAnkleMidpoint.x;
+
+        // If direction changes, increment wiper count
+        if (this.lastWiperDirection !== undefined && this.lastWiperDirection !== movingRight) {
+            this.wiperCount++;
+        }
+
+        this.lastWiperDirection = movingRight;
+        this.previousAnkleMidpoint = ankleMidpoint;
+
+        let feedback = "";
+
+        if (legsExtended && lateralMovement > 0.01) {
+            this.timer += this.frameTime;
+
+            if (lateralMovement < 0.05) {
+                feedback = "Increase your range of motion";
+            } else if (this.wiperCount / (this.timer / 1000) < 0.3) {
+                feedback = "Try to move a bit faster";
+            } else {
+                feedback = "Good windshield wipers!";
+            }
+        } else if (!legsExtended) {
+            this.timer = 0;
+            feedback = "Keep your legs more extended";
+        } else {
+            this.timer = 0;
+            feedback = "Move your legs side to side";
+        }
+
+        return { timeHeld: this.timer, wiperCount: this.wiperCount, feedback };
+    }
+
+    detectSidePlankDips(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { timeHeld: this.timer, feedback: "No data" };
+
+        // For side plank, we need to detect which side the person is facing
+        // We'll check shoulder alignment to determine this
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftAnkle || !rightAnkle) {
+            return { timeHeld: this.timer, feedback: "Cannot track body position" };
+        }
+
+        // Determine which side the plank is on by checking which shoulder is more visible
+        const isLeftSidePlank = leftShoulder.score > rightShoulder.score;
+
+        // Reference points based on the side
+        const topShoulder = isLeftSidePlank ? rightShoulder : leftShoulder;
+        const bottomShoulder = isLeftSidePlank ? leftShoulder : rightShoulder;
+        const topHip = isLeftSidePlank ? rightHip : leftHip;
+        const bottomHip = isLeftSidePlank ? leftHip : rightHip;
+        const topAnkle = isLeftSidePlank ? rightAnkle : leftAnkle;
+        const bottomAnkle = isLeftSidePlank ? leftAnkle : rightAnkle;
+
+        // Check if body is aligned for side plank
+        const shoulderHipAlignment = Math.abs(topShoulder.x - topHip.x) < 0.15;
+        const hipAnkleAlignment = Math.abs(topHip.x - topAnkle.x) < 0.2;
+
+        // Track hip height for dips
+        if (!this.previousHipHeight) {
+            this.previousHipHeight = topHip.y;
+            this.lowestHipPosition = topHip.y;
+            this.highestHipPosition = topHip.y;
+        }
+
+        // Update highest and lowest points
+        if (topHip.y < this.highestHipPosition) {
+            this.highestHipPosition = topHip.y;
+        }
+
+        if (topHip.y > this.lowestHipPosition) {
+            this.lowestHipPosition = topHip.y;
+        }
+
+        // Calculate dip range
+        const dipRange = Math.abs(this.highestHipPosition - this.lowestHipPosition);
+
+        // Detect direction change for counting dips
+        const movingDown = topHip.y > this.previousHipHeight;
+
+        if (this.lastDipDirection !== undefined && this.lastDipDirection !== movingDown) {
+            if (!movingDown) { // Changing from down to up completes a dip
+                this.dipCount++;
+            }
+        }
+
+        this.lastDipDirection = movingDown;
+        this.previousHipHeight = topHip.y;
+
+        let feedback = "";
+
+        if (shoulderHipAlignment && hipAnkleAlignment) {
+            this.timer += this.frameTime;
+
+            if (dipRange < 0.05) {
+                feedback = "Increase your hip dip range";
+            } else if (this.dipCount / (this.timer / 1000) < 0.2) {
+                feedback = "Try to dip at a steady pace";
+            } else {
+                feedback = `Good side plank dips on ${isLeftSidePlank ? 'left' : 'right'} side!`;
+            }
+        } else if (!shoulderHipAlignment) {
+            this.timer = 0;
+            feedback = "Align your shoulders and hips";
+        } else if (!hipAnkleAlignment) {
+            this.timer = 0;
+            feedback = "Keep your body in a straight line";
+        } else {
+            this.timer = 0;
+            feedback = "Adjust your side plank position";
+        }
+
+        return { timeHeld: this.timer, dipCount: this.dipCount, feedback };
+    }
 
     detectPushUp(keypoints) {
         const smoothedKeypoints = this.getSmoothedKeypoints();
@@ -6955,6 +9294,1926 @@ class WorkoutPoseDetector {
             feedback = "Push back up";
         } else if (angle > 120) {
             feedback = "Lower your body";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectRussianTwistBodyweight(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftShoulder || !rightShoulder || !leftWrist || !rightWrist || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track upper body" };
+        }
+
+        // Calculate midpoints
+        const shoulderMidpoint = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        const hipMidpoint = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const wristMidpoint = {
+            x: (leftWrist.x + rightWrist.x) / 2,
+            y: (leftWrist.y + rightWrist.y) / 2
+        };
+
+        // For Russian twists, we need to detect the rotational movement
+        // Track the lateral position of wrists relative to shoulders
+        const wristShoulderXOffset = wristMidpoint.x - shoulderMidpoint.x;
+
+        // Track direction of rotation
+        if (this.lastWristOffset === undefined) {
+            this.lastWristOffset = wristShoulderXOffset;
+            this.maxRightRotation = 0;
+            this.maxLeftRotation = 0;
+        }
+
+        // Update maximum rotation extents
+        if (wristShoulderXOffset > this.maxRightRotation) {
+            this.maxRightRotation = wristShoulderXOffset;
+        }
+
+        if (wristShoulderXOffset < this.maxLeftRotation) {
+            this.maxLeftRotation = wristShoulderXOffset;
+        }
+
+        // Calculate rotation range
+        const rotationRange = this.maxRightRotation - this.maxLeftRotation;
+
+        // Detect direction change for counting reps
+        const isRotatingRight = wristShoulderXOffset > this.lastWristOffset;
+
+        // Check if seated in V position (torso leaning back)
+        const isSeated = shoulderMidpoint.y > hipMidpoint.y - 0.1;
+
+        // Check if direction changed and passed midpoint (half rep)
+        if (this.lastRotationDirection !== undefined &&
+            this.lastRotationDirection !== isRotatingRight &&
+            ((isRotatingRight && wristShoulderXOffset > 0) ||
+                (!isRotatingRight && wristShoulderXOffset < 0))) {
+
+            this.halfRepCounter++;
+
+            // Two half reps make one full rep
+            if (this.halfRepCounter % 2 === 0) {
+                this.repCounter++;
+            }
+        }
+
+        this.lastRotationDirection = isRotatingRight;
+        this.lastWristOffset = wristShoulderXOffset;
+
+        let feedback = "";
+
+        if (isSeated) {
+            if (rotationRange < 0.2) {
+                feedback = "Rotate further to each side";
+            } else if (Math.abs(wristShoulderXOffset) < 0.05) {
+                feedback = "Twist to the side";
+            } else if (isRotatingRight) {
+                feedback = "Twisting right";
+            } else {
+                feedback = "Twisting left";
+            }
+        } else {
+            feedback = "Lean back in V-sit position";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectLegRaiseThrust(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle ||
+            !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Calculate midpoints
+        const hipMidpoint = {
+            x: (leftHip.x + rightHip.x) / 2,
+            y: (leftHip.y + rightHip.y) / 2
+        };
+
+        const kneeMidpoint = {
+            x: (leftKnee.x + rightKnee.x) / 2,
+            y: (leftKnee.y + rightKnee.y) / 2
+        };
+
+        const ankleMidpoint = {
+            x: (leftAnkle.x + rightAnkle.x) / 2,
+            y: (leftAnkle.y + rightAnkle.y) / 2
+        };
+
+        const shoulderMidpoint = {
+            x: (leftShoulder.x + rightShoulder.x) / 2,
+            y: (leftShoulder.y + rightShoulder.y) / 2
+        };
+
+        // Track leg position relative to hip
+        const legHeight = hipMidpoint.y - ankleMidpoint.y;
+
+        // Track hip thrust (hip height relative to shoulders)
+        const hipThrust = shoulderMidpoint.y - hipMidpoint.y;
+
+        // Check if legs are relatively straight
+        const leftLegStraightness = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightLegStraightness = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        const legsAreStraight = leftLegStraightness > 150 && rightLegStraightness > 150;
+
+        // Track the raising and lowering motion
+        if (this.lastLegHeight === undefined) {
+            this.lastLegHeight = legHeight;
+            this.lastHipThrust = hipThrust;
+            this.legRaisePhase = false;
+            this.hipThrustPhase = false;
+        }
+
+        const isRaisingLegs = legHeight > this.lastLegHeight;
+        const isThrusting = hipThrust > this.lastHipThrust;
+
+        // State machine for the exercise
+        // Phase 1: Leg raise
+        // Phase 2: Hip thrust
+        // Both phases must be completed for a rep
+
+        if (!this.legRaisePhase && isRaisingLegs && legHeight > 0.2) {
+            this.legRaisePhase = true;
+        } else if (this.legRaisePhase && !this.hipThrustPhase && isThrusting && hipThrust > 0.05) {
+            this.hipThrustPhase = true;
+        } else if (this.legRaisePhase && this.hipThrustPhase && !isRaisingLegs && !isThrusting &&
+            legHeight < 0.1 && hipThrust < 0.02) {
+            // Complete rep when legs are lowered and hips return to ground
+            this.repCounter++;
+            this.legRaisePhase = false;
+            this.hipThrustPhase = false;
+        }
+
+        this.lastLegHeight = legHeight;
+        this.lastHipThrust = hipThrust;
+
+        let feedback = "";
+
+        if (legsAreStraight) {
+            if (!this.legRaisePhase) {
+                feedback = "Raise your legs";
+            } else if (!this.hipThrustPhase) {
+                feedback = "Now thrust your hips upward";
+            } else {
+                feedback = "Great form! Lower slowly";
+            }
+        } else {
+            feedback = "Keep your legs straighter";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectChairSquat(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate hip height
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate knee height
+        const kneeHeight = (leftKnee.y + rightKnee.y) / 2;
+
+        // Calculate ankle height
+        const ankleHeight = (leftAnkle.y + rightAnkle.y) / 2;
+
+        // Calculate knee angle (to detect squat depth)
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const kneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        // Chair squat is detected by tracking vertical hip movement and knee angle
+        // Deep squat should have knee angle around 90 degrees
+
+        if (this.lastHipHeight === undefined) {
+            this.lastHipHeight = hipHeight;
+            this.squatState = 'standing';
+            this.minKneeAngle = 180;
+        }
+
+        const isSquatting = hipHeight > this.lastHipHeight;
+
+        // Update minimum knee angle
+        if (kneeAngle < this.minKneeAngle) {
+            this.minKneeAngle = kneeAngle;
+        }
+
+        // State machine for squat
+        if (this.squatState === 'standing' && isSquatting && kneeAngle < 150) {
+            this.squatState = 'descending';
+        } else if (this.squatState === 'descending' && !isSquatting && this.minKneeAngle < 120) {
+            this.squatState = 'ascending';
+        } else if (this.squatState === 'ascending' && kneeAngle > 160) {
+            this.repCounter++;
+            this.squatState = 'standing';
+            this.minKneeAngle = 180;
+        }
+
+        this.lastHipHeight = hipHeight;
+
+        let feedback = "";
+
+        if (this.squatState === 'standing') {
+            feedback = "Start squatting down";
+        } else if (this.squatState === 'descending') {
+            if (kneeAngle > 120) {
+                feedback = "Squat deeper";
+            } else {
+                feedback = "Good depth, push back up";
+            }
+        } else if (this.squatState === 'ascending') {
+            feedback = "Stand up fully to complete rep";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectReverseLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Calculate horizontal distance between feet (for lunge stance)
+        const ankleDistance = Math.abs(leftAnkle.x - rightAnkle.x);
+
+        // Calculate vertical hip position
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+
+        // For reverse lunge, we need to detect:
+        // 1. Stepping back (one foot behind the other)
+        // 2. Lowering into lunge position (both knees bent)
+        // 3. Returning to standing position
+
+        if (this.lastHipHeight === undefined) {
+            this.lastHipHeight = hipHeight;
+            this.lungeState = 'standing';
+            this.minKneeAngle = 180;
+            this.maxAnkleDistance = 0;
+        }
+
+        // Update tracking variables
+        if (ankleDistance > this.maxAnkleDistance) {
+            this.maxAnkleDistance = ankleDistance;
+        }
+
+        this.minKneeAngle = Math.min(this.minKneeAngle, Math.min(leftKneeAngle, rightKneeAngle));
+
+        const isLowering = hipHeight > this.lastHipHeight;
+        const isRising = hipHeight < this.lastHipHeight && hipHeight < 0.6; // Threshold to detect rising
+
+        // State machine for lunge
+        if (this.lungeState === 'standing' && ankleDistance > 0.3 && isLowering) {
+            this.lungeState = 'stepping';
+        } else if (this.lungeState === 'stepping' && this.minKneeAngle < 120 && ankleDistance > 0.3) {
+            this.lungeState = 'lowering';
+        } else if (this.lungeState === 'lowering' && isRising) {
+            this.lungeState = 'rising';
+        } else if (this.lungeState === 'rising' && ankleDistance < 0.2 && Math.min(leftKneeAngle, rightKneeAngle) > 160) {
+            this.repCounter++;
+            this.lungeState = 'standing';
+            this.minKneeAngle = 180;
+            this.maxAnkleDistance = 0;
+        }
+
+        this.lastHipHeight = hipHeight;
+
+        let feedback = "";
+
+        if (this.lungeState === 'standing') {
+            feedback = "Step one leg back into lunge position";
+        } else if (this.lungeState === 'stepping') {
+            feedback = "Lower into lunge, bend both knees";
+        } else if (this.lungeState === 'lowering') {
+            feedback = "Good depth, push back up";
+        } else if (this.lungeState === 'rising') {
+            feedback = "Return to standing position";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectFireHydrants(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // First, detect which leg is performing the fire hydrant
+        // This is typically the leg that moves outward from the hip
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate the horizontal distance of knee from hip for both legs
+        const leftKneeOffset = Math.abs(leftKnee.x - leftHip.x);
+        const rightKneeOffset = Math.abs(rightKnee.x - rightHip.x);
+
+        // The working leg is the one with greater knee offset from hip
+        const isLeftLegWorking = leftKneeOffset > rightKneeOffset;
+
+        // Get the appropriate hip, knee, and ankle based on working leg
+        const workingHip = isLeftLegWorking ? leftHip : rightHip;
+        const workingKnee = isLeftLegWorking ? leftKnee : rightKnee;
+        const workingAnkle = isLeftLegWorking ? leftAnkle : rightAnkle;
+
+        // Calculate the vertical and horizontal offset of knee from hip
+        const kneeHorizontalOffset = Math.abs(workingKnee.x - workingHip.x);
+        const kneeVerticalOffset = Math.abs(workingKnee.y - workingHip.y);
+
+        // Calculate angle between hip and knee in horizontal plane
+        const kneeOutwardAngle = Math.atan2(kneeHorizontalOffset, kneeVerticalOffset) * (180 / Math.PI);
+
+        if (!this.maxKneeAngle) {
+            this.maxKneeAngle = 0;
+            this.minKneeAngle = 90;
+            this.fireHydrantState = 'starting';
+            this.previousLegWorking = isLeftLegWorking;
+        }
+
+        // Detect if user switched legs
+        if (this.previousLegWorking !== isLeftLegWorking) {
+            this.maxKneeAngle = 0;
+            this.minKneeAngle = 90;
+            this.fireHydrantState = 'starting';
+            this.previousLegWorking = isLeftLegWorking;
+        }
+
+        // Update max and min angles
+        if (kneeOutwardAngle > this.maxKneeAngle) {
+            this.maxKneeAngle = kneeOutwardAngle;
+        }
+
+        if (kneeOutwardAngle < this.minKneeAngle) {
+            this.minKneeAngle = kneeOutwardAngle;
+        }
+
+        // Is knee moving outward or inward
+        const isMovingOutward = kneeOutwardAngle > this.lastKneeAngle;
+
+        // State machine for fire hydrant
+        if (this.fireHydrantState === 'starting' && isMovingOutward && kneeOutwardAngle > 30) {
+            this.fireHydrantState = 'raising';
+        } else if (this.fireHydrantState === 'raising' && !isMovingOutward && this.maxKneeAngle > 45) {
+            this.fireHydrantState = 'lowering';
+        } else if (this.fireHydrantState === 'lowering' && kneeOutwardAngle < 20) {
+            this.repCounter++;
+            this.fireHydrantState = 'starting';
+            this.maxKneeAngle = 0;
+            this.minKneeAngle = 90;
+        }
+
+        this.lastKneeAngle = kneeOutwardAngle;
+
+        let feedback = "";
+
+        if (this.fireHydrantState === 'starting') {
+            feedback = `Start raising your ${isLeftLegWorking ? 'left' : 'right'} leg outward`;
+        } else if (this.fireHydrantState === 'raising') {
+            if (this.maxKneeAngle < 45) {
+                feedback = "Raise your leg higher";
+            } else {
+                feedback = "Good height, hold briefly";
+            }
+        } else if (this.fireHydrantState === 'lowering') {
+            feedback = "Lower your leg to complete the rep";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectLungePulse(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate horizontal distance between feet (for lunge stance)
+        const ankleDistance = Math.abs(leftAnkle.x - rightAnkle.x);
+
+        // Check if in lunge stance
+        const isInLungeStance = ankleDistance > 0.3;
+
+        if (!isInLungeStance) {
+            return { repCount: this.repCounter, feedback: "Get into lunge position, one foot forward" };
+        }
+
+        // Calculate vertical hip position
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+
+        // For lunge pulses, we need to detect small up and down movements while in lunge position
+        if (this.lastHipHeight === undefined) {
+            this.lastHipHeight = hipHeight;
+            this.pulseDirection = null;
+            this.pulseRange = 0;
+            this.minHipHeight = hipHeight;
+            this.maxHipHeight = hipHeight;
+        }
+
+        // Update min and max hip heights to track pulse range
+        if (hipHeight < this.minHipHeight) {
+            this.minHipHeight = hipHeight;
+        }
+
+        if (hipHeight > this.maxHipHeight) {
+            this.maxHipHeight = hipHeight;
+        }
+
+        // Calculate the pulse range
+        this.pulseRange = this.maxHipHeight - this.minHipHeight;
+
+        // Detect direction change
+        const isMovingUp = hipHeight < this.lastHipHeight;
+
+        if (this.pulseDirection === 'down' && isMovingUp) {
+            this.pulseDirection = 'up';
+
+            // Count the pulse rep (bottom of movement)
+            if (this.pulseRange > 0.02 && this.pulseRange < 0.15) {
+                this.repCounter++;
+
+                // Reset the tracking for next pulse
+                this.minHipHeight = hipHeight;
+                this.maxHipHeight = hipHeight;
+                this.pulseRange = 0;
+            }
+        } else if (this.pulseDirection === 'up' && !isMovingUp) {
+            this.pulseDirection = 'down';
+        } else if (this.pulseDirection === null) {
+            this.pulseDirection = isMovingUp ? 'up' : 'down';
+        }
+
+        this.lastHipHeight = hipHeight;
+
+        let feedback = "";
+
+        // Calculate knee angles to check lunge form
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const minKneeAngle = Math.min(leftKneeAngle, rightKneeAngle);
+
+        if (minKneeAngle > 140) {
+            feedback = "Bend your knees more";
+        } else if (this.pulseRange > 0.15) {
+            feedback = "Use smaller pulse movements";
+        } else if (this.pulseRange < 0.02) {
+            feedback = "Pulse up and down slightly";
+        } else if (this.pulseDirection === 'down') {
+            feedback = "Pulse down";
+        } else {
+            feedback = "Pulse up";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSumoSquatBodyweight(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate hip height
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate horizontal distance between feet (for sumo stance)
+        const ankleDistance = Math.abs(leftAnkle.x - rightAnkle.x);
+
+        // Sumo squat requires a wide stance
+        const isWideStance = ankleDistance > 0.3;
+
+        if (!isWideStance) {
+            return { repCount: this.repCounter, feedback: "Widen your stance for sumo position" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Check for toe position (should be turned outward in sumo)
+        // This is an approximation as we don't have direct toe keypoints
+        const leftKneeToAnkleVector = {
+            x: leftAnkle.x - leftKnee.x,
+            y: leftAnkle.y - leftKnee.y
+        };
+
+        const rightKneeToAnkleVector = {
+            x: rightAnkle.x - rightKnee.x,
+            y: rightAnkle.y - rightKnee.y
+        };
+
+        // Detect if feet are turned outward
+        const leftFootAngle = Math.atan2(leftKneeToAnkleVector.y, leftKneeToAnkleVector.x) * (180 / Math.PI);
+        const rightFootAngle = Math.atan2(rightKneeToAnkleVector.y, rightKneeToAnkleVector.x) * (180 / Math.PI);
+
+        // Feet should be pointing outward in sumo squat
+        const feetPointingOutward = (leftFootAngle < -10 && rightFootAngle > 10);
+
+        // For the squat detection
+        if (this.lastHipHeight === undefined) {
+            this.lastHipHeight = hipHeight;
+            this.squatState = 'standing';
+            this.minKneeAngle = 180;
+        }
+
+        const isSquatting = hipHeight > this.lastHipHeight;
+
+        // Update min knee angle
+        const kneeAngle = Math.min(leftKneeAngle, rightKneeAngle);
+        if (kneeAngle < this.minKneeAngle) {
+            this.minKneeAngle = kneeAngle;
+        }
+
+        // State machine for squat
+        if (this.squatState === 'standing' && isSquatting && kneeAngle < 150) {
+            this.squatState = 'descending';
+        } else if (this.squatState === 'descending' && !isSquatting && this.minKneeAngle < 120) {
+            this.squatState = 'ascending';
+        } else if (this.squatState === 'ascending' && kneeAngle > 160) {
+            this.repCounter++;
+            this.squatState = 'standing';
+            this.minKneeAngle = 180;
+        }
+
+        this.lastHipHeight = hipHeight;
+
+        let feedback = "";
+
+        if (!feetPointingOutward) {
+            feedback = "Turn your toes outward";
+        } else if (this.squatState === 'standing') {
+            feedback = "Begin squatting down with knees out";
+        } else if (this.squatState === 'descending') {
+            if (kneeAngle > 120) {
+                feedback = "Squat deeper, knees out";
+            } else {
+                feedback = "Good depth, push through heels";
+            }
+        } else if (this.squatState === 'ascending') {
+            feedback = "Stand tall to complete rep";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectCurtsyLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate hip height for vertical movement tracking
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+
+        // Detect which leg is crossing behind (the working leg in curtsy lunge)
+        // In a curtsy lunge, one leg crosses behind the other
+        const ankleXDifference = leftAnkle.x - rightAnkle.x;
+        const kneeXDifference = leftKnee.x - rightKnee.x;
+
+        // If ankle and knee x-positions don't align in same order, a leg is likely crossing
+        const isCrossed = (ankleXDifference * kneeXDifference) < 0;
+
+        if (!isCrossed) {
+            return { repCount: this.repCounter, feedback: "Cross one leg behind the other for curtsy position" };
+        }
+
+        // Determine which leg is crossing behind
+        const isLeftLegCrossing = Math.abs(leftAnkle.x - rightHip.x) < Math.abs(rightAnkle.x - leftHip.x);
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Track vertical movement for curtsy lunge
+        if (this.lastHipHeight === undefined) {
+            this.lastHipHeight = hipHeight;
+            this.curtsyState = 'standing';
+            this.minKneeAngle = 180;
+            this.previousLegCrossing = isLeftLegCrossing;
+        }
+
+        // Detect if user switched legs
+        if (this.previousLegCrossing !== isLeftLegCrossing) {
+            this.curtsyState = 'standing';
+            this.minKneeAngle = 180;
+            this.previousLegCrossing = isLeftLegCrossing;
+        }
+
+        const isLowering = hipHeight > this.lastHipHeight;
+
+        // Update min knee angle
+        const frontKneeAngle = isLeftLegCrossing ? rightKneeAngle : leftKneeAngle;
+        if (frontKneeAngle < this.minKneeAngle) {
+            this.minKneeAngle = frontKneeAngle;
+        }
+
+        // State machine for curtsy lunge
+        if (this.curtsyState === 'standing' && isLowering && frontKneeAngle < 150) {
+            this.curtsyState = 'lowering';
+        } else if (this.curtsyState === 'lowering' && !isLowering && this.minKneeAngle < 120) {
+            this.curtsyState = 'rising';
+        } else if (this.curtsyState === 'rising' && frontKneeAngle > 160) {
+            this.repCounter++;
+            this.curtsyState = 'standing';
+            this.minKneeAngle = 180;
+        }
+
+        this.lastHipHeight = hipHeight;
+
+        let feedback = "";
+
+        if (this.curtsyState === 'standing') {
+            feedback = `Lower into curtsy with ${isLeftLegCrossing ? 'left' : 'right'} leg behind`;
+        } else if (this.curtsyState === 'lowering') {
+            if (frontKneeAngle > 120) {
+                feedback = "Lower deeper, keep front knee aligned";
+            } else {
+                feedback = "Good depth, hold briefly";
+            }
+        } else if (this.curtsyState === 'rising') {
+            feedback = "Stand tall to complete rep";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSquatPulse(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angle (angle between hip, knee, and ankle)
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+        const avgKneeAngle = (leftKneeAngle + rightKneeAngle) / 2;
+
+        let feedback = "";
+
+        // For squat pulse, we're looking for small changes in knee angle in the squatted position
+        // Define squatted position as knee angle around 100-140 degrees
+        if (avgKneeAngle > 100 && avgKneeAngle < 140) {
+            // Track small changes in angle for pulses
+            if (!this.lastKneeAngle) {
+                this.lastKneeAngle = avgKneeAngle;
+            }
+
+            // Detect pulse based on change in knee angle direction
+            const angleChange = avgKneeAngle - this.lastKneeAngle;
+
+            // Detect change in direction for pulse
+            if (angleChange > 5 && this.lastDirection === 'down') {
+                this.lastDirection = 'up';
+                this.repCounter++;
+                feedback = "Good pulse!";
+            } else if (angleChange < -5 && this.lastDirection === 'up') {
+                this.lastDirection = 'down';
+                feedback = "Ready for next pulse";
+            } else if (!this.lastDirection) {
+                this.lastDirection = angleChange > 0 ? 'up' : 'down';
+                feedback = "Maintain squat position and pulse";
+            }
+
+            this.lastKneeAngle = avgKneeAngle;
+        } else if (avgKneeAngle >= 140) {
+            feedback = "Lower down into squat position";
+            this.lastDirection = null;
+        } else {
+            feedback = "Squat too deep, come up slightly";
+            this.lastDirection = null;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectStandingLegRaise(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate the distance between ankles to detect leg raise
+        const ankleDistance = Math.sqrt(
+            Math.pow(leftAnkle.x - rightAnkle.x, 2) +
+            Math.pow(leftAnkle.y - rightAnkle.y, 2)
+        );
+
+        // Calculate hip width for normalization
+        const hipWidth = Math.abs(leftHip.x - rightHip.x);
+
+        // Normalize ankle distance with hip width
+        const normalizedDistance = ankleDistance / hipWidth;
+
+        let feedback = "";
+
+        // Check if legs are raised to the side
+        if (normalizedDistance > 2.0 && this.lastState !== 'raised') {
+            this.repCounter++;
+            this.lastState = 'raised';
+            feedback = "Good leg raise!";
+        } else if (normalizedDistance < 1.3 && this.lastState === 'raised') {
+            this.lastState = 'center';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'raised') {
+            feedback = "Bring legs together";
+        } else {
+            feedback = "Raise leg to the side";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectCalfRaises(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+        const leftHeel = getKeypointByName(smoothedKeypoints, 'left_heel');
+        const rightHeel = getKeypointByName(smoothedKeypoints, 'right_heel');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftAnkle || !rightAnkle || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Use shoulders to ankles vertical distance as reference
+        const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
+        const ankleY = (leftAnkle.y + rightAnkle.y) / 2;
+        const referenceHeight = Math.abs(shoulderY - ankleY);
+
+        // Calculate the current heel lift by checking vertical distance
+        // between ankles and heels
+        const heelLift = leftHeel && rightHeel ?
+            ((leftAnkle.y - leftHeel.y) + (rightAnkle.y - rightHeel.y)) / 2 :
+            0;
+
+        // Normalize heel lift with reference height
+        const normalizedLift = heelLift / referenceHeight;
+
+        let feedback = "";
+
+        // Detect raised heels for calf raise
+        if (normalizedLift > 0.08 && this.lastState !== 'raised') {
+            this.repCounter++;
+            this.lastState = 'raised';
+            feedback = "Good calf raise!";
+        } else if (normalizedLift < 0.03 && this.lastState === 'raised') {
+            this.lastState = 'flat';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'raised') {
+            feedback = "Lower heels to ground";
+        } else {
+            feedback = "Raise up onto toes";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectAssistedKickbacks(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // For kickbacks, we need to detect which leg is being used
+        // For simplicity, let's track both legs and detect the one that's moving more
+
+        // Calculate angles between hip, knee, and ankle for both legs
+        const leftLegAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightLegAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Store the previous angles if not stored
+        if (!this.prevLeftAngle) this.prevLeftAngle = leftLegAngle;
+        if (!this.prevRightAngle) this.prevRightAngle = rightLegAngle;
+
+        // Calculate change in angles
+        const leftAngleChange = Math.abs(leftLegAngle - this.prevLeftAngle);
+        const rightAngleChange = Math.abs(rightLegAngle - this.prevRightAngle);
+
+        // Determine which leg is active
+        const activeLeg = leftAngleChange > rightAngleChange ? 'left' : 'right';
+        const activeAngle = activeLeg === 'left' ? leftLegAngle : rightLegAngle;
+
+        let feedback = "";
+
+        // Kickback is detected when leg is extended (angle close to 180 degrees)
+        if (activeAngle > 160 && this.lastState !== 'extended') {
+            this.repCounter++;
+            this.lastState = 'extended';
+            feedback = `Good kickback with ${activeLeg} leg!`;
+        } else if (activeAngle < 130 && this.lastState === 'extended') {
+            this.lastState = 'bent';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'extended') {
+            feedback = "Bring leg back";
+        } else {
+            feedback = "Extend leg back";
+        }
+
+        // Update previous angles
+        this.prevLeftAngle = leftLegAngle;
+        this.prevRightAngle = rightLegAngle;
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectClockLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate center point between hips
+        const centerX = (leftHip.x + rightHip.x) / 2;
+        const centerY = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate angle of each ankle relative to center
+        const leftAnkleAngle = Math.atan2(leftAnkle.y - centerY, leftAnkle.x - centerX) * 180 / Math.PI;
+        const rightAnkleAngle = Math.atan2(rightAnkle.y - centerY, rightAnkle.x - centerX) * 180 / Math.PI;
+
+        // Normalize angles to 0-360
+        const normalizedLeftAngle = (leftAnkleAngle + 360) % 360;
+        const normalizedRightAngle = (rightAnkleAngle + 360) % 360;
+
+        // Calculate knee angles to detect proper lunge depth
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Track the "clock positions" that have been completed
+        if (!this.clockPositions) {
+            this.clockPositions = new Set();
+        }
+
+        // Define clock positions (typically 12, 3, 6, 9 for simplified clock lunges)
+        const clockPositions = {
+            12: { min: 345, max: 15 },
+            3: { min: 75, max: 105 },
+            6: { min: 165, max: 195 },
+            9: { min: 255, max: 285 }
+        };
+
+        let currentPosition = null;
+        let feedback = "";
+
+        // Check if either leg is in a clock position
+        for (const [position, angles] of Object.entries(clockPositions)) {
+            // Special case for position 12 which crosses 0/360 boundary
+            if (position === '12') {
+                if ((normalizedLeftAngle >= angles.min || normalizedLeftAngle <= angles.max) ||
+                    (normalizedRightAngle >= angles.min || normalizedRightAngle <= angles.max)) {
+                    currentPosition = position;
+                    break;
+                }
+            } else {
+                if ((normalizedLeftAngle >= angles.min && normalizedLeftAngle <= angles.max) ||
+                    (normalizedRightAngle >= angles.min && normalizedRightAngle <= angles.max)) {
+                    currentPosition = position;
+                    break;
+                }
+            }
+        }
+
+        // Check if in lunge position based on knee angle
+        const inLungePosition = (leftKneeAngle < 130 || rightKneeAngle < 130);
+
+        if (currentPosition && inLungePosition) {
+            // If this is a new position
+            if (!this.clockPositions.has(currentPosition)) {
+                this.clockPositions.add(currentPosition);
+                this.repCounter++;
+                feedback = `Good lunge at ${currentPosition} o'clock!`;
+            } else {
+                feedback = `Holding ${currentPosition} o'clock position`;
+            }
+        } else if (this.lastState === 'lunge' && !inLungePosition) {
+            this.lastState = 'standing';
+            feedback = "Return to center";
+        } else if (currentPosition && !inLungePosition) {
+            feedback = `Deepen lunge at ${currentPosition} o'clock`;
+        } else {
+            feedback = "Move to next clock position";
+            this.lastState = 'standing';
+        }
+
+        // Reset positions if all clock positions completed
+        if (this.clockPositions.size >= 4) {
+            this.clockPositions.clear();
+            feedback = "Great job! Clock completed. Starting next round.";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectHipBridgeCircle(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        if (!leftHip || !rightHip || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track hips/shoulders" };
+        }
+
+        // Calculate the midpoint of hips
+        const hipMidX = (leftHip.x + rightHip.x) / 2;
+        const hipMidY = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate the midpoint of shoulders
+        const shoulderMidX = (leftShoulder.x + rightShoulder.x) / 2;
+        const shoulderMidY = (leftShoulder.y + rightShoulder.y) / 2;
+
+        // Calculate the height of hips relative to shoulders
+        // In a bridge, hips should be elevated
+        const hipHeight = shoulderMidY - hipMidY;
+
+        // Calculate shoulder width for normalization
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+
+        // Normalize hip height
+        const normalizedHeight = hipHeight / shoulderWidth;
+
+        // Track the trajectory of hips for circle detection
+        if (!this.hipPositions) {
+            this.hipPositions = [];
+        }
+
+        // Only track positions when hips are elevated (in bridge position)
+        if (normalizedHeight > 0.3) {
+            // Add current position to trajectory
+            this.hipPositions.push({ x: hipMidX, y: hipMidY });
+
+            // Keep only last 20 positions to detect recent movement
+            if (this.hipPositions.length > 20) {
+                this.hipPositions.shift();
+            }
+
+            // Detect circular motion by calculating direction changes
+            if (this.hipPositions.length >= 10) {
+                const directions = [];
+                for (let i = 2; i < this.hipPositions.length; i++) {
+                    const prev = this.hipPositions[i - 2];
+                    const curr = this.hipPositions[i];
+
+                    // Calculate direction vector
+                    const dirX = curr.x - prev.x;
+                    const dirY = curr.y - prev.y;
+
+                    // Calculate angle of movement
+                    const angle = Math.atan2(dirY, dirX) * 180 / Math.PI;
+                    directions.push((angle + 360) % 360);
+                }
+
+                // Check if directions cover at least 270 degrees (3/4 of circle)
+                const minAngle = Math.min(...directions);
+                const maxAngle = Math.max(...directions);
+                const angleRange = maxAngle - minAngle;
+
+                // If we've completed circle motion
+                if (angleRange > 270 || (this.lastCircleTime && Date.now() - this.lastCircleTime > 2000)) {
+                    this.repCounter++;
+                    this.lastCircleTime = Date.now();
+                    this.hipPositions = []; // Reset for next circle
+                    return { repCount: this.repCounter, feedback: "Great hip circle!" };
+                }
+            }
+
+            return { repCount: this.repCounter, feedback: "Continue circling hips" };
+        } else {
+            this.hipPositions = []; // Reset when not in bridge
+            return { repCount: this.repCounter, feedback: "Lift hips higher into bridge position" };
+        }
+    }
+
+    detectKneePushUp(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftShoulder || !rightShoulder || !leftElbow || !rightElbow || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track upper body" };
+        }
+
+        // Calculate elbow angles
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        // Average elbow angle
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        // Check if knees are on the ground - may need adjustment based on camera angle
+        const kneePosition = leftKnee && rightKnee ?
+            (leftKnee.y + rightKnee.y) / 2 : null;
+
+        let feedback = "";
+
+        // Knee push-up is a push-up with knees on ground
+        // Detect down position (arms bent)
+        if (avgElbowAngle < 100 && this.lastState !== 'down') {
+            this.lastState = 'down';
+            feedback = "Good depth";
+        }
+        // Detect up position (arms extended)
+        else if (avgElbowAngle > 160 && this.lastState === 'down') {
+            this.repCounter++;
+            this.lastState = 'up';
+            feedback = "Good knee push-up!";
+        }
+        // Guidance based on current position
+        else if (this.lastState === 'down') {
+            feedback = "Push up";
+        } else {
+            feedback = "Lower down";
+        }
+
+        // Check if knees are properly positioned
+        if (kneePosition && leftShoulder && rightShoulder) {
+            const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
+            if (kneePosition < shoulderY) {
+                feedback += ". Ensure knees are on ground";
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectWideNarrowPushUp(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+
+        if (!leftShoulder || !rightShoulder || !leftElbow || !rightElbow || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track upper body" };
+        }
+
+        // Calculate elbow angles to detect push-up
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        // Average elbow angle
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        // Calculate hand position (wide vs narrow)
+        const handDistance = Math.sqrt(
+            Math.pow(leftWrist.x - rightWrist.x, 2) +
+            Math.pow(leftWrist.y - rightWrist.y, 2)
+        );
+
+        // Calculate shoulder width for normalization
+        const shoulderWidth = Math.sqrt(
+            Math.pow(leftShoulder.x - rightShoulder.x, 2) +
+            Math.pow(leftShoulder.y - rightShoulder.y, 2)
+        );
+
+        // Normalize hand distance
+        const normalizedHandDistance = handDistance / shoulderWidth;
+
+        // Initialize hand position state if not set
+        if (!this.handPosition) {
+            this.handPosition = normalizedHandDistance > 1.2 ? 'wide' : 'narrow';
+        }
+
+        let feedback = "";
+
+        // Detect push-up movement
+        if (avgElbowAngle < 100 && this.lastState !== 'down') {
+            this.lastState = 'down';
+            feedback = `Good ${this.handPosition} position, now push up`;
+        }
+        else if (avgElbowAngle > 160 && this.lastState === 'down') {
+            this.repCounter++;
+            this.lastState = 'up';
+
+            // Check if hand position should change for next rep
+            if (this.handPosition === 'wide') {
+                this.handPosition = 'narrow';
+                feedback = "Good wide push-up! Now bring hands closer together";
+            } else {
+                this.handPosition = 'wide';
+                feedback = "Good narrow push-up! Now move hands wider apart";
+            }
+        }
+        // Guidance based on current state
+        else if (this.lastState === 'up') {
+            // Check if hands are in correct position for next rep
+            if ((this.handPosition === 'wide' && normalizedHandDistance < 1.2) ||
+                (this.handPosition === 'narrow' && normalizedHandDistance > 1.2)) {
+                feedback = `Adjust hand position to ${this.handPosition} stance`;
+            } else {
+                feedback = "Lower down";
+            }
+        } else {
+            feedback = "Get in push-up position";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSpidermanPushUp(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+
+        if (!leftShoulder || !rightShoulder || !leftElbow || !rightElbow || !leftWrist || !rightWrist) {
+            return { repCount: this.repCounter, feedback: "Cannot track upper body" };
+        }
+
+        // Calculate elbow angles to detect push-up
+        const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+
+        // Average elbow angle
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        // Initialize active leg if not set
+        if (!this.activeLeg) {
+            this.activeLeg = 'left';
+        }
+
+        // Calculate knee position relative to hip for each leg
+        const leftKneeToHipX = leftKnee && leftHip ? leftKnee.x - leftHip.x : 0;
+        const rightKneeToHipX = rightKnee && rightHip ? rightKnee.x - rightHip.x : 0;
+
+        // Normalize with shoulder width
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+        const normalizedLeftKneePosition = leftKneeToHipX / shoulderWidth;
+        const normalizedRightKneePosition = rightKneeToHipX / shoulderWidth;
+
+        let feedback = "";
+
+        // Check if either knee is brought forward (Spiderman style)
+        const leftKneeForward = normalizedLeftKneePosition > 0.4;
+        const rightKneeForward = normalizedRightKneePosition > 0.4;
+        const kneeIsForward = this.activeLeg === 'left' ? leftKneeForward : rightKneeForward;
+
+        // Detect push-up phases
+        if (avgElbowAngle < 100 && kneeIsForward && this.lastState !== 'down') {
+            this.lastState = 'down';
+            feedback = `Good Spiderman position with ${this.activeLeg} knee`;
+        }
+        else if (avgElbowAngle > 160 && this.lastState === 'down') {
+            this.repCounter++;
+            this.lastState = 'up';
+
+            // Switch legs for next rep
+            this.activeLeg = this.activeLeg === 'left' ? 'right' : 'left';
+            feedback = `Good Spiderman push-up! Next rep bring ${this.activeLeg} knee forward`;
+        }
+        // Provide guidance based on current state
+        else if (this.lastState === 'up' && !kneeIsForward) {
+            feedback = `Bring ${this.activeLeg} knee toward ${this.activeLeg} elbow`;
+        } else if (this.lastState === 'up' && kneeIsForward) {
+            feedback = "Lower down";
+        } else if (this.lastState === 'down') {
+            feedback = "Push up";
+        } else {
+            feedback = "Get in push-up position";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectForwardBackLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Calculate ankle distances (forward/backward)
+        const ankleDistance = Math.abs(leftAnkle.y - rightAnkle.y);
+
+        // Calculate hip width for normalization
+        const hipWidth = Math.abs(leftHip.x - rightHip.x);
+
+        // Normalize ankle distance
+        const normalizedDistance = ankleDistance / hipWidth;
+
+        // Initialize lunge stage if not set
+        if (!this.lungeStage) {
+            this.lungeStage = 'forward';
+        }
+
+        let feedback = "";
+
+        // Detect if in lunge position (one knee bent)
+        const inLungePosition = (leftKneeAngle < 130 || rightKneeAngle < 130) && normalizedDistance > 1.0;
+
+        if (inLungePosition && this.lastState !== 'lunge') {
+            this.lastState = 'lunge';
+
+            // Check which leg is forward based on ankle Y position (lower Y is forward in image)
+            const forwardLeg = leftAnkle.y < rightAnkle.y ? 'left' : 'right';
+
+            // Determine if this is a forward or backward lunge
+            if (this.lungeStage === 'forward') {
+                feedback = `Good forward lunge with ${forwardLeg} leg forward`;
+                this.lastForwardLeg = forwardLeg;
+                this.lungeStage = 'back';
+            } else {
+                // For backward lunge, opposite leg should be forward
+                if (forwardLeg !== this.lastForwardLeg) {
+                    this.repCounter++;
+                    feedback = `Good backward lunge with ${forwardLeg} leg forward`;
+                } else {
+                    feedback = `Switch legs for backward lunge`;
+                }
+                this.lungeStage = 'forward';
+            }
+        }
+        else if (!inLungePosition && this.lastState === 'lunge') {
+            this.lastState = 'standing';
+            feedback = "Return to standing position";
+        }
+        else if (this.lastState === 'standing' || !this.lastState) {
+            feedback = this.lungeStage === 'forward' ?
+                "Step forward into lunge position" :
+                "Step backward into lunge position";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectBird(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip ||
+            !leftWrist || !rightWrist || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Calculate arm extension - looking at elbows
+        const leftElbowAngle = leftElbow ? calculateAngle(leftShoulder, leftElbow, leftWrist) : 0;
+        const rightElbowAngle = rightElbow ? calculateAngle(rightShoulder, rightElbow, rightWrist) : 0;
+
+        // Calculate leg extension - looking at knees
+        const leftKneeAngle = leftKnee ? calculateAngle(leftHip, leftKnee, leftAnkle) : 0;
+        const rightKneeAngle = rightKnee ? calculateAngle(rightHip, rightKnee, rightAnkle) : 0;
+
+        // Bird pose requires opposite arm and leg to be extended
+        // For simplicity, let's check if any arm and opposite leg are extended
+        const leftArmExtended = leftElbowAngle > 160;
+        const rightArmExtended = rightElbowAngle > 160;
+        const leftLegExtended = leftKneeAngle > 160;
+        const rightLegExtended = rightKneeAngle > 160;
+
+        let feedback = "";
+
+        // Check for correct "bird" pose (opposite limbs extended)
+        const correctLeftBird = leftArmExtended && rightLegExtended;
+        const correctRightBird = rightArmExtended && leftLegExtended;
+
+        if ((correctLeftBird || correctRightBird) && this.lastState !== 'extended') {
+            this.repCounter++;
+            this.lastState = 'extended';
+            feedback = "Good bird pose!";
+        }
+        else if (!(correctLeftBird || correctRightBird) && this.lastState === 'extended') {
+            this.lastState = 'retracted';
+            feedback = "Return to starting position";
+        }
+        else if (this.lastState === 'retracted' || !this.lastState) {
+            feedback = "Extend opposite arm and leg";
+
+            // More specific feedback
+            if (leftArmExtended && !rightLegExtended) {
+                feedback = "Extend right leg while keeping left arm extended";
+            } else if (rightArmExtended && !leftLegExtended) {
+                feedback = "Extend left leg while keeping right arm extended";
+            } else if (leftLegExtended && !rightArmExtended) {
+                feedback = "Extend right arm while keeping left leg extended";
+            } else if (rightLegExtended && !leftArmExtended) {
+                feedback = "Extend left arm while keeping right leg extended";
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectBurpeePushUp(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Init state tracking if needed
+        if (!this.burpeeStage) {
+            this.burpeeStage = 'standing';
+        }
+
+        // Calculate height (vertical position) of key points
+        const shoulderHeight = (leftShoulder.y + rightShoulder.y) / 2;
+        const hipHeight = (leftHip.y + rightHip.y) / 2;
+        const kneeHeight = leftKnee && rightKnee ? (leftKnee.y + rightKnee.y) / 2 : null;
+
+        // Calculate elbow angles for push-up detection
+        const leftElbowAngle = leftElbow ? calculateAngle(leftShoulder, leftElbow, leftWrist) : 180;
+        const rightElbowAngle = rightElbow ? calculateAngle(rightShoulder, rightElbow, rightWrist) : 180;
+        const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+        let feedback = "";
+
+        // State machine for burpee to push-up
+        switch (this.burpeeStage) {
+            case 'standing':
+                // Detect squat down (hips getting lower)
+                if (hipHeight > shoulderHeight + 50) {
+                    this.burpeeStage = 'squat';
+                    feedback = "Good squat, now get into plank";
+                } else {
+                    feedback = "Squat down";
+                }
+                break;
+
+            case 'squat':
+                // Detect plank position (shoulders and hips roughly level)
+                if (Math.abs(shoulderHeight - hipHeight) < 50 &&
+                    leftWrist && rightWrist &&
+                    leftWrist.y > shoulderHeight && rightWrist.y > shoulderHeight) {
+                    this.burpeeStage = 'plank';
+                    feedback = "Good plank, now do a push-up";
+                } else {
+                    feedback = "Place hands on ground and kick legs back";
+                }
+                break;
+
+            case 'plank':
+                // Detect push-up down position
+                if (avgElbowAngle < 120) {
+                    this.burpeeStage = 'push_down';
+                    feedback = "Good push-up depth, now push up";
+                } else {
+                    feedback = "Lower chest toward ground";
+                }
+                break;
+
+            case 'push_down':
+                // Detect push-up up position
+                if (avgElbowAngle > 160) {
+                    this.burpeeStage = 'push_up';
+                    feedback = "Good push-up, now jump feet forward";
+                } else {
+                    feedback = "Push up";
+                }
+                break;
+
+            case 'push_up':
+                // Detect feet jump forward (knees close to hands)
+                if (kneeHeight &&
+                    Math.abs(kneeHeight - shoulderHeight) < 100) {
+                    this.burpeeStage = 'feet_forward';
+                    feedback = "Good, now stand up";
+                } else {
+                    feedback = "Jump feet forward toward hands";
+                }
+                break;
+
+            case 'feet_forward':
+                // Detect standing up (shoulders above hips)
+                if (shoulderHeight < hipHeight - 50) {
+                    this.burpeeStage = 'standing';
+                    this.repCounter++;
+                    feedback = "Great burpee to push-up!";
+                } else {
+                    feedback = "Stand up straight";
+                }
+                break;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSplitJackKnife(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip ||
+            !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Calculate angles and positions for split jack knife
+        // Calculate hip-shoulder angle to detect sitting up
+        const leftTorsoAngle = calculateAngle(leftHip, leftShoulder, { x: leftShoulder.x, y: leftShoulder.y - 10 });
+        const rightTorsoAngle = calculateAngle(rightHip, rightShoulder, { x: rightShoulder.x, y: rightShoulder.y - 10 });
+        const avgTorsoAngle = (leftTorsoAngle + rightTorsoAngle) / 2;
+
+        // Calculate leg spread (for split position)
+        const legSpread = Math.sqrt(
+            Math.pow(leftAnkle.x - rightAnkle.x, 2) +
+            Math.pow(leftAnkle.y - rightAnkle.y, 2)
+        );
+
+        // Normalize leg spread with hip width
+        const hipWidth = Math.sqrt(
+            Math.pow(leftHip.x - rightHip.x, 2) +
+            Math.pow(leftHip.y - rightHip.y, 2)
+        );
+        const normalizedLegSpread = legSpread / hipWidth;
+
+        let feedback = "";
+
+        // For split jack knife, we need to detect:
+        // 1. Lying down with legs together
+        // 2. Sitting up while spreading legs (the jack knife)
+
+        // Check if person is sitting up (smaller angle between torso and vertical)
+        const sittingUp = avgTorsoAngle < 45;
+        // Check if legs are spread apart
+        const legsSplit = normalizedLegSpread > 1.5;
+
+        // State machine for split jack knife
+        if (sittingUp && legsSplit && this.lastState !== 'up_split') {
+            this.repCounter++;
+            this.lastState = 'up_split';
+            feedback = "Good split jack knife!";
+        }
+        else if (!sittingUp && !legsSplit && this.lastState === 'up_split') {
+            this.lastState = 'down_closed';
+            feedback = "Good, ready for next rep";
+        }
+        else if (this.lastState === 'up_split') {
+            feedback = "Lower back down and bring legs together";
+        }
+        else if (this.lastState === 'down_closed' || !this.lastState) {
+            feedback = "Sit up while spreading legs apart";
+        }
+        else if (sittingUp && !legsSplit) {
+            feedback = "Spread legs while sitting up";
+        }
+        else if (!sittingUp && legsSplit) {
+            feedback = "Bring legs together while lying back";
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSprinterTucks(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip || !leftKnee || !rightKnee) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Init active knee if not set
+        if (!this.activeKnee) {
+            this.activeKnee = 'left';
+        }
+
+        // Calculate knee height relative to hip
+        const leftKneeHeight = leftHip.y - leftKnee.y;
+        const rightKneeHeight = rightHip.y - rightKnee.y;
+
+        // Calculate torso height for normalization
+        const torsoHeight = ((leftShoulder.y + rightShoulder.y) / 2) - ((leftHip.y + rightHip.y) / 2);
+
+        // Normalize knee heights
+        const normalizedLeftKneeHeight = leftKneeHeight / Math.abs(torsoHeight);
+        const normalizedRightKneeHeight = rightKneeHeight / Math.abs(torsoHeight);
+
+        let feedback = "";
+
+        // For sprinter tucks, we're looking for alternating knee tucks
+        // Check if active knee is tucked
+        const leftKneeTucked = normalizedLeftKneeHeight > 0.6;
+        const rightKneeTucked = normalizedRightKneeHeight > 0.6;
+        const activeTucked = this.activeKnee === 'left' ? leftKneeTucked : rightKneeTucked;
+
+        if (activeTucked && this.lastState !== 'tucked') {
+            this.repCounter++;
+            this.lastState = 'tucked';
+
+            // Switch active knee for next rep
+            feedback = `Good ${this.activeKnee} knee tuck!`;
+            this.activeKnee = this.activeKnee === 'left' ? 'right' : 'left';
+        }
+        else if (!leftKneeTucked && !rightKneeTucked && this.lastState === 'tucked') {
+            this.lastState = 'extended';
+            feedback = `Now tuck ${this.activeKnee} knee next`;
+        }
+        else if (this.lastState === 'tucked') {
+            feedback = "Extend both legs";
+        }
+        else if (this.lastState === 'extended' || !this.lastState) {
+            feedback = `Tuck ${this.activeKnee} knee toward chest`;
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectSingleLegBridge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+
+        if (!leftShoulder || !rightShoulder || !leftHip || !rightHip ||
+            !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track body" };
+        }
+
+        // Init active leg if not set
+        if (!this.activeLeg) {
+            this.activeLeg = 'left';
+        }
+
+        // Calculate hip height relative to shoulders
+        const hipHeight = ((leftHip.y + rightHip.y) / 2) - ((leftShoulder.y + rightShoulder.y) / 2);
+
+        // Calculate shoulder width for normalization
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+
+        // Normalize hip height
+        const normalizedHipHeight = hipHeight / shoulderWidth;
+
+        // Calculate leg extension
+        const leftLegExtended = calculateAngle(leftHip, leftKnee, leftAnkle) > 160;
+        const rightLegExtended = calculateAngle(rightHip, rightKnee, rightAnkle) > 160;
+
+        // Check if active leg is extended for single leg bridge
+        const activeLegExtended = this.activeLeg === 'left' ? leftLegExtended : rightLegExtended;
+
+        let feedback = "";
+
+        // For single leg bridge, we're looking for:
+        // 1. Hips elevated (bridge position)
+        // 2. One leg extended
+
+        // Check if in bridge position (hips elevated)
+        const inBridgePosition = normalizedHipHeight < -0.2;
+
+        if (inBridgePosition && activeLegExtended && this.lastState !== 'bridged') {
+            this.repCounter++;
+            this.lastState = 'bridged';
+            feedback = `Good single leg bridge with ${this.activeLeg} leg!`;
+        }
+        else if (!inBridgePosition && this.lastState === 'bridged') {
+            this.lastState = 'lowered';
+
+            // Switch active leg for next rep
+            this.activeLeg = this.activeLeg === 'left' ? 'right' : 'left';
+            feedback = `Lower hips, next use ${this.activeLeg} leg`;
+        }
+        else if (this.lastState === 'bridged') {
+            feedback = "Lower hips";
+        }
+        else if (this.lastState === 'lowered' || !this.lastState) {
+            if (!inBridgePosition) {
+                feedback = "Lift hips into bridge position";
+            } else if (!activeLegExtended) {
+                feedback = `Extend ${this.activeLeg} leg`;
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectAssistedLunge(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftKnee = getKeypointByName(smoothedKeypoints, 'left_knee');
+        const rightKnee = getKeypointByName(smoothedKeypoints, 'right_knee');
+        const leftAnkle = getKeypointByName(smoothedKeypoints, 'left_ankle');
+        const rightAnkle = getKeypointByName(smoothedKeypoints, 'right_ankle');
+        const leftWrist = getKeypointByName(smoothedKeypoints, 'left_wrist');
+        const rightWrist = getKeypointByName(smoothedKeypoints, 'right_wrist');
+
+        if (!leftHip || !rightHip || !leftKnee || !rightKnee || !leftAnkle || !rightAnkle) {
+            return { repCount: this.repCounter, feedback: "Cannot track legs" };
+        }
+
+        // Calculate knee angles
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+        // Calculate ankle distance (for stance width)
+        const ankleDistance = Math.sqrt(
+            Math.pow(leftAnkle.x - rightAnkle.x, 2) +
+            Math.pow(leftAnkle.y - rightAnkle.y, 2)
+        );
+
+        // Calculate hip width for normalization
+        const hipWidth = Math.abs(leftHip.x - rightHip.x);
+
+        // Normalize ankle distance
+        const normalizedDistance = ankleDistance / hipWidth;
+
+        // Check if hands are positioned for assistance
+        const handsLow = leftWrist && rightWrist &&
+            (leftWrist.y > leftHip.y && rightWrist.y > rightHip.y);
+
+        let feedback = "";
+
+        // Detect if in lunge position (one knee bent)
+        const leftLunge = leftKneeAngle < 120;
+        const rightLunge = rightKneeAngle < 120;
+        const inLungePosition = (leftLunge || rightLunge) && normalizedDistance > 1.2;
+
+        if (inLungePosition && handsLow && this.lastState !== 'lunge') {
+            this.repCounter++;
+            this.lastState = 'lunge';
+
+            // Identify which leg is in lunge
+            const lungeLeg = leftLunge ? 'left' : 'right';
+            feedback = `Good assisted lunge with ${lungeLeg} leg forward`;
+        }
+        else if (!inLungePosition && this.lastState === 'lunge') {
+            this.lastState = 'standing';
+            feedback = "Return to standing position";
+        }
+        else if (inLungePosition && !handsLow && this.lastState !== 'lunge') {
+            feedback = "Lower hands for support";
+        }
+        else if (this.lastState === 'standing' || !this.lastState) {
+            if (normalizedDistance < 1.2) {
+                feedback = "Widen stance";
+            } else if (!handsLow) {
+                feedback = "Lower hands for support";
+            } else {
+                feedback = "Bend front knee into lunge";
+            }
+        }
+
+        return { repCount: this.repCounter, feedback };
+    }
+
+    detectStandingCrunch(keypoints) {
+        const smoothedKeypoints = this.getSmoothedKeypoints();
+        if (!smoothedKeypoints) return { repCount: this.repCounter, feedback: "No data" };
+
+        // Get necessary keypoints
+        const nose = getKeypointByName(smoothedKeypoints, 'nose');
+        const leftHip = getKeypointByName(smoothedKeypoints, 'left_hip');
+        const rightHip = getKeypointByName(smoothedKeypoints, 'right_hip');
+        const leftElbow = getKeypointByName(smoothedKeypoints, 'left_elbow');
+        const rightElbow = getKeypointByName(smoothedKeypoints, 'right_elbow');
+        const leftShoulder = getKeypointByName(smoothedKeypoints, 'left_shoulder');
+        const rightShoulder = getKeypointByName(smoothedKeypoints, 'right_shoulder');
+
+        // Check if we have all required keypoints
+        if (!nose || !leftHip || !rightHip || !leftElbow || !rightElbow || !leftShoulder || !rightShoulder) {
+            return { repCount: this.repCounter, feedback: "Cannot track body position" };
+        }
+
+        // Calculate hip center
+        const hipCenterX = (leftHip.x + rightHip.x) / 2;
+        const hipCenterY = (leftHip.y + rightHip.y) / 2;
+
+        // Calculate shoulder center 
+        const shoulderCenterX = (leftShoulder.x + rightShoulder.x) / 2;
+        const shoulderCenterY = (leftShoulder.y + rightShoulder.y) / 2;
+
+        // Calculate elbow to hip distance (use minimum to detect when either side crunches)
+        const leftElbowToHipDistance = Math.sqrt(
+            Math.pow(leftElbow.x - hipCenterX, 2) + Math.pow(leftElbow.y - hipCenterY, 2)
+        );
+        const rightElbowToHipDistance = Math.sqrt(
+            Math.pow(rightElbow.x - hipCenterX, 2) + Math.pow(rightElbow.y - hipCenterY, 2)
+        );
+        const minElbowToHipDistance = Math.min(leftElbowToHipDistance, rightElbowToHipDistance);
+
+        // Calculate shoulder width as reference distance
+        const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+
+        // Normalize the elbow-to-hip distance relative to shoulder width
+        const normalizedElbowToHipDistance = minElbowToHipDistance / shoulderWidth;
+
+        // Define threshold for crunch detection
+        const crunchThreshold = 0.8; // Adjust based on testing
+        const resetThreshold = 1.5;  // Adjust based on testing
+
+        let feedback = "";
+
+        // Detect crunch and count reps
+        if (normalizedElbowToHipDistance < crunchThreshold && this.lastState !== 'crunched') {
+            this.repCounter++;
+            this.lastState = 'crunched';
+            feedback = "Good side crunch!";
+        } else if (normalizedElbowToHipDistance > resetThreshold && this.lastState === 'crunched') {
+            this.lastState = 'extended';
+            feedback = "Ready for next rep";
+        } else if (this.lastState === 'crunched') {
+            feedback = "Return to starting position";
+        } else if (this.lastState === 'extended' || !this.lastState) {
+            feedback = "Bring elbow toward hip";
         }
 
         return { repCount: this.repCounter, feedback };

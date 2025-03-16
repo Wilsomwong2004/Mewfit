@@ -1,8 +1,14 @@
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #ffffff;
+    overflow: hidden;
+    /* Prevents scrolling (We need this)*/
 }
 
 .content {
@@ -16,9 +22,25 @@ body {
     padding: 2.5rem 0 !important;
 }
 
+#logout-profile {
+    width: 26px;
+    margin-right: 3vw;
+    cursor: pointer;
+}
+
 .logo-space {
     width: 80px;
     /* Space for logo */
+}
+
+.nav-logo {
+    width: 60px !important;
+    height: 60px !important;
+    z-index: 5;
+}
+
+.nav-links-indicator {
+    bottom: 15px !important;
 }
 
 .nav-links {
@@ -27,6 +49,7 @@ body {
     align-items: center;
     margin: 0 auto;
     position: absolute;
+    font-weight: 500;
     left: auto !important;
     margin-left: 320px !important;
     transform: translateX(-50%);
@@ -96,6 +119,7 @@ body {
 /* Main Container */
 #heading {
     display: flex;
+    margin-top: -20px;
 }
 
 .admin-container {
@@ -138,7 +162,7 @@ body {
     padding-right: 0px;
     border: 1px solid #ccc;
     border-radius: 15px;
-    width: 96%;
+    width: 99%;
 }
 
 .box,
@@ -244,8 +268,8 @@ td:nth-child(10) {
 }
 
 .member-container {
-    width: 98vw;
-    padding: 20px;
+    width: 96vw;
+    padding: 0px 40px;
     border-radius: 10px;
     height: auto;
 }
@@ -271,6 +295,8 @@ table tr.selected {
 .table-option {
     display: flex;
     justify-content: end;
+    margin-right: -10px;
+    margin-top: 10px;
 }
 
 .table-option button {
@@ -361,7 +387,7 @@ table tr.selected {
     border-radius: 20px;
     position: relative;
     top: 20px;
-    height: 700px;
+    height: 710px;
     display: block;
 }
 
@@ -469,6 +495,15 @@ table tr.selected {
         margin-left: 30px;
     }
 
+    .nav-links-indicator {
+        bottom: 350px !important;
+    }
+
+    #logout-profile {
+        width: 26px;
+        margin-right: 8vw;
+    }
+
     .header-right {
         margin-left: 15px;
     }
@@ -496,6 +531,11 @@ table tr.selected {
         flex-direction: column;
         align-items: center;
         width: 100vw;
+    }
+
+    #logout-profile {
+        width: 26px;
+        margin-right: 3vw;
     }
 
     .admin-container {
