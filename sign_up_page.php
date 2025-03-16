@@ -221,6 +221,8 @@ session_start();
 
         if (target_weight - weight > 4) {
           document.getElementById("target-warning").textContent = "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
+        } else if (weight - target_weight > 4) {
+          document.getElementById("target-warning").textContent = "Losing more than 4kg / 9lbs is dangerous in a span of one month";
         }
 
         document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);

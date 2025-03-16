@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <meta charset="UTF-8">
@@ -112,8 +116,12 @@
             <div class="greetings">
                 <div>
                     <div style="display:flex;">
-                        <h1 id="type">Hello, <span style="color:#FF9F39">admin</span></h1>
-                        <h1 class="cursor">|</h1>
+                    <?php
+                        echo "
+                        <h1 id=\"type\">Hello, <span style=\"color:#FF9F39\">{$_SESSION['admin username']}</span></h1>
+                        <h1 class=\"cursor\">|</h1>
+                        ";
+                    ?>
                     </div>
                     <p class="greetings-word">This platform provides comprehensive reports on user data, including diet and workout trends, 
                         for in-depth analysis. Explore the charts and containers by hovering or clicking to access detailed insights. Gain 
