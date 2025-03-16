@@ -22,41 +22,18 @@
             window.scrollTo(0, 0);
         }
     };
-    document.addEventListener("DOMContentLoaded", function() {
-
-        if (window.location.hash) {
-            if (window.location.hash === "#editnutrition") {
-                document.querySelector('.nutrition-container').style.display = 'flex';
-                document.querySelector('.diet-container').style.display = 'none';
-                document.querySelector('.nutrition-link').classList.add('active');
-                document.querySelector('.diet-link').classList.remove('active');
-                document.getElementById('nadd-profile').style.display = 'none';
-                document.getElementById('nedit-profile').style.display = 'block';
-                exit();
-            }
-            if (window.location.hash === "#nutrition") {
-                document.querySelector('.nutrition-container').style.display = 'flex';
-                document.querySelector('.diet-container').style.display = 'none';
-                document.querySelector('.nutrition-link').classList.add('active');
-                document.querySelector('.diet-link').classList.remove('active');
-                exit();
-            }
-            if (window.location.hash === "#diet") {
-                document.getElementById('dadd-profile').style.display = 'none';
-                document.getElementById('dedit-profile').style.display = 'block';
-                exit();
-            }
-        }
-    });
+    if (window.location.hash === "#nutrition") {
+        document.querySelector('.nutrition-container').style.display = 'flex';
+        document.querySelector('.diet-container').style.display = 'none';
+        document.querySelector('.nutrition-link').classList.add('active');
+        document.querySelector('.diet-link').classList.remove('active');
+        exit();
+    }
 </script>
 
 <?php
 include "conn.php";
 session_start();
-$nutrierrors = $_SESSION['nutri_errors'] ?? [];
-$nutri_old_data = $_SESSION['nutri_old_data'] ?? [];
-$dieterrors = $_SESSION['diet_errors'] ?? [];
-$diet_old_data = $_SESSION['diet_old_data'] ?? [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['nutrition-name'] ?? '';
@@ -65,52 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $protein = $_POST['protein'] ?? 0;
     $carbohydrate = $_POST['carb'] ?? 0;
 
-    $nutrierrors = [];
+    // Insert the new nutrition data directly
+    $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate, created_at) VALUES (?, ?, ?, ?, ?, CURDATE())");
+    $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
 
-    // Validate input
-    if ($calories <= 0) {
-        $nutrierrors[] = "Calories must be a positive number.";
-    }
-    if ($fat < 0) {
-        $nutrierrors[] = "Fat must be a non-negative number.";
-    }
-    if ($protein < 0) {
-        $nutrierrors[] = "Protein must be a non-negative number.";
-    }
-    if ($carbohydrate < 0) {
-        $nutrierrors[] = "Carbohydrate must be a non-negative number.";
-    }
-
-    // Check if nutrition name already exists
-    $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM nutrition WHERE nutrition_name = ?");
-    $checkStmt->bind_param("s", $name);
-    $checkStmt->execute();
-    $checkStmt->bind_result($count);
-    $checkStmt->fetch();
-    $checkStmt->close();
-
-    if ($count > 0) {
-        $nutrierrors[] = "Nutrition name already exists.";
-    }
-
-    if (empty($nutrierrors)) {
-        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?,CURDATE()))");
-        $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
-
-        if ($insertStmt->execute()) {
-            $_SESSION['success_message'] = "Nutrition data added successfully!";
-            unset($_SESSION['nutri_errors']);
-            unset($_SESSION['nutri_old_data']);
-            header("Location: admin_diet.php#nutrition");
-            exit();
-        } else {
-            $errors[] = "Error adding nutrition data: " . $dbConn->error;
-        }
-    }
-    if (!empty($nutrierrors)) {
-        $_SESSION['nutri_errors'] = $nutrierrors;
-        $_SESSION['nutri_old_data'] = $_POST;
+    if ($insertStmt->execute()) {
+        // Redirect to the admin_diet.php page after successful insertion
         header("Location: admin_diet.php#nutrition");
+        exit();
+    } else {
+        // Handle error if needed (optional)
+        echo "Error adding nutrition data: " . $dbConn->error;
     }
 }
 ?>
@@ -147,9 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } else if (data.exists) {
                     feedbackElement.textContent = existingMessage;
                     feedbackElement.style.color = "red";
-                } else {
-                    feedbackElement.textContent = "Value is available!";
-                    feedbackElement.style.color = "green";
                 }
             })
             .catch(error => {
@@ -167,13 +106,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             return;
         }
 
-        // Check if the value is a number and not negative
         if (isNaN(value) || parseFloat(value) <= 0) {
             feedbackElement.textContent = errorMessage;
             feedbackElement.style.color = "red";
+        }
+    }
+
+    function checkDirections(textareaId, feedbackId) {
+        const directionsTextarea = document.getElementById(textareaId);
+        const feedbackElement = document.getElementById(feedbackId);
+
+        const directionsText = directionsTextarea.value;
+
+        // Count occurrences of ':' and ';'
+        const colonCount = (directionsText.match(/:/g) || []).length;
+        const semicolonCount = (directionsText.match(/;/g) || []).length;
+
+        // Check if counts are the same
+        if (colonCount === 0 && semicolonCount === 0) {
+            feedbackElement.textContent = "Please include at least one colon (:) and one semicolon (;).";
+        } else if (colonCount !== semicolonCount) {
+            feedbackElement.textContent = "The number of colons (:) and semicolons (;) must be the same.";
         } else {
-            feedbackElement.textContent = "Valid number!";
-            feedbackElement.style.color = "green";
+            feedbackElement.textContent = ""; // Clear feedback if counts match
         }
     }
 </script>
@@ -214,13 +169,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <tr>
                             <th>Diet ID</th>
                             <th>Diet Name</th>
-                            <th>Description</th>
                             <th>Diet Type</th>
+                            <th>Nutrition IDs</th>
                             <th>Preparation Time (Min)</th>
                             <th>Picture</th>
+                            <th>Description</th>
                             <th>Directions</th>
                             <th>Registration Date</th>
-                            <th>Nutrition IDs</th>
+
                         </tr>
                         <?php
                         include "conn.php";
@@ -239,17 +195,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 echo "<tr diet-id='" . $rows['diet_id'] . "'>";
                                 echo "<td>" . $rows['diet_id'] . "</td>";
                                 echo "<td>" . $rows['diet_name'] . "</td>";
-                                echo "<td>" . $rows['description'] . "</td>";
                                 echo "<td>" . $rows['diet_type'] . "</td>";
+                                echo "<td>" . (!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available') . "</td>";
                                 echo "<td>" . $rows['preparation_min'] . "</td>";
                                 if (!empty($rows['picture'])) {
-                                    echo "<td><img src='uploads/" . $rows['picture'] . "' alt='" . $rows['diet_name'] . "' width='100' loading='lazy'></td>";
+                                    echo "<td><img src='./uploads/diet/" . $rows['picture'] . "' alt='" . $rows['diet_name'] . "' width='100' loading='lazy'></td>";
                                 } else {
                                     echo "<td>No image available</td>";
                                 }
+                                echo "<td>" . $rows['description'] . "</td>";
                                 echo "<td>" . $rows['directions'] . "</td>";
                                 echo "<td>" . $rows['date_registered'] . "</td>";
-                                echo "<td>" . (!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available') . "</td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -266,21 +222,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!--Add New Profile Form -->
             <div class="add-profile" id="dadd-profile">
-                <?php
-                if (!empty($dieterrors)) {
-                    echo '<div class="error-messages">';
-                    foreach ($dieterrors as $eacherror) {
-                        echo "<p style='color:red;'>$eacherror</p>";
-                    }
-                    echo '</div>';
-                }
-                ?>
                 <center>
                     <h2>Add New <span>Meal</span></h2>
                 </center>
                 <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
                     <label for="diet-name">Meal Name</label>
-
                     <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
                     <p id="meal-name-feedback" class="feedback"></p>
                     <div class="form-columns">
@@ -288,20 +234,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="diet-type">Meal Type</label>
                             <select id="diet-type" name="diet-type" required>
                                 <option value="">Select Type</option>
-                                <option value="all" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
-                                <option value="meat" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
-                                <option value="vegetarian" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
-                                <option value="vegan" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
+                                <option value="all">All</option>
+                                <option value="meat">Meat</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
                             </select>
                         </div>
                         <div class="column">
                             <label for="preparation_min">Preparation Time (min)</label>
                             <input
-                                type="number"
-                                id="preparation_min"
-                                name="preparation_min"
-                                oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number')"
-                                required>
+                                type="number" id="preparation_min" name="preparation_min" oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number')" required>
                             <p id="preparation-min-feedback" class="feedback"></p>
                         </div>
                     </div>
@@ -310,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="nutrition-select-container">
                         <div class="custom-select">
                             <div class="select-box">
-                                <input type="text" class="tags_input" name="nutrition_ids" hidden value="<?php echo htmlspecialchars($diet_old_data['nutrition_ids'] ?? ''); ?>" required />
+                                <input type="text" class="tags_input" name="nutrition_ids" hidden value required />
                                 <div class="selected-options">
                                     <span class="placeholder">Select nutrition IDs</span>
                                 </div>
@@ -330,63 +272,67 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="meal_picture">Meal Picture</label>
                             <div class="picture" onclick="document.getElementById('meal_picture').click()">
                                 <p id="words">Click To Upload Meal Picture Here</p>
-                                <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
+                                <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden required>
                                 <img id="imagePreview" src="" alt="Image Preview">
                             </div>
                         </div>
                         <div class="column">
                             <label for="desc">Description</label>
-                            <textarea id="desc" name="desc" rows="4" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
+                            <textarea id="desc" name="desc" rows="4" placeholder="Describe the diet.." required></textarea>
                         </div>
                     </div>
 
                     <label for="directions">Directions</label>
-                    <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['directions'] ?? ''); ?></textarea>
+                    <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('directions', 'directions-feedback')"></textarea>
+                    <p id="directions-feedback" class="feedback" style="color: red;"></p>
 
                     <div style="display:flex;justify-content: center;white-space: nowrap;">
-                        <button type="submit" id="add-profile-btn">Create New</button>
+                        <button type="submit" id="add-profile-btn" disabled>Create New</button>
                     </div>
                 </form>
+                <script>
+                    function validateForm() {
+                        const mealNameFeedback = document.getElementById('meal-name-feedback').textContent.trim();
+                        const preparationMinFeedback = document.getElementById('preparation-min-feedback').textContent.trim();
+                        const direction = document.getElementById('directions-feedback').textContent.trim();
+
+                        const isValid = !mealNameFeedback && !preparationMinFeedback && !direction;
+
+                        document.getElementById('add-profile-btn').disabled = !isValid;
+                    }
+
+                    document.getElementById('meal-name').addEventListener('input', validateForm);
+                    document.getElementById('preparation_min').addEventListener('input', validateForm);
+                    document.getElementById('directions').addEventListener('input', validateForm);
+                </script>
+
             </div>
             <div class="edit-profile" id="dedit-profile" enctype="multipart/form-data">
                 <center>
                     <h2>Edit <span>Diet</span></h2>
                 </center>
-                <?php
-                $editDiet_errors = $_SESSION['e_diet_errors'] ?? [];
-                $editDiet_old_data = $_SESSION['e_diet_old_data'] ?? [];
-
-
-                if (isset($_SESSION['e_diet_errors']) && count($_SESSION['e_diet_errors']) > 0) {
-                    echo "<div class='error-messages'>";
-                    foreach ($_SESSION['e_diet_errors'] as $editDieterror) {
-                        echo "<p style='color: red;'>$editDieterror</p>";
-                    }
-                    echo "</div>";
-                    unset($_SESSION['e_diet_errors']);
-                    unset($_SESSION['e_diet_old_data']);
-                }
-                ?>
                 <form action="edit.php" method="POST" id="diet" enctype="multipart/form-data">
                     <input type="hidden" id="selectedDietId" name="selectedDietId" value="<?php echo $_GET['diet_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="diet">
                     <label for="ediet-name">Meal Name</label>
-                    <input type="text" id="ediet-name" name="ediet-name" value="<?php echo htmlspecialchars($editDiet_old_data['ediet-name'] ?? ''); ?>" required>
+                    <input type="text" id="ediet-name" name="ediet-name" oninput="checkUniqueName(this, document.getElementById('ediet-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
+                    <p id="ediet-name-feedback" class="feedback"></p>
 
                     <div class="form-columns">
                         <div class="column">
                             <label for="ediet-type">Meal Type</label>
                             <select id="ediet-type" name="ediet-type" required>
                                 <option value="">Select Type</option>
-                                <option value="all" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
-                                <option value="meat" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
-                                <option value="vegetarian" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
-                                <option value="vegan" <?php echo (isset($editDiet_old_data['ediet-type']) && $editDiet_old_data['ediet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
+                                <option value="all">All</option>
+                                <option value="meat">Meat</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
                             </select>
                         </div>
                         <div class="column">
                             <label for="epreparation_min">Preparation Time (min)</label>
-                            <input type="number" id="epreparation_min" name="epreparation_min" value="<?php echo htmlspecialchars($editDiet_old_data['epreparation_min'] ?? ''); ?>" required>
+                            <input type="number" id="epreparation_min" name="epreparation_min" oninput="checkNumber(this, document.getElementById('epreparation-min-feedback'), 'Please enter a non-negative number')" required>
+                            <p id="epreparation-min-feedback" class="feedback"></p>
                         </div>
                     </div>
 
@@ -394,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="nutrition-select-container">
                         <div class="custom-select">
                             <div class="select-box">
-                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden value="<?php echo htmlspecialchars($editDiet_old_data['edietnutrition_ids'] ?? ''); ?>" required />
+                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden value required />
                                 <div class="selected-options">
                                     <span class="placeholder">Select nutrition IDs</span>
                                 </div>
@@ -414,30 +360,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="emeal_picture">Meal Picture</label>
                             <div class="picture" onclick="document.getElementById('emeal_picture').click()">
                                 <p id="ewords">Click To Upload Meal Picture Here</p>
-                                <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" hidden>
-                                <?php if (!empty($editDiet_old_data['meal_picture'])): ?>
-                                    <img id="eimagePreview" src="uploads/<?php echo htmlspecialchars($editDiet_old_data['meal_picture']); ?>" alt="Image Preview">
-                                <?php elseif (!empty($_SESSION['temp_image'])): ?>
-                                    <img id="eimagePreview" src="data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>" alt="Image Preview">
-                                <?php else: ?>
-                                    <img id="eimagePreview" src="" alt="Image Preview">
-                                <?php endif; ?>
+                                <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" style="display: none;">
+                                <img id="eimagePreview" src="./uploads/diet/" alt="Image Preview">
                             </div>
                         </div>
                         <div class="column">
                             <label for="edesc">Description</label>
-                            <textarea id="edesc" name="edesc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($editDiet_old_data['edesc'] ?? ''); ?></textarea>
+                            <textarea id="edesc" name="edesc" rows="7" placeholder="Describe the diet.." required></textarea>
                         </div>
                     </div>
 
                     <label for="edirections">Directions</label>
-                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($editDiet_old_data['edirections'] ?? ''); ?></textarea>
+                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('edirections', 'edirections-feedback')"></textarea>
+                    <p id="edirections-feedback" class="feedback" style="color: red;"></p>
 
                     <div class="table-option">
                         <button type="button" id="discard-btn">Discard Changes</button>
                         <button type="submit" id="confirm-btn">Update Changes</button>
                     </div>
                 </form>
+                <script>
+                    function editValidateForm() {
+                        const mealNameFeedback = document.getElementById('ediet-name-feedback').textContent.trim();
+                        const preparationMinFeedback = document.getElementById('epreparation-min-feedback').textContent.trim();
+                        const directions = document.getElementById('edirections-feedback').textContent.trim();
+
+                        const isValid = !mealNameFeedback && !preparationMinFeedback && !directions;
+
+                        document.getElementById('confirm-btn').disabled = !isValid;
+                    }
+
+                    document.getElementById('ediet-name').addEventListener('input', editValidateForm);
+                    document.getElementById('epreparation_min').addEventListener('input', editValidateForm);
+                    document.getElementById('edirections').addEventListener('input', editValidateForm);
+                </script>
             </div>
             <div class="popup" id="popup">
                 <div class="popup-content">
@@ -448,6 +404,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
         </div>
+        
         <div class="nutrition-container">
             <div class="section1">
                 <input type="text" class="search-bar" placeholder="Search Nutrition Name">
@@ -581,7 +538,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="popup-content">
                     <h2>Confirm Deletion</h2>
                     <p>Are you sure you want to delete this record?</p>
-                    <button class="confirmDelete">Yes, Delete</button>
+                    <button class="mconfirmDelete">Yes, Delete</button>
                     <button class="cancelDelete">Cancel</button>
                 </div>
             </div>
@@ -1019,7 +976,7 @@ $nutritionJson = json_encode($nutritionData);
                 document.getElementById("edirections").value = data.directions;
 
                 if (data.picture) {
-                    const imagePath = `./uploads/${data.picture}`;
+                    const imagePath = `./uploads/diet/${data.picture}`;
                     const imagePreview = document.getElementById("eimagePreview");
                     imagePreview.src = imagePath;
                     imagePreview.style.display = "block";
@@ -1115,11 +1072,12 @@ $nutritionJson = json_encode($nutritionData);
     });
 
     document.querySelector(".content").addEventListener("click", function(event) {
+        // Diet deletion confirmation
         if (event.target.classList.contains("confirmDelete")) {
-            console.log("confirmDelete button detected");
+            console.log("Diet confirmDelete button clicked");
 
-            if (!id || !table) {
-                console.error("Missing data-id or data-table attribute");
+            if (!id || table !== "diet") {
+                console.error("Missing or invalid diet ID");
                 return;
             }
 
@@ -1128,18 +1086,42 @@ $nutritionJson = json_encode($nutritionData);
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
-                    body: `table=${table}&id=${id}`
+                    body: `table=${encodeURIComponent(table)}&id=${encodeURIComponent(id)}`
                 })
                 .then(res => res.text())
                 .then(() => location.reload())
                 .catch(console.error);
 
             document.getElementById("popup").style.display = "none";
+        }
+
+        // Nutrition deletion confirmation
+        if (event.target.classList.contains("mconfirmDelete")) {
+            console.log("Nutrition mconfirmDelete button clicked");
+
+            if (!id || table !== "nutrition") {
+                console.error("Missing or invalid nutrition ID");
+                return;
+            }
+
+            fetch("delete.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `table=${encodeURIComponent(table)}&id=${encodeURIComponent(id)}`
+                })
+                .then(res => res.text())
+                .then(() => location.reload())
+                .catch(console.error);
+
             document.getElementById("mpopup").style.display = "none";
         }
+
+        // Cancel buttons (for both popups)
         if (event.target.classList.contains("cancelDelete")) {
-            document.getElementById("mpopup").style.display = "none";
             document.getElementById("popup").style.display = "none";
+            document.getElementById("mpopup").style.display = "none";
         }
     });
 

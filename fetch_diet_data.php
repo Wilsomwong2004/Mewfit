@@ -5,7 +5,7 @@ include "conn.php";
 
 // Check if diet_id is provided
 if (!isset($_GET['diet_id'])) {
-    http_response_code(400); // Bad Request
+    http_response_code(400); 
     echo json_encode(['error' => 'diet_id is required']);
     exit();
 }
@@ -15,21 +15,21 @@ $dietId = intval($_GET['diet_id']);
 // Fetch diet data
 $dietStmt = $dbConn->prepare("SELECT * FROM diet WHERE diet_id = ?");
 if (!$dietStmt) {
-    http_response_code(500); // Internal Server Error
+    http_response_code(500);
     echo json_encode(['error' => 'Failed to prepare diet query: ' . $dbConn->error]);
     exit();
 }
 
 $dietStmt->bind_param("i", $dietId);
 if (!$dietStmt->execute()) {
-    http_response_code(500); // Internal Server Error
+    http_response_code(500); 
     echo json_encode(['error' => 'Failed to execute diet query: ' . $dietStmt->error]);
     exit();
 }
 
 $dietResult = $dietStmt->get_result();
 if ($dietResult->num_rows === 0) {
-    http_response_code(404); // Not Found
+    http_response_code(404);
     echo json_encode(['error' => 'Diet not found']);
     exit();
 }
