@@ -4,11 +4,12 @@
 - down script: everything else -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mewfit Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
     <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_diet.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
@@ -16,45 +17,46 @@
     <script src="js/admin_diet.js"></script>
 </head>
 <script>
-        window.onresize = function() {
-            if (window.innerWidth > 1200) {
-                window.scrollTo(0, 0); 
+    window.onresize = function() {
+        if (window.innerWidth > 1200) {
+            window.scrollTo(0, 0);
+        }
+    };
+    document.addEventListener("DOMContentLoaded", function() {
+
+        if (window.location.hash) {
+            if (window.location.hash === "#editnutrition") {
+                document.querySelector('.nutrition-container').style.display = 'flex';
+                document.querySelector('.diet-container').style.display = 'none';
+                document.querySelector('.nutrition-link').classList.add('active');
+                document.querySelector('.diet-link').classList.remove('active');
+                document.getElementById('nadd-profile').style.display = 'none';
+                document.getElementById('nedit-profile').style.display = 'block';
+                exit();
             }
-        };
-        document.addEventListener("DOMContentLoaded", function() {
-            
-            if(window.location.hash) {
-                if(window.location.hash === "#editnutrition") {
-                    document.querySelector('.nutrition-container').style.display = 'flex';
-                    document.querySelector('.diet-container').style.display = 'none';
-                    document.querySelector('.nutrition-link').classList.add('active');
-                    document.querySelector('.diet-link').classList.remove('active');
-                    document.getElementById('nadd-profile').style.display = 'none';
-                    document.getElementById('nedit-profile').style.display = 'block';
-                    exit();
-                }
-                if(window.location.hash === "#nutrition") {
-                    document.querySelector('.nutrition-container').style.display = 'flex';
-                    document.querySelector('.diet-container').style.display = 'none';
-                    document.querySelector('.nutrition-link').classList.add('active');
-                    document.querySelector('.diet-link').classList.remove('active');
-                    exit();
-                }
-                if(window.location.hash === "#diet") {
-                    document.getElementById('dadd-profile').style.display = 'none';
-                    document.getElementById('dedit-profile').style.display = 'block';
-                    exit();
-                }
+            if (window.location.hash === "#nutrition") {
+                document.querySelector('.nutrition-container').style.display = 'flex';
+                document.querySelector('.diet-container').style.display = 'none';
+                document.querySelector('.nutrition-link').classList.add('active');
+                document.querySelector('.diet-link').classList.remove('active');
+                exit();
             }
-        });
+            if (window.location.hash === "#diet") {
+                document.getElementById('dadd-profile').style.display = 'none';
+                document.getElementById('dedit-profile').style.display = 'block';
+                exit();
+            }
+        }
+    });
 </script>
-<?php 
-    include "conn.php";
-    session_start();
-    $nutrierrors = $_SESSION['nutri_errors'] ?? [];
-    $nutri_old_data = $_SESSION['nutri_old_data'] ?? [];
-    $dieterrors = $_SESSION['diet_errors'] ?? [];
-    $diet_old_data = $_SESSION['diet_old_data'] ?? [];
+
+<?php
+include "conn.php";
+session_start();
+$nutrierrors = $_SESSION['nutri_errors'] ?? [];
+$nutri_old_data = $_SESSION['nutri_old_data'] ?? [];
+$dieterrors = $_SESSION['diet_errors'] ?? [];
+$diet_old_data = $_SESSION['diet_old_data'] ?? [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['nutrition-name'] ?? '';
@@ -92,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (empty($nutrierrors)) {
-        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?,CURDATE()))");        
+        $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate) VALUES (?, ?, ?, ?, ?,CURDATE()))");
         $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
 
         if ($insertStmt->execute()) {
@@ -103,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         } else {
             $errors[] = "Error adding nutrition data: " . $dbConn->error;
-        } 
-    } 
+        }
+    }
     if (!empty($nutrierrors)) {
         $_SESSION['nutri_errors'] = $nutrierrors;
         $_SESSION['nutri_old_data'] = $_POST;
@@ -113,12 +115,75 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
+
+<script>
+    // JavaScript Functions
+    function checkUniqueName(inputElement, feedbackElement, existingMessage, table, column, endpoint) {
+        const value = inputElement.value.trim();
+
+        if (value === "") {
+            feedbackElement.textContent = "";
+            return;
+        }
+
+        // Send an AJAX request to the specified endpoint
+        fetch("inputValidation.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    feedbackElement.textContent = data.error;
+                    feedbackElement.style.color = "red";
+                } else if (data.exists) {
+                    feedbackElement.textContent = existingMessage;
+                    feedbackElement.style.color = "red";
+                } else {
+                    feedbackElement.textContent = "Value is available!";
+                    feedbackElement.style.color = "green";
+                }
+            })
+            .catch(error => {
+                console.error("Error checking uniqueness:", error);
+                feedbackElement.textContent = "An error occurred while checking the value.";
+                feedbackElement.style.color = "red";
+            });
+    }
+
+    function checkNumber(inputElement, feedbackElement, errorMessage) {
+        const value = inputElement.value.trim();
+
+        if (value === "") {
+            feedbackElement.textContent = "";
+            return;
+        }
+
+        // Check if the value is a number and not negative
+        if (isNaN(value) || parseFloat(value) <= 0) {
+            feedbackElement.textContent = errorMessage;
+            feedbackElement.style.color = "red";
+        } else {
+            feedbackElement.textContent = "Valid number!";
+            feedbackElement.style.color = "green";
+        }
+    }
+</script>
+
 <body>
-<nav class="navbar" id="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
             <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
             <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
-            <span class="admin-user"><a href="admin_user_page.php" >USER</a></span>
+            <span class="admin-user"><a href="admin_user_page.php">USER</a></span>
             <span class="admin-workout"><a href="admin_workout.php">WORKOUT</a></span>
             <span class="admin-meals"><a href="#" class="active">MEALS</a></span>
         </div>
@@ -136,62 +201,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <h2 class="title"> MEAL <span>PROFILE</span></h2>
         <ul class="meal-section">
             <li><a href="#diet" class="diet-link">DIET</a></li>
-            <li><a href="#nutrition" class="nutrition-link">NUTRITION</a></li>  
+            <li><a href="#nutrition" class="nutrition-link">NUTRITION</a></li>
         </ul>
     </div>
-    
+
     <div class="content">
         <div class="diet-container">
             <div class="section1">
                 <input type="text" class="search-bar" placeholder="Search Diet Name..">
                 <div class="box">
-                <table>
-                    <tr>
-                        <th>Diet ID</th>
-                        <th>Diet Name</th>
-                        <th>Description</th>
-                        <th>Diet Type</th>
-                        <th>Preparation Time (Min)</th>
-                        <th>Picture</th>
-                        <th>Directions</th>
-                        <th>Registration Date</th>
-                        <th>Nutrition IDs</th>
-                    </tr>
-                    <?php
-                    include "conn.php";
+                    <table>
+                        <tr>
+                            <th>Diet ID</th>
+                            <th>Diet Name</th>
+                            <th>Description</th>
+                            <th>Diet Type</th>
+                            <th>Preparation Time (Min)</th>
+                            <th>Picture</th>
+                            <th>Directions</th>
+                            <th>Registration Date</th>
+                            <th>Nutrition IDs</th>
+                        </tr>
+                        <?php
+                        include "conn.php";
 
-                    $sql = "
+                        $sql = "
                         SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.picture, d.directions, d.date_registered,                            
                         GROUP_CONCAT(n.nutrition_id) AS nutrition_ids
                         FROM diet d
                         LEFT JOIN diet_nutrition n ON d.diet_id = n.diet_id
                         GROUP BY d.diet_id
                     ";
-                    $result = mysqli_query($dbConn, $sql);
+                        $result = mysqli_query($dbConn, $sql);
 
-                    if (mysqli_num_rows($result) > 0) {
-                        while ($rows = mysqli_fetch_array($result)) {
-                            echo "<tr diet-id='".$rows['diet_id']."'>";
-                            echo "<td>".$rows['diet_id']."</td>";
-                            echo "<td>".$rows['diet_name']."</td>";
-                            echo "<td>".$rows['description']."</td>";
-                            echo "<td>".$rows['diet_type']."</td>";
-                            echo "<td>".$rows['preparation_min']."</td>";
-                            if (!empty($rows['picture'])) {
-                                echo "<td><img src='uploads/".$rows['picture']."' alt='".$rows['diet_name']."' width='100' loading='lazy'></td>";
-                            } else {
-                                echo "<td>No image available</td>";
+                        if (mysqli_num_rows($result) > 0) {
+                            while ($rows = mysqli_fetch_array($result)) {
+                                echo "<tr diet-id='" . $rows['diet_id'] . "'>";
+                                echo "<td>" . $rows['diet_id'] . "</td>";
+                                echo "<td>" . $rows['diet_name'] . "</td>";
+                                echo "<td>" . $rows['description'] . "</td>";
+                                echo "<td>" . $rows['diet_type'] . "</td>";
+                                echo "<td>" . $rows['preparation_min'] . "</td>";
+                                if (!empty($rows['picture'])) {
+                                    echo "<td><img src='uploads/" . $rows['picture'] . "' alt='" . $rows['diet_name'] . "' width='100' loading='lazy'></td>";
+                                } else {
+                                    echo "<td>No image available</td>";
+                                }
+                                echo "<td>" . $rows['directions'] . "</td>";
+                                echo "<td>" . $rows['date_registered'] . "</td>";
+                                echo "<td>" . (!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available') . "</td>";
+                                echo "</tr>";
                             }
-                            echo "<td>".$rows['directions']."</td>";
-                            echo "<td>".$rows['date_registered']."</td>";
-                            echo "<td>".(!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available')."</td>";
-                            echo "</tr>";
+                        } else {
+                            echo "<tr class='no-data'><td colspan='8'>No data available</td></tr>";
                         }
-                    } else {
-                        echo "<tr class='no-data'><td colspan='8'>No data available</td></tr>";
-                    }
-                    ?>
-                </table>
+                        ?>
+                    </table>
                 </div>
                 <div class="table-option">
                     <button id="edit-btn" disabled>Edit</button>
@@ -210,80 +275,87 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     echo '</div>';
                 }
                 ?>
-            <center>
-                <h2>Add New <span>Meal</span></h2>
-            </center>
-            <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
-            <label for="diet-name">Meal Name</label>
-            <input type="text" id="diet-name" name="diet-name" value="<?php echo htmlspecialchars($diet_old_data['diet-name'] ?? ''); ?>" required>
+                <center>
+                    <h2>Add New <span>Meal</span></h2>
+                </center>
+                <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
+                    <label for="diet-name">Meal Name</label>
 
-            <div class="form-columns">
-                <div class="column">
-                    <label for="diet-type">Meal Type</label>
-                    <select id="diet-type" name="diet-type" required>
-                        <option value="">Select Type</option>
-                        <option value="all" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
-                        <option value="meat" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
-                        <option value="vegetarian" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
-                        <option value="vegan" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
-                    </select>
-                </div>
-                <div class="column">
-                    <label for="preparation_min">Preparation Time (min)</label>
-                    <input type="number" id="preparation_min" name="preparation_min" value="<?php echo htmlspecialchars($diet_old_data['preparation_min'] ?? ''); ?>" required>
-                </div>
-            </div>
-
-            <label for="nutrition_id">Ingredients</label>
-            <div class="nutrition-select-container">
-                <div class="custom-select">
-                    <div class="select-box">
-                        <input type="text" class="tags_input" name="nutrition_ids" hidden value="<?php echo htmlspecialchars($diet_old_data['nutrition_ids'] ?? ''); ?>" required/>
-                        <div class="selected-options">
-                            <span class="placeholder">Select nutrition IDs</span>
+                    <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
+                    <p id="meal-name-feedback" class="feedback"></p>
+                    <div class="form-columns">
+                        <div class="column">
+                            <label for="diet-type">Meal Type</label>
+                            <select id="diet-type" name="diet-type" required>
+                                <option value="">Select Type</option>
+                                <option value="all" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'all') ? 'selected' : ''; ?>>All</option>
+                                <option value="meat" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'meat') ? 'selected' : ''; ?>>Meat</option>
+                                <option value="vegetarian" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegetarian') ? 'selected' : ''; ?>>Vegetarian</option>
+                                <option value="vegan" <?php echo (isset($diet_old_data['diet-type']) && $diet_old_data['diet-type'] == 'vegan') ? 'selected' : ''; ?>>Vegan</option>
+                            </select>
+                        </div>
+                        <div class="column">
+                            <label for="preparation_min">Preparation Time (min)</label>
+                            <input
+                                type="number"
+                                id="preparation_min"
+                                name="preparation_min"
+                                oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number')"
+                                required>
+                            <p id="preparation-min-feedback" class="feedback"></p>
                         </div>
                     </div>
-                </div>
-                <div class="options">
-                    <div class="option-search-tags">
-                        <input type="text" class="search-tags" placeholder="Search nutrition IDs..."/>
+
+                    <label for="nutrition_id">Ingredients</label>
+                    <div class="nutrition-select-container">
+                        <div class="custom-select">
+                            <div class="select-box">
+                                <input type="text" class="tags_input" name="nutrition_ids" hidden value="<?php echo htmlspecialchars($diet_old_data['nutrition_ids'] ?? ''); ?>" required />
+                                <div class="selected-options">
+                                    <span class="placeholder">Select nutrition IDs</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="options">
+                            <div class="option-search-tags">
+                                <input type="text" class="search-tags" placeholder="Search nutrition IDs..." />
+                            </div>
+                            <div class="option all-tags" data-value="all">Select All</div>
+                        </div>
+                        <span class="tag_error_msg">This field is required</span>
                     </div>
-                    <div class="option all-tags" data-value="all">Select All</div>
-                </div>
-                <span class="tag_error_msg">This field is required</span>
-            </div>
 
-            <div class="form-columns">
-                <div class="column">
-                    <label for="meal_picture">Meal Picture</label>
-                    <div class="picture" onclick="document.getElementById('meal_picture').click()">
-                        <p id="words">Click To Upload Meal Picture Here</p>
-                        <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
-                        <img id="imagePreview" src="" alt="Image Preview">
+                    <div class="form-columns">
+                        <div class="column">
+                            <label for="meal_picture">Meal Picture</label>
+                            <div class="picture" onclick="document.getElementById('meal_picture').click()">
+                                <p id="words">Click To Upload Meal Picture Here</p>
+                                <input type="file" name="meal_picture" id="meal_picture" accept="image/*" hidden>
+                                <img id="imagePreview" src="" alt="Image Preview">
+                            </div>
+                        </div>
+                        <div class="column">
+                            <label for="desc">Description</label>
+                            <textarea id="desc" name="desc" rows="4" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="column">
-                    <label for="desc">Description</label>
-                    <textarea id="desc" name="desc" rows="4" placeholder="Describe the diet.." required><?php echo htmlspecialchars($diet_old_data['desc'] ?? ''); ?></textarea>
-                </div>
-            </div>
 
-            <label for="directions">Directions</label>
-            <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['directions'] ?? ''); ?></textarea>
+                    <label for="directions">Directions</label>
+                    <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction, details;)" required><?php echo htmlspecialchars($diet_old_data['directions'] ?? ''); ?></textarea>
 
-            <div style="display:flex;justify-content: center;white-space: nowrap;">
-                <button type="submit" id="add-profile-btn">Create New</button>
-            </div>
-            </form>
+                    <div style="display:flex;justify-content: center;white-space: nowrap;">
+                        <button type="submit" id="add-profile-btn">Create New</button>
+                    </div>
+                </form>
             </div>
             <div class="edit-profile" id="dedit-profile" enctype="multipart/form-data">
                 <center>
-                <h2>Edit <span>Diet</span></h2> 
+                    <h2>Edit <span>Diet</span></h2>
                 </center>
                 <?php
                 $editDiet_errors = $_SESSION['e_diet_errors'] ?? [];
                 $editDiet_old_data = $_SESSION['e_diet_old_data'] ?? [];
-                
+
 
                 if (isset($_SESSION['e_diet_errors']) && count($_SESSION['e_diet_errors']) > 0) {
                     echo "<div class='error-messages'>";
@@ -291,7 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         echo "<p style='color: red;'>$editDieterror</p>";
                     }
                     echo "</div>";
-                    unset($_SESSION['e_diet_errors']); 
+                    unset($_SESSION['e_diet_errors']);
                     unset($_SESSION['e_diet_old_data']);
                 }
                 ?>
@@ -322,14 +394,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="nutrition-select-container">
                         <div class="custom-select">
                             <div class="select-box">
-                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden value="<?php echo htmlspecialchars($editDiet_old_data['edietnutrition_ids'] ?? ''); ?>" required/>                                <div class="selected-options">
+                                <input type="text" class="tags_input" name="edietnutrition_ids" hidden value="<?php echo htmlspecialchars($editDiet_old_data['edietnutrition_ids'] ?? ''); ?>" required />
+                                <div class="selected-options">
                                     <span class="placeholder">Select nutrition IDs</span>
                                 </div>
                             </div>
                         </div>
                         <div class="options">
                             <div class="option-search-tags">
-                                <input type="text" class="search-tags" placeholder="Search nutrition IDs..."/>
+                                <input type="text" class="search-tags" placeholder="Search nutrition IDs..." />
                             </div>
                             <div class="option all-tags" data-value="all">Select All</div>
                         </div>
@@ -337,20 +410,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <div class="form-columns">
-                    <div class="column">
-                        <label for="emeal_picture">Meal Picture</label>
-                        <div class="picture" onclick="document.getElementById('emeal_picture').click()">
-                            <p id="ewords">Click To Upload Meal Picture Here</p>
-                            <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" hidden>
-                            <?php if (!empty($editDiet_old_data['meal_picture'])): ?>
-                                <img id="eimagePreview" src="uploads/<?php echo htmlspecialchars($editDiet_old_data['meal_picture']); ?>" alt="Image Preview">
-                            <?php elseif (!empty($_SESSION['temp_image'])): ?>
-                                <img id="eimagePreview" src="data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>" alt="Image Preview">
-                            <?php else: ?>
-                                <img id="eimagePreview" src="" alt="Image Preview">
-                            <?php endif; ?>
+                        <div class="column">
+                            <label for="emeal_picture">Meal Picture</label>
+                            <div class="picture" onclick="document.getElementById('emeal_picture').click()">
+                                <p id="ewords">Click To Upload Meal Picture Here</p>
+                                <input type="file" name="emeal_picture" id="emeal_picture" accept="image/*" hidden>
+                                <?php if (!empty($editDiet_old_data['meal_picture'])): ?>
+                                    <img id="eimagePreview" src="uploads/<?php echo htmlspecialchars($editDiet_old_data['meal_picture']); ?>" alt="Image Preview">
+                                <?php elseif (!empty($_SESSION['temp_image'])): ?>
+                                    <img id="eimagePreview" src="data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>" alt="Image Preview">
+                                <?php else: ?>
+                                    <img id="eimagePreview" src="" alt="Image Preview">
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
                         <div class="column">
                             <label for="edesc">Description</label>
                             <textarea id="edesc" name="edesc" rows="7" placeholder="Describe the diet.." required><?php echo htmlspecialchars($editDiet_old_data['edesc'] ?? ''); ?></textarea>
@@ -415,8 +488,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <button id="nutrition-edit-btn" disabled>Edit</button>
                     <button id="nutrition-delete-btn" disabled>Delete</button>
                 </div>
-                
-            </div>  
+
+            </div>
             <div class="add-profile" id="nadd-profile" style="height:730px;">
                 <center>
                     <h2>Add New <span>Nutrition</span></h2>
@@ -428,37 +501,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         echo "<p style='color:red;'>$error</p>";
                     }
                     echo '</div>';
-                    
                 }
                 ?>
 
                 <form action="" method="POST">
-                <label for="nutrition-name">Nutrition Name</label>
-                <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
+                    <label for="nutrition-name">Nutrition Name</label>
+                    <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
 
-                <label for="calories">Calories</label>
-                <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
+                    <label for="calories">Calories</label>
+                    <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
 
-                <label for="fat">Fat (g)</label>
-                <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
+                    <label for="fat">Fat (g)</label>
+                    <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
 
-                <label for="protein">Protein (g)</label>
-                <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
+                    <label for="protein">Protein (g)</label>
+                    <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
 
-                <label for="carb">Carbohydrate (g)</label>
-                <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
+                    <label for="carb">Carbohydrate (g)</label>
+                    <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
 
-                <div style="display: flex; justify-content: center; white-space: nowrap;">
-                    <button type="submit" id="nadd-profile-btn">Create New</button>
-                </div>
+                    <div style="display: flex; justify-content: center; white-space: nowrap;">
+                        <button type="submit" id="nadd-profile-btn">Create New</button>
+                    </div>
                 </form>
             </div>
             <div class="edit-profile" id="nedit-profile" style="height:540px;">
-            <center>
-                <h2>Edit <span>Nutrition</span></h2>
-            </center>
-            <form action="edit.php" method="POST">
-                <?php
+                <center>
+                    <h2>Edit <span>Nutrition</span></h2>
+                </center>
+                <form action="edit.php" method="POST">
+                    <?php
                     $errors = $_SESSION['admin_errors'] ?? [];
                     $old_data = $_SESSION['old_data'] ?? [];
                     $showEditForm = $_SESSION['show_edit_form'] ?? false;
@@ -469,41 +541,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             echo "<p style='color: red;'>$error</p>";
                         }
                         echo "</div>";
-                        unset($_SESSION['admin_errors']); 
+                        unset($_SESSION['admin_errors']);
                         unset($_SESSION['old_data']);
                     }
+                    ?>
+
+                    <input type="hidden" id="selectedNutriId" name="selectedNutriId" value="<?php echo $_GET['nutrition_id'] ?? ''; ?>">
+                    <input type="hidden" id="table" name="table" value="nutrition">
+                    <label for="nutrition-name">Nutrition Name</label>
+                    <input type="text" id="enutrition-name" name="enutrition-name" value="<?php echo htmlspecialchars($old_data['enutrition-name'] ?? ''); ?>" required>
+
+                    <label for="calories">Calories</label>
+                    <input type="number" id="ecalories" name="ecalories" value="<?php echo htmlspecialchars($old_data['ecalories'] ?? ''); ?>" required>
+
+                    <label for="fat">Fat (g)</label>
+                    <input type="number" step="0.01" id="efat" name="efat" value="<?php echo htmlspecialchars($old_data['efat'] ?? ''); ?>" required>
+
+
+                    <label for="protein">Protein (g)</label>
+                    <input type="number" step="0.01" id="eprotein" name="eprotein" value="<?php echo htmlspecialchars($old_data['eprotein'] ?? ''); ?>" required>
+
+                    <label for="carb">Carbohydrate (g)</label>
+                    <input type="number" step="0.01" id="ecarb" name="ecarb" value="<?php echo htmlspecialchars($old_data['ecarb'] ?? ''); ?>" required>
+
+                    <div class="table-option">
+                        <button type="button" id="ndiscard-btn">Discard Changes</button>
+                        <button type="submit" id="nconfirm-btn">Update Changes</button>
+                    </div>
+                </form>
+                <?php
+                if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
+                    unset($_SESSION['admin_errors']);
+                    unset($_SESSION['old_data']);
+                    unset($_SESSION['show_edit_form']);
+                }
                 ?>
-                
-                <input type="hidden" id="selectedNutriId" name="selectedNutriId" value="<?php echo $_GET['nutrition_id'] ?? ''; ?>">
-                <input type="hidden" id="table" name="table" value="nutrition">
-                <label for="nutrition-name">Nutrition Name</label>
-                <input type="text" id="enutrition-name" name="enutrition-name" value="<?php echo htmlspecialchars($old_data['enutrition-name'] ?? ''); ?>" required>
-
-                <label for="calories">Calories</label>
-                <input type="number" id="ecalories" name="ecalories" value="<?php echo htmlspecialchars($old_data['ecalories'] ?? ''); ?>"required>
-
-                <label for="fat">Fat (g)</label>
-                <input type="number" step="0.01" id="efat" name="efat" value="<?php echo htmlspecialchars($old_data['efat'] ?? ''); ?>" required>
-
-
-                <label for="protein">Protein (g)</label>
-                <input type="number" step="0.01" id="eprotein" name="eprotein" value="<?php echo htmlspecialchars($old_data['eprotein'] ?? ''); ?>" required>
-
-                <label for="carb">Carbohydrate (g)</label>
-                <input type="number" step="0.01" id="ecarb" name="ecarb" value="<?php echo htmlspecialchars($old_data['ecarb'] ?? ''); ?>" required>
-
-                <div class="table-option">
-                    <button type="button" id="ndiscard-btn">Discard Changes</button>
-                    <button type="submit" id="nconfirm-btn">Update Changes</button>
-                </div>
-            </form>
-            <?php
-            if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-                unset($_SESSION['admin_errors']);
-                unset($_SESSION['old_data']);
-                unset($_SESSION['show_edit_form']);
-            }
-            ?>
             </div>
             <div class="mpopup" id="mpopup">
                 <div class="popup-content">
@@ -515,9 +587,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
-                          
-</div>
+
+    </div>
 </body>
+
 </html>
 <!-- below is for add diet profile -->
 <?php
@@ -535,323 +608,323 @@ if (mysqli_num_rows($result) > 0) {
 $nutritionJson = json_encode($nutritionData);
 ?>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize nutrition data for both forms
-    const nutritionData = <?php echo $nutritionJson; ?>;
-    
-    // Populate nutrition options for both forms
-    populateNutritionOptions('.add-profile .options', nutritionData);
-    populateNutritionOptions('.edit-profile .options', nutritionData);
-    
-    // Initialize custom selects for both forms
-    initializeCustomSelects('.add-profile .custom-select');
-    initializeCustomSelects('.edit-profile .custom-select');
-    
-    // Set up image preview for both forms
-    setupImagePreview('meal_picture', 'imagePreview', 'words');
-    setupImagePreview('emeal_picture', 'eimagePreview', 'ewords');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize nutrition data for both forms
+        const nutritionData = <?php echo $nutritionJson; ?>;
 
-    <?php if (isset($_SESSION['temp_image'])): ?>
-        const imagePreview = document.getElementById('eimagePreview');
-        if (imagePreview) {
-            imagePreview.src = 'data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>';
-            imagePreview.style.display = 'block';
-            document.getElementById('ewords').style.display = 'none';
-        }
-        <?php unset($_SESSION['temp_image']); ?>
+        // Populate nutrition options for both forms
+        populateNutritionOptions('.add-profile .options', nutritionData);
+        populateNutritionOptions('.edit-profile .options', nutritionData);
+
+        // Initialize custom selects for both forms
+        initializeCustomSelects('.add-profile .custom-select');
+        initializeCustomSelects('.edit-profile .custom-select');
+
+        // Set up image preview for both forms
+        setupImagePreview('meal_picture', 'imagePreview', 'words');
+        setupImagePreview('emeal_picture', 'eimagePreview', 'ewords');
+
+        <?php if (isset($_SESSION['temp_image'])): ?>
+            const imagePreview = document.getElementById('eimagePreview');
+            if (imagePreview) {
+                imagePreview.src = 'data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>';
+                imagePreview.style.display = 'block';
+                document.getElementById('ewords').style.display = 'none';
+            }
+            <?php unset($_SESSION['temp_image']); ?>
         <?php endif; ?>
-});
-
-// Function to populate nutrition options in both forms
-function populateNutritionOptions(containerSelector, data) {
-    const optionsContainer = document.querySelector(containerSelector);
-    
-    // Make sure we don't duplicate options if already populated
-    if (optionsContainer && optionsContainer.querySelectorAll('.option:not(.all-tags):not(.option-search-tags)').length === 0) {
-        if (data.length > 0) {
-            // Create options for each nutrition item
-            data.forEach(nutrition => {
-                const option = document.createElement('div');
-                option.classList.add('option');
-                option.dataset.value = nutrition.nutrition_id;
-                option.textContent = `(${nutrition.nutrition_id}) ${nutrition.nutrition_name}`;
-                optionsContainer.appendChild(option);
-            });
-        } else {
-            const noData = document.createElement("div");
-            noData.classList.add("no-result-message");
-            noData.textContent = "No nutrition data found";
-            optionsContainer.appendChild(noData);
-        }
-    }
-}
-
-// Function to set up image preview
-function setupImagePreview(inputId, previewId, wordsId) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.addEventListener("change", function (event) {
-            const file = event.target.files[0]; 
-            if (file) {
-                const reader = new FileReader(); 
-                reader.onload = function (e) {
-                    const img = document.getElementById(previewId);
-                    img.src = e.target.result;
-                    img.style.display = "block"; 
-                    document.getElementById(wordsId).style.display = "none";
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-function initializeCustomSelects(containerSelector) {
-    const customSelects = document.querySelectorAll(containerSelector);
-
-    customSelects.forEach(function(customSelect) {
-        const optionsContainer = customSelect.parentNode.querySelector(".options");
-        const searchInput = optionsContainer.querySelector(".search-tags");
-        const options = optionsContainer.querySelectorAll(".option:not(.all-tags):not(.option-search-tags)");
-        const allTagsOption = optionsContainer.querySelector(".option.all-tags");
-
-        // Create no-result message if it doesn't exist
-        let noResultMessage = optionsContainer.querySelector(".no-result-message");
-        if (!noResultMessage) {
-            noResultMessage = document.createElement("div");
-            noResultMessage.classList.add("no-result-message");
-            noResultMessage.textContent = "No matching options found";
-            noResultMessage.style.display = "none";
-            optionsContainer.appendChild(noResultMessage);
-        }
-
-        // Handle "Select All" functionality if allTagsOption exists
-        if (allTagsOption) {
-            allTagsOption.addEventListener("click", function(event) {
-                const isActive = allTagsOption.classList.contains("active");
-                allTagsOption.classList.toggle("active");
-                
-                options.forEach(function(option) {
-                    if (option.style.display !== "none") { // Only toggle visible options
-                        option.classList.toggle("active", !isActive);
-                    }
-                });
-                
-                updateSelectedOptions(customSelect);
-                event.stopPropagation();
-            });
-        }
-
-        // Handle search functionality
-        if (searchInput) {
-            searchInput.addEventListener("input", function(event) {
-                const searchTerm = searchInput.value.toLowerCase();
-                let anyOptionsMatch = false;
-                
-                options.forEach(function(option) {
-                    const optionText = option.textContent.trim().toLowerCase();
-                    const shouldShow = optionText.includes(searchTerm);
-                    option.style.display = shouldShow ? "block" : "none";
-                    if (shouldShow) anyOptionsMatch = true;
-                });
-                
-                noResultMessage.style.display = anyOptionsMatch ? "none" : "block";
-                if (allTagsOption) {
-                    allTagsOption.style.display = searchTerm ? "none" : "block";
-                }
-                
-                event.stopPropagation();
-            });
-            
-            // Prevent closing dropdown when clicking on search
-            searchInput.addEventListener("click", function(event) {
-                event.stopPropagation();
-            });
-        }
-
-        // Handle option selection
-        options.forEach(function(option) {
-            option.addEventListener("click", function(event) {
-                option.classList.toggle("active");
-                
-                // Update "Select All" state
-                if (allTagsOption) {
-                    const allOptionsActive = Array.from(options)
-                        .filter(opt => opt.style.display !== "none") // Only consider visible options
-                        .every(opt => opt.classList.contains("active"));
-                        
-                    allTagsOption.classList.toggle("active", allOptionsActive);
-                }
-                
-                updateSelectedOptions(customSelect);
-                event.stopPropagation();
-            });
-        });
-
-        // Toggle dropdown when clicking the select box
-        const selectBox = customSelect.querySelector(".select-box");
-        selectBox.addEventListener("click", function(event) {
-            // Only toggle if not clicking on a tag's remove button
-            if (!event.target.closest(".remove-tag")) {
-                const wasOpen = customSelect.classList.contains("open");
-                
-                // Close all other dropdowns in the same container
-                customSelects.forEach(function(otherSelect) {
-                    if (otherSelect !== customSelect) {
-                        otherSelect.classList.remove("open");
-                    }
-                });
-                
-                // Toggle this dropdown
-                customSelect.classList.toggle("open");
-                
-                // Clear search when opening
-                if (!wasOpen && searchInput) {
-                    searchInput.value = "";
-                    options.forEach(function(option) {
-                        option.style.display = "block";
-                    });
-                    noResultMessage.style.display = "none";
-                    
-                    // Focus on search input
-                    setTimeout(() => {
-                        searchInput.focus();
-                    }, 10);
-                }
-            }
-        });
     });
 
-    // Handle removing tags and closing dropdowns when clicking outside
-    document.addEventListener("click", function(event) {
-        // Handle removing tags
-        const removeTag = event.target.closest(".remove-tag");
-        if (removeTag) {
-            const customSelect = removeTag.closest(".custom-select");
-            const valueToRemove = removeTag.getAttribute("data-value");
-            const optionsContainer = customSelect.parentNode.querySelector(".options");
-            const optionToRemove = optionsContainer.querySelector(`.option[data-value="${valueToRemove}"]`);
-            
-            if (optionToRemove) {
-                optionToRemove.classList.remove("active");
-                
-                const allTagsOption = optionsContainer.querySelector(".option.all-tags");
-                if (allTagsOption) {
-                    allTagsOption.classList.remove("active");
-                }
-                
-                updateSelectedOptions(customSelect);
-            }
-            
-            event.stopPropagation();
-        } 
-        // Close dropdowns when clicking outside
-        else if (!event.target.closest(".custom-select") && !event.target.closest(".options")) {
-            customSelects.forEach(function(customSelect) {
-                customSelect.classList.remove("open");
-            });
-        }
-    });
+    // Function to populate nutrition options in both forms
+    function populateNutritionOptions(containerSelector, data) {
+        const optionsContainer = document.querySelector(containerSelector);
 
-    // Initialize all custom selects in the container
-    customSelects.forEach(updateSelectedOptions);
-}
-
-function updateSelectedOptions(customSelect) {
-    const optionsContainer = customSelect.parentNode.querySelector(".options");
-    const tagsInput = customSelect.querySelector(".tags_input");
-    const selectedOptionsContainer = customSelect.querySelector(".selected-options");
-    
-    if (!optionsContainer || !tagsInput || !selectedOptionsContainer) return;
-    
-    // Get active options
-    const selectedOptions = Array.from(
-        optionsContainer.querySelectorAll(".option.active:not(.all-tags):not(.option-search-tags)")
-    )
-    .map(function(option) {
-        return {
-            value: option.getAttribute("data-value"),
-            text: option.textContent.trim()
-        };
-    });
-
-    // Update the hidden input with comma-separated values
-    const selectedValues = selectedOptions.map(option => option.value);
-    tagsInput.value = selectedValues.join(",");
-    
-    // Check if the input is required and has a value
-    const tagErrorMsg = customSelect.parentNode.querySelector(".tag_error_msg");
-    if (tagErrorMsg) {
-        tagErrorMsg.style.display = tagsInput.required && selectedValues.length === 0 ? "block" : "none";
-    }
-
-    // Generate the HTML for displaying selected tags
-    let tagHTML = "";
-    if (selectedOptions.length === 0) {
-        tagHTML = '<span class="placeholder">Select nutrition IDs</span>';
-    } else {
-        const maxTagsToShow = 4;
-        let additionalTagsCount = 0;
-        
-        selectedOptions.forEach(function(option, index) {
-            if (index < maxTagsToShow) {
-                tagHTML += '<span class="tag">' + option.text + 
-                            '<span class="remove-tag" data-value="' + option.value + '">&times;</span></span>';
+        // Make sure we don't duplicate options if already populated
+        if (optionsContainer && optionsContainer.querySelectorAll('.option:not(.all-tags):not(.option-search-tags)').length === 0) {
+            if (data.length > 0) {
+                // Create options for each nutrition item
+                data.forEach(nutrition => {
+                    const option = document.createElement('div');
+                    option.classList.add('option');
+                    option.dataset.value = nutrition.nutrition_id;
+                    option.textContent = `(${nutrition.nutrition_id}) ${nutrition.nutrition_name}`;
+                    optionsContainer.appendChild(option);
+                });
             } else {
-                additionalTagsCount++;
+                const noData = document.createElement("div");
+                noData.classList.add("no-result-message");
+                noData.textContent = "No nutrition data found";
+                optionsContainer.appendChild(noData);
+            }
+        }
+    }
+
+    // Function to set up image preview
+    function setupImagePreview(inputId, previewId, wordsId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener("change", function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.getElementById(previewId);
+                        img.src = e.target.result;
+                        img.style.display = "block";
+                        document.getElementById(wordsId).style.display = "none";
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+    function initializeCustomSelects(containerSelector) {
+        const customSelects = document.querySelectorAll(containerSelector);
+
+        customSelects.forEach(function(customSelect) {
+            const optionsContainer = customSelect.parentNode.querySelector(".options");
+            const searchInput = optionsContainer.querySelector(".search-tags");
+            const options = optionsContainer.querySelectorAll(".option:not(.all-tags):not(.option-search-tags)");
+            const allTagsOption = optionsContainer.querySelector(".option.all-tags");
+
+            // Create no-result message if it doesn't exist
+            let noResultMessage = optionsContainer.querySelector(".no-result-message");
+            if (!noResultMessage) {
+                noResultMessage = document.createElement("div");
+                noResultMessage.classList.add("no-result-message");
+                noResultMessage.textContent = "No matching options found";
+                noResultMessage.style.display = "none";
+                optionsContainer.appendChild(noResultMessage);
+            }
+
+            // Handle "Select All" functionality if allTagsOption exists
+            if (allTagsOption) {
+                allTagsOption.addEventListener("click", function(event) {
+                    const isActive = allTagsOption.classList.contains("active");
+                    allTagsOption.classList.toggle("active");
+
+                    options.forEach(function(option) {
+                        if (option.style.display !== "none") { // Only toggle visible options
+                            option.classList.toggle("active", !isActive);
+                        }
+                    });
+
+                    updateSelectedOptions(customSelect);
+                    event.stopPropagation();
+                });
+            }
+
+            // Handle search functionality
+            if (searchInput) {
+                searchInput.addEventListener("input", function(event) {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    let anyOptionsMatch = false;
+
+                    options.forEach(function(option) {
+                        const optionText = option.textContent.trim().toLowerCase();
+                        const shouldShow = optionText.includes(searchTerm);
+                        option.style.display = shouldShow ? "block" : "none";
+                        if (shouldShow) anyOptionsMatch = true;
+                    });
+
+                    noResultMessage.style.display = anyOptionsMatch ? "none" : "block";
+                    if (allTagsOption) {
+                        allTagsOption.style.display = searchTerm ? "none" : "block";
+                    }
+
+                    event.stopPropagation();
+                });
+
+                // Prevent closing dropdown when clicking on search
+                searchInput.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                });
+            }
+
+            // Handle option selection
+            options.forEach(function(option) {
+                option.addEventListener("click", function(event) {
+                    option.classList.toggle("active");
+
+                    // Update "Select All" state
+                    if (allTagsOption) {
+                        const allOptionsActive = Array.from(options)
+                            .filter(opt => opt.style.display !== "none") // Only consider visible options
+                            .every(opt => opt.classList.contains("active"));
+
+                        allTagsOption.classList.toggle("active", allOptionsActive);
+                    }
+
+                    updateSelectedOptions(customSelect);
+                    event.stopPropagation();
+                });
+            });
+
+            // Toggle dropdown when clicking the select box
+            const selectBox = customSelect.querySelector(".select-box");
+            selectBox.addEventListener("click", function(event) {
+                // Only toggle if not clicking on a tag's remove button
+                if (!event.target.closest(".remove-tag")) {
+                    const wasOpen = customSelect.classList.contains("open");
+
+                    // Close all other dropdowns in the same container
+                    customSelects.forEach(function(otherSelect) {
+                        if (otherSelect !== customSelect) {
+                            otherSelect.classList.remove("open");
+                        }
+                    });
+
+                    // Toggle this dropdown
+                    customSelect.classList.toggle("open");
+
+                    // Clear search when opening
+                    if (!wasOpen && searchInput) {
+                        searchInput.value = "";
+                        options.forEach(function(option) {
+                            option.style.display = "block";
+                        });
+                        noResultMessage.style.display = "none";
+
+                        // Focus on search input
+                        setTimeout(() => {
+                            searchInput.focus();
+                        }, 10);
+                    }
+                }
+            });
+        });
+
+        // Handle removing tags and closing dropdowns when clicking outside
+        document.addEventListener("click", function(event) {
+            // Handle removing tags
+            const removeTag = event.target.closest(".remove-tag");
+            if (removeTag) {
+                const customSelect = removeTag.closest(".custom-select");
+                const valueToRemove = removeTag.getAttribute("data-value");
+                const optionsContainer = customSelect.parentNode.querySelector(".options");
+                const optionToRemove = optionsContainer.querySelector(`.option[data-value="${valueToRemove}"]`);
+
+                if (optionToRemove) {
+                    optionToRemove.classList.remove("active");
+
+                    const allTagsOption = optionsContainer.querySelector(".option.all-tags");
+                    if (allTagsOption) {
+                        allTagsOption.classList.remove("active");
+                    }
+
+                    updateSelectedOptions(customSelect);
+                }
+
+                event.stopPropagation();
+            }
+            // Close dropdowns when clicking outside
+            else if (!event.target.closest(".custom-select") && !event.target.closest(".options")) {
+                customSelects.forEach(function(customSelect) {
+                    customSelect.classList.remove("open");
+                });
             }
         });
-        
-        if (additionalTagsCount > 0) {
-            tagHTML += '<span class="tag">+' + additionalTagsCount + ' more</span>';
-        }
-    }
-    
-    selectedOptionsContainer.innerHTML = tagHTML;
-}
 
-// Special function to pre-select nutrition IDs in the edit form
-function setSelectedNutritionIds(nutritionIds) {
-    if (!nutritionIds || !nutritionIds.length) return;
-    
-    const editCustomSelect = document.querySelector('.edit-profile .custom-select');
-    if (!editCustomSelect) return;
-    
-    const optionsContainer = editCustomSelect.parentNode.querySelector(".options");
-    if (!optionsContainer) return;
-    
-    // Clear all existing selections
-    optionsContainer.querySelectorAll(".option.active").forEach(option => {
-        option.classList.remove("active");
-    });
-    
-    // Mark the corresponding options as active
-    nutritionIds.forEach(id => {
-        const option = optionsContainer.querySelector(`.option[data-value="${id}"]`);
-        if (option) {
-            option.classList.add("active");
+        // Initialize all custom selects in the container
+        customSelects.forEach(updateSelectedOptions);
+    }
+
+    function updateSelectedOptions(customSelect) {
+        const optionsContainer = customSelect.parentNode.querySelector(".options");
+        const tagsInput = customSelect.querySelector(".tags_input");
+        const selectedOptionsContainer = customSelect.querySelector(".selected-options");
+
+        if (!optionsContainer || !tagsInput || !selectedOptionsContainer) return;
+
+        // Get active options
+        const selectedOptions = Array.from(
+                optionsContainer.querySelectorAll(".option.active:not(.all-tags):not(.option-search-tags)")
+            )
+            .map(function(option) {
+                return {
+                    value: option.getAttribute("data-value"),
+                    text: option.textContent.trim()
+                };
+            });
+
+        // Update the hidden input with comma-separated values
+        const selectedValues = selectedOptions.map(option => option.value);
+        tagsInput.value = selectedValues.join(",");
+
+        // Check if the input is required and has a value
+        const tagErrorMsg = customSelect.parentNode.querySelector(".tag_error_msg");
+        if (tagErrorMsg) {
+            tagErrorMsg.style.display = tagsInput.required && selectedValues.length === 0 ? "block" : "none";
         }
-    });
-    
-    // Update the select box display
-    updateSelectedOptions(editCustomSelect);
-    
-    // Check if all options are selected and update the "Select All" option
-    const allTagsOption = optionsContainer.querySelector(".option.all-tags");
-    if (allTagsOption) {
-        const options = optionsContainer.querySelectorAll(".option:not(.all-tags):not(.option-search-tags)");
-        const allSelected = options.length > 0 && 
-                          Array.from(options).every(opt => opt.classList.contains("active"));
-        
-        if (allSelected) {
-            allTagsOption.classList.add("active");
+
+        // Generate the HTML for displaying selected tags
+        let tagHTML = "";
+        if (selectedOptions.length === 0) {
+            tagHTML = '<span class="placeholder">Select nutrition IDs</span>';
         } else {
-            allTagsOption.classList.remove("active");
+            const maxTagsToShow = 4;
+            let additionalTagsCount = 0;
+
+            selectedOptions.forEach(function(option, index) {
+                if (index < maxTagsToShow) {
+                    tagHTML += '<span class="tag">' + option.text +
+                        '<span class="remove-tag" data-value="' + option.value + '">&times;</span></span>';
+                } else {
+                    additionalTagsCount++;
+                }
+            });
+
+            if (additionalTagsCount > 0) {
+                tagHTML += '<span class="tag">+' + additionalTagsCount + ' more</span>';
+            }
+        }
+
+        selectedOptionsContainer.innerHTML = tagHTML;
+    }
+
+    // Special function to pre-select nutrition IDs in the edit form
+    function setSelectedNutritionIds(nutritionIds) {
+        if (!nutritionIds || !nutritionIds.length) return;
+
+        const editCustomSelect = document.querySelector('.edit-profile .custom-select');
+        if (!editCustomSelect) return;
+
+        const optionsContainer = editCustomSelect.parentNode.querySelector(".options");
+        if (!optionsContainer) return;
+
+        // Clear all existing selections
+        optionsContainer.querySelectorAll(".option.active").forEach(option => {
+            option.classList.remove("active");
+        });
+
+        // Mark the corresponding options as active
+        nutritionIds.forEach(id => {
+            const option = optionsContainer.querySelector(`.option[data-value="${id}"]`);
+            if (option) {
+                option.classList.add("active");
+            }
+        });
+
+        // Update the select box display
+        updateSelectedOptions(editCustomSelect);
+
+        // Check if all options are selected and update the "Select All" option
+        const allTagsOption = optionsContainer.querySelector(".option.all-tags");
+        if (allTagsOption) {
+            const options = optionsContainer.querySelectorAll(".option:not(.all-tags):not(.option-search-tags)");
+            const allSelected = options.length > 0 &&
+                Array.from(options).every(opt => opt.classList.contains("active"));
+
+            if (allSelected) {
+                allTagsOption.classList.add("active");
+            } else {
+                allTagsOption.classList.remove("active");
+            }
         }
     }
-}
- //------------------------select row--------------------------
- const rows = document.querySelectorAll('table tr:not(:first-child)');
+    //------------------------select row--------------------------
+    const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
     const nutriDeleteBtn = document.getElementById("nutrition-delete-btn");
@@ -860,7 +933,7 @@ function setSelectedNutritionIds(nutritionIds) {
     let selectedRow = null;
     let mselectedRow = null;
     document.querySelectorAll(".diet-container tr").forEach(row => {
-        row.addEventListener('click', function (event) {
+        row.addEventListener('click', function(event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
 
@@ -876,41 +949,41 @@ function setSelectedNutritionIds(nutritionIds) {
     });
 
     document.querySelectorAll(".nutrition-container tr").forEach(row => {
-        row.addEventListener('click', function (event) {
+        row.addEventListener('click', function(event) {
             if (isEditing) return;
             if (this.classList.contains('no-data')) return;
-    
+
             event.stopPropagation();
             rows.forEach(r => r.classList.remove('selected'));
             mselectedRow = this;
             this.classList.add('selected');
-    
+
             nutriDeleteBtn.disabled = false;
             nutriEditBtn.disabled = false;
         });
     });
 
     //------------------------------deselect------------------
-    document.addEventListener("click", function (event) {
+    document.addEventListener("click", function(event) {
         const table = document.querySelector(".box table");
         const table2 = document.querySelector(".nutri-box table");
         const tableOptions = document.querySelectorAll('.table-option');
         tableOptions.forEach(tableOption => {
             if (table.contains(event.target) && tableOption.contains(event.target) && table2.contains(event.target)) {
-            if (isEditing) return;
-            if (selectedRow) {
-                selectedRow.classList.remove('selected');
-                selectedRow = null;
+                if (isEditing) return;
+                if (selectedRow) {
+                    selectedRow.classList.remove('selected');
+                    selectedRow = null;
+                }
+                if (mselectedRow) {
+                    mselectedRow.classList.remove('selected');
+                    mselectedRow = null;
+                }
+                editBtn.disabled = true;
+                deleteBtn.disabled = true;
+                nutriDeleteBtn.disabled = true;
+                nutriEditBtn.disabled = true;
             }
-            if (mselectedRow) {
-                mselectedRow.classList.remove('selected');
-                mselectedRow = null;
-            }
-            editBtn.disabled = true;
-            deleteBtn.disabled = true;
-            nutriDeleteBtn.disabled = true;
-            nutriEditBtn.disabled = true;
-        }
         });
     }, true);
 
@@ -958,7 +1031,7 @@ function setSelectedNutritionIds(nutritionIds) {
                 if (tagsInput) {
                     tagsInput.value = data.nutrition_ids.join(",");
                 }
-                
+
                 // Use our new function to pre-select the options
                 setSelectedNutritionIds(data.nutrition_ids);
             })
@@ -968,7 +1041,7 @@ function setSelectedNutritionIds(nutritionIds) {
             });
     });
 
-    nutriEditBtn.addEventListener("click", function () {
+    nutriEditBtn.addEventListener("click", function() {
         if (!mselectedRow) return;
         isEditing = true;
         document.getElementById("nutrition-name").value = "";
@@ -980,7 +1053,7 @@ function setSelectedNutritionIds(nutritionIds) {
         neditProfile.style.display = "block";
         nutriEditBtn.disabled = true;
         nutriDeleteBtn.disabled = true;
-        
+
         const cells = mselectedRow.getElementsByTagName("td");
         document.getElementById("selectedNutriId").value = cells[0].textContent;
         document.getElementById("enutrition-name").value = cells[1].textContent;
@@ -1016,8 +1089,8 @@ function setSelectedNutritionIds(nutritionIds) {
         neditProfile.style.display = "none";
     });
 
-//----------------------delete data------------------------
- let id = null;
+    //----------------------delete data------------------------
+    let id = null;
     let table = null;
     deleteBtn.addEventListener("click", () => {
         if (!selectedRow) return;
@@ -1029,19 +1102,19 @@ function setSelectedNutritionIds(nutritionIds) {
         console.log(`ID: ${id}, Table: ${table}`);
     });
 
-    
+
     document.getElementById("nutrition-delete-btn").addEventListener("click", () => {
         console.log("Selected row:", mselectedRow);
         if (!mselectedRow) return;
         let popUp = document.getElementById("mpopup");
-        
+
         popUp.style.display = "flex";
         id = mselectedRow.getAttribute("nutrition-id");
         table = "nutrition";
         console.log(`ID: ${id}, Table: ${table}`);
     });
 
-    document.querySelector(".content").addEventListener("click", function (event) {
+    document.querySelector(".content").addEventListener("click", function(event) {
         if (event.target.classList.contains("confirmDelete")) {
             console.log("confirmDelete button detected");
 
@@ -1051,14 +1124,16 @@ function setSelectedNutritionIds(nutritionIds) {
             }
 
             fetch("delete.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `table=${table}&id=${id}`
-            })
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `table=${table}&id=${id}`
+                })
                 .then(res => res.text())
-                .then(() => location.reload()) 
+                .then(() => location.reload())
                 .catch(console.error);
-    
+
             document.getElementById("popup").style.display = "none";
             document.getElementById("mpopup").style.display = "none";
         }
@@ -1068,19 +1143,19 @@ function setSelectedNutritionIds(nutritionIds) {
         }
     });
 
-//-----------------------------search--------------------------
+    //-----------------------------search--------------------------
     document.querySelectorAll(".search-bar").forEach(searchBar => {
-        searchBar.addEventListener("keyup", function () {
+        searchBar.addEventListener("keyup", function() {
             const searchValue = this.value.toLowerCase();
 
             let table = this.closest("div").querySelector("table");
             let rows = table.querySelectorAll("tr:not(:first-child)");
-    
+
             rows.forEach(row => {
                 if (row.classList.contains("no-data")) return;
-    
-                const usernameCell = row.cells[1].textContent.toLowerCase(); 
-    
+
+                const usernameCell = row.cells[1].textContent.toLowerCase();
+
                 if (usernameCell.includes(searchValue)) {
                     row.style.display = "";
                 } else {
@@ -1115,36 +1190,36 @@ function setSelectedNutritionIds(nutritionIds) {
     }
     populateOptions(nutritionData);
 
-    document.getElementById("meal_picture").addEventListener("change", function (event) {
-    const file = event.target.files[0]; 
-    if (file) {
-        const reader = new FileReader(); 
-        reader.onload = function (e) {
-            console.log("image attached");
-            const img = document.getElementById("imagePreview");
-            img.src = e.target.result;
-            img.style.display = "block"; 
+    document.getElementById("meal_picture").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                console.log("image attached");
+                const img = document.getElementById("imagePreview");
+                img.src = e.target.result;
+                img.style.display = "block";
 
-            const words = document.getElementById("words");
-            words.style.display = "none";
-        };
-        reader.readAsDataURL(file);
-    }
-    
-
-    const tagsInput = document.querySelector('.tags_input');
-    if (tagsInput && tagsInput.value) {
-        const selectedValues = tagsInput.value.split(',');
-        const optionsContainer = document.querySelector('.options');
-        if (optionsContainer) {
-            selectedValues.forEach(value => {
-                const option = optionsContainer.querySelector(`.option[data-value="${value}"]`);
-                if (option) {
-                    option.classList.add('active');
-                }
-            });
-            updateSelectedOptions(document.querySelector('.custom-select'));
+                const words = document.getElementById("words");
+                words.style.display = "none";
+            };
+            reader.readAsDataURL(file);
         }
-    }
-});
-</script>  
+
+
+        const tagsInput = document.querySelector('.tags_input');
+        if (tagsInput && tagsInput.value) {
+            const selectedValues = tagsInput.value.split(',');
+            const optionsContainer = document.querySelector('.options');
+            if (optionsContainer) {
+                selectedValues.forEach(value => {
+                    const option = optionsContainer.querySelector(`.option[data-value="${value}"]`);
+                    if (option) {
+                        option.classList.add('active');
+                    }
+                });
+                updateSelectedOptions(document.querySelector('.custom-select'));
+            }
+        }
+    });
+</script>
