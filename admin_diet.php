@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -997,29 +998,19 @@ $nutritionJson = json_encode($nutritionData);
     });
 
 
-    //discard changes button
+    //--------------------------discard changes button---------------------------------------
     document.getElementById("discard-btn").addEventListener("click", () => {
         addProfile.style.display = "block";
         editProfile.style.display = "none";
         isEditing = false;
+        showSection(); 
     });
 
     document.getElementById("ndiscard-btn").addEventListener("click", () => {
         naddProfile.style.display = "block";
         neditProfile.style.display = "none";
         isEditing = false;
-    });
-
-    document.getElementById("confirm-btn").addEventListener("click", () => {
-        isEditing = false;
-        addProfile.style.display = "block";
-        editProfile.style.display = "none";
-    });
-
-    document.getElementById("nconfirm-btn").addEventListener("click", () => {
-        isEditing = false;
-        naddProfile.style.display = "block";
-        neditProfile.style.display = "none";
+        showSection(); 
     });
 
     //----------------------delete data------------------------
