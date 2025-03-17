@@ -1,10 +1,5 @@
-<!-- NOTE FOR JS(dun ask me why this prevent bugs):
-- admin_diet.js: select sections, retain information, clear session
-- upper script: redirecting if got input errors
-- down script: everything else -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,23 +9,10 @@
     <link rel="stylesheet" href="./css/admin_diet.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/navigation_bar.js"></script>
-    <script src="js/admin_diet.js"></script>
+    <script src="js/data_validation.js"></script>
 </head>
-<script>
-    window.onresize = function() {
-        if (window.innerWidth > 1200) {
-            window.scrollTo(0, 0);
-        }
-    };
-    if (window.location.hash === "#nutrition") {
-        document.querySelector('.nutrition-container').style.display = 'flex';
-        document.querySelector('.diet-container').style.display = 'none';
-        document.querySelector('.nutrition-link').classList.add('active');
-        document.querySelector('.diet-link').classList.remove('active');
-        exit();
-    }
-</script>
 
+<!-- ---------------------------------INSERT NUTRITION TO TABLE------------------------ -->
 <?php
 include "conn.php";
 session_start();
@@ -42,96 +24,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $protein = $_POST['protein'] ?? 0;
     $carbohydrate = $_POST['carb'] ?? 0;
 
-    // Insert the new nutrition data directly
-    $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate, created_at) VALUES (?, ?, ?, ?, ?, CURDATE())");
+    $insertStmt = $dbConn->prepare("INSERT INTO nutrition (nutrition_name, calories, fat, protein, carbohydrate, date_registered) VALUES (?, ?, ?, ?, ?, CURDATE())");
     $insertStmt->bind_param("sdddd", $name, $calories, $fat, $protein, $carbohydrate);
 
     if ($insertStmt->execute()) {
-        // Redirect to the admin_diet.php page after successful insertion
         header("Location: admin_diet.php#nutrition");
         exit();
     } else {
-        // Handle error if needed (optional)
         echo "Error adding nutrition data: " . $dbConn->error;
     }
 }
 ?>
-
-
-<script>
-    // JavaScript Functions
-    function checkUniqueName(inputElement, feedbackElement, existingMessage, table, column, endpoint) {
-        const value = inputElement.value.trim();
-
-        if (value === "") {
-            feedbackElement.textContent = "";
-            return;
-        }
-
-        // Send an AJAX request to the specified endpoint
-        fetch("inputValidation.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error) {
-                    feedbackElement.textContent = data.error;
-                    feedbackElement.style.color = "red";
-                } else if (data.exists) {
-                    feedbackElement.textContent = existingMessage;
-                    feedbackElement.style.color = "red";
-                }
-            })
-            .catch(error => {
-                console.error("Error checking uniqueness:", error);
-                feedbackElement.textContent = "An error occurred while checking the value.";
-                feedbackElement.style.color = "red";
-            });
-    }
-
-    function checkNumber(inputElement, feedbackElement, errorMessage) {
-        const value = inputElement.value.trim();
-
-        if (value === "") {
-            feedbackElement.textContent = "";
-            return;
-        }
-
-        if (isNaN(value) || parseFloat(value) <= 0) {
-            feedbackElement.textContent = errorMessage;
-            feedbackElement.style.color = "red";
-        }
-    }
-
-    function checkDirections(textareaId, feedbackId) {
-        const directionsTextarea = document.getElementById(textareaId);
-        const feedbackElement = document.getElementById(feedbackId);
-
-        const directionsText = directionsTextarea.value;
-
-        // Count occurrences of ':' and ';'
-        const colonCount = (directionsText.match(/:/g) || []).length;
-        const semicolonCount = (directionsText.match(/;/g) || []).length;
-
-        // Check if counts are the same
-        if (colonCount === 0 && semicolonCount === 0) {
-            feedbackElement.textContent = "Please include at least one colon (:) and one semicolon (;).";
-        } else if (colonCount !== semicolonCount) {
-            feedbackElement.textContent = "The number of colons (:) and semicolons (;) must be the same.";
-        } else {
-            feedbackElement.textContent = ""; // Clear feedback if counts match
-        }
-    }
-</script>
 
 <body>
     <nav class="navbar" id="navbar">
@@ -315,7 +218,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="selectedDietId" name="selectedDietId" value="<?php echo $_GET['diet_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="diet">
                     <label for="ediet-name">Meal Name</label>
-                    <input type="text" id="ediet-name" name="ediet-name" oninput="checkUniqueName(this, document.getElementById('ediet-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
+                    <input type="text" id="ediet-name" name="ediet-name"
+                        oninput="checkUniqueName(this, 
+                document.getElementById('ediet-name-feedback'), 
+                'Meal Name already exists', 
+                'diet', 
+                'diet_name', 
+                'inputValidation.php', 
+                document.getElementById('selectedDietId').value)">
                     <p id="ediet-name-feedback" class="feedback"></p>
 
                     <div class="form-columns">
@@ -404,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
         </div>
-        
+
         <div class="nutrition-container">
             <div class="section1">
                 <input type="text" class="search-bar" placeholder="Search Nutrition Name">
@@ -417,6 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <th>Fat (g)</th>
                             <th>Protein (g)</th>
                             <th>Carbohydrate (g)</th>
+                            <th>Registration Date</th>
                         </tr>
 
                         <?php
@@ -433,6 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 echo "<td>" . $row['fat'] . "</td>";
                                 echo "<td>" . $row['protein'] . "</td>";
                                 echo "<td>" . $row['carbohydrate'] . "</td>";
+                                echo "<td>" . $row['date_registered'] . "</td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -451,89 +363,126 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <center>
                     <h2>Add New <span>Nutrition</span></h2>
                 </center>
-                <?php
-                if (!empty($nutrierrors)) {
-                    echo '<div class="error-messages">';
-                    foreach ($nutrierrors as $error) {
-                        echo "<p style='color:red;'>$error</p>";
-                    }
-                    echo '</div>';
-                }
-                ?>
 
                 <form action="" method="POST">
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="nutrition-name" name="nutrition-name" value="<?php echo htmlspecialchars($nutri_old_data['nutrition-name'] ?? ''); ?>" required>
+                    <input type="text" id="nutrition-name" name="nutrition-name" required
+                        oninput="checkUniqueName(this, feedbackNutritionName, 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php'); checkNumberInBrackets(this, feedbackNutritionName, 'The number inside the brackets must be greater than 0.')">
+                    <div id="feedbackNutritionName"></div>
 
                     <label for="calories">Calories</label>
-                    <input type="number" id="calories" name="calories" value="<?php echo htmlspecialchars($nutri_old_data['calories'] ?? ''); ?>" required>
+                    <input type="number" id="calories" name="calories" required
+                        oninput="checkNumber(this, feedbackCalories, 'Calories must be a positive number.')">
+                    <div id="feedbackCalories"></div>
 
                     <label for="fat">Fat (g)</label>
-                    <input type="number" step="0.01" id="fat" name="fat" value="<?php echo htmlspecialchars($nutri_old_data['fat'] ?? ''); ?>" required>
+                    <input type="number" step="0.01" id="fat" name="fat" required
+                        oninput="checkNumber(this, feedbackFat, 'Fat must be a positive number.')">
+                    <div id="feedbackFat"></div>
 
                     <label for="protein">Protein (g)</label>
-                    <input type="number" step="0.01" id="protein" name="protein" value="<?php echo htmlspecialchars($nutri_old_data['protein'] ?? ''); ?>" required>
+                    <input type="number" step="0.01" id="protein" name="protein" required
+                        oninput="checkNumber(this, feedbackProtein, 'Protein must be a positive number.')">
+                    <div id="feedbackProtein"></div>
 
                     <label for="carb">Carbohydrate (g)</label>
-                    <input type="number" step="0.01" id="carb" name="carb" value="<?php echo htmlspecialchars($nutri_old_data['carb'] ?? ''); ?>" required>
+                    <input type="number" step="0.01" id="carb" name="carb" required
+                        oninput="checkNumber(this, feedbackCarb, 'Carbohydrates must be a positive number.')">
+                    <div id="feedbackCarb"></div>
 
                     <div style="display: flex; justify-content: center; white-space: nowrap;">
-                        <button type="submit" id="nadd-profile-btn">Create New</button>
+                        <button type="submit" id="nadd-profile-btn" disabled>Create New</button>
                     </div>
                 </form>
+
+                <script>
+                    function nvalidateForm() {
+                        // Get feedback messages for each input field
+                        const nutritionNameFeedback = document.getElementById('feedbackNutritionName').textContent.trim();
+                        const caloriesFeedback = document.getElementById('feedbackCalories').textContent.trim();
+                        const fatFeedback = document.getElementById('feedbackFat').textContent.trim();
+                        const proteinFeedback = document.getElementById('feedbackProtein').textContent.trim();
+                        const carbFeedback = document.getElementById('feedbackCarb').textContent.trim();
+
+                        // Check if any feedback messages exist
+                        const isValid = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+
+                        // Enable or disable the submit button based on validation
+                        document.getElementById('nadd-profile-btn').disabled = !isValid;
+                    }
+
+                    // Add event listeners to the input fields in the nadd-profile form
+                    document.getElementById('nutrition-name').addEventListener('input', nvalidateForm);
+                    document.getElementById('calories').addEventListener('input', nvalidateForm);
+                    document.getElementById('fat').addEventListener('input', nvalidateForm);
+                    document.getElementById('protein').addEventListener('input', nvalidateForm);
+                    document.getElementById('carb').addEventListener('input', nvalidateForm);
+                </script>
+
             </div>
             <div class="edit-profile" id="nedit-profile" style="height:540px;">
                 <center>
                     <h2>Edit <span>Nutrition</span></h2>
                 </center>
-                <form action="edit.php" method="POST">
-                    <?php
-                    $errors = $_SESSION['admin_errors'] ?? [];
-                    $old_data = $_SESSION['old_data'] ?? [];
-                    $showEditForm = $_SESSION['show_edit_form'] ?? false;
-
-                    if (isset($_SESSION['admin_errors']) && count($_SESSION['admin_errors']) > 0) {
-                        echo "<div class='error-messages'>";
-                        foreach ($_SESSION['admin_errors'] as $error) {
-                            echo "<p style='color: red;'>$error</p>";
-                        }
-                        echo "</div>";
-                        unset($_SESSION['admin_errors']);
-                        unset($_SESSION['old_data']);
-                    }
-                    ?>
+                <form action="edit.php" method="POST" onsubmit="return validateForm();">
 
                     <input type="hidden" id="selectedNutriId" name="selectedNutriId" value="<?php echo $_GET['nutrition_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="nutrition">
+
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="enutrition-name" name="enutrition-name" value="<?php echo htmlspecialchars($old_data['enutrition-name'] ?? ''); ?>" required>
+                    <input type="text" id="enutrition-name" name="enutrition-name" required
+                        oninput="checkNumberInBrackets(this, document.getElementById('efeedbackNutritionName'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('efeedbackNutritionName'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php',
+                document.getElementById('selectedNutriId').value) ">
+                    <div id="efeedbackNutritionName"></div>
 
                     <label for="calories">Calories</label>
-                    <input type="number" id="ecalories" name="ecalories" value="<?php echo htmlspecialchars($old_data['ecalories'] ?? ''); ?>" required>
+                    <input type="number" id="ecalories" name="ecalories" required
+                        onblur="checkNumber(this, feedbackCalories, 'Calories must be a positive number.')">
+                    <div id="feedbackCalories"></div>
 
                     <label for="fat">Fat (g)</label>
-                    <input type="number" step="0.01" id="efat" name="efat" value="<?php echo htmlspecialchars($old_data['efat'] ?? ''); ?>" required>
-
+                    <input type="number" step="0.01" id="efat" name="efat" required
+                        onblur="checkNumber(this, feedbackFat, 'Fat must be a positive number.')">
+                    <div id="feedbackFat"></div>
 
                     <label for="protein">Protein (g)</label>
-                    <input type="number" step="0.01" id="eprotein" name="eprotein" value="<?php echo htmlspecialchars($old_data['eprotein'] ?? ''); ?>" required>
+                    <input type="number" step="0.01" id="eprotein" name="eprotein" required
+                        onblur="checkNumber(this, feedbackProtein, 'Protein must be a positive number.')">
+                    <div id="feedbackProtein"></div>
 
                     <label for="carb">Carbohydrate (g)</label>
-                    <input type="number" step="0.01" id="ecarb" name="ecarb" value="<?php echo htmlspecialchars($old_data['ecarb'] ?? ''); ?>" required>
+                    <input type="number" step="0.01" id="ecarb" name="ecarb" required
+                        onblur="checkNumber(this, feedbackCarb, 'Carbohydrates must be a positive number.')">
+                    <div id="feedbackCarb"></div>
 
                     <div class="table-option">
                         <button type="button" id="ndiscard-btn">Discard Changes</button>
                         <button type="submit" id="nconfirm-btn">Update Changes</button>
                     </div>
                 </form>
-                <?php
-                if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-                    unset($_SESSION['admin_errors']);
-                    unset($_SESSION['old_data']);
-                    unset($_SESSION['show_edit_form']);
-                }
-                ?>
+                <script>
+                    function validateForm() {
+                        const nutritionNameFeedback = document.getElementById('feedbackNutritionName').textContent.trim();
+                        const caloriesFeedback = document.getElementById('feedbackCalories').textContent.trim();
+                        const fatFeedback = document.getElementById('feedbackFat').textContent.trim();
+                        const proteinFeedback = document.getElementById('feedbackProtein').textContent.trim();
+                        const carbFeedback = document.getElementById('feedbackCarb').textContent.trim();
+
+                        const isValid = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+
+                        document.getElementById('nconfirm-btn').disabled = !isValid;
+                        return isValid; // Prevent form submission if not valid
+                    }
+
+                    // Add event listeners to the input fields for validation
+                    document.getElementById('enutrition-name').addEventListener('input', validateForm);
+                    document.getElementById('ecalories').addEventListener('input', validateForm);
+                    document.getElementById('efat').addEventListener('input', validateForm);
+                    document.getElementById('eprotein').addEventListener('input', validateForm);
+                    document.getElementById('ecarb').addEventListener('input', validateForm);
+                </script>
             </div>
+
             <div class="mpopup" id="mpopup">
                 <div class="popup-content">
                     <h2>Confirm Deletion</h2>
@@ -564,6 +513,8 @@ if (mysqli_num_rows($result) > 0) {
 
 $nutritionJson = json_encode($nutritionData);
 ?>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize nutrition data for both forms
@@ -580,16 +531,6 @@ $nutritionJson = json_encode($nutritionData);
         // Set up image preview for both forms
         setupImagePreview('meal_picture', 'imagePreview', 'words');
         setupImagePreview('emeal_picture', 'eimagePreview', 'ewords');
-
-        <?php if (isset($_SESSION['temp_image'])): ?>
-            const imagePreview = document.getElementById('eimagePreview');
-            if (imagePreview) {
-                imagePreview.src = 'data:image/jpeg;base64,<?php echo $_SESSION['temp_image']; ?>';
-                imagePreview.style.display = 'block';
-                document.getElementById('ewords').style.display = 'none';
-            }
-            <?php unset($_SESSION['temp_image']); ?>
-        <?php endif; ?>
     });
 
     // Function to populate nutrition options in both forms
@@ -880,13 +821,47 @@ $nutritionJson = json_encode($nutritionData);
             }
         }
     }
+
+    //-------------------------navigation------------------------------
+    let isEditing = false;
+
+    function showSection() {
+        if (isEditing) {
+            return;
+        }
+
+        const hash = window.location.hash;
+        const nutritionContainer = document.querySelector('.nutrition-container');
+        const dietContainer = document.querySelector('.diet-container');
+        const nutritionLink = document.querySelector('.nutrition-link');
+        const dietLink = document.querySelector('.diet-link');
+
+        nutritionContainer.style.display = 'none';
+        dietContainer.style.display = 'none';
+        nutritionLink.classList.remove('active');
+        dietLink.classList.remove('active');
+
+        if (hash === "#nutrition") {
+            nutritionContainer.style.display = 'flex';
+            nutritionLink.classList.add('active');
+        } else if (hash === "#diet") {
+            dietContainer.style.display = 'flex';
+            dietLink.classList.add('active');
+        } else {
+            dietContainer.style.display = 'flex';
+            dietLink.classList.add('active');
+        }
+    }
+
+    showSection();
+    window.addEventListener('hashchange', showSection);
+
     //------------------------select row--------------------------
     const rows = document.querySelectorAll('table tr:not(:first-child)');
     const editBtn = document.getElementById("edit-btn");
     const deleteBtn = document.getElementById("delete-btn");
     const nutriDeleteBtn = document.getElementById("nutrition-delete-btn");
     const nutriEditBtn = document.getElementById("nutrition-edit-btn");
-    let isEditing = false;
     let selectedRow = null;
     let mselectedRow = null;
     document.querySelectorAll(".diet-container tr").forEach(row => {
@@ -1020,6 +995,7 @@ $nutritionJson = json_encode($nutritionData);
         document.getElementById("ecarb").value = cells[5].textContent;
 
     });
+
 
     //discard changes button
     document.getElementById("discard-btn").addEventListener("click", () => {
