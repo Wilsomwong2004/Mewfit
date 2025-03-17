@@ -58,8 +58,8 @@ session_start();
 
               <!-- Email-input -->
               <div class="inputs">
-                <label for="e-mail">Email</label>
-                <input type="email" id="e-mail" name="e-mail"/>
+                <label for="e-mail">Email <span id="exist-email"></span></label>
+                <input type="email" id="e-mail" name="e-mail" oninput="checkEmail()"/>
               </div>
 
               <!-- Password input -->

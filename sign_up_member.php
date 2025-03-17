@@ -64,7 +64,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     } 
 
-    $sql = "SELECT * FROM member WHERE email_address = '$email'";
+    $sql = "SELECT * FROM member WHERE email_address = '$email'
+            UNION
+            SELECT * FROM administrator WHERE email_address = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

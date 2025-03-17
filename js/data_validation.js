@@ -197,3 +197,32 @@ function checkUsername() {
       warning.style.color = "red";
     });
 }
+
+function checkEmail() {
+  let email = document.getElementById("e-mail").value;
+  let warning = document.getElementById("exist-email");
+
+  if (email.length === 0) {
+    warning.textContent = "";
+    return;
+  }
+
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailPattern.test(email)) {
+    warning.textContent = "Please enter a valid e-mail";
+    warning.style.color = "red";
+    return;
+  }
+
+  fetch("check_email.php?email=" + encodeURIComponent(email))
+    .then((response) => response.text())
+    .then((data) => {
+      warning.innerHTML = data;
+      warning.style.color = data.includes("already in use") ? "red" : "green";
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      warning.textContent = "Error checking email";
+      warning.style.color = "red";
+    });
+}
