@@ -14,23 +14,25 @@ $exercises = json_decode($jsonFile, true);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_workout.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
 </head>
+
 <body>
     <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
             <img src="./assets/icons/mewfit-admin-logo.svg" alt="logo" class="nav-logo" id="nav-logo">
             <span class="admin-dashboard"><a href="admin_homepage.php">DASHBOARD</a></span>
-            <span class="admin-user"><a href="admin_user_page.php" >USER</a></span>
+            <span class="admin-user"><a href="admin_user_page.php">USER</a></span>
             <span class="admin-workout"><a href="#" class="active">WORKOUT</a></span>
-            <span class="admin-meals"><a href="admin_diet.php" >MEALS</a></span>
+            <span class="admin-meals"><a href="admin_diet.php">MEALS</a></span>
         </div>
         <div class="header-right">
             <button id="hamburger-menu" aria-label="Menu">
@@ -39,7 +41,7 @@ $exercises = json_decode($jsonFile, true);
                 <span></span>
             </button>
         </div>
-        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
+        <image src="./assets/icons/admin_logout.svg" class="logout-profile" id="logout-profile"></image>
     </nav>
 
     <div class="container">
@@ -64,30 +66,30 @@ $exercises = json_decode($jsonFile, true);
                         <th>Date Registered</th>
                     </tr>
                     <?php
-                        include "conn.php";
-                        
-                        $sql = "SELECT * FROM workout"; // Changed from "administrator" to "workout"
-                        $result = mysqli_query($dbConn, $sql);
-                        if(mysqli_num_rows($result) <= 0){
-                            echo "<tr><td colspan='11'>No workout data found</td></tr>";
-                        } else {
-                            while($rows = mysqli_fetch_array($result)){
-                                echo "<tr>";
-                                echo "<td>" . (isset($rows['workout_id']) ? $rows['workout_id'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['workout_name']) ? $rows['workout_name'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['workout_type']) ? $rows['workout_type'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['difficulty']) ? $rows['difficulty'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['calories']) ? $rows['calories'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['duration']) ? $rows['duration'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['image']) ? $rows['image'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['description']) ? $rows['description'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['long_description']) ? $rows['long_description'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['sets']) ? $rows['sets'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['exercise_checklist']) ? $rows['exercise_checklist'] : '') . "</td>";
-                                echo "<td>" . (isset($rows['date_registered']) ? $rows['date_registered'] : '') . "</td>";
-                                echo "</tr>";
-                            }
+                    include "conn.php";
+
+                    $sql = "SELECT * FROM workout";
+                    $result = mysqli_query($dbConn, $sql);
+                    if (mysqli_num_rows($result) <= 0) {
+                        echo "<tr><td colspan='11'>No workout data found</td></tr>";
+                    } else {
+                        while ($rows = mysqli_fetch_array($result)) {
+                            echo "<tr>";
+                            echo "<td>" . (isset($rows['workout_id']) ? $rows['workout_id'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['workout_name']) ? $rows['workout_name'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['workout_type']) ? $rows['workout_type'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['difficulty']) ? $rows['difficulty'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['calories']) ? $rows['calories'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['duration']) ? $rows['duration'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['image']) ? $rows['image'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['description']) ? $rows['description'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['long_description']) ? $rows['long_description'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['sets']) ? $rows['sets'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['exercise_checklist']) ? $rows['exercise_checklist'] : '') . "</td>";
+                            echo "<td>" . (isset($rows['date_registered']) ? $rows['date_registered'] : '') . "</td>";
+                            echo "</tr>";
                         }
+                    }
                     ?>
                 </table>
             </div>
@@ -103,12 +105,12 @@ $exercises = json_decode($jsonFile, true);
                 <h2>Add New <span>Workout</span></h2>
             </center>
             <form method="POST" action="" enctype="multipart/form-data">
-            <div class="form-columns">
-                <div class="column">
-                    <label for="workout-name">Workout Name</label>
-                    <input type="text" id="workout-name" name="workout-name" placeholder=" E.g. Morning Workout" required>
-                </div>
-                <div class="column">
+                <div class="form-columns">
+                    <div class="column">
+                        <label for="workout-name">Workout Name</label>
+                        <input type="text" id="workout-name" name="workout-name" placeholder=" E.g. Morning Workout" required>
+                    </div>
+                    <div class="column">
                         <label for="workout-type">Workout Type</label>
                         <select id="workout-type" name="workout-type" required>
                             <option value="">Select Type</option>
@@ -118,7 +120,7 @@ $exercises = json_decode($jsonFile, true);
                             <option value="Yoga">Yoga</option>
                         </select>
                     </div>
-            </div>
+                </div>
 
                 <div class="form-columns">
                     <div class="column">
@@ -153,7 +155,7 @@ $exercises = json_decode($jsonFile, true);
 
                 <label for="description">Short Description</label>
                 <textarea id="description" name="description" rows="2" required placeholder="Brief description shown in workout listings"></textarea>
-                
+
                 <label for="long-description">Long Description</label>
                 <textarea id="long-description" name="long-description" rows="3" required placeholder="Detailed description of the workout"></textarea>
 
@@ -170,15 +172,15 @@ $exercises = json_decode($jsonFile, true);
                             </div>
                             <div class="exercise-list">
                                 <?php if (empty($exercises)): ?>
-                                <p>No exercises found</p>
+                                    <p>No exercises found</p>
                                 <?php else: ?>
                                     <?php foreach ($exercises as $exercise): ?>
-                                    <div class="exercise-item">
-                                        <label class="exercise-label">
-                                            (<?php echo $exercise['id']; ?>) <?php echo $exercise['exercise']; ?>
-                                            <input type="checkbox" name="exercises[]" value="<?php echo $exercise['id']; ?>" class="exercise-checkbox">
-                                        </label>
-                                    </div>
+                                        <div class="exercise-item">
+                                            <label class="exercise-label">
+                                                (<?php echo $exercise['id']; ?>) <?php echo $exercise['exercise']; ?>
+                                                <input type="checkbox" name="exercises[]" value="<?php echo $exercise['id']; ?>" class="exercise-checkbox">
+                                            </label>
+                                        </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -193,65 +195,66 @@ $exercises = json_decode($jsonFile, true);
         </div>
     </div>
     <?php
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            include "conn.php";
-            
-            // Get form data
-            $name = $_POST['workout-name'] ?? '';
-            $type = $_POST['workout-type'] ?? '';
-            $sets = $_POST['sets'] ?? 0;
-            $difficulty = $_POST['difficulty'] ?? '';
-            $calories = $_POST['calorie'] ?? 0;
-            $duration = $_POST['minutes'] ?? 0;
-            $description = $_POST['description'] ?? '';
-            $long_description = $_POST['long-description'] ?? '';
-            
-            // Handle file upload for workout image
-            $image = '';
-            if(isset($_FILES['workout-image']) && $_FILES['workout-image']['error'] === 0) {
-                $target_dir = "assets/workout_pics/";
-                $file_extension = pathinfo($_FILES['workout-image']['name'], PATHINFO_EXTENSION);
-                $filename = strtolower(str_replace(' ', '_', $name)) . "." . $file_extension;
-                $target_file = $target_dir . $filename;
-                
-                // Move uploaded file
-                if(move_uploaded_file($_FILES['workout-image']['tmp_name'], $target_file)) {
-                    $image = $target_file;
-                }
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        include "conn.php";
+
+        // Get form data
+        $name = $_POST['workout-name'] ?? '';
+        $type = $_POST['workout-type'] ?? '';
+        $sets = $_POST['sets'] ?? 0;
+        $difficulty = $_POST['difficulty'] ?? '';
+        $calories = $_POST['calorie'] ?? 0;
+        $duration = $_POST['minutes'] ?? 0;
+        $description = $_POST['description'] ?? '';
+        $long_description = $_POST['long-description'] ?? '';
+
+        // Handle file upload for workout image
+        $image = '';
+        if (isset($_FILES['workout-image']) && $_FILES['workout-image']['error'] === 0) {
+            $target_dir = "assets/workout_pics/";
+            $file_extension = pathinfo($_FILES['workout-image']['name'], PATHINFO_EXTENSION);
+            $filename = strtolower(str_replace(' ', '_', $name)) . "." . $file_extension;
+            $target_file = $target_dir . $filename;
+
+            // Move uploaded file
+            if (move_uploaded_file($_FILES['workout-image']['tmp_name'], $target_file)) {
+                $image = $target_file;
             }
-            
-            // Handle exercise checklist selection
-            $exercise_checklist = [];
-            if(isset($_POST['exercises']) && is_array($_POST['exercises'])) {
-                $exercise_checklist = $_POST['exercises'];
-            }
-            
-            // Format the exercise_checklist as shown in your example [3, [1, 2, 3, 4]]
-            $formatted_exercise_list = "[" . implode(", ", $exercise_checklist) . "]";
-            
-            // Current date for registration
-            $date_registered = date('Y-m-d');
-            
-            // Insert data into workout table
-            $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, sets, exercise_checklist, date_registered)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    
-            $stmt = $dbConn->prepare($sql);
-            $stmt->bind_param("sssiisssiss", $name, $type, $difficulty, $calories, $duration, $image, $description, $long_description, $sets, $formatted_exercise_list, $date_registered);
-            
-            if ($stmt->execute()) {
-                echo "<script>alert('Successfully inserted workout data');</script>";
-                // Redirect to refresh the page after successful submission
-                echo "<script>window.location.href = 'admin_workout.php';</script>";
-            } else {
-                echo "<script>alert('Failed to insert data: " . $stmt->error . "');</script>";
-            }
-            
-            $stmt->close();
-            $dbConn->close();
         }
+
+        // Handle exercise checklist selection
+        $exercise_checklist = [];
+        if (isset($_POST['exercises']) && is_array($_POST['exercises'])) {
+            $exercise_checklist = $_POST['exercises'];
+        }
+
+        // Format the exercise_checklist as shown in your example [3, [1, 2, 3, 4]]
+        $formatted_exercise_list = "[" . implode(", ", $exercise_checklist) . "]";
+
+        // Current date for registration
+        $date_registered = date('Y-m-d');
+
+        // Insert data into workout table
+        $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, sets, exercise_checklist, date_registered)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("sssiisssiss", $name, $type, $difficulty, $calories, $duration, $image, $description, $long_description, $sets, $formatted_exercise_list, $date_registered);
+
+        if ($stmt->execute()) {
+            echo "<script>alert('Successfully inserted workout data');</script>";
+            // Redirect to refresh the page after successful submission
+            echo "<script>window.location.href = 'admin_workout.php';</script>";
+        } else {
+            echo "<script>alert('Failed to insert data: " . $stmt->error . "');</script>";
+        }
+
+        $stmt->close();
+        $dbConn->close();
+    }
     ?>
 </body>
-    <script src="./js/navigation_bar.js"></script>
-    <script src="./js/admin_workout.js"></script>
+<script src="./js/navigation_bar.js"></script>
+<script src="./js/admin_workout.js"></script>
+
 </html>

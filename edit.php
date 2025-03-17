@@ -99,53 +99,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $protein = $_POST['eprotein'];
             $carb = $_POST['ecarb'];
 
-            // Check if nutrition name already exists (excluding the current record)
-            $checkStmt = $dbConn->prepare("SELECT COUNT(*) FROM nutrition WHERE nutrition_name = ? AND nutrition_id != ?");
-            $checkStmt->bind_param("si", $nutritionName, $selectedNutriId);
-            $checkStmt->execute();
-            $checkStmt->bind_result($count);
-            $checkStmt->fetch();
-            $checkStmt->close();
-
-            $errors = [];
-
-            if ($count > 0) {
-                $errors[] = "Nutrition name already exists.";
-            }
-            if ($calories <= 0) {
-                $errors[] = "Calories must be a positive number.";
-            }
-            if ($fat < 0) {
-                $errors[] = "Fat must be a non-negative number.";
-            }
-            if ($protein < 0) {
-                $errors[] = "Protein must be a non-negative number.";
-            }
-            if ($carbohydrate < 0) {
-                $errors[] = "Carbohydrate must be a non-negative number.";
-            }
-
-            if (!empty($errors)) {
-                $_SESSION['admin_errors'] = $errors;
-                $_SESSION['old_data'] = $_POST;
-                $_SESSION['show_edit_form'] = true;
-                header("Location: admin_diet.php?nutrition_id=" . urlencode($selectedNutriId) . "#editnutrition");
-                exit();
-            }
-
-            // If no errors, update the database
             $updateStmt = $dbConn->prepare("UPDATE nutrition SET nutrition_name = ?, calories = ?, fat = ?, protein = ?, carbohydrate = ? WHERE nutrition_id = ?");
             $updateStmt->bind_param("sddssi", $nutritionName, $calories, $fat, $protein, $carb, $selectedNutriId);
 
             if ($updateStmt->execute()) {
-                $_SESSION['success_message'] = "Nutrition data updated successfully!";
-                header("Location: admin_diet.php");
+                header("Location: admin_diet.php#nutrition");
                 exit();
             }
 
             // --------------------------------------DIET-----------------------------------------
         case 'diet':
-            // Retrieve and sanitize form data
             $name = htmlspecialchars(trim($_POST['ediet-name']));
             $type = htmlspecialchars(trim($_POST['ediet-type']));
             $duration = (int)$_POST['epreparation_min'];
@@ -153,8 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $directions = htmlspecialchars(trim($_POST['edirections']));
             $selectedDietId = (int)$_POST['selectedDietId']; // Ensure you have the selected diet ID
 
-            // Fetch the current picture from the database
-            $current_picture = ''; // Initialize the variable
+            $current_picture = '';
             $stmt = $dbConn->prepare("SELECT picture FROM diet WHERE diet_id = ?");
             $stmt->bind_param("i", $selectedDietId);
             $stmt->execute();
@@ -199,10 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $directions_array = array_filter($directions_array, fn($step) => !empty($step));
             $directions_str = implode(";", $directions_array);
 
-            // Update the diet entry in the database
             $updateStmt = $dbConn->prepare("UPDATE diet SET diet_name = ?, description = ?, diet_type = ?, preparation_min = ?, picture = ?, directions = ? WHERE diet_id = ?");
             $updateStmt->bind_param("sssissi", $name, $description, $type, $duration, $final_picture, $directions_str, $selectedDietId);
-
             if ($updateStmt->execute()) {
                 // Delete existing nutrition IDs
                 $deleteNutritionStmt = $dbConn->prepare("DELETE FROM diet_nutrition WHERE diet_id = ?");
@@ -218,7 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 $insertNutritionStmt->close();
 
-                // Redirect after successful update
                 header("Location: admin_diet.php");
                 exit();
             }

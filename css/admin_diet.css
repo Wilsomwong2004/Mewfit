@@ -376,7 +376,10 @@ table tr.selected {
     border-radius: 20px;
     position: relative;
     top: 20px;
-    min-height: 700px;
+}
+
+#dadd-profile{
+    min-height: 810px;
 }
 
 .add-profile h2,
@@ -411,7 +414,8 @@ table tr.selected {
 
 #add-profile-btn,
 #nadd-profile-btn,
-#confirm-btn {
+#confirm-btn,
+#nconfirm-btn {
     margin-top: 30px;
     width: 35%;
     height: 40px;
@@ -742,9 +746,7 @@ textarea {
     margin-top: 5px;
 }
 
-#dadd-profile {
-    height: 730px;
-}
+
 
 #imagePreview,
 #eimagePreview {

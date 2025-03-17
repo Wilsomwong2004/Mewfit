@@ -16,6 +16,11 @@
 include "conn.php";
 session_start();
 
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+
 $errors = $_SESSION['admin_errors'] ?? [];
 $old_data = $_SESSION['old_data'] ?? [];
 $showEditForm = $_SESSION['show_edit_form'] ?? false;
@@ -43,7 +48,7 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
                 <span></span>
             </button>
         </div>
-        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
+        <image src="./assets/icons/admin_logout.svg" class="logout-profile" id="logout-profile"></image>
     </nav>
 
     <div id="heading">
