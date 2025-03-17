@@ -17,6 +17,10 @@
 <?php
 include "conn.php";
 session_start();
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['nutrition-name'] ?? '';
@@ -53,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <span></span>
             </button>
         </div>
-        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>
+        <image src="./assets/icons/admin_logout.svg" class="logout-profile" id="logout-profile"></image>
     </nav>
 
     <div id="heading">

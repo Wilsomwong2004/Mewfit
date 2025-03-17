@@ -1,5 +1,10 @@
 <?php
 session_start();
+
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -101,7 +106,7 @@ session_start();
                 <span></span>
             </button>
         </div>  
-        <image src="./assets/icons/admin_logout.svg" id="logout-profile"></image>      
+        <image src="./assets/icons/admin_logout.svg" class="logout-profile" id="logout-profile"></image>      
     </nav>
     
 
