@@ -564,6 +564,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Top Picks For You
+let displayedWorkouts = [];
+
 function getRecommendedWorkouts(userProfile, allWorkouts) {
     // Destructure user profile data - mapped to match PHP response format
     const {
@@ -748,29 +750,52 @@ async function initializeTopPicks() {
         // Load user profile
         const userProfile = await loadUserProfile();
 
+        // Find the Top Picks section
+        const topPicksSection = findTopPicksSection();
+        const workoutGrid = topPicksSection?.querySelector('.workout-grid');
+
+        if (!workoutGrid) return;
+
+        // Clear existing workouts
+        workoutGrid.innerHTML = '';
+
         if (userProfile) {
             // User is logged in, use personalized recommendations
-            updateTopPicksSection(userProfile);
-        } else {
-            // User not logged in, show generic recommendations
-            const topPicksSection = findTopPicksSection();
-            const workoutGrid = topPicksSection?.querySelector('.workout-grid');
+            const recommendedWorkouts = getRecommendedWorkouts(userProfile, workouts);
 
-            if (workoutGrid) {
-                // Use a random selection of popular workouts
-                const popularWorkouts = workouts
-                    .sort(() => 0.5 - Math.random()) // Shuffle
-                    .slice(0, 6); // Take 6 random workouts
+            if (recommendedWorkouts.length > 0) {
+                workoutGrid.classList.add('scroll-layout');
 
-                workoutGrid.innerHTML = popularWorkouts.map((workout, index) => {
+                // Create workout cards with appropriate indexing (using original indices)
+                workoutGrid.innerHTML = recommendedWorkouts.map((workout) => {
                     const originalIndex = workouts.findIndex(w => w.id === workout.id);
                     return createWorkoutCard(workout, originalIndex);
                 }).join('');
 
+                // Setup scroll arrows for this grid
                 setupScrollArrows(workoutGrid);
-                setupWorkoutCardClick();
+
+                // Show the section
+                topPicksSection.style.display = '';
             }
+        } else {
+            // User not logged in, show generic recommendations
+            const popularWorkouts = workouts
+                .sort(() => 0.5 - Math.random()) // Shuffle
+                .slice(0, 6); // Take 6 random workouts
+
+            workoutGrid.classList.add('scroll-layout');
+
+            workoutGrid.innerHTML = popularWorkouts.map((workout) => {
+                const originalIndex = workouts.findIndex(w => w.id === workout.id);
+                return createWorkoutCard(workout, originalIndex);
+            }).join('');
+
+            setupScrollArrows(workoutGrid);
         }
+
+        // Always setup workout card click handlers after updating Top Picks
+        setupWorkoutCardClick();
     } catch (error) {
         console.error('Error initializing Top Picks:', error);
     }
@@ -780,10 +805,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize all workout sections
     initializeWorkoutSections();
 
-    // Initialize Top Picks (personalized recommendations)
+    // Initialize Top Picks separately
     initializeTopPicks();
 
-    // Other initialization code...
+    // Set default activity card click
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
@@ -856,8 +885,15 @@ function updatePopupLevel(level) {
 // Modify your existing setupWorkoutCardClick function
 function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
-        card.addEventListener('click', () => {
-            const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+        // Remove any existing click listeners to prevent duplicates
+        const cardClone = card.cloneNode(true);
+        card.parentNode.replaceChild(cardClone, card);
+
+        cardClone.addEventListener('click', () => {
+            const workoutIndex = parseInt(cardClone.getAttribute('data-workout-index'));
+
+            // Use the index to get the workout directly from the workouts array
+            // This ensures consistency across all sections
             const workout = workouts[workoutIndex];
 
             if (!workout) {
@@ -912,9 +948,17 @@ function setupWorkoutCardClick() {
 
     // Setup popup close handlers
     const popup = document.getElementById('popup-container');
-    popup.addEventListener('click', (e) => {
-        if (e.target.classList.contains('popup-close') || e.target === popup) {
-            popup.classList.remove('active');
+    const closeHandlers = popup.querySelectorAll('.popup-close');
+
+    // Remove existing event listeners to prevent duplicates
+    popup.outerHTML = popup.outerHTML;
+
+    // Re-select popup after replacing it
+    const newPopup = document.getElementById('popup-container');
+
+    newPopup.addEventListener('click', (e) => {
+        if (e.target.classList.contains('popup-close') || e.target === newPopup) {
+            newPopup.classList.remove('active');
             selectedWorkout = null;
         }
     });
@@ -936,9 +980,14 @@ function initializeWorkoutSections() {
         const workoutGrid = section.querySelector('.workout-grid');
 
         if (workoutGrid) {
-            // Clear 'Top Picks' and 'Recently Workout' sections initially
-            if (sectionTitle === 'Top Picks For You' || sectionTitle === 'Recently Workout') {
-                workoutGrid.innerHTML = '';
+            // Special handling for Top Picks and Recently Workout
+            if (sectionTitle === 'Top Picks For You') {
+                // Don't clear Top Picks here, let initializeTopPicks handle it
+                return;
+            }
+
+            if (sectionTitle === 'Recently Workout') {
+                // Recently Workout is handled separately
                 return;
             }
 
@@ -948,15 +997,19 @@ function initializeWorkoutSections() {
             // Only add scroll layout for non-empty sections
             if (filteredWorkouts.length > 0) {
                 workoutGrid.classList.add('scroll-layout');
-                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
-                    createWorkoutCard(workout, index)
-                ).join('');
+
+                // Use the original index from the workouts array
+                workoutGrid.innerHTML = filteredWorkouts.map((workout) => {
+                    const originalIndex = workouts.findIndex(w => w.id === workout.id);
+                    return createWorkoutCard(workout, originalIndex);
+                }).join('');
+
                 setupScrollArrows(workoutGrid);
             }
         }
     });
 
-    // Make sure to call setupWorkoutCardClick after creating cards
+    // Setup workout card clicks after initializing all sections
     setupWorkoutCardClick();
 }
 
@@ -1051,8 +1104,8 @@ document.querySelectorAll('.activity-card').forEach(card => {
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
 
-        let displayedWorkouts = [];
-        let currentIndex = 0;
+        // Reset the displayed workouts array
+        displayedWorkouts = [];
 
         document.querySelectorAll('section.workout-body').forEach(section => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
@@ -1060,9 +1113,23 @@ document.querySelectorAll('.activity-card').forEach(card => {
 
             if (!workoutGrid) return;
 
-            // Clear special sections when filter is applied
-            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                workoutGrid.innerHTML = '';
+            // Special handling for Top Picks section
+            if (sectionTitle === 'Top Picks For You') {
+                // Only hide Top Picks section when filtering, but keep it visible for "All"
+                if (selectedType === 'All') {
+                    section.style.display = '';
+                    // If Top Picks is empty, reinitialize it
+                    if (workoutGrid.children.length === 0) {
+                        initializeTopPicks();
+                    }
+                } else {
+                    section.style.display = 'none';
+                }
+                return;
+            }
+
+            // Handle "Recently Workout" section
+            if (sectionTitle === 'Recently Workout') {
                 section.style.display = selectedType === 'All' ? '' : 'none';
                 return;
             }
@@ -1077,18 +1144,11 @@ document.querySelectorAll('.activity-card').forEach(card => {
                 const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
 
-                filteredWorkouts.forEach(workout => {
-                    displayedWorkouts.push({
-                        workout: workout,
-                        globalIndex: currentIndex
-                    });
-                    currentIndex++;
-                });
-
-                // Create workout cards with correct indices
-                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) => {
-                    const globalIndex = displayedWorkouts.findIndex(w => w.workout === workout);
-                    return createWorkoutCard(workout, globalIndex);
+                // Create workout cards using their original indices in the workouts array
+                workoutGrid.innerHTML = filteredWorkouts.map((workout) => {
+                    // Find the original index in the main workouts array
+                    const originalIndex = workouts.findIndex(w => w.id === workout.id);
+                    return createWorkoutCard(workout, originalIndex);
                 }).join('');
 
                 setupScrollArrows(workoutGrid);
@@ -1097,59 +1157,62 @@ document.querySelectorAll('.activity-card').forEach(card => {
             }
         });
 
-        // Modified setupWorkoutCardClick to use the displayed workouts array
-        document.querySelectorAll('.workout-card-content').forEach(card => {
-            card.addEventListener('click', () => {
-                const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
-                const workoutData = displayedWorkouts.find(w => w.globalIndex === workoutIndex);
+        // Set up click handlers for ALL workout cards after modifying the DOM
+        setupWorkoutCardClick();
+    });
+});
 
-                if (!workoutData) {
-                    console.error('Workout not found for index:', workoutIndex);
-                    return;
-                }
+// Modified setupWorkoutCardClick to use the displayed workouts array
+document.querySelectorAll('.workout-card-content').forEach(card => {
+    card.addEventListener('click', () => {
+        const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+        const workoutData = displayedWorkouts.find(w => w.globalIndex === workoutIndex);
 
-                const workout = workoutData.workout;
-                selectedWorkout = workout;
+        if (!workoutData) {
+            console.error('Workout not found for index:', workoutIndex);
+            return;
+        }
 
-                // Update popup content
-                const popup = document.getElementById('popup-container');
+        const workout = workoutData.workout;
+        selectedWorkout = workout;
 
-                // Update title
-                document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+        // Update popup content
+        const popup = document.getElementById('popup-container');
 
-                // Update description
-                document.getElementById('popup-desc').textContent = workout.description;
+        // Update title
+        document.getElementById('popup-title').textContent = workout.title.toUpperCase();
 
-                // Update duration
-                document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
+        // Update description
+        document.getElementById('popup-desc').textContent = workout.description;
 
-                // Update calories
-                document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+        // Update duration
+        document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
 
-                // Update difficulty level
-                updatePopupLevel(workout.level);
+        // Update calories
+        document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
 
-                // Update image
-                const workoutImage = document.getElementById('popup-workout-image');
-                if (workout.image) {
-                    workoutImage.src = workout.image;
-                    workoutImage.alt = `${workout.title} Image`;
-                    workoutImage.style.objectFit = 'cover';
-                } else {
-                    workoutImage.src = './assets/icons/error.svg';
-                    workoutImage.alt = 'Workout Image Not Found';
-                    workoutImage.style.objectFit = 'contain';
-                    workoutImage.style.width = '60%';
-                    workoutImage.style.height = 'auto';
-                }
+        // Update difficulty level
+        updatePopupLevel(workout.level);
 
-                // Update exercise list - NEW
-                updateExerciseList(workout);
+        // Update image
+        const workoutImage = document.getElementById('popup-workout-image');
+        if (workout.image) {
+            workoutImage.src = workout.image;
+            workoutImage.alt = `${workout.title} Image`;
+            workoutImage.style.objectFit = 'cover';
+        } else {
+            workoutImage.src = './assets/icons/error.svg';
+            workoutImage.alt = 'Workout Image Not Found';
+            workoutImage.style.objectFit = 'contain';
+            workoutImage.style.width = '60%';
+            workoutImage.style.height = 'auto';
+        }
 
-                // Show popup
-                popup.classList.add('active');
-            });
-        });
+        // Update exercise list - NEW
+        updateExerciseList(workout);
+
+        // Show popup
+        popup.classList.add('active');
     });
 });
 

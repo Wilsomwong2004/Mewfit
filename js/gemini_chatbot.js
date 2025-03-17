@@ -165,21 +165,21 @@ class FitnessChatbot {
             const userData = await userResponse.json();
 
             if (userData.error) {
-                console.log('User not logged in or error:', userData.error);
+                console.log('User data error:', userData.error);
                 return;
             }
 
             this.userData = userData;
 
             // Pre-populate user context with database information
-            if (userData.user) {
-                this.userContext.name = userData.user.username;
-                this.userContext.goal = userData.user.fitness_goal;
-                this.userContext.weight = userData.user.weight;
-                this.userContext.targetWeight = userData.user.target_weight;
-                this.userContext.level = userData.user.level;
-                this.userContext.age = userData.user.age;
-                this.userContext.gender = userData.user.gender;
+            if (userData.member) {
+                this.userContext.name = userData.member.username;
+                this.userContext.goal = userData.member.fitness_goal;
+                this.userContext.weight = userData.member.weight;
+                this.userContext.targetWeight = userData.member.target_weight;
+                this.userContext.level = userData.member.level;
+                this.userContext.age = userData.member.age;
+                this.userContext.gender = userData.member.gender;
 
                 // Add performance data if available
                 if (userData.performance) {
@@ -187,47 +187,70 @@ class FitnessChatbot {
                     this.userContext.workoutCount = userData.performance.workout_history_count;
                     this.userContext.dietCount = userData.performance.diet_history_count;
                 }
-            }
 
-            // Fetch workout/diet data
-            const workoutDietResponse = await fetch('get_workout_diet_data.php');
-            const workoutDietData = await workoutDietResponse.json();
+                // Store workout and diet history
+                this.userWorkoutHistory = userData.workout_history || [];
+                this.userDietHistory = userData.diet_history || [];
+                this.userCustomDiets = userData.custom_diets || [];
+                this.userNutrition = userData.nutrition || [];
 
-            if (!workoutDietData.error) {
-                this.allWorkouts = workoutDietData.workouts || [];
-                this.allDiets = workoutDietData.diets || [];
-                this.userWorkoutHistory = workoutDietData.user_workout_history || [];
-                this.userDietHistory = workoutDietData.user_diet_history || [];
-                this.userCustomDiets = workoutDietData.user_custom_diets || [];
-            }
+                // Fetch all workouts and diets for recommendations
+                await this.fetchWorkoutsAndDiets();
 
-            console.log('User context initialized:', this.userContext);
+                console.log('User context initialized:', this.userContext);
 
-            // Update the initial message to personalize if user data is available
-            if (this.userContext.name) {
-                this.addMessage(`Welcome back, ${this.userContext.name}! How can I help with your ${this.userContext.goal} journey today?`, 'bot');
+                // Update the initial message to personalize if user data is available
+                if (this.userContext.name) {
+                    this.addMessage(`Welcome back, ${this.userContext.name}! How can I help with your ${this.userContext.goal} journey today?`, 'bot');
+                }
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
     }
 
+    async fetchWorkoutsAndDiets() {
+        try {
+            // Fetch all workouts and diets for recommendations
+            const response = await fetch('get_all_workouts_diets.php');
+            const data = await response.json();
+
+            if (!data.error) {
+                this.allWorkouts = data.workouts || [];
+                this.allDiets = data.diets || [];
+            }
+        } catch (error) {
+            console.error('Error fetching workouts and diets:', error);
+        }
+    }
+
     formatWorkoutDietData() {
         // Format workout data
-        let workoutTypes = [...new Set(this.allWorkouts.map(w => w.workout_type))].join(', ');
-        let difficultyLevels = [...new Set(this.allWorkouts.map(w => w.difficulty))].join(', ');
+        let workoutTypes = this.allWorkouts.length > 0
+            ? [...new Set(this.allWorkouts.map(w => w.workout_type))].join(', ')
+            : 'Cardio, Strength, Flexibility, HIIT';
+
+        let difficultyLevels = this.allWorkouts.length > 0
+            ? [...new Set(this.allWorkouts.map(w => w.difficulty))].join(', ')
+            : 'Beginner, Intermediate, Advanced';
 
         // Format diet data
-        let dietTypes = [...new Set(this.allDiets.map(d => d.diet_type))].join(', ');
+        let dietTypes = this.allDiets.length > 0
+            ? [...new Set(this.allDiets.map(d => d.diet_type))].join(', ')
+            : 'Balanced, Vegetarian, Vegan, Keto, Low-carb';
 
         // Format user history
-        let recentWorkouts = this.userWorkoutHistory.slice(0, 5).map(w =>
-            `${w.workout_name} (${w.date})`
-        ).join(', ');
+        let recentWorkouts = this.userWorkoutHistory.length > 0
+            ? this.userWorkoutHistory.slice(0, 5).map(w =>
+                `${w.workout_name} (${w.date})`
+            ).join(', ')
+            : 'No recent workouts';
 
-        let recentDiets = this.userDietHistory.slice(0, 5).map(d =>
-            `${d.diet_name} (${d.date})`
-        ).join(', ');
+        let recentDiets = this.userDietHistory.length > 0
+            ? this.userDietHistory.slice(0, 5).map(d =>
+                `${d.diet_name} (${d.date})`
+            ).join(', ')
+            : 'No recent diets';
 
         return {
             workoutTypes,
@@ -266,22 +289,34 @@ class FitnessChatbot {
 
             // Add user-specific information to the prompt
             let userSpecificInfo = '';
-            if (this.userData) {
+            if (this.userData && this.userData.member) {
                 userSpecificInfo = `
                 Current User:
-                - Username: ${this.userData.user.username}
-                - Age: ${this.userData.user.age}
-                - Gender: ${this.userData.user.gender}
-                - Fitness Goal: ${this.userData.user.fitness_goal}
-                - Current Weight: ${this.userData.performance?.current_weight || this.userData.user.weight} kg
-                - Target Weight: ${this.userData.user.target_weight} kg
-                - Height: ${this.userData.user.height} cm
-                - Level: ${this.userData.user.level}
+                - Username: ${this.userData.member.username}
+                - Age: ${this.userData.member.age}
+                - Gender: ${this.userData.member.gender}
+                - Fitness Goal: ${this.userData.member.fitness_goal}
+                - Current Weight: ${this.userData.performance?.current_weight || this.userData.member.weight} kg
+                - Target Weight: ${this.userData.member.target_weight} kg
+                - Height: ${this.userData.member.height} cm
+                - Level: ${this.userData.member.level}
                 - Workout History Count: ${this.userData.performance?.workout_history_count || 'Unknown'}
                 - Diet History Count: ${this.userData.performance?.diet_history_count || 'Unknown'}
                 - Recent Workouts: ${recentWorkouts}
                 - Recent Diets: ${recentDiets}
                 `;
+
+                // Add nutrition data if available
+                if (this.userData.nutrition && this.userData.nutrition.length > 0) {
+                    userSpecificInfo += `
+                    - Recent Nutrition (${this.userData.nutrition[0].date}):
+                      * Calories: ${this.userData.nutrition[0].calories_intake}
+                      * Protein: ${this.userData.nutrition[0].protein}g
+                      * Carbs: ${this.userData.nutrition[0].carbs}g
+                      * Fats: ${this.userData.nutrition[0].fats}g
+                      * Water: ${this.userData.nutrition[0].water}ml
+                    `;
+                }
             }
 
             const response = await fetch(`${this.apiUrl}?key=${this.apiKey}`, {
@@ -296,32 +331,32 @@ class FitnessChatbot {
                                 - Only answer fitness/diet/nutrition questions
                                 - For other topics: "I specialize in fitness/health. How can I assist?"
                                 - Never mention celebrities or unrelated figures
-                                - Only provide data about the currently logged-in user, never about other users
-
+                                - Only provide data about the currently logged-in member, never about other members
+    
                                 2. DATA INTEGRATION:
                                 Available Workout Types: ${workoutTypes}
                                 Available Diet Types: ${dietTypes}
                                 ${userSpecificInfo}
-
+    
                                 3. RECOMMENDATION ENGINE:
                                 ${this.generateDataPrompt(message)}
-
+    
                                 4. RESPONSE FORMAT:
                                 - Use workout/diet data from the app
                                 - Suggest specific routines from these categories:
-                                Beginner: suitable for new users
-                                Intermediate: for users with some experience
-                                Advanced: for experienced users
-                                - When the user asks about their workout or diet history, provide information from their personal history data
-                                - When the user asks about their progress, reference their current weight vs. target weight
-
+                                Beginner: suitable for new members
+                                Intermediate: for members with some experience
+                                Advanced: for experienced members
+                                - When the member asks about their workout or diet history, provide information from their personal history data
+                                - When the member asks about their progress, reference their current weight vs. target weight
+    
                                 5. USER CONTEXT:
                                 ${this.chatHistory.slice(-3).map(m => `${m.role}: ${m.text}`).join('\n')}
-
+    
                                 6. PERSONALITY TRAITS:
                                 - Show empathy ("I understand how challenging...")
                                 - Add motivational phrases ("You've got this!")
-
+    
                                 7. CONTEXT HANDLING:
                                 ${this.formatContextPrompt()}
                                 
@@ -329,14 +364,14 @@ class FitnessChatbot {
                                 - Ask follow-up questions after 3 exchanges
                                 - Admit uncertainty when needed ("Great question! While I'm not a doctor...")
                                 - Use analogies ("Building muscle is like saving money...")
-                                - If the user asks about another user's data, politely explain you can only provide information about the currently logged-in user
-
+                                - If the member asks about another member's data, politely explain you can only provide information about the currently logged-in member
+    
                                 9. SPECIAL CASE HANDLING:
-                                - If user requests specific workout type (like cardio):
+                                - If member requests specific workout type (like cardio):
                                 1. Acknowledge the request positively
                                 2. List 3 matching workouts with duration/calories
                                 3. Add follow-up question
-
+    
                             User Query: ${message}
                             
                             Respond conversationally while maintaining expertise:`
@@ -378,7 +413,7 @@ class FitnessChatbot {
 
             // Filter workouts by level
             const filteredWorkouts = this.allWorkouts.filter(w =>
-                w.difficulty.toLowerCase() === level
+                w.difficulty && w.difficulty.toLowerCase() === level.toLowerCase()
             ).slice(0, 3);
 
             if (filteredWorkouts.length > 0) {
@@ -394,10 +429,12 @@ class FitnessChatbot {
             let type = 'balanced';
             if (/vegetarian/i.test(lowerMessage)) type = 'vegetarian';
             if (/vegan/i.test(lowerMessage)) type = 'vegan';
+            if (/keto/i.test(lowerMessage)) type = 'keto';
+            if (/low.?carb/i.test(lowerMessage)) type = 'low-carb';
 
             // Filter diets by type
             const filteredDiets = this.allDiets.filter(d =>
-                d.diet_type && d.diet_type.toLowerCase().includes(type)
+                d.diet_type && d.diet_type.toLowerCase().includes(type.toLowerCase())
             ).slice(0, 3);
 
             if (filteredDiets.length > 0) {
@@ -410,43 +447,50 @@ class FitnessChatbot {
 
         // User history
         if (/history|progress|recent/i.test(message)) {
-            if (/workout/i.test(message)) {
+            if (/workout/i.test(message) && this.userWorkoutHistory.length > 0) {
                 prompt += "User's recent workout history:\n";
-                this.userWorkoutHistory.slice(0, 5).forEach(w => {
+                this.userWorkoutHistory.forEach(w => {
                     prompt += `- ${w.date}: ${w.workout_name} (${w.duration} mins, ${w.calories} calories)\n`;
                 });
             }
 
-            if (/diet/i.test(message)) {
+            if (/diet/i.test(message) && this.userDietHistory.length > 0) {
                 prompt += "User's recent diet history:\n";
-                this.userDietHistory.slice(0, 5).forEach(d => {
+                this.userDietHistory.forEach(d => {
                     prompt += `- ${d.date}: ${d.diet_name} (${d.calories} calories)\n`;
+                });
+            }
+
+            if (/nutrition/i.test(message) && this.userData.nutrition && this.userData.nutrition.length > 0) {
+                prompt += "User's recent nutrition data:\n";
+                this.userData.nutrition.forEach(n => {
+                    prompt += `- ${n.date}: Calories: ${n.calories_intake}, Protein: ${n.protein}g, Carbs: ${n.carbs}g, Fats: ${n.fats}g\n`;
                 });
             }
         }
 
         // Progress tracking
         if (/progress|weight|goal/i.test(message)) {
-            if (this.userData && this.userData.user) {
-                const currentWeight = this.userData.performance?.current_weight || this.userData.user.weight;
-                const targetWeight = this.userData.user.target_weight;
-                const goal = this.userData.user.fitness_goal;
+            if (this.userData && this.userData.member) {
+                const currentWeight = this.userData.performance?.current_weight || this.userData.member.weight;
+                const targetWeight = this.userData.member.target_weight;
+                const goal = this.userData.member.fitness_goal;
 
                 prompt += `Weight progress:\n`;
-                prompt += `- Starting weight: ${this.userData.user.weight} kg\n`;
+                prompt += `- Starting weight: ${this.userData.member.weight} kg\n`;
                 prompt += `- Current weight: ${currentWeight} kg\n`;
                 prompt += `- Target weight: ${targetWeight} kg\n`;
                 prompt += `- Goal: ${goal}\n`;
 
                 // Calculate progress percentage
-                if (goal === 'Lose Weight' && currentWeight < this.userData.user.weight) {
-                    const weightToLose = this.userData.user.weight - targetWeight;
-                    const weightLost = this.userData.user.weight - currentWeight;
+                if (goal === 'Lose Weight' && currentWeight < this.userData.member.weight) {
+                    const weightToLose = this.userData.member.weight - targetWeight;
+                    const weightLost = this.userData.member.weight - currentWeight;
                     const progressPercentage = Math.round((weightLost / weightToLose) * 100);
                     prompt += `- Progress: ${progressPercentage}% toward goal\n`;
-                } else if (goal === 'Gain Muscle' && currentWeight > this.userData.user.weight) {
-                    const weightToGain = targetWeight - this.userData.user.weight;
-                    const weightGained = currentWeight - this.userData.user.weight;
+                } else if (goal === 'Gain Muscle' && currentWeight > this.userData.member.weight) {
+                    const weightToGain = targetWeight - this.userData.member.weight;
+                    const weightGained = currentWeight - this.userData.member.weight;
                     const progressPercentage = Math.round((weightGained / weightToGain) * 100);
                     prompt += `- Progress: ${progressPercentage}% toward goal\n`;
                 }
