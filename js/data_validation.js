@@ -176,3 +176,24 @@ function calculateTargetBMI() {
 
   document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
 }
+
+function checkUsername() {
+  let username = document.getElementById("username").value;
+  let warning = document.getElementById("exist-username");
+
+  if (username.length == "") {
+    warning.textContent = "";
+    return;
+  }
+
+  fetch("check_username.php?username=" + encodeURIComponent(username))
+    .then((response) => response.text())
+    .then((data) => {
+      warning.innerHTML = data;
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      warning.textContent = "Error checking username";
+      warning.style.color = "red";
+    });
+}

@@ -53,7 +53,7 @@ session_start();
               <!-- Username input -->
               <div class="inputs">
                 <label for="username">Username <span id="exist-username"></span></label>
-                <input type="text" id="username" name="username" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Username already exist', 'member', 'username', 'inputValidation.php')"/>
+                <input type="text" id="username" name="username" oninput="checkUsername()"/>
               </div>
 
               <!-- Email-input -->
