@@ -3,6 +3,11 @@
 require_once 'conn.php';
 session_start();
 
+if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: prelogin.html");
+    exit;
+}
+
 // Function to fetch all workouts from the database
 function fetchWorkouts($dbConn) {
     $query = "SELECT * FROM workout ORDER BY date_registered DESC";
@@ -61,7 +66,59 @@ function fetchExercisesForWorkout($exerciseIds) {
     return $workoutExercises;
 }
 
-// Function to get one random workout from each activity type for the carousel
+function fetchRecentWorkouts($dbConn, $memberId , $limit = 6) {
+    $query = "SELECT 
+                workout_history.workout_history_id,
+                workout_history.date,
+                workout_history.workout_id,
+                workout.workout_name,
+                workout.workout_type,
+                workout.calories,
+                workout.duration,
+                workout.image,
+                workout.difficulty
+                FROM workout_history 
+                INNER JOIN workout 
+                ON workout_history.workout_id = workout.workout_id
+                WHERE workout_history.member_id = ?
+                ORDER BY workout_history.date DESC
+                LIMIT ?";
+                
+    $stmt = mysqli_prepare($dbConn, $query);
+    mysqli_stmt_bind_param($stmt, "ii", $memberId , $limit);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    $recentWorkouts = [];
+    
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            // Create workout object similar to the format used in your existing code
+            $workout = [
+                'id' => $row['workout_id'],
+                'title' => $row['workout_name'],
+                'type' => explode(',', $row['workout_type']),
+                'level' => $row['difficulty'],
+                'calories' => $row['calories'] . ' kcal',
+                'duration' => $row['duration'] . ' min',
+                'image' => $row['image'], // Use image or thumbnail
+                'date' => $row['date']
+            ];
+            
+            $recentWorkouts[] = $workout;
+        }
+    }
+    
+    return $recentWorkouts;
+}
+
+// Check if user is logged in
+$recentUserWorkouts = [];
+if (isset($_SESSION['member id'])) {
+    $memberId = $_SESSION['member id'];
+    $recentUserWorkouts = fetchRecentWorkouts($dbConn, $memberId );
+}
+
 function getCarouselWorkouts($workouts) {
     // Define the activity types
     $activityTypes = ['Cardio', 'Weighted', 'Weight-free', 'Yoga'];
@@ -74,7 +131,6 @@ function getCarouselWorkouts($workouts) {
         });
         
         if (!empty($typeWorkouts)) {
-            // Get random workout from this type
             $randomIndex = array_rand($typeWorkouts);
             $carouselWorkouts[] = $typeWorkouts[$randomIndex];
         }
@@ -110,22 +166,24 @@ $carouselWorkouts = getCarouselWorkouts($workouts);
 $userProfile = [
     'name' => 'unknown',
     'email' => 'unknown',
-    'image' => './uploads/member/Unknown_acc-removebg.png'
+    'image' => 'Unknown_acc-removebg.png'
 ];
 
-if (isset($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
-    $query = "SELECT username, email, profile_pic FROM users WHERE id = ?";
+if (isset($_SESSION['member id'])) {
+    $memberId = $_SESSION['member id'];
+    
+    // Query the member table with the correct column names from your screenshot
+    $query = "SELECT username, email_address, member_pic FROM member WHERE member_id = ?";
     $stmt = mysqli_prepare($dbConn, $query);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_bind_param($stmt, "i", $memberId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     
     if ($result && $row = mysqli_fetch_assoc($result)) {
         $userProfile = [
-            'name' => $row['username'],
-            'email' => $row['email'],
-            'image' => !empty($row['profile_pic']) ? $row['profile_pic'] : './uploads/member/Unknown_acc-removebg.png'
+            'name' => $row['username'] ?? 'unknown',
+            'email' => $row['email_address'] ?? 'unknown',
+            'image' => !empty($row['member_pic']) ? $row['member_pic'] : 'Unknown_acc-removebg.png'
         ];
     }
 }
@@ -166,10 +224,10 @@ mysqli_close($dbConn);
             </div>
             <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo-responsive" id="nav-logo-responsive">
             <div class="profile">
-                <img src="<?php echo htmlspecialchars($userProfile['image']); ?>" alt="Profile" id="profile-pic">
+                <img src="./uploads/member/<?php echo htmlspecialchars($userProfile['image']); ?>" alt="Profile" id="profile-pic">
                 <div class="profile-dropdown" id="profile-dropdown">
                     <div class="profile-info">
-                        <img src="<?php echo htmlspecialchars($userProfile['image']); ?>" alt="<?php echo htmlspecialchars($userProfile['name']); ?>">
+                        <img src="./uploads/member/<?php echo htmlspecialchars($userProfile['image']); ?>" alt="<?php echo htmlspecialchars($userProfile['name']); ?>">
                         <div>
                             <h3><?php echo htmlspecialchars($userProfile['name']); ?></h3>
                             <p><?php echo htmlspecialchars($userProfile['email']); ?></p>
@@ -252,7 +310,48 @@ mysqli_close($dbConn);
 
         <section class="workout-body">
             <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Workout</h2>
-            <div class="workout-grid"></div>
+            <div class="workout-grid" id="recently-workout-grid">
+                <?php if (empty($recentUserWorkouts)): ?>
+                    <div class="no-recent-workouts">
+                        <p>You haven't completed any workouts recently yet. </p>
+                        <p>Start your fitness journey today!</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($recentUserWorkouts as $workout): ?>
+                        <div class="workout-card-recently" data-workout-id="<?php echo htmlspecialchars($workout['id']); ?>">
+                            <div class="workout-card-image">
+                                <img src="<?php echo htmlspecialchars($workout['image']); ?>" alt="<?php echo htmlspecialchars($workout['title']); ?>">
+                            </div>
+                            <div class="workout-card-content-recently">
+                                <h3 class="workout-card-title"><?php echo htmlspecialchars($workout['title']); ?></h3>
+                                <div class="workout-card-type">
+                                    <?php foreach ($workout['type'] as $type): ?>
+                                        <span><?php echo htmlspecialchars($type); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="workout-card-stats-recently">
+                                    <div class="workout-card-stat">
+                                        <i class="fas fa-clock"></i>
+                                        <span><?php echo htmlspecialchars(str_replace(' min', '', $workout['duration'])); ?> min</span>
+                                    </div>
+                                    <div class="workout-card-stat">
+                                        <i class="fas fa-fire"></i>
+                                        <span><?php echo htmlspecialchars(str_replace(' kcal', '', $workout['calories'])); ?> kcal</span>
+                                    </div>
+                                    <div class="workout-card-stat">
+                                        <i class="fas fa-signal"></i>
+                                        <span><?php echo htmlspecialchars($workout['level']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="workout-card-completed">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Completed: <?php echo date('d M Y', strtotime($workout['date'])); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </section>
 
         <section class="workout-body">

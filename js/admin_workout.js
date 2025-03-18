@@ -308,12 +308,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Handle logout
-    const logoutProfile = document.getElementById('logout-profile');
-    if (logoutProfile) {
-        logoutProfile.addEventListener('click', function () {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'logout.php';
-            }
-        });
-    }
+    // const logoutProfile = document.getElementById('logout-profile');
+    // if (logoutProfile) {
+    //     logoutProfile.addEventListener('click', function () {
+    //         if (confirm('Are you sure you want to logout?')) {
+    //             window.location.href = 'logout.php';
+    //     });
+    // }
 });

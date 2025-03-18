@@ -4,8 +4,8 @@ function checkUniqueName(
   existingMessage,
   table,
   column,
-  endpoint,
-  id = null
+  button,
+  id
 ) {
   const value = inputElement.value.trim();
 
@@ -50,6 +50,7 @@ function checkUniqueName(
         feedbackElement.textContent = existingMessage;
         feedbackElement.style.color = "red";
         inputElement.dataset.uniqueError = "true";
+        button.disabled = true;
       } else {
         if (
           !inputElement.dataset.bracketError ||
@@ -58,6 +59,7 @@ function checkUniqueName(
           feedbackElement.textContent = "";
         }
         inputElement.dataset.uniqueError = "false";
+        return;
       }
     })
     .catch((error) => {
@@ -141,43 +143,40 @@ function checkNumberInBrackets(inputElement, feedbackElement, errorMessage) {
   }
 }
 
-// function calculateBMI() {
-//   let weight = parseFloat(document.getElementById("weight").value) || 0;
-//   let height = parseFloat(document.getElementById("height").value) / 100 || 0;
-//   let bmi = weight / height ** 2;
+function validatePassword(inputElement, feedbackElement) {
+  const password = inputElement.value;
+  const feedback = feedbackElement;
+  const strongRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-//   submit_btn.disabled = false;
+  if (!password.match(strongRegex)) {
+    feedback.textContent =
+      "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+    feedback.style.color = "red";
+  } else {
+    feedback.textContent = "";
+  }
+}
 
-//   if (bmi > 300 || bmi < 7) {
-//     document.getElementById("bmi").textContent =
-//       "Please enter appropriate weight and height";
-//     submit_btn.disabled = true;
-//   } else {
-//     document.getElementById("bmi").textContent = bmi.toFixed(2);
-//   }
-// }
+function validatePhoneNumber(inputElement, feedbackElement) {
+  const phoneNumber = inputElement.value;
+  const feedback = feedbackElement;
 
-function calculateTargetBMI() {
-  // let fitness_goal = document.getElementById('fitness_goal').value;
-
-  document.getElementById("target-warning").textContent = "";
-
-  let weight = parseFloat(document.getElementById("weight").value) || 0;
-  let height = parseFloat(document.getElementById("height").value) / 100 || 0;
-  let target_weight =
-    parseFloat(document.getElementById("target-weight").value) || 0;
-
-  let target_bmi = target_weight / height ** 2;
-
-  if (target_weight - weight > 4) {
-    document.getElementById("target-warning").textContent =
-      "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
-  } else if (weight - target_weight > 4) {
-    document.getElementById("target-warning").textContent =
-      "Losing more than 4kg / 9lbs is dangerous in a span of one month";
+  if (!/^\d+$/.test(phoneNumber)) {
+    feedback.textContent = "Phone number must contain only numbers.";
+    feedback.style.color = "red";
+    inputElement.dataset.bracketError = "true";
+    return;
   }
 
-  document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
+  if (!/^\d{10}$/.test(phoneNumber)) {
+    feedback.textContent = "Phone number must be exactly 10 digits.";
+    feedback.style.color = "red";
+    inputElement.dataset.bracketError = "true";
+  } else {
+    feedback.textContent = "";
+    inputElement.dataset.bracketError = "false";
+  }
 }
 
 function checkUsername() {

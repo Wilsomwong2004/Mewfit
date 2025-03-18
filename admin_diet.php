@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
                     <label for="diet-name">Meal Name</label>
-                    <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
+                    <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', document.getElementById('add-profile-btn'));" required>
                     <p id="meal-name-feedback" class="feedback"></p>
                     <div class="form-columns">
                         <div class="column">
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="column">
                             <label for="preparation_min">Preparation Time (min)</label>
                             <input
-                                type="number" id="preparation_min" name="preparation_min" oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number')" required>
+                                type="number" id="preparation_min" name="preparation_min" oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number');" required>
                             <p id="preparation-min-feedback" class="feedback"></p>
                         </div>
                     </div>
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <label for="directions">Directions</label>
-                    <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('directions', 'directions-feedback')"></textarea>
+                    <textarea id="directions" name="directions" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('directions', 'directions-feedback');"></textarea>
                     <p id="directions-feedback" class="feedback" style="color: red;"></p>
 
                     <div style="display:flex;justify-content: center;white-space: nowrap;">
@@ -200,18 +200,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function validateForm() {
+                        // Check for validation feedback errors
                         const mealNameFeedback = document.getElementById('meal-name-feedback').textContent.trim();
                         const preparationMinFeedback = document.getElementById('preparation-min-feedback').textContent.trim();
-                        const direction = document.getElementById('directions-feedback').textContent.trim();
+                        const directionFeedback = document.getElementById('directions-feedback').textContent.trim();
 
-                        const isValid = !mealNameFeedback && !preparationMinFeedback && !direction;
+                        // Check if required fields have values
+                        const mealName = document.getElementById('meal-name').value.trim();
+                        const dietType = document.getElementById('diet-type').value.trim();
+                        const prepTime = document.getElementById('preparation_min').value.trim();
+                        const nutritionIds = document.querySelector('.tags_input').value.trim();
+                        const mealPicture = document.getElementById('meal_picture').files.length > 0;
+                        const description = document.getElementById('desc').value.trim();
+                        const directions = document.getElementById('directions').value.trim();
 
-                        document.getElementById('add-profile-btn').disabled = !isValid;
+                        // Check if all fields are filled AND there are no validation errors
+                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && mealPicture && description && directions;
+                        const noValidationErrors = !mealNameFeedback && !preparationMinFeedback && !directionFeedback;
+
+                        // Enable button only if all conditions are met
+                        document.getElementById('add-profile-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
                     document.getElementById('meal-name').addEventListener('input', validateForm);
+                    document.getElementById('diet-type').addEventListener('change', validateForm);
                     document.getElementById('preparation_min').addEventListener('input', validateForm);
+                    document.getElementById('desc').addEventListener('input', validateForm);
                     document.getElementById('directions').addEventListener('input', validateForm);
+                    document.getElementById('meal_picture').addEventListener('change', validateForm);
                 </script>
 
             </div>
@@ -229,8 +245,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'Meal Name already exists', 
                 'diet', 
                 'diet_name', 
-                'inputValidation.php', 
-                document.getElementById('selectedDietId').value)">
+                document.getElementById('confirm-btn'), 
+                document.getElementById('selectedDietId').value);">
                     <p id="ediet-name-feedback" class="feedback"></p>
 
                     <div class="form-columns">
@@ -246,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="column">
                             <label for="epreparation_min">Preparation Time (min)</label>
-                            <input type="number" id="epreparation_min" name="epreparation_min" oninput="checkNumber(this, document.getElementById('epreparation-min-feedback'), 'Please enter a non-negative number')" required>
+                            <input type="number" id="epreparation_min" name="epreparation_min" oninput="checkNumber(this, document.getElementById('epreparation-min-feedback'), 'Please enter a non-negative number');" required>
                             <p id="epreparation-min-feedback" class="feedback"></p>
                         </div>
                     </div>
@@ -286,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <label for="edirections">Directions</label>
-                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('edirections', 'edirections-feedback')"></textarea>
+                    <textarea id="edirections" name="edirections" rows="4" placeholder="Enter step-by-step following the format (Ex: Main direction: details;)" required oninput="checkDirections('edirections', 'edirections-feedback');"></textarea>
                     <p id="edirections-feedback" class="feedback" style="color: red;"></p>
 
                     <div class="table-option">
@@ -298,15 +314,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     function editValidateForm() {
                         const mealNameFeedback = document.getElementById('ediet-name-feedback').textContent.trim();
                         const preparationMinFeedback = document.getElementById('epreparation-min-feedback').textContent.trim();
-                        const directions = document.getElementById('edirections-feedback').textContent.trim();
+                        const directionFeedback = document.getElementById('edirections-feedback').textContent.trim();
 
-                        const isValid = !mealNameFeedback && !preparationMinFeedback && !directions;
+                        const mealName = document.getElementById('ediet-name').value.trim();
+                        const dietType = document.getElementById('ediet-type').value.trim();
+                        const prepTime = document.getElementById('epreparation_min').value.trim();
+                        const nutritionIds = document.querySelector('input[name="edietnutrition_ids"]').value.trim();
+                        const description = document.getElementById('edesc').value.trim();
+                        const directions = document.getElementById('edirections').value.trim();
 
-                        document.getElementById('confirm-btn').disabled = !isValid;
+                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && description && directions;
+                        const noValidationErrors = !mealNameFeedback && !preparationMinFeedback && !directionFeedback;
+
+                        document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
-
                     document.getElementById('ediet-name').addEventListener('input', editValidateForm);
+                    document.getElementById('ediet-type').addEventListener('change', editValidateForm);
                     document.getElementById('epreparation_min').addEventListener('input', editValidateForm);
+                    document.getElementById('edesc').addEventListener('input', editValidateForm);
                     document.getElementById('edirections').addEventListener('input', editValidateForm);
                 </script>
             </div>
@@ -368,96 +393,100 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <center>
                     <h2>Add New <span>Nutrition</span></h2>
                 </center>
-
-                <form action="" method="POST">
+                <form action="" method="POST" id="nutrition-form">
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="nutrition-name" name="nutrition-name" required
-                        oninput="checkUniqueName(this, feedbackNutritionName, 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php'); checkNumberInBrackets(this, feedbackNutritionName, 'The number inside the brackets must be greater than 0.')">
-                    <div id="feedbackNutritionName"></div>
+                    <input type="text" id="nutrition-name" name="nutrition-name" required placeholder="Ex: Ingredient Name (gram)"
+                        oninput="checkNumberInBrackets(this, document.getElementById('nutrition-name-feedback'), 'The number inside the brackets must be greater than 0.'); 
+                        checkUniqueName(this, document.getElementById('nutrition-name-feedback'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name',document.getElementById('nadd-profile-btn'));">
+                    <p id="nutrition-name-feedback" class="feedback"></p>
 
                     <label for="calories">Calories</label>
                     <input type="number" id="calories" name="calories" required
-                        oninput="checkNumber(this, feedbackCalories, 'Calories must be a positive number.')">
-                    <div id="feedbackCalories"></div>
+                        oninput="checkNumber(this, document.getElementById('calories-feedback'), 'Calories must be a positive number.');">
+                    <p id="calories-feedback" class="feedback"></p>
 
                     <label for="fat">Fat (g)</label>
                     <input type="number" step="0.01" id="fat" name="fat" required
-                        oninput="checkNumber(this, feedbackFat, 'Fat must be a positive number.')">
-                    <div id="feedbackFat"></div>
+                        oninput="checkNumber(this, document.getElementById('fat-feedback'), 'Fat must be a positive number.');">
+                    <p id="fat-feedback" class="feedback"></p>
 
                     <label for="protein">Protein (g)</label>
                     <input type="number" step="0.01" id="protein" name="protein" required
-                        oninput="checkNumber(this, feedbackProtein, 'Protein must be a positive number.')">
-                    <div id="feedbackProtein"></div>
+                        oninput="checkNumber(this, document.getElementById('protein-feedback'), 'Protein must be a positive number.');">
+                    <p id="protein-feedback" class="feedback"></p>
 
                     <label for="carb">Carbohydrate (g)</label>
                     <input type="number" step="0.01" id="carb" name="carb" required
-                        oninput="checkNumber(this, feedbackCarb, 'Carbohydrates must be a positive number.')">
-                    <div id="feedbackCarb"></div>
+                        oninput="checkNumber(this, document.getElementById('carb-feedback'), 'Carbohydrates must be a positive number.');">
+                    <p id="carb-feedback" class="feedback"></p>
 
-                    <div style="display: flex; justify-content: center; white-space: nowrap;">
+                    <div class="table-option">
+                        <button type="button" id="discard-btn">Discard</button>
                         <button type="submit" id="nadd-profile-btn" disabled>Create New</button>
                     </div>
                 </form>
 
                 <script>
                     function nvalidateForm() {
-                        // Get feedback messages for each input field
-                        const nutritionNameFeedback = document.getElementById('feedbackNutritionName').textContent.trim();
-                        const caloriesFeedback = document.getElementById('feedbackCalories').textContent.trim();
-                        const fatFeedback = document.getElementById('feedbackFat').textContent.trim();
-                        const proteinFeedback = document.getElementById('feedbackProtein').textContent.trim();
-                        const carbFeedback = document.getElementById('feedbackCarb').textContent.trim();
+                        const nutritionNameFeedback = document.getElementById('nutrition-name-feedback').textContent.trim();
+                        const caloriesFeedback = document.getElementById('calories-feedback').textContent.trim();
+                        const fatFeedback = document.getElementById('fat-feedback').textContent.trim();
+                        const proteinFeedback = document.getElementById('protein-feedback').textContent.trim();
+                        const carbFeedback = document.getElementById('carb-feedback').textContent.trim();
 
-                        // Check if any feedback messages exist
-                        const isValid = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+                        const nutritionName = document.getElementById('nutrition-name').value.trim();
+                        const calories = document.getElementById('calories').value.trim();
+                        const fat = document.getElementById('fat').value.trim();
+                        const protein = document.getElementById('protein').value.trim();
+                        const carb = document.getElementById('carb').value.trim();
 
-                        // Enable or disable the submit button based on validation
-                        document.getElementById('nadd-profile-btn').disabled = !isValid;
+                        const allFieldsFilled = nutritionName && calories && fat && protein && carb;
+                        const noValidationErrors = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+
+                        document.getElementById('nadd-profile-btn').disabled = !(allFieldsFilled) || !(noValidationErrors);
                     }
 
-                    // Add event listeners to the input fields in the nadd-profile form
                     document.getElementById('nutrition-name').addEventListener('input', nvalidateForm);
                     document.getElementById('calories').addEventListener('input', nvalidateForm);
                     document.getElementById('fat').addEventListener('input', nvalidateForm);
                     document.getElementById('protein').addEventListener('input', nvalidateForm);
                     document.getElementById('carb').addEventListener('input', nvalidateForm);
                 </script>
-
             </div>
+
             <div class="edit-profile" id="nedit-profile" style="height:540px;">
                 <center>
                     <h2>Edit <span>Nutrition</span></h2>
                 </center>
-                <form action="edit.php" method="POST" onsubmit="return validateForm();">
+                <form action="edit.php" method="POST">
 
                     <input type="hidden" id="selectedNutriId" name="selectedNutriId" value="<?php echo $_GET['nutrition_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="nutrition">
 
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="enutrition-name" name="enutrition-name" required
-                        oninput="checkNumberInBrackets(this, document.getElementById('efeedbackNutritionName'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('efeedbackNutritionName'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php',
-                document.getElementById('selectedNutriId').value) ">
+                    <input type="text" id="enutrition-name" name="enutrition-name" required placeholder="Ex: Ingredient Name (gram)"
+                        oninput="checkNumberInBrackets(this, document.getElementById('efeedbackNutritionName'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('efeedbackNutritionName'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name', document.getElementById('nconfirm-btn'),
+                document.getElementById('selectedNutriId').value);">
                     <div id="efeedbackNutritionName"></div>
 
                     <label for="calories">Calories</label>
                     <input type="number" id="ecalories" name="ecalories" required
-                        onblur="checkNumber(this, feedbackCalories, 'Calories must be a positive number.')">
+                        onblur="checkNumber(this, feedbackCalories, 'Calories must be a positive number.');">
                     <div id="feedbackCalories"></div>
 
                     <label for="fat">Fat (g)</label>
                     <input type="number" step="0.01" id="efat" name="efat" required
-                        onblur="checkNumber(this, feedbackFat, 'Fat must be a positive number.')">
+                        onblur="checkNumber(this, feedbackFat, 'Fat must be a positive number.');">
                     <div id="feedbackFat"></div>
 
                     <label for="protein">Protein (g)</label>
                     <input type="number" step="0.01" id="eprotein" name="eprotein" required
-                        onblur="checkNumber(this, feedbackProtein, 'Protein must be a positive number.')">
+                        onblur="checkNumber(this, feedbackProtein, 'Protein must be a positive number.');">
                     <div id="feedbackProtein"></div>
 
                     <label for="carb">Carbohydrate (g)</label>
                     <input type="number" step="0.01" id="ecarb" name="ecarb" required
-                        onblur="checkNumber(this, feedbackCarb, 'Carbohydrates must be a positive number.')">
+                        onblur="checkNumber(this, feedbackCarb, 'Carbohydrates must be a positive number.');">
                     <div id="feedbackCarb"></div>
 
                     <div class="table-option">
@@ -466,25 +495,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </form>
                 <script>
-                    function validateForm() {
-                        const nutritionNameFeedback = document.getElementById('feedbackNutritionName').textContent.trim();
+                    function envalidateForm() {
+                        const nutritionNameFeedback = document.getElementById('efeedbackNutritionName').textContent.trim();
                         const caloriesFeedback = document.getElementById('feedbackCalories').textContent.trim();
                         const fatFeedback = document.getElementById('feedbackFat').textContent.trim();
                         const proteinFeedback = document.getElementById('feedbackProtein').textContent.trim();
                         const carbFeedback = document.getElementById('feedbackCarb').textContent.trim();
 
-                        const isValid = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+                        const nutritionName = document.getElementById('enutrition-name').value.trim();
+                        const calories = document.getElementById('ecalories').value.trim();
+                        const fat = document.getElementById('efat').value.trim();
+                        const protein = document.getElementById('eprotein').value.trim();
+                        const carb = document.getElementById('ecarb').value.trim();
 
-                        document.getElementById('nconfirm-btn').disabled = !isValid;
-                        return isValid; // Prevent form submission if not valid
+                        const allFieldsFilled = nutritionName && calories && fat && protein && carb;
+                        const noValidationErrors = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+
+                        document.getElementById('nconfirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
-                    // Add event listeners to the input fields for validation
-                    document.getElementById('enutrition-name').addEventListener('input', validateForm);
-                    document.getElementById('ecalories').addEventListener('input', validateForm);
-                    document.getElementById('efat').addEventListener('input', validateForm);
-                    document.getElementById('eprotein').addEventListener('input', validateForm);
-                    document.getElementById('ecarb').addEventListener('input', validateForm);
+                    document.getElementById('enutrition-name').addEventListener('input', envalidateForm);
+                    document.getElementById('ecalories').addEventListener('input', envalidateForm);
+                    document.getElementById('efat').addEventListener('input', envalidateForm);
+                    document.getElementById('eprotein').addEventListener('input', envalidateForm);
+                    document.getElementById('ecarb').addEventListener('input', envalidateForm);
                 </script>
             </div>
 
@@ -522,6 +556,12 @@ $nutritionJson = json_encode($nutritionData);
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        validateForm();
+        editValidateForm();
+        nvalidateForm();
+
+
         // Initialize nutrition data for both forms
         const nutritionData = <?php echo $nutritionJson; ?>;
 
@@ -1007,14 +1047,14 @@ $nutritionJson = json_encode($nutritionData);
         addProfile.style.display = "block";
         editProfile.style.display = "none";
         isEditing = false;
-        showSection(); 
+        showSection();
     });
 
     document.getElementById("ndiscard-btn").addEventListener("click", () => {
         naddProfile.style.display = "block";
         neditProfile.style.display = "none";
         isEditing = false;
-        showSection(); 
+        showSection();
     });
 
     //----------------------delete data------------------------

@@ -1268,6 +1268,113 @@ html.dark-mode .exercise-list-arrow i {
     opacity: 0.8;
 }
 
+/* -------------------------------------------------------------------------------------------------- */
+/* Recent Workout */
+.workout-card-recently {
+    display: flex;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 0 0 600px;
+
+}
+
+.workout-card-content-recently {
+    width: 50%;
+    background: white;
+    overflow: hidden;
+    border-radius: 0px 16px 16px 0px;
+    cursor: pointer;
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+.workout-card-recently:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+html.dark-mode .workout-card-recently:hover {
+    box-shadow: 0 4px 12px rgb(98, 98, 98);
+}
+
+html.dark-mode .workout-card-recently {
+    background: #4d4d4e;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgb(98, 98, 98);
+    border-radius: 16px;
+}
+
+.workout-card-image {
+    width: 50%;
+}
+
+.workout-card-image img {
+    height: 100%;
+}
+
+.workout-card-type {
+    padding: 0.2rem 1rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    width: fit-content;
+    margin: 10px 0 20px 0;
+}
+
+.workout-card-stats-recently {
+    margin-bottom: 20px;
+}
+
+.workout-card-stat {
+    padding: 5px 0px;
+}
+
+.workout-card-stat i {
+    padding-right: 5px;
+}
+
+.no-recent-workouts {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: rgb(203 203 203 / 20%);
+    border-radius: 10px;
+}
+
+.no-recent-workouts p {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.workout-card-completed {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #4caf50;
+}
+
+.workout-card-completed i {
+    margin-right: 5px;
+}
+
+/* For dark mode */
+.dark-mode .no-recent-workouts {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .workout-card-completed {
+    color: #81c784;
+}
+
+/* -------------------------------------------------------------------------------------------------- */
 /* Responsive Design */
 @media screen and (max-width: 1274px) {
     .search-bar input {
@@ -1372,6 +1479,10 @@ html.dark-mode .exercise-list-arrow i {
 
     .search-bar.show-search {
         display: flex;
+    }
+
+    .no-recent-workouts {
+        padding: 1.5rem;
     }
 }
 

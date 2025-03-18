@@ -429,6 +429,13 @@ table tr.selected {
 
 }
 
+#add-profile-btn:disabled,
+#nadd-profile-btn:disabled,
+#confirm-btn:disabled,
+#nconfirm-btn:disabled {
+    opacity: 0.5;
+}
+
 .picture {
     width: 97.5%;
     height: 60%;

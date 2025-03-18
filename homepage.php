@@ -42,7 +42,7 @@ $stmtMember->execute();
 $resultMember = $stmtMember->get_result();
 $member = $resultMember->fetch_assoc();
 
-$email_address = $member['email_address'];
+$email_address = $member['email_address']; 
 $weight = $member['weight'];
 $height = $member['height'];
 $target_weight = $member['target_weight'];
@@ -274,7 +274,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
         <nav class="navbar" id="navbar">
             <div class="nav-links" id="nav-links">
                 <span class="workout-home"><a href="#" class="active">HOME</a></span>
-                <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
+                <span class="workout-navbar"><a href="workout_page.php">WORKOUT</a></span>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
                 <span class="workout-dietplan"><a href="diet_page.php">DIET PLAN</a></span>
                 <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
