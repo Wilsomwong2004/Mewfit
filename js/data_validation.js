@@ -187,6 +187,7 @@ function checkUsername() {
   if (username.trim() === "") {
     warning.textContent = "";
     submit_btn.disabled = true;
+    return;
   }
 
   fetch("check_username.php?username=" + encodeURIComponent(username))
@@ -199,7 +200,7 @@ function checkUsername() {
         warning.style.color = "red";
       } else {
         warning.style.color = "green";
-        SignUpValid();
+        checkEmail();
       }
     })
     .catch((error) => {
