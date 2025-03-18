@@ -40,7 +40,7 @@ session_start();
           <button class="previous"><i class="bx bxs-chevron-left"></i></button>
           <h2>Create an account</h2>
         </div>
-        <form action="sign_up_member.php" method="post">
+        <form action="sign_up_member.php" method="post" id="form">
           <div class="sign-in-steps">
 
             <!-- First page -->
@@ -59,13 +59,13 @@ session_start();
               <!-- Email-input -->
               <div class="inputs">
                 <label for="e-mail">Email <span id="exist-email"></span></label>
-                <input type="email" id="e-mail" name="e-mail" oninput="checkEmail()"/>
+                <input type="email" id="e-mail" name="e-mail" oninput="checkUsername()"/>
               </div>
 
               <!-- Password input -->
               <div class="inputs">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password"/>
+                <input type="password" id="password" name="password" oninput="checkUsername()"/>
               </div>
 
               <div class="half-input-wrapper">
@@ -73,13 +73,13 @@ session_start();
                 <!-- Age input -->
                 <div class="half-inputs">
                   <label for="age">Your Age</label>
-                  <input type="number" id="age" name="age"/>
+                  <input type="number" id="age" name="age" oninput="checkNumber(this, document.getElementById('valid-age'), '(Please Enter a valid age)'), SignUpValid()"/>
                 </div>
 
                 <!-- Gender input -->
                 <div class="gender-inputs">
                   <label for="gender">Your Gender</label>
-                  <select id="gender" name="gender">
+                  <select id="gender" name="gender" onchange="checkUsername()">
                     <option value="" disabled selected>
                       Select your gender
                     </option>
@@ -89,6 +89,7 @@ session_start();
                 </div>
 
               </div>
+              <span id="valid-age"></span>
 
               <!-- account rules -->
               <div class="account-rules">
@@ -126,12 +127,9 @@ session_start();
                     type="number" 
                     id="weight" 
                     name="weight" 
-                    oninput="calculateBMI()"
+                    placeholder="KG"
+                    oninput="checkUsername()"
                   />
-                  <select id="weight-unit" name="weight-unit">
-                    <option value="kg">KG</option>
-                    <option value="lbs">LBS</option>
-                  </select>
                 </div>
 
                 <!-- Height input -->
@@ -141,22 +139,20 @@ session_start();
                     type="number" 
                     id="height" 
                     name="height"
-                    oninput="calculateBMI(); calculateTargetBMI()"
+                    placeholder="CM"
+                    oninput="checkUsername()"
                   />
-                  <select id="height-unit" name="height-unit">
-                    <option value="cm">CM</option>
-                    <option value="feet">FEET</option>
-                  </select>
                 </div>
 
               </div>
+              <span id="valid-weight"></span><span id="valid-height"></span>
 
               <p>Current BMI: <span id="bmi">0</span></p>
 
               <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
-                <select id="fitness-goal" name="fitness-goal" onchange="calculateTargetBMI()">
+                <select id="fitness-goal" name="fitness-goal" onchange="checkUsername()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
@@ -169,19 +165,18 @@ session_start();
                   type="number"
                   id="target-weight"
                   name="target-weight"
-                  oninput="calculateTargetBMI()"
+                  placeholder="KG"
+                  oninput="checkUsername()"
                 />
-                <select id="target-weight-unit" name="target-weight-unit">
-                  <option value="kg">KG</option>
-                  <option value="lbs">LBS</option>
-                </select>
               </div>
 
               <p>Target BMI: <span id="target-bmi">0</span></p>
 
+              <span id="all-valid"></span>
+
               <!-- Sign up button -->
               <div class="button-inputs">
-                <button type="submit">Sign up</button>
+                <button disabled type="submit" id='submit-btn'>Sign up</button>
               </div>
 
             </section>
