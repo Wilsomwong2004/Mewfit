@@ -182,9 +182,11 @@ function validatePhoneNumber(inputElement, feedbackElement) {
 function checkUsername() {
   let username = document.getElementById("username").value;
   let warning = document.getElementById("exist-username");
+  let submit_btn = document.getElementById("submit-btn");
 
-  if (username.length == "") {
+  if (username.trim() === "") {
     warning.textContent = "";
+    submit_btn.disabled = true; // Disable submit if username field is empty
     return;
   }
 
@@ -192,11 +194,20 @@ function checkUsername() {
     .then((response) => response.text())
     .then((data) => {
       warning.innerHTML = data;
+
+      if (data.includes("Username already taken")) {
+        submit_btn.disabled = true;
+        warning.style.color = "red";
+      } else {
+        submit_btn.disabled = false;
+        warning.style.color = "green";
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
       warning.textContent = "Error checking username";
       warning.style.color = "red";
+      submit_btn.disabled = true;
     });
 }
 
@@ -232,8 +243,6 @@ function checkEmail() {
 }
 
 function SignUpValid() {
-  let age = parseInt(document.getElementById("age").value) || 0;
-  let gender = document.getElementById("gender").value;
   let weight = parseFloat(document.getElementById("weight").value) || 0;
   let height = parseFloat(document.getElementById("height").value) / 100 || 0;
   let fitness_goal = document.getElementById("fitness-goal").value;

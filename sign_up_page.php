@@ -53,19 +53,19 @@ session_start();
               <!-- Username input -->
               <div class="inputs">
                 <label for="username">Username <span id="exist-username"></span></label>
-                <input type="text" id="username" name="username" oninput="checkUsername(); SignUpValid()"/>
+                <input type="text" id="username" name="username" oninput="SignUpValid(); checkUsername()"/>
               </div>
 
               <!-- Email-input -->
               <div class="inputs">
                 <label for="e-mail">Email <span id="exist-email"></span></label>
-                <input type="email" id="e-mail" name="e-mail" oninput="checkEmail(); SignUpValid()"/>
+                <input type="email" id="e-mail" name="e-mail" oninput="SignUpValid(); checkUsername(); checkEmail()"/>
               </div>
 
               <!-- Password input -->
               <div class="inputs">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" oninput="SignUpValid()"/>
+                <input type="password" id="password" name="password" oninput="SignUpValid(); checkUsername()"/>
               </div>
 
               <div class="half-input-wrapper">
@@ -79,7 +79,7 @@ session_start();
                 <!-- Gender input -->
                 <div class="gender-inputs">
                   <label for="gender">Your Gender</label>
-                  <select id="gender" name="gender" onchange="SignUpValid()">
+                  <select id="gender" name="gender" onchange="SignUpValid(); checkUsername()">
                     <option value="" disabled selected>
                       Select your gender
                     </option>
@@ -128,7 +128,7 @@ session_start();
                     id="weight" 
                     name="weight" 
                     placeholder="KG"
-                    oninput="SignUpValid()"
+                    oninput="SignUpValid(); checkUsername()"
                   />
                 </div>
 
@@ -140,7 +140,7 @@ session_start();
                     id="height" 
                     name="height"
                     placeholder="CM"
-                    oninput="SignUpValid()""
+                    oninput="SignUpValid(); checkUsername()"
                   />
                 </div>
 
@@ -152,7 +152,7 @@ session_start();
               <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
-                <select id="fitness-goal" name="fitness-goal" onchange="SignUpValid()">
+                <select id="fitness-goal" name="fitness-goal" onchange="SignUpValid(); checkUsername()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
@@ -166,7 +166,7 @@ session_start();
                   id="target-weight"
                   name="target-weight"
                   placeholder="KG"
-                  oninput="SignUpValid()"
+                  oninput="SignUpValid(); checkUsername()"
                 />
               </div>
 
