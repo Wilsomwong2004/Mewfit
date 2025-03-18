@@ -24,36 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
         adminLink.classList.add('active');
     });
 
-    //-------------------retain information-----------------------------
-    let form = document.querySelector(".add-profile form");
-    form.querySelectorAll("input, select").forEach(input => {
-        if (sessionStorage.getItem(input.name)) {
-            input.value = sessionStorage.getItem(input.name);
-        }
-
-        input.addEventListener("input", function () {
-            sessionStorage.setItem(input.name, this.value);
-        });
-    });
-
-    //---------------------clear all rows-------------------------
-    function clearForm() {
-        document.getElementById("username").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("gender").selectedIndex = 0;
-        document.getElementById("email").value = "";
-        document.getElementById("phonenum").value = "";
-        sessionStorage.clear();
-        window.location.href = window.location.href;
-    }
-
-    window.onload = function () {
-        if (sessionStorage.getItem("clearForm") === "true") {
-            clearForm();
-            sessionStorage.removeItem("clearForm");
-        }
-    };
 
     //------------------------select row--------------------------
     const rows = document.querySelectorAll('table tr:not(:first-child)');
@@ -75,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             editBtn.disabled = false;
             deleteBtn.disabled = false;
+            
         });
     });
 

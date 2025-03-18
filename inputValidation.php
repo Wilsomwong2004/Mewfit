@@ -13,8 +13,8 @@ if (empty($table) || empty($column) || empty($value)) {
 }
 
 // Sanitize input to prevent SQL injection
-$table = preg_replace("/[^a-zA-Z0-9_]/", "", $table); // Allow only alphanumeric and underscores
-$column = preg_replace("/[^a-zA-Z0-9_]/", "", $column); // Allow only alphanumeric and underscores
+$table = preg_replace("/[^a-zA-Z0-9_]/", "", $table); 
+$column = preg_replace("/[^a-zA-Z0-9_]/", "", $column); 
 
 $id_column = '';
 switch ($table) {
@@ -29,6 +29,9 @@ switch ($table) {
         break;
     case 'member':
         $id_column = 'member_id';
+        break;
+    case 'administrator':
+        $id_column = 'admin_id';
         break;
 }
 

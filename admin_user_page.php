@@ -12,6 +12,12 @@
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
     <script src="./js/data_validation.js"></script>
+    <style>
+        #add-profile-btn:disabled,
+        #confirm-btn:disabled {
+            opacity: 0.5 !important;
+        }
+    </style>
 </head>
 <?php
 include "conn.php";
@@ -20,6 +26,29 @@ session_start();
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: prelogin.html");
     exit;
+}
+
+// enter new data
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+    $name = trim($_POST['name']);
+    $gender = trim($_POST['gender']);
+    $email = trim($_POST['email']);
+    $phone_num = trim($_POST['phonenum']);
+
+    $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
+                                      VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
+    $stmt->bind_param("ssssss", $username, $password, $name, $gender, $email, $phone_num);
+
+    if ($stmt->execute()) {
+        header("Location: admin_user_page.php");
+        exit();
+    } else {
+        die("Failed to update admin table");
+    }
 }
 ?>
 
@@ -100,21 +129,17 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     <h2>Add New <span>Profile</span></h2>
                 </center>
                 <form method="post" action="">
-                    <!-- Username Field -->
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', 'inputValidation.php')">
                     <p id="username-feedback" class="feedback"></p>
 
-                    <!-- Password Field -->
                     <label for="password">Password</label>
                     <input type="text" id="password" name="password" oninput="validatePassword(this, document.getElementById('password-feedback'))" required>
                     <p id="password-feedback" class="feedback"></p>
 
-                    <!-- Name Field -->
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" required>
 
-                    <!-- Gender Field -->
                     <label for="gender">Gender</label>
                     <select id="gender" name="gender" required style="width:98%;">
                         <option value="">Select Gender</option>
@@ -122,17 +147,14 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                         <option value="male">Male</option>
                     </select>
 
-                    <!-- Email Field -->
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', 'inputValidation.php')">
                     <p id="email-feedback" class="feedback"></p>
 
-                    <!-- Phone Number Field -->
                     <label for="phonenum">Phone Number</label>
                     <input type="text" id="phonenum" name="phonenum" oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback')); checkUniqueName(this, document.getElementById('phonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', 'inputValidation.php')" required>
                     <p id="phonenum-feedback" class="feedback"></p>
 
-                    <!-- Submit Button -->
                     <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
                         <button type="submit" id="add-profile-btn" disabled>Create New</button>
                     </div>
@@ -146,8 +168,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
                         const isValid = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback;
 
-                        document.getElementById('add-profile-btn').disabled = !isValid;
-
+                        document.getElementById('add-profile-btn').enabled = isValid;
                     }
                     document.getElementById('username').addEventListener('input', validateForm);
                     document.getElementById('password').addEventListener('input', validateForm);
@@ -163,33 +184,62 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="administrator">
 
+                    <!-- Username Field -->
                     <label for="eusername">Username</label>
-                    <input type="text" id="eusername" name="eusername" value="<?php echo htmlspecialchars($old_data['eusername'] ?? ''); ?>" required>
+                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', 'inputValidation.php', document.getElementById('selectedAdminId').value);evalidateForm()" required>
+                    <p id="eusername-feedback" class="feedback"></p>
 
+                    <!-- Password Field -->
                     <label for="epassword">Password</label>
-                    <input type="text" id="epassword" name="epassword" value="<?php echo htmlspecialchars($old_data['epassword'] ?? ''); ?>" required>
+                    <input type="text" id="epassword" name="epassword" oninput="validatePassword(this, document.getElementById('epassword-feedback')); evalidateForm()" required>
+                    <p id="epassword-feedback" class="feedback"></p>
 
+                    <!-- Name Field -->
                     <label for="ename">Name</label>
-                    <input type="text" id="ename" name="ename" value="<?php echo htmlspecialchars($old_data['ename'] ?? ''); ?>" required>
+                    <input type="text" id="ename" name="ename" required>
 
+                    <!-- Gender Field -->
                     <label for="egender">Gender</label>
                     <select id="egender" name="egender" required style="width:98%;">
                         <option value="">Select Gender</option>
-                        <option value="female" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'female') ? 'selected' : ''; ?>>Female</option>
-                        <option value="male" <?php echo (isset($old_data['egender']) && $old_data['egender'] == 'male') ? 'selected' : ''; ?>>Male</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
                     </select>
 
+                    <!-- Email Field -->
                     <label for="eemail">Email Address</label>
-                    <input type="email" id="eemail" name="eemail" value="<?php echo htmlspecialchars($old_data['eemail'] ?? ''); ?>" required>
+                    <input type="email" id="eemail" name="eemail" required oninput="checkUniqueName(this, document.getElementById('eemail-feedback'), 'Email already exists.', 'administrator', 'email_address', 'inputValidation.php', document.getElementById('selectedAdminId').value); evalidateForm()">
+                    <p id="eemail-feedback" class="feedback"></p>
 
+                    <!-- Phone Number Field -->
                     <label for="ephonenum">Phone Number</label>
-                    <input type="text" id="ephonenum" name="ephonenum" value="<?php echo htmlspecialchars($old_data['ephonenum'] ?? ''); ?>" required>
+                    <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback')); checkUniqueName(this, document.getElementById('ephonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', 'inputValidation.php', document.getElementById('selectedAdminId').value); evalidateForm()" required>
+                    <p id="ephonenum-feedback" class="feedback"></p>
 
+                    <!-- Buttons -->
                     <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
                         <button type="button" id="discard-btn">Discard Changes</button>
-                        <button type="submit" id="confirm-btn">Update Changes</button>
+                        <button type="submit" id="confirm-btn" disabled>Update Changes</button>
                     </div>
                 </form>
+                <script>
+                    function evalidateForm() {
+                        const eusernameFeedback = document.getElementById('eusername-feedback').textContent.trim();
+                        const epasswordFeedback = document.getElementById('epassword-feedback').textContent.trim();
+                        const eemailFeedback = document.getElementById('eemail-feedback').textContent.trim();
+                        const ephonenumFeedback = document.getElementById('ephonenum-feedback').textContent.trim();
+
+                        const isValid = !eusernameFeedback && !epasswordFeedback && !eemailFeedback && !ephonenumFeedback;
+
+                        document.getElementById('confirm-btn').disabled = !isValid;
+                        document.getElementById('confirm-btn').enabled = isValid;
+                    }
+
+                    document.getElementById('eusername').addEventListener('input', evalidateForm);
+                    document.getElementById('epassword').addEventListener('input', evalidateForm);
+                    document.getElementById('eemail').addEventListener('input', evalidateForm);
+                    document.getElementById('ephonenum').addEventListener('input', evalidateForm);
+                </script>
             </div>
             <div class="popup" id="popup">
                 <div class="popup-content">
@@ -292,27 +342,3 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 </body>
 
 </html>
-<?php
-// enter new data
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-    $name = trim($_POST['name']);
-    $gender = trim($_POST['gender']);
-    $email = trim($_POST['email']);
-    $phone_num = trim($_POST['phonenum']);
-
-    $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
-                                      VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
-    $stmt->bind_param("ssssss", $username, $password, $name, $gender, $email, $phone_num);
-
-    if ($stmt->execute()) {
-        header("Location: admin_user_page.php");
-        exit();
-    } else {
-        die("Failed to update admin table");
-    }
-}
-?>
