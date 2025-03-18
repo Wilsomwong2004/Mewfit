@@ -481,7 +481,7 @@ table tr.selected {
     }
 
     .member-container {
-        width: 100%;
+        padding: 0px 30px;
     }
 
 }
@@ -546,8 +546,7 @@ table tr.selected {
     }
 
     .member-container {
-        width: 96%;
-        padding: 20px;
+        padding: 0px 10px;
     }
 
     .title {
@@ -556,7 +555,7 @@ table tr.selected {
 
     .add-profile,
     .edit-profile {
-        width: 85%;
+        width: 80%;
     }
 
     .user-section {
@@ -585,7 +584,7 @@ table tr.selected {
     }
 
     .member-container {
-        width: 98%;
-        padding: 20px;
+        width: 90vw;
+        padding: 0px 17px;
     }
 }

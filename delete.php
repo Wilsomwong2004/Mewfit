@@ -12,14 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         "workout" => "workout_id"
     ];
 
-    // Validate the table name
-    if (!isset($validTables[$table])) {
-        die("Invalid table name.");
-    }
-
-    // Handle diet image deletion
     if ($table == "diet") {
-        // First, retrieve the image filename
         $sql = "SELECT picture FROM diet WHERE diet_id = ?";
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -42,8 +35,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $stmt->close();
 
-        // Now delete the associated nutrition entries
         $sql = "DELETE FROM diet_nutrition WHERE diet_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+    } else if ($table == "member"){
+        $sql = "DELETE FROM member_performance WHERE member_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        $sql = "DELETE FROM diet_history WHERE member_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        $sql = "DELETE FROM workout_history WHERE member_id = ?";
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();

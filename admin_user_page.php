@@ -9,7 +9,6 @@
     <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
-    <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
     <script src="./js/data_validation.js"></script>
     <style>
@@ -130,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form method="post" action="">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', 'inputValidation.php')">
+                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));">
                     <p id="username-feedback" class="feedback"></p>
 
                     <label for="password">Password</label>
@@ -148,11 +147,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </select>
 
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', 'inputValidation.php')">
+                    <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', document.getElementById('add-profile-btn'))">
                     <p id="email-feedback" class="feedback"></p>
 
                     <label for="phonenum">Phone Number</label>
-                    <input type="text" id="phonenum" name="phonenum" oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback')); checkUniqueName(this, document.getElementById('phonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', 'inputValidation.php')" required>
+                    <input type="text" id="phonenum" name="phonenum" oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback')); checkUniqueName(this, document.getElementById('phonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', document.getElementById('add-profile-btn'))" required>
                     <p id="phonenum-feedback" class="feedback"></p>
 
                     <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
@@ -161,19 +160,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function validateForm() {
+                        // Check feedback elements for validation errors
                         const usernameFeedback = document.getElementById('username-feedback').textContent.trim();
                         const passwordFeedback = document.getElementById('password-feedback').textContent.trim();
                         const emailFeedback = document.getElementById('email-feedback').textContent.trim();
                         const phonenumFeedback = document.getElementById('phonenum-feedback').textContent.trim();
 
-                        const isValid = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback;
+                        // Check if required fields have values
+                        const username = document.getElementById('username').value.trim();
+                        const password = document.getElementById('password').value.trim();
+                        const name = document.getElementById('name').value.trim();
+                        const gender = document.getElementById('gender').value.trim();
+                        const email = document.getElementById('email').value.trim();
+                        const phonenum = document.getElementById('phonenum').value.trim();
 
-                        document.getElementById('add-profile-btn').enabled = isValid;
+                        // All fields must be filled and have no validation errors
+                        const allFieldsFilled = username && password && name && gender && email && phonenum;
+                        const noValidationErrors = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback;
+
+                        // Use disabled property (not enabled) and set it to the opposite of our validation check
+                        document.getElementById('add-profile-btn').disabled = !(allFieldsFilled) && !(noValidationErrors);
                     }
+
+                    // Add event listeners for all form fields
                     document.getElementById('username').addEventListener('input', validateForm);
                     document.getElementById('password').addEventListener('input', validateForm);
+                    document.getElementById('name').addEventListener('input', validateForm);
+                    document.getElementById('gender').addEventListener('change', validateForm);
                     document.getElementById('email').addEventListener('input', validateForm);
                     document.getElementById('phonenum').addEventListener('input', validateForm);
+
+                    // Initial validation when the form loads
                 </script>
             </div>
             <div class="edit-profile">
@@ -184,21 +201,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="administrator">
 
-                    <!-- Username Field -->
                     <label for="eusername">Username</label>
-                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', 'inputValidation.php', document.getElementById('selectedAdminId').value);evalidateForm()" required>
+                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);" required>
                     <p id="eusername-feedback" class="feedback"></p>
 
-                    <!-- Password Field -->
                     <label for="epassword">Password</label>
                     <input type="text" id="epassword" name="epassword" oninput="validatePassword(this, document.getElementById('epassword-feedback')); evalidateForm()" required>
                     <p id="epassword-feedback" class="feedback"></p>
 
-                    <!-- Name Field -->
                     <label for="ename">Name</label>
                     <input type="text" id="ename" name="ename" required>
 
-                    <!-- Gender Field -->
                     <label for="egender">Gender</label>
                     <select id="egender" name="egender" required style="width:98%;">
                         <option value="">Select Gender</option>
@@ -206,14 +219,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <option value="male">Male</option>
                     </select>
 
-                    <!-- Email Field -->
                     <label for="eemail">Email Address</label>
-                    <input type="email" id="eemail" name="eemail" required oninput="checkUniqueName(this, document.getElementById('eemail-feedback'), 'Email already exists.', 'administrator', 'email_address', 'inputValidation.php', document.getElementById('selectedAdminId').value); evalidateForm()">
+                    <input type="email" id="eemail" name="eemail" required oninput="checkUniqueName(this, document.getElementById('eemail-feedback'), 'Email already exists.', 'administrator', 'email_address', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value); evalidateForm()">
                     <p id="eemail-feedback" class="feedback"></p>
 
                     <!-- Phone Number Field -->
                     <label for="ephonenum">Phone Number</label>
-                    <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback')); checkUniqueName(this, document.getElementById('ephonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', 'inputValidation.php', document.getElementById('selectedAdminId').value); evalidateForm()" required>
+                    <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback')); checkUniqueName(this, document.getElementById('ephonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value); evalidateForm()" required>
                     <p id="ephonenum-feedback" class="feedback"></p>
 
                     <!-- Buttons -->
@@ -224,19 +236,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function evalidateForm() {
+                        // Check feedback elements for validation errors
                         const eusernameFeedback = document.getElementById('eusername-feedback').textContent.trim();
                         const epasswordFeedback = document.getElementById('epassword-feedback').textContent.trim();
                         const eemailFeedback = document.getElementById('eemail-feedback').textContent.trim();
                         const ephonenumFeedback = document.getElementById('ephonenum-feedback').textContent.trim();
 
-                        const isValid = !eusernameFeedback && !epasswordFeedback && !eemailFeedback && !ephonenumFeedback;
+                        // Check if required fields have values
+                        const eusername = document.getElementById('eusername').value.trim();
+                        const epassword = document.getElementById('epassword').value.trim();
+                        const ename = document.getElementById('ename').value.trim();
+                        const egender = document.getElementById('egender').value.trim();
+                        const eemail = document.getElementById('eemail').value.trim();
+                        const ephonenum = document.getElementById('ephonenum').value.trim();
 
-                        document.getElementById('confirm-btn').disabled = !isValid;
-                        document.getElementById('confirm-btn').enabled = isValid;
+                        // All fields must be filled and have no validation errors
+                        const allFieldsFilled = eusername && epassword && ename && egender && eemail && ephonenum;
+                        const noValidationErrors = !eusernameFeedback && !epasswordFeedback && !eemailFeedback && !ephonenumFeedback;
+
+                        // IMPORTANT: Remove the .enabled property line - it's not a valid property
+                        // Only use the .disabled property
+                        document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
+                    // Add event listeners for all form fields
                     document.getElementById('eusername').addEventListener('input', evalidateForm);
                     document.getElementById('epassword').addEventListener('input', evalidateForm);
+                    document.getElementById('ename').addEventListener('input', evalidateForm);
+                    document.getElementById('egender').addEventListener('change', evalidateForm);
                     document.getElementById('eemail').addEventListener('input', evalidateForm);
                     document.getElementById('ephonenum').addEventListener('input', evalidateForm);
                 </script>
@@ -308,20 +335,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ?>
                 </table>
             </div>
-        </div>
-
-        <div class="table-option">
-            <button id="member-delete-btn" style="margin-right: 50px; margin-top: 10px;"> Delete</button>
-        </div>
-        <div class="mpopup" id="mpopup">
-            <div class="popup-content">
-                <h2>Confirm Deletion</h2>
-                <p>Are you sure you want to delete this record?</p>
-                <button class="confirmDelete">Yes, Delete</button>
-                <button class="cancelDelete">Cancel</button>
+            <div class="table-option">
+                <button id="member-delete-btn" style="margin-right: 50px; margin-top: 10px;"> Delete</button>
+            </div>
+            <div class="mpopup" id="mpopup">
+                <div class="popup-content">
+                    <h2>Confirm Deletion</h2>
+                    <p>Are you sure you want to delete this record?</p>
+                    <button class="confirmDelete">Yes, Delete</button>
+                    <button class="cancelDelete">Cancel</button>
+                </div>
             </div>
         </div>
-    </div>
     </div>
     <script>
         window.onresize = function() {
@@ -330,13 +355,219 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         };
         document.addEventListener("DOMContentLoaded", function() {
-            var addProfile = document.querySelector('.add-profile');
-            var editProfile = document.querySelector('.edit-profile');
+            validateForm();
+            evalidateForm();
 
-            <?php if ($showEditForm): ?>
-                addProfile.style.display = 'none';
-                editProfile.style.display = 'block';
-            <?php endif; ?>
+            //-------------------------navigation---------------------------------------
+            let isEditing = false;
+
+            function showSection() {
+                if (isEditing) {
+                    return;
+                }
+
+                const hash = window.location.hash;
+                const nutritionContainer = document.querySelector('.admin-container');
+                const dietContainer = document.querySelector('.member-container');
+                const nutritionLink = document.querySelector('.admin-link');
+                const dietLink = document.querySelector('.member-link');
+
+                nutritionContainer.style.display = 'none';
+                dietContainer.style.display = 'none';
+                nutritionLink.classList.remove('active');
+                dietLink.classList.remove('active');
+
+                if (hash === "#admin") {
+                    nutritionContainer.style.display = 'flex';
+                    nutritionLink.classList.add('active');
+                } else if (hash === "#member") {
+                    dietContainer.style.display = 'block';
+                    dietLink.classList.add('active');
+                } else {
+                    nutritionContainer.style.display = 'flex';
+                    nutritionLink.classList.add('active');
+                }
+            }
+
+            showSection();
+            window.addEventListener('hashchange', showSection);
+
+            //------------------------select row--------------------------
+            const rows = document.querySelectorAll('table tr:not(:first-child)');
+            const editBtn = document.getElementById("edit-btn");
+            const deleteBtn = document.getElementById("delete-btn");
+            const memberDeleteBtn = document.getElementById("member-delete-btn");
+            let selectedRow = null;
+            let mselectedRow = null;
+            document.querySelectorAll(".admin-container tr").forEach(row => {
+                row.addEventListener('click', function(event) {
+                    if (isEditing) return;
+                    if (this.classList.contains('no-data')) return;
+
+                    event.stopPropagation();
+                    rows.forEach(r => r.classList.remove('selected'));
+                    selectedRow = this;
+                    this.classList.add('selected');
+
+                    editBtn.disabled = false;
+                    deleteBtn.disabled = false;
+
+                });
+            });
+
+            document.querySelectorAll(".member-container tr:not(:first-child)").forEach(row => {
+                row.addEventListener('click', function(event) {
+                    if (this.classList.contains('no-data')) return;
+
+                    rows.forEach(r => r.classList.remove('selected'));
+                    mselectedRow = this;
+                    this.classList.add('selected');
+                    console.log(mselectedRow);
+
+                    memberDeleteBtn.disabled = false;
+                });
+            });
+
+            //------------------------------deselect------------------
+            document.addEventListener("click", function(event) {
+                const table = document.querySelector(".box table");
+                const table2 = document.querySelector(".member-box table");
+                const tableOption = document.querySelector('.table-option');
+                if (!table.contains(event.target) && !tableOption.contains(event.target) && !table2.contains(event.target) && !memberDeleteBtn.contains(event.target)) {
+                    if (isEditing) return;
+                    if (selectedRow) {
+                        selectedRow.classList.remove('selected');
+                        selectedRow = null;
+                    }
+                    if (mselectedRow) {
+                        mselectedRow.classList.remove('selected');
+                        mselectedRow = null;
+                    }
+                    editBtn.disabled = true;
+                    deleteBtn.disabled = true;
+                    memberDeleteBtn.disabled = true;
+                }
+            }, true);
+
+            //-----------------------------edit data-----------------------
+            let selectedAdminId = null;
+
+            const discardBtn = document.getElementById("discard-btn");
+            const confirmBtn = document.getElementById("confirm-btn");
+            const addProfile = document.querySelector(".add-profile");
+            const editProfile = document.querySelector(".edit-profile");
+            editBtn.addEventListener("click", function() {
+                if (!selectedRow) return;
+                isEditing = true;
+                addProfile.style.display = "none";
+                editProfile.style.display = "block";
+                editBtn.disabled = true;
+                deleteBtn.disabled = true;
+
+
+                const cells = selectedRow.getElementsByTagName("td");
+                document.getElementById("selectedAdminId").value = cells[0].textContent;
+                document.getElementById("eusername").value = cells[1].textContent;
+                document.getElementById("epassword").value = cells[2].textContent;
+                document.getElementById("ename").value = cells[3].textContent;
+                document.getElementById("egender").value = cells[4].textContent;
+                document.getElementById("eemail").value = cells[5].textContent;
+                document.getElementById("ephonenum").value = cells[6].textContent;
+
+            });
+
+            //discard changes button
+            discardBtn.addEventListener("click", function() {
+                document.querySelector(".add-profile form").reset();
+                addProfile.style.display = "block";
+                editProfile.style.display = "none";
+                isEditing = false;
+            });
+
+            confirmBtn.addEventListener("click", function() {
+                isEditing = false;
+                addProfile.style.display = "block";
+                editProfile.style.display = "none";
+            });
+
+            //----------------------delete data------------------------
+            let id = null;
+            let table = null;
+            deleteBtn.addEventListener("click", () => {
+                if (!selectedRow) return;
+
+                let popUp = document.getElementById("popup");
+                popUp.style.display = "flex";
+                id = selectedRow.getAttribute("admin-id");
+                table = "administrator";
+                console.log(`ID: ${id}, Table: ${table}`);
+            });
+
+
+            memberDeleteBtn.addEventListener("click", () => {
+                console.log("Selected member row:", mselectedRow);
+                if (!mselectedRow) {
+                    console.log("No member row selected");
+                    return;
+                }
+
+                let popUp = document.getElementById("mpopup");
+                popUp.style.display = "flex";
+                id = mselectedRow.getAttribute("member-id");
+                table = "member";
+                console.log(`Member ID: ${id}, Table: ${table}`);
+            });
+
+            document.querySelector(".content").addEventListener("click", function(event) {
+                if (event.target.classList.contains("confirmDelete")) {
+                    console.log("confirmDelete button detected");
+
+                    if (!id || !table) {
+                        console.error("Missing data-id or data-table attribute");
+                        return;
+                    }
+
+                    fetch("delete.php", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            },
+                            body: `table=${table}&id=${id}`
+                        })
+                        .then(res => res.text())
+                        .then(() => location.reload())
+                        .catch(console.error);
+
+                    document.getElementById("popup").style.display = "none";
+                    document.getElementById("mpopup").style.display = "none";
+                }
+                if (event.target.classList.contains("cancelDelete")) {
+                    document.getElementById("mpopup").style.display = "none";
+                    document.getElementById("popup").style.display = "none";
+                }
+            });
+
+            //-----------------------------search--------------------------
+            document.querySelectorAll(".search-bar").forEach(searchBar => {
+                searchBar.addEventListener("keyup", function() {
+                    const searchValue = this.value.toLowerCase();
+
+                    let table = this.closest("div").querySelector("table");
+                    let rows = table.querySelectorAll("tr:not(:first-child)");
+
+                    rows.forEach(row => {
+                        if (row.classList.contains("no-data")) return;
+
+                        const usernameCell = row.cells[1].textContent.toLowerCase();
+
+                        if (usernameCell.includes(searchValue)) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    });
+                });
+            });
         });
     </script>
 </body>

@@ -312,12 +312,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function editValidateForm() {
-                        // Check for validation feedback errors
                         const mealNameFeedback = document.getElementById('ediet-name-feedback').textContent.trim();
                         const preparationMinFeedback = document.getElementById('epreparation-min-feedback').textContent.trim();
                         const directionFeedback = document.getElementById('edirections-feedback').textContent.trim();
 
-                        // Check if required fields have values
                         const mealName = document.getElementById('ediet-name').value.trim();
                         const dietType = document.getElementById('ediet-type').value.trim();
                         const prepTime = document.getElementById('epreparation_min').value.trim();
@@ -325,11 +323,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         const description = document.getElementById('edesc').value.trim();
                         const directions = document.getElementById('edirections').value.trim();
 
-                        // Check if all fields are filled AND there are no validation errors
                         const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && description && directions;
                         const noValidationErrors = !mealNameFeedback && !preparationMinFeedback && !directionFeedback;
 
-                        // Enable button only if all conditions are met
                         document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
                     document.getElementById('ediet-name').addEventListener('input', editValidateForm);
@@ -399,8 +395,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form action="" method="POST" id="nutrition-form">
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="nutrition-name" name="nutrition-name" required
-                        oninput="checkNumberInBrackets(this, document.getElementById('nutrition-name-feedback'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('nutrition-name-feedback'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name',document.getElementById('nadd-profile-btn')); ">
+                    <input type="text" id="nutrition-name" name="nutrition-name" required placeholder="Ex: Ingredient Name (gram)"
+                        oninput="checkNumberInBrackets(this, document.getElementById('nutrition-name-feedback'), 'The number inside the brackets must be greater than 0.'); 
+                        checkUniqueName(this, document.getElementById('nutrition-name-feedback'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name',document.getElementById('nadd-profile-btn'));">
                     <p id="nutrition-name-feedback" class="feedback"></p>
 
                     <label for="calories">Calories</label>
@@ -467,8 +464,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="table" name="table" value="nutrition">
 
                     <label for="nutrition-name">Nutrition Name</label>
-                    <input type="text" id="enutrition-name" name="enutrition-name" required
-                        oninput="checkNumberInBrackets(this, document.getElementById('efeedbackNutritionName'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('efeedbackNutritionName'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php',
+                    <input type="text" id="enutrition-name" name="enutrition-name" required placeholder="Ex: Ingredient Name (gram)"
+                        oninput="checkNumberInBrackets(this, document.getElementById('efeedbackNutritionName'), 'The number inside the brackets must be greater than 0.'); checkUniqueName(this, document.getElementById('efeedbackNutritionName'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name', document.getElementById('nconfirm-btn'),
                 document.getElementById('selectedNutriId').value);">
                     <div id="efeedbackNutritionName"></div>
 
@@ -499,16 +496,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function envalidateForm() {
-                        const nutritionNameFeedback = document.getElementById('feedbackNutritionName').textContent.trim();
+                        const nutritionNameFeedback = document.getElementById('efeedbackNutritionName').textContent.trim();
                         const caloriesFeedback = document.getElementById('feedbackCalories').textContent.trim();
                         const fatFeedback = document.getElementById('feedbackFat').textContent.trim();
                         const proteinFeedback = document.getElementById('feedbackProtein').textContent.trim();
                         const carbFeedback = document.getElementById('feedbackCarb').textContent.trim();
 
-                        const isValid = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+                        const nutritionName = document.getElementById('enutrition-name').value.trim();
+                        const calories = document.getElementById('ecalories').value.trim();
+                        const fat = document.getElementById('efat').value.trim();
+                        const protein = document.getElementById('eprotein').value.trim();
+                        const carb = document.getElementById('ecarb').value.trim();
 
-                        document.getElementById('nconfirm-btn').disabled = !isValid;
+                        const allFieldsFilled = nutritionName && calories && fat && protein && carb;
+                        const noValidationErrors = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
+
+                        document.getElementById('nconfirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
+
+                    document.getElementById('enutrition-name').addEventListener('input', envalidateForm);
+                    document.getElementById('ecalories').addEventListener('input', envalidateForm);
+                    document.getElementById('efat').addEventListener('input', envalidateForm);
+                    document.getElementById('eprotein').addEventListener('input', envalidateForm);
+                    document.getElementById('ecarb').addEventListener('input', envalidateForm);
                 </script>
             </div>
 
