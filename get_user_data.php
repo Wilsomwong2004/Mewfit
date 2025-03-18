@@ -6,17 +6,6 @@ ob_start();
 require_once 'conn.php';
 session_start();
 
-if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-    echo json_encode([
-        "error" => "Member not logged in",
-        "isLoggedIn" => false,
-        "memberData" => null
-    ]);
-    exit;
-}
-
-error_log("Session member_id: " . $_SESSION["member_id"]);
-
 $memberId = $_SESSION["member_id"];
 $response = [];
 

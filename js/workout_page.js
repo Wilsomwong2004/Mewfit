@@ -868,13 +868,16 @@ async function initializeTopPicks() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize all workout sections
     initializeWorkoutSections();
-
-    // Initialize Top Picks separately
     initializeTopPicks();
+    setupRecentWorkoutCards();
 
-    // Set default activity card click
+    // Apply scroll arrows to recently workout section
+    const recentlyWorkoutGrid = document.getElementById('recently-workout-grid');
+    if (recentlyWorkoutGrid) {
+        setupScrollArrows(recentlyWorkoutGrid);
+    }
+
     const defaultCard = document.querySelector('.activity-card-all');
     if (defaultCard) {
         defaultCard.click();
@@ -1022,6 +1025,61 @@ function setupWorkoutCardClick() {
             newPopup.classList.remove('active');
             selectedWorkout = null;
         }
+    });
+}
+
+function setupRecentWorkoutCards() {
+    // Select all recently workout cards
+    document.querySelectorAll('.workout-card-recently').forEach(card => {
+        card.addEventListener('click', () => {
+            const workoutId = card.getAttribute('data-workout-id');
+
+            // Find the workout by ID
+            const workout = workouts.find(w => w.id === workoutId);
+
+            if (!workout) {
+                console.error('Workout not found with ID:', workoutId);
+                return;
+            }
+
+            // Store the selected workout
+            selectedWorkout = workout;
+
+            // Update popup content
+            const popup = document.getElementById('popup-container');
+
+            document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+            document.getElementById('popup-desc').textContent = workout.description;
+
+            // Extract numbers only
+            const durationNum = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            const caloriesNum = workout.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
+            updatePopupLevel(workout.level);
+
+            // Update image
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+                workoutImage.style.objectFit = 'cover';
+            } else {
+                workoutImage.src = './assets/icons/error.svg';
+                workoutImage.alt = 'Workout Image Not Found';
+                workoutImage.style.objectFit = 'contain';
+                workoutImage.style.width = '60%';
+                workoutImage.style.height = 'auto';
+            }
+
+            // Update exercise list
+            updateExerciseList(workout);
+
+            // Show popup
+            popup.classList.add('active');
+        });
     });
 }
 
