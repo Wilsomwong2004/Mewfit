@@ -199,8 +199,8 @@ function checkUsername() {
         submit_btn.disabled = true;
         warning.style.color = "red";
       } else {
-        submit_btn.disabled = false;
         warning.style.color = "green";
+        SignUpValid();
       }
     })
     .catch((error) => {
@@ -216,8 +216,9 @@ function checkEmail() {
   let warning = document.getElementById("exist-email");
   let submit_btn = document.getElementById("submit-btn");
 
-  if (email.length === 0) {
+  if (email.trim() === "") {
     warning.textContent = "";
+    submit_btn.disabled = true;
     return;
   }
 
@@ -233,16 +234,24 @@ function checkEmail() {
     .then((response) => response.text())
     .then((data) => {
       warning.innerHTML = data;
-      warning.style.color = data.includes("already in use") ? "red" : "green";
+      if (data.includes("already in use")) {
+        warning.style.color = "red";
+        submit_btn.disabled = true;
+      } else {
+        warning.style.color = "green";
+        SignUpValid();
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
       warning.textContent = "Error checking email";
       warning.style.color = "red";
+      submit_btn.disabled = true;
     });
 }
 
 function SignUpValid() {
+  let gender = document.getElementById("gender").value;
   let weight = parseFloat(document.getElementById("weight").value) || 0;
   let height = parseFloat(document.getElementById("height").value) / 100 || 0;
   let fitness_goal = document.getElementById("fitness-goal").value;
@@ -261,6 +270,8 @@ function SignUpValid() {
 
   // Ensure fitness goal is not the default option
   if (fitness_goal === "") {
+    isValid = false;
+  } else if (gender === "") {
     isValid = false;
   }
 
