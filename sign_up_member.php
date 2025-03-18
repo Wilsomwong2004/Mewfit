@@ -53,7 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    $sql = "SELECT * FROM member WHERE username = '$username'";
+    $sql = "SELECT username FROM member WHERE username = '$username' 
+            UNION 
+            SELECT username FROM administrator WHERE username = '$username'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
@@ -62,7 +64,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     } 
 
-    $sql = "SELECT * FROM member WHERE email_address = '$email'";
+    $sql = "SELECT * FROM member WHERE email_address = '$email'
+            UNION
+            SELECT * FROM administrator WHERE email_address = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

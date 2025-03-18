@@ -78,7 +78,7 @@
             <div class="countdown"></div>
             <div class="modal-buttons">
               <button class="otp-verify" type="button" onclick="sendOTP()">Verify</button>
-              <button class="otp-button">Send OTP</button>
+              <button type="button" class="otp-button">Send OTP</button>
             </div>
             <div class="reset-vertification-btn"></div>
                     </div>

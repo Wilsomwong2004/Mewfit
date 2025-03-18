@@ -18,6 +18,8 @@ session_start();
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
+    <script src="js/data_validation.js" defer></script>
+    <script src="js/sign-in-steps.js" defer></script>
   </head>
   <body>
     <?php
@@ -50,14 +52,14 @@ session_start();
 
               <!-- Username input -->
               <div class="inputs">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username"/>
+                <label for="username">Username <span id="exist-username"></span></label>
+                <input type="text" id="username" name="username" oninput="checkUsername()"/>
               </div>
 
               <!-- Email-input -->
               <div class="inputs">
-                <label for="e-mail">Email</label>
-                <input type="email" id="e-mail" name="e-mail"/>
+                <label for="e-mail">Email <span id="exist-email"></span></label>
+                <input type="email" id="e-mail" name="e-mail" oninput="checkEmail()"/>
               </div>
 
               <!-- Password input -->
@@ -194,41 +196,5 @@ session_start();
         </div>
       </div>
     </div>
-
-    <script>
-      function calculateBMI() {
-        let weight = parseFloat(document.getElementById('weight').value) || 0;
-        let height = parseFloat(document.getElementById('height').value) / 100 || 0;
-        let bmi = (weight) / (height ** 2);
-
-        if (bmi > 300 || bmi < 7) {
-          document.getElementById("bmi").textContent = "Please enter appropriate weight and height";
-        } else {
-          document.getElementById("bmi").textContent = bmi.toFixed(2);
-        }
-      }
-
-      function calculateTargetBMI() {
-        // let fitness_goal = document.getElementById('fitness_goal').value;
-
-        document.getElementById("target-warning").textContent = "";
-
-        let weight = parseFloat(document.getElementById('weight').value) || 0;
-        let height = parseFloat(document.getElementById('height').value) / 100 || 0;
-        let target_weight = parseFloat(document.getElementById('target-weight').value) || 0;
-
-        let target_bmi = (target_weight) / (height ** 2);
-
-        if (target_weight - weight > 4) {
-          document.getElementById("target-warning").textContent = "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
-        } else if (weight - target_weight > 4) {
-          document.getElementById("target-warning").textContent = "Losing more than 4kg / 9lbs is dangerous in a span of one month";
-        }
-
-        document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
-      }
-    </script>
-
-    <script src="js/sign-in-steps.js"></script>
   </body>
 </html>

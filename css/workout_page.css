@@ -1268,6 +1268,44 @@ html.dark-mode .exercise-list-arrow i {
     opacity: 0.8;
 }
 
+/* -------------------------------------------------------------------------------------------------- */
+/* Recent Workout */
+
+.no-recent-workouts {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: rgb(203 203 203 / 20%);
+    border-radius: 10px;
+}
+
+.no-recent-workouts p {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.workout-card-completed {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #4caf50;
+}
+
+.workout-card-completed i {
+    margin-right: 5px;
+}
+
+/* For dark mode */
+.dark-mode .no-recent-workouts {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .workout-card-completed {
+    color: #81c784;
+}
+
+/* -------------------------------------------------------------------------------------------------- */
 /* Responsive Design */
 @media screen and (max-width: 1274px) {
     .search-bar input {
@@ -1372,6 +1410,10 @@ html.dark-mode .exercise-list-arrow i {
 
     .search-bar.show-search {
         display: flex;
+    }
+
+    .no-recent-workouts {
+        padding: 1.5rem;
     }
 }
 
