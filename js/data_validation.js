@@ -247,3 +247,21 @@ function checkEmail() {
       warning.style.color = "red";
     });
 }
+
+function validateName(input, feedbackElement) {
+  const name = input.value.trim();
+  const minLength = 5;
+  const maxLength = 100; 
+  const namePattern = /^[A-Za-z\s]+$/; 
+  feedbackElement.style.color = "red";
+
+  if (name.length < minLength) {
+      feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
+  } else if (name.length > maxLength) {
+      feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
+  } else if (!namePattern.test(name)) {
+      feedbackElement.textContent = 'Name can only contain letters and spaces.';
+  }else {
+    feedbackElement.textContent = ""; 
+}
+}

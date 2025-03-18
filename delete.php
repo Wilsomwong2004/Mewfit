@@ -40,6 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->close();
+
+        $sql = "DELETE FROM diet_history WHERE diet_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
     } else if ($table == "member"){
         $sql = "DELETE FROM member_performance WHERE member_id = ?";
         $stmt = $dbConn->prepare($sql);
@@ -58,9 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->close();
+
+    } else if ($table == "workout"){
+        $sql = "DELETE FROM workout_history WHERE workout_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
     }
 
-    // Perform the delete operation for the main table
     $sql = "DELETE FROM $table WHERE {$validTables[$table]} = ?";
     $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $id);

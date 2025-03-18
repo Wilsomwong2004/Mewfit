@@ -200,22 +200,22 @@ document.addEventListener('DOMContentLoaded', function () {
         popUp.style.display = "flex";
     });
 
+    let table = "workout";
+
     // Handle popup buttons via event delegation
     document.querySelector(".container").addEventListener("click", function (event) {
         if (event.target.classList.contains("confirmDelete")) {
-            if (!id) {
-                console.error("Missing workout ID");
-                return;
-            }
 
-            fetch("delete_workout.php", {
+            fetch("delete.php", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `id=${id}`
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `table=${encodeURIComponent(table)}&id=${encodeURIComponent(id)}`
             })
-                .then(res => res.text())
-                .then(() => location.reload())
-                .catch(console.error);
+            .then(res => res.text())
+            .then(() => location.reload())
+            .catch(console.error);
 
             document.getElementById("popup").style.display = "none";
         }
@@ -248,71 +248,4 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    //--------------------form validation-----------------------
-    const form = document.querySelector(".add-profile form");
-    if (form) {
-        form.addEventListener("submit", function (event) {
-            const workoutName = document.getElementById("workout-name").value;
-            const workoutType = document.getElementById("workout-type").value;
-            const calorie = document.getElementById("calorie").value;
-            const minutes = document.getElementById("minutes").value;
-            const sets = document.getElementById("sets").value;
-            const difficulty = document.getElementById("difficulty").value;
-            const description = document.getElementById("description").value;
-            const longDescription = document.getElementById("long-description").value;
-
-            // Get selected exercise checkboxes
-            const selectedExercises = Array.from(document.querySelectorAll('.exercise-checkbox:checked'));
-
-            if (workoutName.trim() === "" ||
-                workoutType === "" ||
-                calorie === "" ||
-                minutes === "" ||
-                sets === "" ||
-                difficulty === "" ||
-                description.trim() === "" ||
-                longDescription.trim() === "" ||
-                selectedExercises.length === 0) {
-
-                alert("Please fill all fields and select at least one exercise");
-                event.preventDefault();
-                return false;
-            }
-
-            // Additional validation for numeric fields
-            if (parseInt(calorie) <= 0 || parseInt(minutes) <= 0 || parseInt(sets) <= 0) {
-                alert("Calories, minutes, and sets must be positive numbers");
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    //--------------------retain information-----------------------------
-    if (form) {
-        form.querySelectorAll("input, select, textarea").forEach(input => {
-            if (input.type === 'file') return; // Skip file inputs
-            if (input.id === 'exercise-search' || input.id === 'search-exercises') return; // Skip search inputs
-
-            if (sessionStorage.getItem(input.id)) {
-                input.value = sessionStorage.getItem(input.id);
-            }
-
-            input.addEventListener("input", function () {
-                sessionStorage.setItem(input.id, this.value);
-            });
-        });
-    }
-
-    // Handle logout
-    // const logoutProfile = document.getElementById('logout-profile');
-    // if (logoutProfile) {
-    //     logoutProfile.addEventListener('click', function () {
-    //         if (confirm('Are you sure you want to logout?')) {
-    //             window.location.href = 'logout.php';
-    //     });
-    // }
 });

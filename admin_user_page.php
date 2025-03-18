@@ -137,7 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p id="password-feedback" class="feedback"></p>
 
                     <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" oninput="validateName(this, document.getElementById('name-feedback'))" required>
+                    <p id="name-feedback" class="feedback"></p>
 
                     <label for="gender">Gender</label>
                     <select id="gender" name="gender" required style="width:98%;">
@@ -160,13 +161,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function validateForm() {
-                        // Check feedback elements for validation errors
                         const usernameFeedback = document.getElementById('username-feedback').textContent.trim();
                         const passwordFeedback = document.getElementById('password-feedback').textContent.trim();
                         const emailFeedback = document.getElementById('email-feedback').textContent.trim();
                         const phonenumFeedback = document.getElementById('phonenum-feedback').textContent.trim();
+                        const nameFeedback = document.getElementById('name-feedback').textContent.trim();
 
-                        // Check if required fields have values
                         const username = document.getElementById('username').value.trim();
                         const password = document.getElementById('password').value.trim();
                         const name = document.getElementById('name').value.trim();
@@ -174,23 +174,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         const email = document.getElementById('email').value.trim();
                         const phonenum = document.getElementById('phonenum').value.trim();
 
-                        // All fields must be filled and have no validation errors
                         const allFieldsFilled = username && password && name && gender && email && phonenum;
-                        const noValidationErrors = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback;
+                        const noValidationErrors = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback && !nameFeedback;
 
-                        // Use disabled property (not enabled) and set it to the opposite of our validation check
-                        document.getElementById('add-profile-btn').disabled = !(allFieldsFilled) && !(noValidationErrors);
+                        document.getElementById('add-profile-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
-                    // Add event listeners for all form fields
                     document.getElementById('username').addEventListener('input', validateForm);
                     document.getElementById('password').addEventListener('input', validateForm);
                     document.getElementById('name').addEventListener('input', validateForm);
                     document.getElementById('gender').addEventListener('change', validateForm);
                     document.getElementById('email').addEventListener('input', validateForm);
                     document.getElementById('phonenum').addEventListener('input', validateForm);
-
-                    // Initial validation when the form loads
                 </script>
             </div>
             <div class="edit-profile">
@@ -210,7 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p id="epassword-feedback" class="feedback"></p>
 
                     <label for="ename">Name</label>
-                    <input type="text" id="ename" name="ename" required>
+                    <input type="text" id="ename" name="ename" oninput="validateName(this, document.getElementById('ename-feedback'));" required>
+                    <p id="ename-feedback" class="feedback"></p>
 
                     <label for="egender">Gender</label>
                     <select id="egender" name="egender" required style="width:98%;">
@@ -223,12 +219,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="email" id="eemail" name="eemail" required oninput="checkUniqueName(this, document.getElementById('eemail-feedback'), 'Email already exists.', 'administrator', 'email_address', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value); evalidateForm()">
                     <p id="eemail-feedback" class="feedback"></p>
 
-                    <!-- Phone Number Field -->
                     <label for="ephonenum">Phone Number</label>
                     <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback')); checkUniqueName(this, document.getElementById('ephonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value); evalidateForm()" required>
                     <p id="ephonenum-feedback" class="feedback"></p>
 
-                    <!-- Buttons -->
                     <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
                         <button type="button" id="discard-btn">Discard Changes</button>
                         <button type="submit" id="confirm-btn" disabled>Update Changes</button>
@@ -236,13 +230,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function evalidateForm() {
-                        // Check feedback elements for validation errors
                         const eusernameFeedback = document.getElementById('eusername-feedback').textContent.trim();
                         const epasswordFeedback = document.getElementById('epassword-feedback').textContent.trim();
                         const eemailFeedback = document.getElementById('eemail-feedback').textContent.trim();
                         const ephonenumFeedback = document.getElementById('ephonenum-feedback').textContent.trim();
+                        const enameFeedback = document.getElementById('ename-feedback').textContent.trim();
 
-                        // Check if required fields have values
                         const eusername = document.getElementById('eusername').value.trim();
                         const epassword = document.getElementById('epassword').value.trim();
                         const ename = document.getElementById('ename').value.trim();
@@ -250,16 +243,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         const eemail = document.getElementById('eemail').value.trim();
                         const ephonenum = document.getElementById('ephonenum').value.trim();
 
-                        // All fields must be filled and have no validation errors
                         const allFieldsFilled = eusername && epassword && ename && egender && eemail && ephonenum;
-                        const noValidationErrors = !eusernameFeedback && !epasswordFeedback && !eemailFeedback && !ephonenumFeedback;
+                        const noValidationErrors = !eusernameFeedback && !epasswordFeedback && !eemailFeedback && !ephonenumFeedback && !enameFeedback;
 
-                        // IMPORTANT: Remove the .enabled property line - it's not a valid property
-                        // Only use the .disabled property
                         document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
-                    // Add event listeners for all form fields
                     document.getElementById('eusername').addEventListener('input', evalidateForm);
                     document.getElementById('epassword').addEventListener('input', evalidateForm);
                     document.getElementById('ename').addEventListener('input', evalidateForm);

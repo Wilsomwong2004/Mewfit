@@ -24,69 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = trim($_POST['eemail']);
             $phone_num = trim($_POST['ephonenum']);
 
-            // Check if username already exists but exclude the current admin
-            $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE admin_id = ?");
-            $stmt->bind_param("i", $selectedAdminId);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $currentAdminData = $result->fetch_assoc();
-            $stmt->close();
-
-            if (!$currentAdminData) {
-                $_SESSION['admin_errors'][] = "Selected admin does not exist.";
-                header("Location: admin_user_page.php");
-                exit();
-            }
-
-            //detect validation errors
-            if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
-                $errors[] = "Username must be between 3 and 20 characters.";
-            }
-            if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
-                $errors[] = "Phone number must be 10 digits.";
-            }
-
-            // Check for duplicate values (excluding the current admin)
-            $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE (username = ? OR email_address = ? OR phone_number = ?) AND admin_id != ?");
-            $stmt->bind_param("sssi", $username, $email, $phone_num, $selectedAdminId);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            while ($row = $result->fetch_assoc()) {
-                if ($row['username'] === $username && $username !== $currentAdminData['username']) {
-                    $errors[] = "Username already exists.";
-                }
-                if ($row['email_address'] === $email && $email !== $currentAdminData['email_address']) {
-                    $errors[] = "Email already exists.";
-                }
-                if ($row['phone_number'] === $phone_num && $phone_num !== $currentAdminData['phone_number']) {
-                    $errors[] = "Phone number already exists.";
-                }
-            }
-            $stmt->close();
-
-            // Handle errors
-            if (!empty($errors)) {
-                $_SESSION['admin_errors'] = $errors;
-                $_SESSION['old_data'] = $_POST;
-                $_SESSION['show_edit_form'] = true;
-                header("Location: admin_user_page.php?admin_id=" . urlencode($selectedAdminId));
-                exit();
-            }
-
-            // If no errors, update the database
             $updateStmt = $dbConn->prepare("UPDATE administrator SET username = ?, password = ?, name = ?, gender = ?, email_address = ?, phone_number = ? WHERE admin_id = ?");
             $updateStmt->bind_param("ssssssi", $username, $password, $name, $gender, $email, $phone_num, $selectedAdminId);
 
             if ($updateStmt->execute()) {
                 $_SESSION['success_message'] = "Admin updated successfully!";
                 header("Location: admin_user_page.php");
-                exit();
-            } else {
-                $_SESSION['admin_errors'][] = "Error updating admin: " . $dbConn->error;
-                $_SESSION['old_data'] = $_POST;
-                $_SESSION['show_edit_form'] = true;
-                header("Location: admin_user_page.php?admin_id=" . urlencode($selectedAdminId));
                 exit();
             }
             // --------------------------------------NUTRITION-----------------------------------------
@@ -112,9 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $name = htmlspecialchars(trim($_POST['ediet-name']));
             $type = htmlspecialchars(trim($_POST['ediet-type']));
             $duration = (int)$_POST['epreparation_min'];
+            $difficulty = htmlspecialchars(trim($_POST['ediet-difficulty']));
             $description = htmlspecialchars(trim($_POST['edesc']));
             $directions = htmlspecialchars(trim($_POST['edirections']));
-            $selectedDietId = (int)$_POST['selectedDietId']; // Ensure you have the selected diet ID
+            $selectedDietId = (int)$_POST['selectedDietId']; 
 
             $current_picture = '';
             $stmt = $dbConn->prepare("SELECT picture FROM diet WHERE diet_id = ?");
@@ -161,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $directions_array = array_filter($directions_array, fn($step) => !empty($step));
             $directions_str = implode(";", $directions_array);
 
-            $updateStmt = $dbConn->prepare("UPDATE diet SET diet_name = ?, description = ?, diet_type = ?, preparation_min = ?, picture = ?, directions = ? WHERE diet_id = ?");
-            $updateStmt->bind_param("sssissi", $name, $description, $type, $duration, $final_picture, $directions_str, $selectedDietId);
+            $updateStmt = $dbConn->prepare("UPDATE diet SET diet_name = ?, description = ?, diet_type = ?, preparation_min = ?, picture = ?, directions = ?, difficulty = ? WHERE diet_id = ?");
+            $updateStmt->bind_param("sssisssi", $name, $description, $type, $duration, $final_picture, $directions_str,$difficulty, $selectedDietId);
             if ($updateStmt->execute()) {
                 // Delete existing nutrition IDs
                 $deleteNutritionStmt = $dbConn->prepare("DELETE FROM diet_nutrition WHERE diet_id = ?");

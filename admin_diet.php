@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <th>Diet Type</th>
                             <th>Nutrition IDs</th>
                             <th>Preparation Time (Min)</th>
+                            <th>Difficulty</th>
                             <th>Picture</th>
                             <th>Description</th>
                             <th>Directions</th>
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         include "conn.php";
 
                         $sql = "
-                        SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.picture, d.directions, d.date_registered,                            
+                        SELECT d.diet_id, d.diet_name, d.description, d.diet_type, d.preparation_min, d.difficulty ,d.picture, d.directions, d.date_registered,                            
                         GROUP_CONCAT(n.nutrition_id) AS nutrition_ids
                         FROM diet d
                         LEFT JOIN diet_nutrition n ON d.diet_id = n.diet_id
@@ -106,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 echo "<td>" . $rows['diet_type'] . "</td>";
                                 echo "<td>" . (!empty($rows['nutrition_ids']) ? $rows['nutrition_ids'] : 'No nutrition IDs available') . "</td>";
                                 echo "<td>" . $rows['preparation_min'] . "</td>";
+                                echo "<td>" . $rows['difficulty'] . "</td>";
                                 if (!empty($rows['picture'])) {
                                     echo "<td><img src='./uploads/diet/" . $rows['picture'] . "' alt='" . $rows['diet_name'] . "' width='100' loading='lazy'></td>";
                                 } else {
@@ -154,6 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 type="number" id="preparation_min" name="preparation_min" oninput="checkNumber(this, document.getElementById('preparation-min-feedback'), 'Please enter a non-negative number');" required>
                             <p id="preparation-min-feedback" class="feedback"></p>
                         </div>
+                        <div class="column">
+                            <label for="diet-difficulty">Difficulty</label>
+                            <select id="diet-difficulty" name="diet-difficulty" required>
+                                <option value="">Select Difficulty</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
                     </div>
 
                     <label for="nutrition_id">Ingredients</label>
@@ -200,31 +211,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </form>
                 <script>
                     function validateForm() {
-                        // Check for validation feedback errors
                         const mealNameFeedback = document.getElementById('meal-name-feedback').textContent.trim();
                         const preparationMinFeedback = document.getElementById('preparation-min-feedback').textContent.trim();
                         const directionFeedback = document.getElementById('directions-feedback').textContent.trim();
 
-                        // Check if required fields have values
                         const mealName = document.getElementById('meal-name').value.trim();
                         const dietType = document.getElementById('diet-type').value.trim();
+                        const difficulty = document.getElementById('diet-difficulty').value.trim();
                         const prepTime = document.getElementById('preparation_min').value.trim();
                         const nutritionIds = document.querySelector('.tags_input').value.trim();
                         const mealPicture = document.getElementById('meal_picture').files.length > 0;
                         const description = document.getElementById('desc').value.trim();
                         const directions = document.getElementById('directions').value.trim();
 
-                        // Check if all fields are filled AND there are no validation errors
-                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && mealPicture && description && directions;
+                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && mealPicture && description && directions &&difficulty;
                         const noValidationErrors = !mealNameFeedback && !preparationMinFeedback && !directionFeedback;
 
-                        // Enable button only if all conditions are met
                         document.getElementById('add-profile-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
                     document.getElementById('meal-name').addEventListener('input', validateForm);
                     document.getElementById('diet-type').addEventListener('change', validateForm);
                     document.getElementById('preparation_min').addEventListener('input', validateForm);
+                    document.getElementById('diet-difficulty').addEventListener('change', validateForm);
                     document.getElementById('desc').addEventListener('input', validateForm);
                     document.getElementById('directions').addEventListener('input', validateForm);
                     document.getElementById('meal_picture').addEventListener('change', validateForm);
@@ -264,6 +273,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="epreparation_min">Preparation Time (min)</label>
                             <input type="number" id="epreparation_min" name="epreparation_min" oninput="checkNumber(this, document.getElementById('epreparation-min-feedback'), 'Please enter a non-negative number');" required>
                             <p id="epreparation-min-feedback" class="feedback"></p>
+                        </div>
+                        <div class="column">
+                            <label for="ediet-difficulty">Difficulty</label>
+                            <select id="ediet-difficulty" name="ediet-difficulty" required>
+                                <option value="">Select Difficulty</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
                         </div>
                     </div>
 
@@ -319,11 +337,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         const mealName = document.getElementById('ediet-name').value.trim();
                         const dietType = document.getElementById('ediet-type').value.trim();
                         const prepTime = document.getElementById('epreparation_min').value.trim();
+                        const difficulty = document.getElementById('ediet-difficulty').value.trim();
                         const nutritionIds = document.querySelector('input[name="edietnutrition_ids"]').value.trim();
                         const description = document.getElementById('edesc').value.trim();
                         const directions = document.getElementById('edirections').value.trim();
 
-                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && description && directions;
+                        const allFieldsFilled = mealName && dietType && prepTime && nutritionIds && description && directions && difficulty;
                         const noValidationErrors = !mealNameFeedback && !preparationMinFeedback && !directionFeedback;
 
                         document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
@@ -331,6 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     document.getElementById('ediet-name').addEventListener('input', editValidateForm);
                     document.getElementById('ediet-type').addEventListener('change', editValidateForm);
                     document.getElementById('epreparation_min').addEventListener('input', editValidateForm);
+                    document.getElementById('ediet-difficulty').addEventListener('change', editValidateForm);
                     document.getElementById('edesc').addEventListener('input', editValidateForm);
                     document.getElementById('edirections').addEventListener('input', editValidateForm);
                 </script>
@@ -353,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <tr>
                             <th>ID</th>
                             <th>Nutrition Name</th>
-                            <th>Calories</th>
+                            <th>Calories (kcal)</th>
                             <th>Fat (g)</th>
                             <th>Protein (g)</th>
                             <th>Carbohydrate (g)</th>
@@ -400,7 +420,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         checkUniqueName(this, document.getElementById('nutrition-name-feedback'), 'Nutrition name already exists.', 'nutrition', 'nutrition_name',document.getElementById('nadd-profile-btn'));">
                     <p id="nutrition-name-feedback" class="feedback"></p>
 
-                    <label for="calories">Calories</label>
+                    <label for="calories">Calories (kcal)</label>
                     <input type="number" id="calories" name="calories" required
                         oninput="checkNumber(this, document.getElementById('calories-feedback'), 'Calories must be a positive number.');">
                     <p id="calories-feedback" class="feedback"></p>
@@ -443,7 +463,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         const allFieldsFilled = nutritionName && calories && fat && protein && carb;
                         const noValidationErrors = !nutritionNameFeedback && !caloriesFeedback && !fatFeedback && !proteinFeedback && !carbFeedback;
 
-                        document.getElementById('nadd-profile-btn').disabled = !(allFieldsFilled) || !(noValidationErrors);
+                        document.getElementById('nadd-profile-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
 
                     document.getElementById('nutrition-name').addEventListener('input', nvalidateForm);
@@ -469,7 +489,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 document.getElementById('selectedNutriId').value);">
                     <div id="efeedbackNutritionName"></div>
 
-                    <label for="calories">Calories</label>
+                    <label for="calories">Calories (kcal)</label>
                     <input type="number" id="ecalories" name="ecalories" required
                         onblur="checkNumber(this, feedbackCalories, 'Calories must be a positive number.');">
                     <div id="feedbackCalories"></div>
@@ -993,6 +1013,7 @@ $nutritionJson = json_encode($nutritionData);
                 document.getElementById("edesc").value = data.description;
                 document.getElementById("ediet-type").value = data.diet_type;
                 document.getElementById("epreparation_min").value = data.preparation_min;
+                document.getElementById("ediet-difficulty").value = data.difficulty;
                 document.getElementById("edirections").value = data.directions;
 
                 if (data.picture) {

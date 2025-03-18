@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = trim($_POST['meal-name']);
     $type = $_POST['diet-type'];
     $duration = (int)$_POST['preparation_min'];
+    $difficulty = $_POST['diet-difficulty'];
     $description = trim($_POST['desc']);
     $directions = trim($_POST['directions']);
 
@@ -43,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $directions_str = implode(";", $directions_array);
 
     // Insert data into the `diet` table
-    $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, picture, directions) VALUES (?, ?, ?, ?, ?, ?)");
-    $insertStmt->bind_param("sssiss", $name, $description, $type, $duration, $meal_picture, $directions_str);
+    $insertStmt = $dbConn->prepare("INSERT INTO diet (diet_name, description, diet_type, preparation_min, difficulty, picture, directions, date_registered) VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())");
+    $insertStmt->bind_param("sssisss", $name, $description, $type, $duration, $difficulty, $meal_picture, $directions_str);
 
     if ($insertStmt->execute()) {
         $diet_id = $insertStmt->insert_id; // Get the last inserted diet ID
