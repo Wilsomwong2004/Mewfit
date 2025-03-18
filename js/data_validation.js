@@ -1,56 +1,56 @@
     function checkUniqueName(inputElement, feedbackElement, existingMessage, table, column, endpoint, id = null) {
-    const value = inputElement.value.trim();
-    
-    if (value === "") {
-        if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
-            feedbackElement.textContent = "";
+        const value = inputElement.value.trim();
+        
+        if (value === "") {
+            if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
+                feedbackElement.textContent = "";
+            }
+            inputElement.dataset.uniqueError = "false";
+            return;
         }
-        inputElement.dataset.uniqueError = "false";
-        return;
-    }
 
-    let bodyParams = `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
+        let bodyParams = `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
 
-    if (id) {
-        bodyParams += `&id=${encodeURIComponent(id)}`;
-    }
-    
-    fetch("inputValidation.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: bodyParams,
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error) {
-                feedbackElement.textContent = data.error;
-                feedbackElement.style.color = "red";
-                inputElement.dataset.uniqueError = "true";
-            } else if (data.exists) {
-                feedbackElement.textContent = existingMessage;
-                feedbackElement.style.color = "red";
-                inputElement.dataset.uniqueError = "true";
-            } else {
-                if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
-                    feedbackElement.textContent = "";
+        if (id) {
+            bodyParams += `&id=${encodeURIComponent(id)}`;
+        }
+        
+        fetch("inputValidation.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: bodyParams,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
                 }
-                inputElement.dataset.uniqueError = "false";
-            }
-        })
-        .catch(error => {
-            console.error("Error checking uniqueness:", error);
-            feedbackElement.textContent = "An error occurred while checking the value.";
-            feedbackElement.style.color = "red";
-            inputElement.dataset.uniqueError = "true";
-        });
-}
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    feedbackElement.textContent = data.error;
+                    feedbackElement.style.color = "red";
+                    inputElement.dataset.uniqueError = "true";
+                } else if (data.exists) {
+                    feedbackElement.textContent = existingMessage;
+                    feedbackElement.style.color = "red";
+                    inputElement.dataset.uniqueError = "true";
+                } else {
+                    if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
+                        feedbackElement.textContent = "";
+                    }
+                    inputElement.dataset.uniqueError = "false";
+                }
+            })
+            .catch(error => {
+                console.error("Error checking uniqueness:", error);
+                feedbackElement.textContent = "An error occurred while checking the value.";
+                feedbackElement.style.color = "red";
+                inputElement.dataset.uniqueError = "true";
+            });
+    }
 
     function checkNumber(inputElement, feedbackElement, errorMessage) {
         const value = inputElement.value.trim();
@@ -118,5 +118,39 @@
         feedbackElement.textContent = "The format should be: 'Text (Number)'.";
         feedbackElement.style.color = "red";
         inputElement.dataset.bracketError = "true";
+    }
+}
+
+function validatePassword(inputElement, feedbackElement) {
+    const password = inputElement.value;
+    const feedback = feedbackElement;
+    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!password.match(strongRegex)) {
+        feedback.textContent = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+        feedback.style.color = "red";
+    } else {
+        feedback.textContent = "";
+    }
+}
+
+function validatePhoneNumber(inputElement, feedbackElement) {
+    const phoneNumber = inputElement.value;
+    const feedback = feedbackElement;
+
+    if (!/^\d+$/.test(phoneNumber)) {
+        feedback.textContent = "Phone number must contain only numbers.";
+        feedback.style.color = "red";
+        inputElement.dataset.bracketError = "true";
+        return; 
+    }
+
+    if (!/^\d{10}$/.test(phoneNumber)) {
+        feedback.textContent = "Phone number must be exactly 10 digits.";
+        feedback.style.color = "red";
+        inputElement.dataset.bracketError = "true";
+    } else {
+        feedback.textContent = ""; 
+        inputElement.dataset.bracketError = "false";
     }
 }

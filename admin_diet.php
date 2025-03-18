@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form action="insert_admin_diet.php" method="POST" enctype="multipart/form-data">
                     <label for="diet-name">Meal Name</label>
-                    <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')">
+                    <input type="text" id="meal-name" name="meal-name" oninput="checkUniqueName(this, document.getElementById('meal-name-feedback'), 'Meal Name already exists', 'diet', 'diet_name', 'inputValidation.php')" required>
                     <p id="meal-name-feedback" class="feedback"></p>
                     <div class="form-columns">
                         <div class="column">
@@ -372,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form action="" method="POST">
                     <label for="nutrition-name">Nutrition Name</label>
                     <input type="text" id="nutrition-name" name="nutrition-name" required
-                        oninput="checkUniqueName(this, feedbackNutritionName, 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php'); checkNumberInBrackets(this, feedbackNutritionName, 'The number inside the brackets must be greater than 0.')">
+                        oninput="checkUniqueName(this, feedbackNutritionName, 'Nutrition name already exists.', 'nutrition', 'nutrition_name', 'inputValidation.php'); checkNumberInBrackets(this, feedbackNutritionName, 'The number inside the brackets must be greater than 0.')" placeholder="Ex: Nutrition Name (gram)">
                     <div id="feedbackNutritionName"></div>
 
                     <label for="calories">Calories</label>

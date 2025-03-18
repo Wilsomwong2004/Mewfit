@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MewFit Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mogra&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
     <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
     <script src="js/admin_user_page.js" defer></script>
     <script src="js/navigation_bar.js"></script>
+    <script src="./js/data_validation.js"></script>
 </head>
 <?php
 include "conn.php";
@@ -19,16 +20,6 @@ session_start();
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: prelogin.html");
     exit;
-}
-
-$errors = $_SESSION['admin_errors'] ?? [];
-$old_data = $_SESSION['old_data'] ?? [];
-$showEditForm = $_SESSION['show_edit_form'] ?? false;
-
-if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_SESSION['show_edit_form'])) {
-    unset($_SESSION['admin_errors']);
-    unset($_SESSION['old_data']);
-    unset($_SESSION['show_edit_form']);
 }
 ?>
 
@@ -93,7 +84,6 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
                             }
                         } else {
                             echo "<tr class='no-data'><td colspan='7'>No data available</td></tr>";
-                            $sql = "TRUNCATE TABLE administrator";
                         }
                         ?>
                     </table>
@@ -110,15 +100,21 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
                     <h2>Add New <span>Profile</span></h2>
                 </center>
                 <form method="post" action="">
+                    <!-- Username Field -->
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', 'inputValidation.php')">
+                    <p id="username-feedback" class="feedback"></p>
 
+                    <!-- Password Field -->
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="text" id="password" name="password" oninput="validatePassword(this, document.getElementById('password-feedback'))" required>
+                    <p id="password-feedback" class="feedback"></p>
 
+                    <!-- Name Field -->
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" required>
 
+                    <!-- Gender Field -->
                     <label for="gender">Gender</label>
                     <select id="gender" name="gender" required style="width:98%;">
                         <option value="">Select Gender</option>
@@ -126,30 +122,43 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
                         <option value="male">Male</option>
                     </select>
 
+                    <!-- Email Field -->
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', 'inputValidation.php')">
+                    <p id="email-feedback" class="feedback"></p>
 
+                    <!-- Phone Number Field -->
                     <label for="phonenum">Phone Number</label>
-                    <input type="text" id="phonenum" name="phonenum" required>
+                    <input type="text" id="phonenum" name="phonenum" oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback')); checkUniqueName(this, document.getElementById('phonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', 'inputValidation.php')" required>
+                    <p id="phonenum-feedback" class="feedback"></p>
 
+                    <!-- Submit Button -->
                     <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
-                        <button type="submit" id="add-profile-btn">Create New</button>
+                        <button type="submit" id="add-profile-btn" disabled>Create New</button>
                     </div>
                 </form>
+                <script>
+                    function validateForm() {
+                        const usernameFeedback = document.getElementById('username-feedback').textContent.trim();
+                        const passwordFeedback = document.getElementById('password-feedback').textContent.trim();
+                        const emailFeedback = document.getElementById('email-feedback').textContent.trim();
+                        const phonenumFeedback = document.getElementById('phonenum-feedback').textContent.trim();
+
+                        const isValid = !usernameFeedback && !passwordFeedback && !emailFeedback && !phonenumFeedback;
+
+                        document.getElementById('add-profile-btn').disabled = !isValid;
+
+                    }
+                    document.getElementById('username').addEventListener('input', validateForm);
+                    document.getElementById('password').addEventListener('input', validateForm);
+                    document.getElementById('email').addEventListener('input', validateForm);
+                    document.getElementById('phonenum').addEventListener('input', validateForm);
+                </script>
             </div>
             <div class="edit-profile">
                 <center>
                     <h2>Edit <span>Profile</span></h2>
                 </center>
-                <?php
-                if (!empty($errors)) {
-                    echo '<div class="error-messages">';
-                    foreach ($errors as $error) {
-                        echo "<p style='color:red;'>$error</p>";
-                    }
-                    echo '</div>';
-                }
-                ?>
                 <form method="POST" action="edit.php" id="administrator">
                     <input type="hidden" id="selectedAdminId" name="selectedAdminId" value="<?php echo $_GET['admin_id'] ?? ''; ?>">
                     <input type="hidden" id="table" name="table" value="administrator">
@@ -285,45 +294,6 @@ if (isset($_SESSION['admin_errors']) || isset($_SESSION['old_data']) || isset($_
 </html>
 <?php
 // enter new data
-function validateInput($dbConn, $username, $email, $phone_num)
-{
-    $errors = [];
-
-    if (empty($username) || strlen($username) < 3 || strlen($username) > 20) {
-        $errors[] = "Username must be between 3 and 20 characters.";
-    }
-    if (empty($phone_num) || !preg_match('/^\d{10}$/', $phone_num)) {
-        $errors[] = "Phone number must be 10 digits.";
-    }
-
-    $stmt = $dbConn->prepare("SELECT username, email_address, phone_number FROM administrator WHERE username = ? OR email_address = ? OR phone_number = ?");
-
-    if ($stmt) {
-        $stmt->bind_param("sss", $username, $email, $phone_num);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        while ($row = $result->fetch_assoc()) {
-            if ($row['username'] === $username) {
-                $errors[] = "Username already exists.";
-                break;
-            }
-            if ($row['email_address'] === $email) {
-                $errors[] = "Email already exists.";
-                break;
-            }
-            if ($row['phone_number'] === $phone_num) {
-                $errors[] = "Phone number already exists.";
-                break;
-            }
-        }
-        $stmt->close();
-    } else {
-        $errors[] = "Database error: Unable to prepare statement.";
-    }
-
-    return $errors;
-}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -334,23 +304,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $phone_num = trim($_POST['phonenum']);
 
-    if (!empty($username)) {
-        $errors = validateInput($dbConn, $username, $email,  $phone_num);
-        if (empty($errors)) {
-            $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
+    $stmt = $dbConn->prepare("INSERT INTO administrator (username, password, name, gender, email_address, phone_number, date_registered) 
                                       VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
-            $stmt->bind_param("ssssss", $username, $password, $name, $gender, $email, $phone_num);
+    $stmt->bind_param("ssssss", $username, $password, $name, $gender, $email, $phone_num);
 
-            if ($stmt->execute()) {
-                echo "<script>sessionStorage.setItem('clearForm', 'true');</script>";
-            } else {
-                die("Failed to update admin table");
-            }
-        } else {
-            foreach ($errors as $error) {
-                echo "<script>alert('$error');</script>";
-            }
-        }
+    if ($stmt->execute()) {
+        header("Location: admin_user_page.php");
+        exit();
+    } else {
+        die("Failed to update admin table");
     }
 }
 ?>
