@@ -386,6 +386,14 @@ button:disabled {
   margin-bottom: 7px;
 }
 
+.gender-inputs select {
+  height: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 2px solid #ffad84;
+  border-radius: 4px;
+}
+
 .inputs {
   display: flex;
   flex-direction: column;
