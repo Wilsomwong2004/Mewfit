@@ -66,7 +66,7 @@ function fetchExercisesForWorkout($exerciseIds) {
     return $workoutExercises;
 }
 
-function fetchRecentWorkouts($dbConn, $userId, $limit = 4) {
+function fetchRecentWorkouts($dbConn, $memberId , $limit = 6) {
     $query = "SELECT 
                 workout_history.workout_history_id,
                 workout_history.date,
@@ -76,7 +76,6 @@ function fetchRecentWorkouts($dbConn, $userId, $limit = 4) {
                 workout.calories,
                 workout.duration,
                 workout.image,
-                workout.thumbnail,
                 workout.difficulty
                 FROM workout_history 
                 INNER JOIN workout 
@@ -86,7 +85,7 @@ function fetchRecentWorkouts($dbConn, $userId, $limit = 4) {
                 LIMIT ?";
                 
     $stmt = mysqli_prepare($dbConn, $query);
-    mysqli_stmt_bind_param($stmt, "ii", $userId, $limit);
+    mysqli_stmt_bind_param($stmt, "ii", $memberId , $limit);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
     
@@ -102,7 +101,7 @@ function fetchRecentWorkouts($dbConn, $userId, $limit = 4) {
                 'level' => $row['difficulty'],
                 'calories' => $row['calories'] . ' kcal',
                 'duration' => $row['duration'] . ' min',
-                'image' => $row['image'] ?: $row['thumbnail'], // Use image or thumbnail
+                'image' => $row['image'], // Use image or thumbnail
                 'date' => $row['date']
             ];
             
@@ -115,16 +114,11 @@ function fetchRecentWorkouts($dbConn, $userId, $limit = 4) {
 
 // Check if user is logged in
 $recentUserWorkouts = [];
-if (isset($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id'];
-    // If the member_id is stored in a different session variable, adjust accordingly
-    // For example, if it's stored as 'member id' like in workout_history_page.php
-    if (isset($_SESSION['member id'])) {
-        $userId = $_SESSION['member id'];
-    }
-    
-    $recentUserWorkouts = fetchRecentWorkouts($dbConn, $userId);
+if (isset($_SESSION['member id'])) {
+    $memberId = $_SESSION['member id'];
+    $recentUserWorkouts = fetchRecentWorkouts($dbConn, $memberId );
 }
+
 function getCarouselWorkouts($workouts) {
     // Define the activity types
     $activityTypes = ['Cardio', 'Weighted', 'Weight-free', 'Yoga'];
@@ -172,7 +166,7 @@ $carouselWorkouts = getCarouselWorkouts($workouts);
 $userProfile = [
     'name' => 'unknown',
     'email' => 'unknown',
-    'image' => './uploads/member/Unknown_acc-removebg.png'
+    'image' => 'Unknown_acc-removebg.png'
 ];
 
 if (isset($_SESSION['member id'])) {
@@ -189,7 +183,7 @@ if (isset($_SESSION['member id'])) {
         $userProfile = [
             'name' => $row['username'] ?? 'unknown',
             'email' => $row['email_address'] ?? 'unknown',
-            'image' => !empty($row['member_pic']) ? $row['member_pic'] : './uploads/member/Unknown_acc-removebg.png'
+            'image' => !empty($row['member_pic']) ? $row['member_pic'] : 'Unknown_acc-removebg.png'
         ];
     }
 }
@@ -324,20 +318,18 @@ mysqli_close($dbConn);
                     </div>
                 <?php else: ?>
                     <?php foreach ($recentUserWorkouts as $workout): ?>
-                        <div class="workout-card" data-workout-id="<?php echo htmlspecialchars($workout['id']); ?>">
+                        <div class="workout-card-recently" data-workout-id="<?php echo htmlspecialchars($workout['id']); ?>">
                             <div class="workout-card-image">
-                                <img src="./assets/workout_pics/<?php echo htmlspecialchars($workout['image']); ?>" alt="<?php echo htmlspecialchars($workout['title']); ?>">
-                                <div class="workout-card-overlay">
-                                    <div class="workout-card-type">
-                                        <?php foreach ($workout['type'] as $type): ?>
-                                            <span><?php echo htmlspecialchars($type); ?></span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
+                                <img src="<?php echo htmlspecialchars($workout['image']); ?>" alt="<?php echo htmlspecialchars($workout['title']); ?>">
                             </div>
-                            <div class="workout-card-content">
+                            <div class="workout-card-content-recently">
                                 <h3 class="workout-card-title"><?php echo htmlspecialchars($workout['title']); ?></h3>
-                                <div class="workout-card-stats">
+                                <div class="workout-card-type">
+                                    <?php foreach ($workout['type'] as $type): ?>
+                                        <span><?php echo htmlspecialchars($type); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="workout-card-stats-recently">
                                     <div class="workout-card-stat">
                                         <i class="fas fa-clock"></i>
                                         <span><?php echo htmlspecialchars(str_replace(' min', '', $workout['duration'])); ?> min</span>

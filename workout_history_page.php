@@ -1,9 +1,36 @@
 <?php
+
+require_once 'conn.php';
 session_start();  
 
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: prelogin.html");
     exit;
+}
+
+$userProfile = [
+  'name' => 'unknown',
+  'email' => 'unknown',
+  'image' => 'Unknown_acc-removebg.png'
+];
+
+if (isset($_SESSION['member id'])) {
+  $memberId = $_SESSION['member id'];
+  
+  // Query the member table with the correct column names from your screenshot
+  $query = "SELECT username, email_address, member_pic FROM member WHERE member_id = ?";
+  $stmt = mysqli_prepare($dbConn, $query);
+  mysqli_stmt_bind_param($stmt, "i", $memberId);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+  
+  if ($result && $row = mysqli_fetch_assoc($result)) {
+      $userProfile = [
+          'name' => $row['username'] ?? 'unknown',
+          'email' => $row['email_address'] ?? 'unknown',
+          'image' => !empty($row['member_pic']) ? $row['member_pic'] : 'Unknown_acc-removebg.png'
+      ];
+  }
 }
 ?>
 
@@ -39,22 +66,17 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     <div class="no-select">
       <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
-          <span class="workout-home"
-            ><a href="homepage.html" class="active">HOME</a></span
-          >
-          <span class="workout-navbar"><a href="#">WORKOUT</a></span>
-          <img
-            src="./assets/icons/logo.svg"
-            alt="logo"
-            class="nav-logo"
-            id="nav-logo"
-          />
-          <span class="workout-dietplan"
-            ><a href="diet_page.html">DIET PLAN</a></span
-          >
-          <span class="workout-settings"
-            ><a href="settings_page.html">SETTINGS</a></span
-          >
+          <span class="workout-home">
+            <a href="homepage.php" class="active">HOME</a>
+          </span>
+          <span class="workout-navbar"><a href="workout_page.php">WORKOUT</a></span>
+          <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo"/>
+          <span class="workout-dietplan">
+            <a href="diet_page.php">DIET PLAN</a>
+          </span>
+          <span class="workout-settings">
+            <a href="settings_page.php">SETTINGS</a>
+          </span>
         </div>
         <div class="header-right">
           <button id="hamburger-menu" aria-label="Menu">
@@ -63,57 +85,31 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             <span></span>
           </button>
         </div>
-        <img
-          src="./assets/icons/logo.svg"
-          alt="logo"
-          class="nav-logo-responsive"
-          id="nav-logo-responsive"
-        />
+        <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo-responsive" id="nav-logo-responsive"/>
         <div class="profile">
-          <img
-            src="./assets/icons/Unknown_acc-removebg.png"
-            alt="Profile"
-            id="profile-pic"
-          />
+          <img src="./uploads/member/<?php echo htmlspecialchars($userProfile['image']); ?>" alt="Profile" id="profile-pic">
           <div class="profile-dropdown" id="profile-dropdown">
-            <div class="profile-info">
-              <img
-                src="./assets/icons/Unknown_acc-removebg.png"
-                alt="unknown cat"
-              />
-              <div>
-                <h3>unknown</h3>
-                <p>unknown</p>
+              <div class="profile-info">
+                  <img src="./uploads/member/<?php echo htmlspecialchars($userProfile['image']); ?>" alt="<?php echo htmlspecialchars($userProfile['name']); ?>">
+                  <div>
+                      <h3><?php echo htmlspecialchars($userProfile['name']); ?></h3>
+                      <p><?php echo htmlspecialchars($userProfile['email']); ?></p>
+                  </div>
               </div>
-            </div>
-            <ul>
-              <li>
-                <a href="#" class="settings-profile"
-                  ><i class="fas fa-cog"></i>Settings</a
-                >
-              </li>
-              <li>
-                <i class="fas fa-moon"></i> Dark Mode
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    name="dark-mode-toggle"
-                    id="dark-mode-toggle"
-                  />
-                  <span class="slider round"></span>
-                </label>
-              </li>
-              <li>
-                <a href="#" class="help-center-profile"
-                  ><i class="fas fa-question-circle"></i>Help
-                </a>
-              </li>
-              <li class="logout-profile" id="logout-profile">
-                <i class="fas fa-sign-out-alt"></i> Logout
-              </li>
-            </ul>
+              <ul>
+                  <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                  <li>
+                  <i class="fas fa-moon"></i> Dark Mode
+                  <label class="switch">
+                      <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
+                      <span class="slider round"></span>
+                  </label>
+                  </li>
+                  <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                  <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
+              </ul>
           </div>
-        </div>
+      </div>
       </nav>
       <header class="page-header">
         <button class="previous"><i class="bx bxs-chevron-left"></i></button>
@@ -135,7 +131,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 workout.workout_type,
                 workout.calories,
                 workout.duration,
-                workout.thumbnail
+                workout.image
                 FROM workout_history 
                 INNER JOIN workout 
                 ON workout_history.workout_id = workout.workout_id
@@ -165,7 +161,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                   <div class=\"workout-record\">
                   <img
                   class=\"picture\"
-                  src=\"./assets/workout_pics/{$row['thumbnail']}\"
+                  src=\"{$row['image']}\"
                   alt=\"{$row['workout_name']}\"
                   />
                   <p class=\"name\">{$row['workout_name']}</p>
