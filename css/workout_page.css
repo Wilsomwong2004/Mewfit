@@ -931,6 +931,7 @@ html.dark-mode .workout-stats {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    transition: all 0.3s;
 }
 
 .popup-container.active {
@@ -968,6 +969,7 @@ html.dark-mode .workout-stats {
 #popup-body {
     width: 50%;
     padding: 2rem 2rem 2rem 0;
+    transition: all 0.3s;
 }
 
 .popup-workout-pic::before {
@@ -990,6 +992,7 @@ html.dark-mode .workout-stats {
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
     z-index: 100;
+    transition: all 0.3s;
 }
 
 html.dark-mode .gradient-white {
@@ -1007,6 +1010,7 @@ html.dark-mode .gradient-white {
     box-shadow: var(--box-shadow-light);
     position: relative;
     text-align: center;
+    transition: all 0.3s;
 }
 
 .popup-close {
@@ -1293,6 +1297,11 @@ html.dark-mode .exercise-list-arrow i {
     transition: all 0.3s;
 }
 
+html.dark-mode .workout-card-content-recently {
+    background: #4d4d4e;
+    color: white;
+}
+
 .workout-card-recently:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     cursor: pointer;
@@ -1330,6 +1339,11 @@ html.dark-mode .workout-card-recently {
 
 .workout-card-stats-recently {
     margin-bottom: 20px;
+    color: #666;
+}
+
+html.dark-mode .workout-card-stats-recently {
+    color: #bdbdbd;
 }
 
 .workout-card-stat {
@@ -1384,18 +1398,7 @@ html.dark-mode .workout-card-recently {
     }
 }
 
-@media screen and (max-width: 968px) {
-    .card-image {
-        display: none;
-    }
-}
-
-
-@media screen and (max-width: 864px) {
-    .activity-types {
-        gap: 1rem;
-    }
-
+@media screen and (max-width: 1062px) {
     .popup-workout-pic {
         display: none;
         transition: all 0.3s;
@@ -1415,6 +1418,19 @@ html.dark-mode .workout-card-recently {
     .popup-content {
         max-width: 60%;
         transition: all 0.3s;
+    }
+}
+
+@media screen and (max-width: 968px) {
+    .card-image {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width: 864px) {
+    .activity-types {
+        gap: 1rem;
     }
 }
 

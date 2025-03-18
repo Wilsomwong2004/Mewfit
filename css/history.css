@@ -103,7 +103,7 @@ html.dark-mode .nav-links a {
 
 .search-date,
 .workout-record {
-  width: 95%;
+  width: 100%;
   margin: 0 auto;
   padding: 10px 0px;
 }
@@ -120,6 +120,7 @@ html.dark-mode .nav-links a {
   grid-gap: 10px 10px;
   align-items: center;
   transition: all 0.5s;
+  cursor: pointer;
 }
 
 .workout-record:hover {
@@ -128,8 +129,8 @@ html.dark-mode .nav-links a {
 
 .workout-record img {
   width: 120px;
-  height: 70px;
-  margin-left: 10px;
+  height: 80px;
+  margin-left: 40px;
   border-radius: 10px;
   object-fit: cover;
   object-position: center;

@@ -120,7 +120,6 @@ class WorkoutCarousel {
                 const clickedButton = e.currentTarget || e.target;
                 const workoutId = clickedButton.getAttribute('data-workout-id');
 
-                // Make sure workouts is defined and accessible in this scope
                 if (workouts && workouts.length > 0) {
                     const workout = workouts.find(w => w.id == workoutId);
                     if (workout) {
@@ -331,25 +330,8 @@ function displayWorkoutPopup(workout) {
 
     document.getElementById('popup-workout-image').src = workout.image;
 
-    // Create exercise list
-    const exerciseContainer = document.getElementById('exercise-list-container');
-    exerciseContainer.innerHTML = '';
-
-    if (workout.exercises && workout.exercises.length > 0) {
-        workout.exercises.forEach(exercise => {
-            const exerciseItem = document.createElement('div');
-            exerciseItem.className = 'exercise-item';
-            exerciseItem.innerHTML = `
-                <div class="exercise-thumbnail">
-                    <img src="${exercise.image || './assets/exercises/default.jpg'}" alt="${exercise.name}">
-                </div>
-                <div class="exercise-name">${exercise.name}</div>
-            `;
-            exerciseContainer.appendChild(exerciseItem);
-        });
-    } else {
-        exerciseContainer.innerHTML = '<div class="no-exercises">No exercises available for this workout</div>';
-    }
+    // Update exercise list with video capabilities
+    updateExerciseList(workout);
 
     // Show popup
     popupContainer.classList.add('active');
@@ -394,7 +376,6 @@ function initWorkoutGrid() {
 
 // Initialize carousel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize carousel with workouts from database
     new WorkoutCarousel();
 
     // Setup popup close button
