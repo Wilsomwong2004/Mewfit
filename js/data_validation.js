@@ -186,8 +186,7 @@ function checkUsername() {
 
   if (username.trim() === "") {
     warning.textContent = "";
-    submit_btn.disabled = true; // Disable submit if username field is empty
-    return;
+    submit_btn.disabled = true;
   }
 
   fetch("check_username.php?username=" + encodeURIComponent(username))
