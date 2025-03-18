@@ -23,12 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $age = (int)$_POST['age'];
     $gender = $_POST['gender'];
     $weight = (float)$_POST['weight'];
-    $weight_unit = $_POST['weight-unit'];
     $height = (float)$_POST['height'];
-    $height_unit = $_POST['height-unit'];
     $fitness_goal = $_POST['fitness-goal'];
     $target_weight = (float)$_POST['target-weight'];
-    $target_weight_unit = $_POST['target-weight-unit'];
     $start_streak = date('Y-m-d');
 
     foreach ($_POST as $key => $value) {
@@ -64,9 +61,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     } 
 
-    $sql = "SELECT * FROM member WHERE email_address = '$email'
+    $sql = "SELECT email_address FROM member WHERE email_address = '$email'
             UNION
-            SELECT * FROM administrator WHERE email_address = '$email'";
+            SELECT email_address FROM administrator WHERE email_address = '$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

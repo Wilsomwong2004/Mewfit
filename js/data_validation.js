@@ -141,18 +141,21 @@ function checkNumberInBrackets(inputElement, feedbackElement, errorMessage) {
   }
 }
 
-function calculateBMI() {
-  let weight = parseFloat(document.getElementById("weight").value) || 0;
-  let height = parseFloat(document.getElementById("height").value) / 100 || 0;
-  let bmi = weight / height ** 2;
+// function calculateBMI() {
+//   let weight = parseFloat(document.getElementById("weight").value) || 0;
+//   let height = parseFloat(document.getElementById("height").value) / 100 || 0;
+//   let bmi = weight / height ** 2;
 
-  if (bmi > 300 || bmi < 7) {
-    document.getElementById("bmi").textContent =
-      "Please enter appropriate weight and height";
-  } else {
-    document.getElementById("bmi").textContent = bmi.toFixed(2);
-  }
-}
+//   submit_btn.disabled = false;
+
+//   if (bmi > 300 || bmi < 7) {
+//     document.getElementById("bmi").textContent =
+//       "Please enter appropriate weight and height";
+//     submit_btn.disabled = true;
+//   } else {
+//     document.getElementById("bmi").textContent = bmi.toFixed(2);
+//   }
+// }
 
 function calculateTargetBMI() {
   // let fitness_goal = document.getElementById('fitness_goal').value;
@@ -201,6 +204,7 @@ function checkUsername() {
 function checkEmail() {
   let email = document.getElementById("e-mail").value;
   let warning = document.getElementById("exist-email");
+  let submit_btn = document.getElementById("submit-btn");
 
   if (email.length === 0) {
     warning.textContent = "";
@@ -209,8 +213,9 @@ function checkEmail() {
 
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailPattern.test(email)) {
-    warning.textContent = "Please enter a valid e-mail";
+    warning.textContent = "(Please enter a valid e-mail)";
     warning.style.color = "red";
+    submit_btn.disabled = true;
     return;
   }
 
@@ -225,4 +230,64 @@ function checkEmail() {
       warning.textContent = "Error checking email";
       warning.style.color = "red";
     });
+}
+
+function SignUpValid() {
+  let age = parseInt(document.getElementById("age").value) || 0;
+  let gender = document.getElementById("gender").value;
+  let weight = parseFloat(document.getElementById("weight").value) || 0;
+  let height = parseFloat(document.getElementById("height").value) / 100 || 0;
+  let fitness_goal = document.getElementById("fitness-goal").value;
+  let target_weight =
+    parseFloat(document.getElementById("target-weight").value) || 0;
+  let bmi = weight / height ** 2;
+  let target_bmi = target_weight / height ** 2;
+
+  let submit_btn = document.getElementById("submit-btn");
+  let warningText = document.getElementById("all-valid");
+  let isValid = true;
+
+  // Check if any field is empty
+  let inputs = document.querySelectorAll("form input, form select");
+  let isEmpty = Array.from(inputs).some((input) => input.value.trim() === "");
+
+  // Ensure fitness goal is not the default option
+  if (fitness_goal === "") {
+    isValid = false;
+  }
+
+  // Check valid BMI data
+  if (bmi > 300 || bmi < 7) {
+    document.getElementById("bmi").style.color = "red";
+    document.getElementById("bmi").textContent =
+      "Please enter appropriate weight and height";
+    isValid = false;
+  } else {
+    document.getElementById("bmi").style.color = "black";
+    document.getElementById("bmi").textContent = bmi.toFixed(2);
+  }
+
+  // Check valid target BMI data
+  document.getElementById("target-warning").textContent = "";
+  if (target_weight - weight > 4) {
+    document.getElementById("target-warning").textContent =
+      "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
+    isValid = false;
+  } else if (weight - target_weight > 4) {
+    document.getElementById("target-warning").textContent =
+      "Losing more than 4kg / 9lbs is dangerous in a span of one month";
+    isValid = false;
+  } else {
+    document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
+  }
+
+  // Disable submit button if any field is empty or invalid
+  if (isEmpty || !isValid) {
+    submit_btn.disabled = true;
+    warningText.textContent =
+      "Please make sure the input fields are correct and filled in";
+  } else {
+    submit_btn.disabled = false;
+    warningText.textContent = "";
+  }
 }
