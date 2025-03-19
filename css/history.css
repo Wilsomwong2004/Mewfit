@@ -216,7 +216,7 @@ html.dark-mode .workout-record:hover {
 
 #all-filter {
   background-color: #ffcbb1;
-  color: white;
+  color: rgb(0, 0, 0);
   padding: 8px 45px;
 }
 
@@ -306,7 +306,8 @@ html.dark-mode .container-side-transparent-right {
 }
 
 .activity-type-option:hover {
-  background-color: #f5f5f5;
+  background-color: #ffc4a6;
+  color: white;
 }
 
 /* Date Range Picker */

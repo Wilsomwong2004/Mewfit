@@ -692,7 +692,6 @@ function updateTopPicksSection(userProfile) {
     }
 }
 
-// Modified function to load user profile from database
 function loadUserProfile() {
     return new Promise((resolve, reject) => {
         // Make AJAX call to get user profile data from your PHP endpoint
@@ -704,8 +703,9 @@ function loadUserProfile() {
                     const response = JSON.parse(this.responseText);
 
                     // Check if user is logged in and data is available
-                    if (response.isLoggedIn && response.userData) {
-                        resolve(response.userData);
+                    if (response.isLoggedIn && response.memberData) {
+                        // Changed from userData to memberData to match PHP
+                        resolve(response.memberData);
                     } else {
                         // User not logged in or data not available
                         console.log('User not logged in or data not available:', response.error || 'Unknown error');

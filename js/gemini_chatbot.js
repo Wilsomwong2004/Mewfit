@@ -169,30 +169,31 @@ class FitnessChatbot {
                 return;
             }
 
+            // Directly use the memberData instead of looking for userData.member
             this.userData = userData;
+            const memberData = userData.memberData;
 
-            // Pre-populate user context with database information
-            if (userData.member) {
-                this.userContext.name = userData.member.username;
-                this.userContext.goal = userData.member.fitness_goal;
-                this.userContext.weight = userData.member.weight;
-                this.userContext.targetWeight = userData.member.target_weight;
-                this.userContext.level = userData.member.level;
-                this.userContext.age = userData.member.age;
-                this.userContext.gender = userData.member.gender;
+            if (memberData) {
+                this.userContext.name = memberData.username;
+                this.userContext.goal = memberData.fitness_goal;
+                this.userContext.weight = memberData.weight;
+                this.userContext.targetWeight = memberData.target_weight;
+                this.userContext.level = memberData.level;
+                this.userContext.age = memberData.age;
+                this.userContext.gender = memberData.gender;
 
                 // Add performance data if available
-                if (userData.performance) {
-                    this.userContext.currentWeight = userData.performance.current_weight;
-                    this.userContext.workoutCount = userData.performance.workout_history_count;
-                    this.userContext.dietCount = userData.performance.diet_history_count;
+                if (memberData.performance) {
+                    this.userContext.currentWeight = memberData.performance.current_weight;
+                    this.userContext.workoutCount = memberData.performance.workout_history_count;
+                    this.userContext.dietCount = memberData.performance.diet_history_count;
                 }
 
                 // Store workout and diet history
-                this.userWorkoutHistory = userData.workout_history || [];
-                this.userDietHistory = userData.diet_history || [];
-                this.userCustomDiets = userData.custom_diets || [];
-                this.userNutrition = userData.nutrition || [];
+                this.userWorkoutHistory = memberData.workout_history || [];
+                this.userDietHistory = memberData.diet_history || [];
+                this.userCustomDiets = memberData.custom_diets || [];
+                this.userNutrition = memberData.nutrition || [];
 
                 // Fetch all workouts and diets for recommendations
                 await this.fetchWorkoutsAndDiets();

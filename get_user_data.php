@@ -6,7 +6,40 @@ ob_start();
 require_once 'conn.php';
 session_start();
 
-$memberId = $_SESSION["member_id"];
+// Debug session information
+$sessionInfo = [
+    'session_id' => session_id(),
+    'session_status' => session_status(),
+    'session_contents' => $_SESSION,
+    'member_id_set' => isset($_SESSION['member id']),
+    'member_id_value' => $_SESSION['member id'] ?? 'not set'
+];
+
+if (!$dbConn) {
+    $response = [
+        'error' => 'Database connection failed: ' . mysqli_connect_error(),
+        'isLoggedIn' => false
+    ];
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+// If member_id is not set in session, return error immediately
+if (!isset($_SESSION['member id'])) {
+    $response = [
+        'error' => 'Session member_id not found',
+        'isLoggedIn' => false,
+        'debug' => $sessionInfo
+    ];
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+$memberId = $_SESSION['member id'];
 $response = [];
 
 try {
@@ -63,12 +96,11 @@ try {
         $memberData['workout_history'] = mysqli_fetch_all(mysqli_stmt_get_result($workoutStmt), MYSQLI_ASSOC);
 
         // Get diet history
-        $dietQuery = "SELECT dh.date, d.diet_name, d.preparation_min, d.calories, 
-                     d.diet_type, d.description 
-                     FROM diet_history dh
-                     JOIN diet d ON dh.diet_id = d.diet_id
-                     WHERE dh.member_id = ?
-                     ORDER BY dh.date DESC LIMIT 5";
+        $dietQuery = "SELECT dh.date, dh.diet_id, d.diet_name, d.diet_type
+             FROM diet_history dh
+             JOIN diet d ON dh.diet_id = d.diet_id
+             WHERE dh.member_id = ?
+             ORDER BY dh.date DESC LIMIT 5";
         $dietStmt = mysqli_prepare($dbConn, $dietQuery);
         mysqli_stmt_bind_param($dietStmt, "i", $memberId);
         mysqli_stmt_execute($dietStmt);
