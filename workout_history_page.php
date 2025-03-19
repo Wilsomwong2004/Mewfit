@@ -116,69 +116,147 @@ if (isset($_SESSION['member id'])) {
         <h1>History</h1>
       </header>
 
-      <?php
-        include "conn.php";
-
-        $exist_record = false;
-
+      <div class="filter-controls">
+        <button id="all-filter" class="filter-button">
+          <span class="filter-text">All</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
         
-        $sql = "SELECT 
-                workout_history.workout_history_id,
-                workout_history.date,
-                workout_history.member_id,
-                workout_history.workout_id,
-                workout.workout_name,
-                workout.workout_type,
-                workout.calories,
-                workout.duration,
-                workout.image
-                FROM workout_history 
-                INNER JOIN workout 
-                ON workout_history.workout_id = workout.workout_id
-                ORDER BY workout_history.date DESC"; // connect the workout_history table and workout table
-
-        $result = $dbConn->query($sql); // create a variable and store the sql query result inside it
+        <button id="date-range-filter" class="filter-button">
+          <span class="filter-text">Date Range</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
         
-        function formatDate($date) {
-          if ($date == date("Y-m-d")) {
-              return "Today";
-          } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
-              return "Yesterday";
-          } else {
-              return date('d F Y', strtotime($date)); // Return normal date for older days
-          }
-        }
+        <!-- Activity Types Dropdown -->
+        <div id="activity-types-dropdown" class="filter-dropdown">
+          <div class="dropdown-content">
+            <div class="activity-type-option" data-type="All">All</div>
+            <div class="activity-type-option" data-type="Cardio">Cardio</div>
+            <div class="activity-type-option" data-type="Weighted">Weighted</div>
+            <div class="activity-type-option" data-type="Weight-free">Weight-free</div>
+            <div class="activity-type-option" data-type="Yoga">Yoga</div>
+          </div>
+        </div>
+        
+        <!-- Date Range Picker -->
+        <div id="date-range-picker" class="filter-dropdown date-picker-dropdown">
+          <div class="dropdown-content">
+            <div class="date-picker-header">
+              <h3>Select Date Range</h3>
+              <button id="close-date-picker" class="close-button">×</button>
+            </div>
+            <div class="date-inputs">
+              <div class="date-input-group">
+                <label for="start-date">From</label>
+                <input type="date" id="start-date" name="start-date">
+              </div>
+              <div class="date-input-group">
+                <label for="end-date">To</label>
+                <input type="date" id="end-date" name="end-date">
+              </div>
+            </div>
+            <div class="date-filter-buttons">
+              <button id="apply-date-filter" class="apply-date-btn">Apply</button>
+              <button id="reset-date-filter" class="reset-date-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main-content">
+        <?php
+            include "conn.php";
 
-        while ($row = $result->fetch_assoc()) {
+            $exist_record = false;
 
-          $workout_date = formatDate($row['date']);
+            
+            $sql = "SELECT 
+                    workout_history.workout_history_id,
+                    workout_history.date,
+                    workout_history.member_id,
+                    workout_history.workout_id,
+                    workout.workout_name,
+                    workout.workout_type,
+                    workout.calories,
+                    workout.duration,
+                    workout.image
+                    FROM workout_history 
+                    INNER JOIN workout 
+                    ON workout_history.workout_id = workout.workout_id
+                    ORDER BY workout_history.date DESC"; // connect the workout_history table and workout table
 
-          if ($row['member_id'] == $_SESSION['member id']) {
-            $exist_record = true;
-            echo "<div class=\"workout-date\">
-                  <p>{$workout_date}</p>
-                  </div>
-                  <div class=\"workout-record\">
-                  <img
-                  class=\"picture\"
-                  src=\"{$row['image']}\"
-                  alt=\"{$row['workout_name']}\"
-                  />
-                  <p class=\"name\">{$row['workout_name']}</p>
-                  <p class=\"type\">{$row['workout_type']}</p>
-                  <p class=\"kcal\">{$row['calories']}kcal</p>
-                  <p class=\"time\">{$row['duration']}min</p>
-                  </div>
-                ";
+            $result = $dbConn->query($sql); // create a variable and store the sql query result inside it
+
+            function getWorkoutTypes($dbConn) {
+              $types = [];
+              $sql = "SELECT DISTINCT workout_type FROM workout";
+              $result = $dbConn->query($sql);
+              
+              if ($result && $result->num_rows > 0) {
+                  while ($row = $result->fetch_assoc()) {
+                      $types[] = $row['workout_type'];
+                  }
+              }
+              
+              return $types;
             }
-        }
 
-        if (!$exist_record) {
-          echo "<marquee class=\"no-record\" behavior=\"scroll\" direction=\"left\">There is no workout activity record in your history</marquee>";
-        }
+            $workoutTypes = getWorkoutTypes($dbConn);
+            
+            function formatDate($date) {
+              if ($date == date("Y-m-d")) {
+                  return "Today";
+              } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
+                  return "Yesterday";
+              } else {
+                  return date('d F Y', strtotime($date)); // Return normal date for older days
+              }
+            }
 
-      $dbConn->close();
-      ?>
+            function displayWorkoutRecord($row, $workout_date) {
+              $output = "<div class=\"workout-date\">
+                        <p>{$workout_date}</p>
+                        </div>
+                        <div class=\"workout-record\" data-workout-id=\"{$row['workout_id']}\" data-date=\"{$row['date']}\" data-type=\"{$row['workout_type']}\">
+                        <img
+                        class=\"picture\"
+                        src=\"{$row['image']}\"
+                        alt=\"{$row['workout_name']}\"
+                        />
+                        <p class=\"name\">{$row['workout_name']}</p>
+                        <p class=\"type\">{$row['workout_type']}</p>
+                        <p class=\"kcal\">{$row['calories']}kcal</p>
+                        <p class=\"time\">{$row['duration']}min</p>
+                        </div>
+                      ";
+              return $output;
+          }
+
+          echo '<div class="main-content">';
+
+          while ($row = $result->fetch_assoc()) {
+            $workout_date = formatDate($row['date']);
+        
+            if ($row['member_id'] == $_SESSION['member id']) {
+                $exist_record = true;
+                echo displayWorkoutRecord($row, $workout_date);
+            }
+          }
+          
+          // If no records found, show message
+          if (!$exist_record) {
+              echo "<div class=\"no-filtered-records\">
+                      <p>Workout history still not available. Let's have a workout!</p>
+                    </div>";
+          }
+          
+          // Close the main-content div
+          echo '</div>';
+
+          $dbConn->close();
+        ?>
+      </div>
+      <div class="container-side-transparent-left"></div>
+      <div class="container-side-transparent-right"></div>
     </div>
   </body>
   <script src="./js/navigation_bar.js"></script>

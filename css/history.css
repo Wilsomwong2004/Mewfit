@@ -36,6 +36,7 @@ html.dark-mode {
 body {
   background-color: var(--background-color);
   margin-bottom: 50px;
+  color: var(--text-color);
 }
 
 .no-select {
@@ -83,6 +84,14 @@ html.dark-mode .nav-links a {
   padding: 20px;
 }
 
+.page-header i {
+  color: #000000;
+}
+
+html.dark-mode .page-header i {
+  color: white;
+}
+
 .page-header h1 {
   font-size: 1.6rem;
   margin-left: 10px;
@@ -93,12 +102,16 @@ html.dark-mode .nav-links a {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0px 10px;
+  padding: 0px 0px 0px 5px;
 }
 
 .page-header h1::before {
   content: "Workout ";
   color: #ffad84;
+}
+
+html.dark-mode .page-header h1 {
+  color: white;
 }
 
 .search-date,
@@ -114,23 +127,33 @@ html.dark-mode .nav-links a {
 
 .workout-record {
   font-family: "Inter";
-  color: #4f4e4e;
+  color: #424242;
   display: grid;
-  grid-template-columns: 1fr 3fr 2fr 1fr 1fr;
+  grid-template-columns: 1.5fr 3fr 2fr 1fr 1fr;
   grid-gap: 10px 10px;
   align-items: center;
   transition: all 0.5s;
   cursor: pointer;
 }
 
+html.dark-mode .workout-record {
+  color: #dadada;
+}
+
 .workout-record:hover {
   background-color: #ffe7da;
+}
+
+html.dark-mode .workout-record:hover {
+  background-color: rgb(236, 167, 121);
+  color: #ffffff;
 }
 
 .workout-record img {
   width: 120px;
   height: 80px;
-  margin-left: 40px;
+  margin-left: 70px;
+  margin-right: 20px;
   border-radius: 10px;
   object-fit: cover;
   object-position: center;
@@ -158,8 +181,264 @@ html.dark-mode .nav-links a {
   font-weight: bold;
   font-family: "Inter";
   width: 95%;
-  margin: 0 auto;
+  margin: 0 70px;
   padding: 20px 0px 20px 0px;
+}
+
+/* Filter Controls */
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  margin: 5px 60px;
+  position: relative;
+}
+
+.filter-button {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 8px 35px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-button:hover {
+  background-color: #f8f8f8;
+}
+
+.filter-text {
+  font-weight: 500;
+}
+
+#all-filter {
+  background-color: #ffcbb1;
+  color: white;
+  padding: 8px 45px;
+}
+
+#all-filter:hover {
+  background-color: #f9bd9f;
+}
+
+html.dark-mode #all-filter {
+  color: black;
+}
+
+#date-range-filter {
+  border: 1px solid #FFCBB1;
+}
+
+html.dark-mode #date-range-filter {
+  background-color: #353536;
+  border: 1px solid #a58878;
+}
+
+#date-range-picker {
+  background-color: white;
+  left: 145px;
+}
+
+html.dark-mode #date-range-picker {
+  background-color: #454545;
+}
+
+/* Container Side Left and Right Style */
+
+.container-side-transparent-left {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(to right, white, transparent);
+  pointer-events: none;
+  z-index: 100;
+}
+
+html.dark-mode .container-side-transparent-left {
+  background: linear-gradient(to right, #393939, transparent);
+}
+
+.container-side-transparent-right {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(to left, white, transparent);
+  pointer-events: none;
+  z-index: 100;
+}
+
+html.dark-mode .container-side-transparent-right {
+  background: linear-gradient(to left, #393939, transparent);
+}
+
+/* Dropdown Styling */
+.filter-dropdown {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  display: none;
+  z-index: 100;
+}
+
+.filter-dropdown.show {
+  display: block;
+}
+
+.dropdown-content {
+  padding: 10px 0;
+}
+
+.activity-type-option {
+  padding: 16px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.activity-type-option:hover {
+  background-color: #f5f5f5;
+}
+
+/* Date Range Picker */
+.date-picker-dropdown {
+  width: 300px;
+}
+
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.date-picker-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+.date-inputs {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-input-group label {
+  font-size: 14px;
+  color: #666;
+}
+
+html.dark-mode .date-input-group label {
+  color: #999999;
+}
+
+.date-input-group input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.date-filter-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.apply-date-btn {
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
+.apply-date-btn {
+  margin: 14px 16px 6px;
+  padding: 10px 40px;
+  background-color: #f9bd9f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.apply-date-btn:hover {
+  background-color: #dc9673;
+}
+
+.reset-date-btn {
+  margin: 14px 16px 6px;
+  padding: 10px 40px;
+  background-color: #fbaa81;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-date-btn:hover {
+  background-color: #e09874;
+}
+
+/* No records message */
+.no-filtered-records {
+  text-align: center;
+  padding: 30px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Dark mode adjustments */
+.dark-mode .filter-button {
+  background-color: #2a2a2a;
+  border-color: #3a3a3a;
+  color: #e0e0e0;
+}
+
+.dark-mode .filter-dropdown {
+  background-color: #454545;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .activity-type-option:hover {
+  background-color: #ffc4a6;
+  color: #000000;
+}
+
+.dark-mode .date-picker-header {
+  border-bottom-color: #3a3a3a;
+}
+
+.dark-mode .date-input-group input {
+  background-color: #616161;
+  border-color: #3a3a3a;
+  color: #e0e0e0;
 }
 
 @media only screen and (max-width: 480px) {

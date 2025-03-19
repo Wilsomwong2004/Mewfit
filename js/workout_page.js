@@ -2200,18 +2200,27 @@ class SearchImplementation {
         }
 
         const searchResults = [];
+        const uniqueTitles = new Set(); // Track unique workout titles
+
         this.workoutSections.forEach((section) => {
             const sectionTitle = section.querySelector('.section-title')?.textContent;
             const workoutCards = section.querySelectorAll('.workout-card-content');
 
             workoutCards.forEach((card) => {
                 const title = card.querySelector('.workout-title')?.textContent;
+
+                // Skip if we've already added this title
+                if (uniqueTitles.has(title)) {
+                    return;
+                }
+
                 const duration = card.querySelector('.workout-stats span:first-child')?.textContent;
                 const calories = card.querySelector('.workout-stats span:last-child')?.textContent;
                 const image = card.querySelector('img')?.src;
 
                 if (this.startsWithSearch(query, title)) {
                     searchResults.push({ title, duration, calories, image, section: sectionTitle });
+                    uniqueTitles.add(title); // Mark this title as processed
                 }
 
                 if (this.isMobile) {
@@ -2271,12 +2280,8 @@ class SearchImplementation {
                 <div class="result-content">
                     <h3 class="workout-title">${result.title}</h3>
                     <div class="result-meta">
-                        <span class="duration">
-                            <i class="fas fa-clock"></i> ${result.duration}
-                        </span>
-                        <span class="calories">
-                            <i class="fas fa-fire"></i> ${result.calories}
-                        </span>
+                        <span class="duration"> ${result.duration} </span>
+                        <span class="calories"> ${result.calories} </span>
                     </div>
                 </div>
             </div>

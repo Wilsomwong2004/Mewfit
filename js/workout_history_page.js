@@ -7,14 +7,262 @@ previousBtn.addEventListener("click", function () {
 document.addEventListener('DOMContentLoaded', () => {
   setupWorkoutHistoryCards();
   setupPopupCloseHandlers();
+  setupFilters();
 });
+
+/**
+ * Setup filter functionality for workout history
+ */
+function setupFilters() {
+  const allFilterButton = document.getElementById('all-filter');
+  const dateRangeButton = document.getElementById('date-range-filter');
+  const resetDateFilterBtn = document.getElementById('reset-date-filter');
+
+  // Set up All filter dropdown
+  if (allFilterButton) {
+    allFilterButton.addEventListener('click', () => {
+      toggleFilterDropdown('activity-types-dropdown');
+    });
+
+    // Setup activity type filter handlers
+    document.querySelectorAll('.activity-type-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        const selectedType = e.target.getAttribute('data-type');
+        filterByActivityType(selectedType);
+
+        // Update button text to show selected filter
+        const buttonText = allFilterButton.querySelector('.filter-text');
+        buttonText.textContent = selectedType;
+
+        // Hide dropdown
+        document.getElementById('activity-types-dropdown').classList.remove('show');
+      });
+    });
+  }
+
+  // Set up Date Range picker
+  if (dateRangeButton) {
+    dateRangeButton.addEventListener('click', () => {
+      toggleDateRangePicker();
+    });
+
+    // Apply date filter button
+    const applyDateButton = document.getElementById('apply-date-filter');
+    if (applyDateButton) {
+      applyDateButton.addEventListener('click', () => {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        if (startDate && endDate) {
+          filterByDateRange(startDate, endDate);
+
+          // Update button text to show selected date range
+          const startFormatted = formatShortDate(startDate);
+          const endFormatted = formatShortDate(endDate);
+          const buttonText = dateRangeButton.querySelector('.filter-text');
+          buttonText.textContent = `${startFormatted} - ${endFormatted}`;
+
+          // Hide date picker
+          document.getElementById('date-range-picker').classList.remove('show');
+        }
+      });
+    }
+
+    if (resetDateFilterBtn) {
+      resetDateFilterBtn.addEventListener('click', function () {
+        // Clear the date inputs
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+
+        // Reset the filter text to default
+        document.querySelector('#date-range-filter .filter-text').textContent = 'Date Range';
+
+        // Show all workout records
+        const workoutRecords = document.querySelectorAll('.workout-record');
+        const workoutDates = document.querySelectorAll('.workout-date');
+
+        workoutRecords.forEach(record => {
+          record.style.display = 'flex';
+        });
+
+        workoutDates.forEach(date => {
+          date.style.display = 'block';
+        });
+
+        // Close the date picker dropdown (using the same method as other dropdowns)
+        document.getElementById('date-range-picker').classList.remove('show');
+
+        // Update any visible indicators that filtering is active
+        document.getElementById('date-range-filter').classList.remove('active-filter');
+      });
+    }
+
+    // Close date picker button
+    const closeDatePicker = document.getElementById('close-date-picker');
+    if (closeDatePicker) {
+      closeDatePicker.addEventListener('click', () => {
+        document.getElementById('date-range-picker').classList.remove('show');
+      });
+    }
+  }
+}
+
+/**
+ * Toggle display of the filter dropdown
+ */
+function toggleFilterDropdown(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  if (dropdown) {
+    dropdown.classList.toggle('show');
+
+    // Close other dropdowns
+    if (dropdownId === 'activity-types-dropdown') {
+      document.getElementById('date-range-picker')?.classList.remove('show');
+    } else if (dropdownId === 'date-range-picker') {
+      document.getElementById('activity-types-dropdown')?.classList.remove('show');
+    }
+  }
+}
+
+/**
+ * Toggle display of the date range picker
+ */
+function toggleDateRangePicker() {
+  const dateRangePicker = document.getElementById('date-range-picker');
+  dateRangePicker.classList.toggle('show');
+
+  // Close the other dropdown if it's open
+  document.getElementById('activity-types-dropdown').classList.remove('show');
+}
+
+/**
+ * Format date for display in button
+ */
+function formatShortDate(dateString) {
+  const date = new Date(dateString);
+  return `${date.getDate()}/${date.getMonth() + 1}`;
+}
+
+/**
+ * Filter workout records by activity type
+ */
+function filterByActivityType(type) {
+  const workoutRecords = document.querySelectorAll('.workout-record');
+  const workoutDateHeaders = document.querySelectorAll('.workout-date');
+  let visibleCount = 0;
+
+  // First, hide all date headers
+  workoutDateHeaders.forEach(header => {
+    header.style.display = 'none';
+  });
+
+  // Then show/hide records based on filter
+  workoutRecords.forEach(record => {
+    const recordType = record.querySelector('.type').textContent;
+    const matchesFilter = type === 'All' || recordType.toLowerCase() === type.toLowerCase();
+
+    if (matchesFilter) {
+      record.style.display = 'grid';
+      visibleCount++;
+
+      // Show the corresponding date header
+      const prevElement = record.previousElementSibling;
+      if (prevElement && prevElement.classList.contains('workout-date')) {
+        prevElement.style.display = 'block';
+      }
+    } else {
+      record.style.display = 'none';
+    }
+  });
+
+  // Show "no records" message if no results
+  checkAndDisplayNoRecordsMessage(visibleCount);
+}
+
+/**
+ * Filter workout records by date range
+ */
+function filterByDateRange(startDate, endDate) {
+  const workoutRecords = document.querySelectorAll('.workout-record');
+  const workoutDateHeaders = document.querySelectorAll('.workout-date');
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59); // Set to end of day
+  let visibleCount = 0;
+
+  // First, hide all date headers
+  workoutDateHeaders.forEach(header => {
+    header.style.display = 'none';
+  });
+
+  // Create a map to store date -> records
+  const dateMap = new Map();
+
+  // Process records
+  workoutRecords.forEach(record => {
+    // Get date from previous date header
+    const prevElement = record.previousElementSibling;
+    if (!prevElement || !prevElement.classList.contains('workout-date')) {
+      record.style.display = 'none';
+      return;
+    }
+
+    let dateText = prevElement.querySelector('p').textContent;
+    let recordDate;
+
+    // Convert display text to actual date
+    if (dateText === 'Today') {
+      recordDate = new Date();
+    } else if (dateText === 'Yesterday') {
+      recordDate = new Date();
+      recordDate.setDate(recordDate.getDate() - 1);
+    } else {
+      recordDate = new Date(dateText);
+    }
+
+    // Check if within range
+    const inRange = recordDate >= start && recordDate <= end;
+
+    if (inRange) {
+      record.style.display = 'flex';
+      prevElement.style.display = 'block';
+      visibleCount++;
+    } else {
+      record.style.display = 'none';
+    }
+  });
+
+  // Show "no records" message if no results
+  checkAndDisplayNoRecordsMessage(visibleCount);
+}
+
+/**
+ * Check if there are no visible records and display message
+ */
+function checkAndDisplayNoRecordsMessage(visibleCount) {
+  const container = document.querySelector('.main-content');
+  let noRecordsMsg = document.querySelector('.no-filtered-records');
+
+  if (visibleCount === 0) {
+    if (!noRecordsMsg) {
+      noRecordsMsg = document.createElement('div');
+      noRecordsMsg.className = 'no-filtered-records';
+      noRecordsMsg.innerHTML = '<p>Workout history still not available. Let\'s have a workout!</p>';
+      container.appendChild(noRecordsMsg);
+    }
+    noRecordsMsg.style.display = 'block';
+  } else if (noRecordsMsg) {
+    noRecordsMsg.style.display = 'none';
+  }
+}
 
 // Global variable to store the selected workout
 let selectedWorkout = null;
+let globalCurrentlyPlaying = null;
 
 /**
-* Setup click handlers for workout history records
-*/
+ * Setup click handlers for workout history records
+ */
 function setupWorkoutHistoryCards() {
   document.querySelectorAll('.workout-record').forEach(card => {
     card.addEventListener('click', () => {
@@ -26,41 +274,71 @@ function setupWorkoutHistoryCards() {
       const workoutImage = card.querySelector('.picture').getAttribute('src');
       const workoutId = card.getAttribute('data-workout-id');
 
-      // Store the workout details
-      selectedWorkout = {
-        id: workoutId,
-        title: workoutName,
-        type: workoutType,
-        calories: workoutCalories,
-        duration: workoutDuration,
-        image: workoutImage
-      };
+      // Try to fetch full workout details if available in the workouts array
+      // If not, use the limited data from the card
+      let workout = null;
+      if (typeof workouts !== 'undefined' && workouts.length > 0) {
+        workout = workouts.find(w => w.id === workoutId);
+      }
+
+      if (!workout) {
+        // Create a basic workout object from card data
+        workout = {
+          id: workoutId,
+          title: workoutName,
+          type: workoutType,
+          description: "Full-body endurance with weights.",
+          calories: workoutCalories,
+          duration: workoutDuration,
+          image: workoutImage,
+          level: "intermediate",
+          exercises: []
+        };
+      }
+
+      // Store the selected workout
+      selectedWorkout = workout;
 
       // Show workout details in popup
-      showWorkoutPopup(selectedWorkout);
+      displayWorkoutPopup(selectedWorkout);
     });
   });
 }
 
-function showWorkoutPopup(workout) {
+/**
+ * Display workout popup with details and exercises
+ */
+function displayWorkoutPopup(workout) {
   // Create popup if it doesn't exist yet
-  if (!document.getElementById('workout-history-popup')) {
-    createPopupElement();
+  if (!document.getElementById('popup-container')) {
+    createDetailedPopupElement();
   }
 
-  const popup = document.getElementById('workout-history-popup');
+  const popup = document.getElementById('popup-container');
 
   // Update popup content
   document.getElementById('popup-title').textContent = workout.title.toUpperCase();
-  document.getElementById('popup-type').textContent = workout.type;
+  document.getElementById('popup-desc').textContent = workout.description || "Full-body workout routine";
 
-  // Extract numbers only for calories
-  const caloriesNum = workout.calories.match(/\d+/)[0];
+  // Extract numbers only for measurements
+  let durationNum = '30';
+  let caloriesNum = '240';
+
+  if (workout.duration) {
+    const durationMatch = workout.duration.match(/\d+/);
+    if (durationMatch) durationNum = durationMatch[0];
+  }
+
+  if (workout.calories) {
+    const caloriesMatch = workout.calories.match(/\d+/);
+    if (caloriesMatch) caloriesNum = caloriesMatch[0];
+  }
+
+  document.getElementById('popup-duration').textContent = durationNum;
   document.getElementById('popup-calories').textContent = caloriesNum;
 
-  // Extract numbers only for duration
-  const durationNum = workout.duration.match(/\d+/)[0];
-  document.getElementById('popup-duration').textContent = durationNum;
+  // Update level indicator
+  updatePopupLevel(workout.level || 'intermediate');
 
   // Update image
   const workoutImage = document.getElementById('popup-workout-image');
@@ -72,55 +350,89 @@ function showWorkoutPopup(workout) {
     workoutImage.src = './assets/icons/error.svg';
     workoutImage.alt = 'Workout Image Not Found';
     workoutImage.style.objectFit = 'contain';
+    workoutImage.style.width = '60%';
+    workoutImage.style.height = 'auto';
   }
+
+  // Update exercise list
+  updateExerciseList(workout);
 
   // Show popup
   popup.classList.add('active');
 }
 
 /**
-* Create popup HTML element
-*/
-function createPopupElement() {
+ * Create detailed popup HTML element (matching Image 2)
+ */
+function createDetailedPopupElement() {
   const popupHTML = `
-  <div id="workout-history-popup" class="popup-container">
-      <div class="popup-content">
-          <div class="popup-close">&times;</div>
-          <div class="popup-header">
-              <div class="popup-image-container">
-                  <img id="popup-workout-image" src="" alt="Workout Image">
+  <div id="popup-container" class="popup-container">
+    <div class="popup-content">
+      <div class="popup-close">&times;</div>
+      
+      <div class="popup-header">
+        <div class="popup-image-container">
+          <img id="popup-workout-image" src="" alt="Workout Image">
+        </div>
+        
+        <div class="popup-info">
+          <h2 id="popup-title">WORKOUT TITLE</h2>
+          <p id="popup-desc">Workout description goes here.</p>
+          
+          <div class="popup-stats">
+            <div class="popup-stat">
+              <div id="popup-duration">30</div>
+              <div>Minutes</div>
+            </div>
+            
+            <div class="popup-stat">
+              <div id="popup-calories">240</div>
+              <div>Kcal</div>
+            </div>
+            
+            <div class="popup-stat level-indicator">
+              <div class="level-dots">
+                <span class="level-dot"></span>
+                <span class="level-dot"></span>
+                <span class="level-dot"></span>
               </div>
-              <div class="popup-header-info">
-                  <h2 id="popup-title">WORKOUT TITLE</h2>
-                  <p id="popup-type">Workout Type</p>
-                  <div class="popup-stats">
-                      <div class="popup-stat">
-                          <i class="fas fa-fire"></i>
-                          <span id="popup-calories">0</span>
-                          <span>kcal</span>
-                      </div>
-                      <div class="popup-stat">
-                          <i class="fas fa-clock"></i>
-                          <span id="popup-duration">0</span>
-                          <span>min</span>
-                      </div>
-                  </div>
-              </div>
+              <div>Level</div>
+            </div>
           </div>
-          <div class="popup-footer">
-              <button class="popup-repeat-button">Repeat This Workout</button>
-          </div>
+        </div>
       </div>
+      
+      <div class="popup-body">
+        <h3>Exercises</h3>
+        <div class="exercise-list-wrapper">
+          <button class="exercise-arrow exercise-arrow-left hidden">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <div id="exercise-list-container" class="exercise-list-container">
+            <!-- Exercise items will be added here dynamically -->
+          </div>
+          
+          <button class="exercise-arrow exercise-arrow-right">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="popup-footer">
+        <button class="popup-start-button">Start Workout</button>
+      </div>
+    </div>
   </div>`;
 
   // Add the popup to the document
   document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-  // Add event listener for the Repeat button
-  document.querySelector('.popup-repeat-button').addEventListener('click', () => {
+  // Add event listener for the Start button
+  document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
       // Store the workout in localStorage to use in workout page
-      localStorage.setItem('selectedWorkout', JSON.stringify(selectedWorkout));
+      localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
       // Navigate to the workout page
       window.location.href = 'subworkout_page.php';
     }
@@ -128,23 +440,346 @@ function createPopupElement() {
 }
 
 /**
-* Setup handlers to close the popup
-*/
+ * Setup handlers to close the popup
+ */
 function setupPopupCloseHandlers() {
   // Use event delegation since popup may not exist at load time
   document.body.addEventListener('click', (e) => {
-    const popup = document.getElementById('workout-history-popup');
+    const popup = document.getElementById('popup-container');
     if (!popup) return;
 
     if (e.target.classList.contains('popup-close') ||
       (e.target.classList.contains('popup-container') && e.target === popup)) {
       popup.classList.remove('active');
+      stopAllVideos();
       selectedWorkout = null;
     }
   });
 }
 
-// Add CSS for the popup
+/**
+ * Update level indicator in popup
+ */
+function updatePopupLevel(level) {
+  const levelDots = document.querySelectorAll('.level-dot');
+
+  // Reset all dots first
+  levelDots.forEach(dot => {
+    dot.classList.remove('active');
+  });
+
+  // Determine how many dots to activate
+  let dotsToActivate = 1; // Default: beginner
+
+  if (level && typeof level === 'string') {
+    level = level.toLowerCase();
+    if (level.includes('intermediate')) {
+      dotsToActivate = 2;
+    } else if (level.includes('advanced') || level.includes('expert')) {
+      dotsToActivate = 3;
+    }
+  }
+
+  // Activate the appropriate number of dots
+  for (let i = 0; i < dotsToActivate; i++) {
+    if (levelDots[i]) levelDots[i].classList.add('active');
+  }
+}
+
+/**
+ * Function to create exercise item (from your reference code)
+ */
+function createExerciseItem(exercise) {
+  // Validate input
+  if (!exercise || typeof exercise !== 'object') {
+    console.error('Invalid exercise object:', exercise);
+    return '';
+  }
+
+  // Ensure required properties exist with fallbacks
+  const exerciseName = exercise.exercise || exercise.name || 'unknown-exercise';
+  const videoSrc = exercise.video || '';
+
+  // Determine if we have reps or duration
+  const detailText = exercise.reps
+    ? `${exercise.reps} reps`
+    : exercise.duration
+      ? exercise.duration
+      : (exercise.time || '5 minutes');
+
+  // Create a unique ID for the video element
+  const videoId = `video-${exerciseName.toString().toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+
+  return `
+    <div class="exercise-item" data-video="${videoSrc}" data-exercise="${exerciseName}" data-video-id="${videoId}">
+      <div class="exercise-video-container">
+        <video id="${videoId}" class="exercise-video" preload="metadata">
+          <source src="${videoSrc}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay">
+          <button class="play-button">
+            <i class="fas fa-play"></i>
+          </button>
+        </div>
+      </div>
+      <div class="exercise-info">
+        <div class="exercise-name">${exerciseName}</div>
+        <div class="exercise-details">${detailText}</div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Update the exercise list in the popup
+ */
+function updateExerciseList(workout) {
+  console.log("Updating exercise list with:", workout);
+  const container = document.getElementById('exercise-list-container');
+
+  if (!container) {
+    console.error("Exercise list container not found");
+    return;
+  }
+
+  // First stop any currently playing videos
+  stopAllVideos();
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // If workout has no exercises or they're not properly defined, add placeholders
+  if (!workout.exercises || !Array.isArray(workout.exercises) || workout.exercises.length === 0) {
+    // Add some placeholder exercises
+    const placeholderExercises = [
+      {
+        exercise: "Burpees with Dumbbell Press",
+        reps: "10 reps",
+        video: ""
+      },
+      {
+        exercise: "Dumbbells High Pulls",
+        reps: "12 reps",
+        video: ""
+      }
+    ];
+
+    placeholderExercises.forEach(exercise => {
+      container.innerHTML += createExerciseItem(exercise);
+    });
+  } else {
+    // Add the actual exercises
+    workout.exercises.forEach(exercise => {
+      // Ensure exercise has all required properties
+      if (!exercise.exercise) {
+        console.warn("Exercise is missing 'exercise' property:", exercise);
+        exercise.exercise = exercise.name || "Unknown Exercise";
+      }
+
+      container.innerHTML += createExerciseItem(exercise);
+    });
+  }
+
+  // Initialize videos after DOM is updated
+  setTimeout(() => {
+    initializeExerciseVideos();
+
+    // Initialize the scroll arrows
+    forceArrowCheck();
+    setupExerciseListArrows();
+  }, 300);
+}
+
+/**
+ * Stop all playing videos
+ */
+function stopAllVideos() {
+  console.log("Stopping all videos");
+
+  // Reset the global playing state
+  globalCurrentlyPlaying = null;
+
+  // Stop all videos and reset UI
+  document.querySelectorAll('.exercise-video').forEach(video => {
+    if (!video.paused) {
+      console.log("Pausing video:", video.id);
+      video.pause();
+      video.currentTime = 0;
+    }
+  });
+
+  // Reset all UI elements
+  document.querySelectorAll('.video-overlay').forEach(overlay => {
+    overlay.style.display = 'flex';
+  });
+
+  document.querySelectorAll('.play-button i').forEach(icon => {
+    icon.className = 'fas fa-play';
+  });
+}
+
+/**
+ * Initialize exercise videos
+ */
+function initializeExerciseVideos() {
+  console.log("Initializing exercise videos...");
+
+  // Step 1: Make sure all videos are stopped and reset first
+  stopAllVideos();
+
+  // Step 2: Attach click handlers to all video elements
+  document.querySelectorAll('.exercise-item').forEach(item => {
+    const videoId = item.getAttribute('data-video-id');
+    const video = document.getElementById(videoId);
+    const overlay = item.querySelector('.video-overlay');
+    const playButton = item.querySelector('.play-button');
+
+    if (!video || !overlay || !playButton) {
+      console.error("Missing video elements for:", videoId);
+      return;
+    }
+
+    // Remove any existing event listeners to prevent duplicates
+    item.replaceWith(item.cloneNode(true));
+
+    // Get the elements again after cloning
+    const updatedItem = document.querySelector(`[data-video-id="${videoId}"]`);
+    if (!updatedItem) return;
+
+    const updatedVideo = document.getElementById(videoId);
+    const updatedOverlay = updatedItem.querySelector('.video-overlay');
+    const updatedPlayButton = updatedItem.querySelector('.play-button');
+
+    if (!updatedVideo || !updatedOverlay || !updatedPlayButton) return;
+
+    // Main click handler for the play button
+    updatedPlayButton.addEventListener('click', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      console.log("Play button clicked for:", videoId);
+
+      // If this is already the currently playing video, pause it
+      if (globalCurrentlyPlaying === videoId) {
+        console.log("Pausing current video:", videoId);
+        updatedVideo.pause();
+        updatedOverlay.style.display = 'flex';
+        this.querySelector('i').className = 'fas fa-play';
+        globalCurrentlyPlaying = null;
+      }
+      // Otherwise, stop any currently playing video and play this one
+      else {
+        console.log("Playing new video:", videoId);
+        stopAllVideos();
+
+        // Try to play the video
+        const playPromise = updatedVideo.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            updatedOverlay.style.display = 'none';
+            this.querySelector('i').className = 'fas fa-pause';
+            globalCurrentlyPlaying = videoId;
+          }).catch(err => {
+            console.error("Error playing video:", err);
+            alert("There was an error playing the video. Please try again.");
+          });
+        }
+      }
+    });
+
+    // Handle video ended event
+    updatedVideo.addEventListener('ended', function () {
+      console.log("Video ended:", videoId);
+      updatedOverlay.style.display = 'flex';
+      updatedPlayButton.querySelector('i').className = 'fas fa-play';
+      globalCurrentlyPlaying = null;
+    });
+  });
+
+  console.log("Video initialization complete");
+}
+
+/**
+ * Force check of arrow visibility
+ */
+function forceArrowCheck() {
+  const container = document.getElementById('exercise-list-container');
+  const leftArrow = document.querySelector('.exercise-arrow-left');
+  const rightArrow = document.querySelector('.exercise-arrow-right');
+
+  if (!container || !leftArrow || !rightArrow) return;
+
+  // Check if container has overflow content
+  const hasOverflow = container.scrollWidth > container.clientWidth;
+  const isAtStart = container.scrollLeft <= 0;
+  const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+
+  // Update arrow visibility
+  leftArrow.classList.toggle('hidden', isAtStart);
+  rightArrow.classList.toggle('hidden', isAtEnd || !hasOverflow);
+}
+
+/**
+ * Setup exercise list scroll arrows
+ */
+function setupExerciseListArrows() {
+  const container = document.getElementById('exercise-list-container');
+  const leftArrow = document.querySelector('.exercise-arrow-left');
+  const rightArrow = document.querySelector('.exercise-arrow-right');
+
+  if (!container || !leftArrow || !rightArrow) {
+    return;
+  }
+
+  // Function to update arrow visibility
+  function updateArrowVisibility() {
+    // Get the current scroll position and dimensions
+    const isAtStart = container.scrollLeft <= 0;
+    const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+    const hasOverflow = container.scrollWidth > container.clientWidth;
+
+    // Show/hide arrows based on scroll position and if there's overflow
+    leftArrow.classList.toggle('hidden', isAtStart);
+    rightArrow.classList.toggle('hidden', isAtEnd);
+
+    // Force arrows to be visible if there's overflow content and we're not at the edge
+    if (hasOverflow) {
+      if (!isAtStart) leftArrow.classList.remove('hidden');
+      if (!isAtEnd) rightArrow.classList.remove('hidden');
+    }
+  }
+
+  // Initial check - but wait for content to be fully rendered
+  setTimeout(updateArrowVisibility, 100);
+
+  // Left arrow click
+  leftArrow.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    container.scrollBy({
+      left: -250,
+      behavior: 'smooth'
+    });
+  });
+
+  // Right arrow click
+  rightArrow.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    container.scrollBy({
+      left: 250,
+      behavior: 'smooth'
+    });
+  });
+
+  // Update on scroll
+  container.addEventListener('scroll', updateArrowVisibility);
+
+  // Update on window resize
+  window.addEventListener('resize', updateArrowVisibility);
+}
+
+// Add CSS for the detailed popup
 const popupStyles = `
 .popup-container {
   display: none;
@@ -166,30 +801,41 @@ const popupStyles = `
 .popup-content {
   background-color: white;
   width: 90%;
-  max-width: 500px;
+  max-width: 800px;
+  max-height: 90vh;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .popup-close {
   position: absolute;
-  top: 10px;
+  top: 15px;
   right: 15px;
-  font-size: 28px;
+  font-size: 24px;
   cursor: pointer;
-  color: white;
+  color: black;
   z-index: 10;
+  background: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .popup-header {
-  padding: 0;
-  position: relative;
+  display: flex;
+  background-color: white;
 }
 
 .popup-image-container {
-  height: 200px;
+  flex: 1;
+  height: 300px;
   overflow: hidden;
 }
 
@@ -199,20 +845,23 @@ const popupStyles = `
   object-fit: cover;
 }
 
-.popup-header-info {
-  padding: 16px;
-  background-color: #f8f8f8;
+.popup-info {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 #popup-title {
-  margin: 0 0 5px 0;
-  font-size: 22px;
+  margin: 0 0 10px 0;
+  font-size: 24px;
   font-weight: bold;
 }
 
-#popup-type {
+#popup-desc {
   color: #666;
-  margin: 0 0 15px 0;
+  margin: 0 0 20px 0;
+  flex-grow: 1;
 }
 
 .popup-stats {
@@ -221,34 +870,189 @@ const popupStyles = `
 }
 
 .popup-stat {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  text-align: center;
 }
 
-.popup-stat i {
+.popup-stat:first-child {
+  color: #888;
+}
+
+.popup-stat:nth-child(2) {
   color: #FF7F50;
 }
 
-.popup-footer {
-  padding: 16px;
+.level-indicator {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
-.popup-repeat-button {
+.level-dots {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 5px;
+}
+
+.level-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ddd;
+}
+
+.level-dot.active {
+  background-color: #FF6347;
+}
+
+.popup-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.popup-body h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.exercise-list-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.exercise-list-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  gap: 15px;
+}
+
+.exercise-list-container::-webkit-scrollbar {
+  display: none;
+}
+
+.exercise-arrow {
+  position: absolute;
+  z-index: 5;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.exercise-arrow:hover {
+  background-color: #f8f8f8;
+}
+
+.exercise-arrow.hidden {
+  display: none;
+}
+
+.exercise-arrow-left {
+  left: 0;
+  transform: translateX(-50%);
+}
+
+.exercise-arrow-right {
+  right: 0;
+  transform: translateX(50%);
+}
+
+.exercise-item {
+  flex: 0 0 auto;
+  width: 200px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-video-container {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background-color: #f0f0f0;
+}
+
+.exercise-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play-button {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.play-button:hover {
+  background-color: white;
+  transform: scale(1.1);
+}
+
+.exercise-info {
+  padding: 10px;
+}
+
+.exercise-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.exercise-details {
+  color: #666;
+  font-size: 14px;
+}
+
+.popup-footer {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #eee;
+}
+
+.popup-start-button {
   background-color: #FF7F50;
   color: white;
   border: none;
-  border-radius: 25px;
-  padding: 12px 24px;
+  border-radius: 30px;
+  padding: 12px 40px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.popup-repeat-button:hover {
+.popup-start-button:hover {
   background-color: #FF6347;
 }
 
@@ -261,6 +1065,17 @@ const popupStyles = `
 .workout-record:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .popup-header {
+    flex-direction: column;
+  }
+  
+  .popup-image-container {
+    height: 200px;
+  }
 }
 `;
 
