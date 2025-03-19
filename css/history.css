@@ -37,6 +37,7 @@ body {
   background-color: var(--background-color);
   margin-bottom: 50px;
   color: var(--text-color);
+  overflow-x: hidden;
 }
 
 .no-select {
@@ -410,9 +411,13 @@ html.dark-mode .date-input-group label {
 /* No records message */
 .no-filtered-records {
   text-align: center;
-  padding: 30px;
-  font-size: 16px;
+  padding: 300px;
+  font-size: 18px;
   color: #666;
+}
+
+.dark-mode .no-filtered-records {
+  color: #cfcfcf;
 }
 
 /* Dark mode adjustments */

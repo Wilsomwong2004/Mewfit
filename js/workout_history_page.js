@@ -1,10 +1,21 @@
+window.workouts = [];
+window.selectedWorkout = null;
+window.globalCurrentlyPlaying = null;
+
 const previousBtn = document.querySelector(".previous");
 
 previousBtn.addEventListener("click", function () {
-  window.location.href = "homepage.php";
+  window.history.back();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (typeof workoutsData !== 'undefined' && workoutsData) {
+    window.workouts = JSON.parse(workoutsData);
+    console.log("Loaded workouts:", window.workouts);
+  } else {
+    console.warn("No workouts data found");
+  }
+
   setupWorkoutHistoryCards();
   setupPopupCloseHandlers();
   setupFilters();
@@ -257,8 +268,8 @@ function checkAndDisplayNoRecordsMessage(visibleCount) {
 }
 
 // Global variable to store the selected workout
-let selectedWorkout = null;
-let globalCurrentlyPlaying = null;
+// let selectedWorkout = null;
+// let globalCurrentlyPlaying = null;
 
 /**
  * Setup click handlers for workout history records
@@ -275,14 +286,19 @@ function setupWorkoutHistoryCards() {
       const workoutId = card.getAttribute('data-workout-id');
 
       // Try to fetch full workout details if available in the workouts array
-      // If not, use the limited data from the card
       let workout = null;
-      if (typeof workouts !== 'undefined' && workouts.length > 0) {
-        workout = workouts.find(w => w.id === workoutId);
+
+      // Make sure workouts is defined and accessible
+      if (typeof window.workouts !== 'undefined' && window.workouts && window.workouts.length > 0) {
+        workout = window.workouts.find(w => w.id === workoutId);
+        console.log("Found workout in global array:", workout);
+      } else {
+        console.warn("Global workouts array not found or empty");
       }
 
       if (!workout) {
         // Create a basic workout object from card data
+        console.warn("Could not find workout with ID:", workoutId);
         workout = {
           id: workoutId,
           title: workoutName,
@@ -297,10 +313,10 @@ function setupWorkoutHistoryCards() {
       }
 
       // Store the selected workout
-      selectedWorkout = workout;
+      window.selectedWorkout = workout;
 
       // Show workout details in popup
-      displayWorkoutPopup(selectedWorkout);
+      displayWorkoutPopup(window.selectedWorkout);
     });
   });
 }
@@ -378,6 +394,21 @@ function createDetailedPopupElement() {
         <div class="popup-info">
           <h2 id="popup-title">WORKOUT TITLE</h2>
           <p id="popup-desc">Workout description goes here.</p>
+
+          <h3>Exercises</h3>
+          <div class="exercise-list-wrapper">
+            <button class="exercise-arrow exercise-arrow-left hidden">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div id="exercise-list-container" class="exercise-list-container">
+              <!-- Exercise items will be added here dynamically -->
+            </div>
+            
+            <button class="exercise-arrow exercise-arrow-right">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
           
           <div class="popup-stats">
             <div class="popup-stat">
@@ -399,28 +430,8 @@ function createDetailedPopupElement() {
               <div>Level</div>
             </div>
           </div>
+          <button class="popup-start-button">Start Workout</button>
         </div>
-      </div>
-      
-      <div class="popup-body">
-        <h3>Exercises</h3>
-        <div class="exercise-list-wrapper">
-          <button class="exercise-arrow exercise-arrow-left hidden">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          
-          <div id="exercise-list-container" class="exercise-list-container">
-            <!-- Exercise items will be added here dynamically -->
-          </div>
-          
-          <button class="exercise-arrow exercise-arrow-right">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-      
-      <div class="popup-footer">
-        <button class="popup-start-button">Start Workout</button>
       </div>
     </div>
   </div>`;
@@ -428,13 +439,22 @@ function createDetailedPopupElement() {
   // Add the popup to the document
   document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-  // Add event listener for the Start button
+  // // Add event listener for the Start button
+  // document.querySelector('.popup-start-button').addEventListener('click', () => {
+  //   if (selectedWorkout) {
+  //     // Store the workout in localStorage to use in workout page
+  //     localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
+  //     // Navigate to the workout page
+  //     window.location.href = 'subworkout_page.php';
+  //   }
+  // });
+
   document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
-      // Store the workout in localStorage to use in workout page
       localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
-      // Navigate to the workout page
       window.location.href = 'subworkout_page.php';
+    } else {
+      console.error('No workout selected');
     }
   });
 }
@@ -551,6 +571,7 @@ function updateExerciseList(workout) {
 
   // If workout has no exercises or they're not properly defined, add placeholders
   if (!workout.exercises || !Array.isArray(workout.exercises) || workout.exercises.length === 0) {
+    console.warn("No exercises found in workout, using placeholders");
     // Add some placeholder exercises
     const placeholderExercises = [
       {
@@ -569,12 +590,14 @@ function updateExerciseList(workout) {
       container.innerHTML += createExerciseItem(exercise);
     });
   } else {
+    console.log("Found exercises to display:", workout.exercises.length);
     // Add the actual exercises
     workout.exercises.forEach(exercise => {
       // Ensure exercise has all required properties
-      if (!exercise.exercise) {
-        console.warn("Exercise is missing 'exercise' property:", exercise);
-        exercise.exercise = exercise.name || "Unknown Exercise";
+      if (!exercise.exercise && exercise.name) {
+        exercise.exercise = exercise.name;
+      } else if (!exercise.exercise) {
+        exercise.exercise = "Unknown Exercise";
       }
 
       container.innerHTML += createExerciseItem(exercise);

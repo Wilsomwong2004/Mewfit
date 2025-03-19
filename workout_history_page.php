@@ -1,11 +1,68 @@
 <?php
 
 require_once 'conn.php';
+$workouts = fetchWorkouts($dbConn);
 session_start();  
 
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: prelogin.html");
     exit;
+}
+
+function fetchWorkouts($dbConn) {
+  $query = "SELECT * FROM workout ORDER BY date_registered DESC";
+  $result = mysqli_query($dbConn, $query);
+  
+  $workouts = [];
+  
+  if ($result && mysqli_num_rows($result) > 0) {
+      while ($row = mysqli_fetch_assoc($result)) {
+          // Convert exercise_checklist from JSON string to array of IDs
+          $exerciseIds = json_decode($row['exercise_checklist']);
+          
+          // Fetch the exercises for this workout
+          $exercises = fetchExercisesForWorkout($exerciseIds);
+          
+          // Create workout object
+          $workout = [
+              'id' => $row['workout_id'],
+              'title' => $row['workout_name'],
+              'type' => explode(',', $row['workout_type']),
+              'level' => $row['difficulty'],
+              'calories' => $row['calories'] . ' kcal',
+              'duration' => $row['duration'] . ' min',
+              'description' => $row['description'],
+              'long_description' => $row['long_description'],
+              'sets' => $row['sets'],
+              'image' => $row['image'],
+              'exercises' => $exercises
+          ];
+          
+          $workouts[] = $workout;
+      }
+  }
+  
+  return $workouts;
+}
+
+function fetchExercisesForWorkout($exerciseIds) {
+  // Load the exercises from the JSON file
+  $exercisesJson = file_get_contents('exercises.json');
+  $allExercises = json_decode($exercisesJson, true);
+  
+  $workoutExercises = [];
+  
+  foreach ($exerciseIds as $id) {
+      // Find the exercise with matching ID
+      foreach ($allExercises as $exercise) {
+          if ($exercise['id'] == $id) {
+              $workoutExercises[] = $exercise;
+              break;
+          }
+      }
+  }
+  
+  return $workoutExercises;
 }
 
 $userProfile = [
@@ -255,10 +312,35 @@ if (isset($_SESSION['member id'])) {
           $dbConn->close();
         ?>
       </div>
+
+      <!-- Chatbot Interface -->
+      <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-header-left">
+                    <img src="./assets/icons/cat-logo-tabs.png">
+                    <h3>MEWAI</h3>
+                </div>
+                <button class="close-chat">&times;</button>
+            </div>
+            <div class="chatbot-transparent-top-down"></div>
+            <div class="chatbot-messages"></div>
+            <div class="chatbot-input">
+                <input type="text" placeholder="Ask me about fitness...">
+                <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button class="chatbot-toggle">
+            <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+        </button>
+      </div>
+
       <div class="container-side-transparent-left"></div>
       <div class="container-side-transparent-right"></div>
     </div>
   </body>
+  <script>
+    const workoutsData = '<?php echo addslashes(json_encode($workouts)); ?>';
+  </script>
   <script src="./js/navigation_bar.js"></script>
   <script src="./js/gemini_chatbot.js"></script>
   <script src="./js/darkmode.js"></script>

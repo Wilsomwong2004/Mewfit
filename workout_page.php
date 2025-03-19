@@ -309,7 +309,12 @@ mysqli_close($dbConn);
         </section>
 
         <section class="workout-body">
-            <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Workout</h2>
+            <div class="workout-recently-title">
+                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Workout</h2>
+                <a href="workout_history_page.php" style="text-decoration: none; color: inherit;  padding: 1.7rem 3rem 1rem 0">
+                    View More <span style="padding-left: 10px;">></span>
+                </a>
+            </div>
             <div class="workout-grid" id="recently-workout-grid">
                 <?php if (empty($recentUserWorkouts)): ?>
                     <div class="no-recent-workouts">

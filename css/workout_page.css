@@ -827,6 +827,11 @@ html.dark-mode .workout-body {
     color: white;
 }
 
+.workout-recently-title {
+    display: flex;
+    justify-content: space-between;
+}
+
 .workout-card-content {
     background: white;
     border-radius: 0.5rem;
@@ -1416,7 +1421,7 @@ html.dark-mode .workout-card-stats-recently {
     }
 
     .popup-content {
-        max-width: 60%;
+        max-width: 90%;
         transition: all 0.3s;
     }
 }
