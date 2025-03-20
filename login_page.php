@@ -13,6 +13,17 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
   </head>
   <body>
+
+    <div class="navbar">
+        <button class="nav-button" onclick="goBack()">Back</button>
+        <div class="logo-and-title">
+            <center>
+            <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
+            </center>
+        </div>
+        <div class="gradient-navbar"></div>
+    </div>
+
     <div class="login-box">
       <div class="login-form-box">
         <div class="logo-icon">
@@ -93,5 +104,10 @@
     (function() {
         emailjs.init("sW8jqtPVyoHZyuTY2");
     })();
-</script>
+  </script>
+  <script>
+        function goBack() {
+          window.history.back();
+        }
+  </script>
 </html>
