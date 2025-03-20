@@ -26,6 +26,53 @@ button:disabled {
   opacity: 0.6;
 }
 
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: linear-gradient(to top, #fffffff3, #fddcb4); */
+  background: #ffe7da;
+  padding: 5px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.gradient-navbar {
+  background: linear-gradient(to top, transparent, #ffe7da);
+  position: fixed;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.nav-button {
+  padding: 10px 35px;
+  background: #ffad84;
+  color: white;
+  border: none;
+  border-radius: 68px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  position: absolute;
+  left: 25px;
+  margin-top: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-button:hover {
+  background: #f28f68;
+  color: white;
+}
+
 .scroll-hidden {
   opacity: 0;
   transition: all 1s;

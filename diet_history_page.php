@@ -117,8 +117,54 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       </nav>
       <header class="page-header">
         <button class="previous"><i class="bx bxs-chevron-left"></i></button>
-        <h1>History</h1>
+        <h1>Diet</h1>
       </header>
+
+      <div class="filter-controls">
+        <button id="all-filter" class="filter-button">
+          <span class="filter-text">All</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        
+        <button id="date-range-filter" class="filter-button">
+          <span class="filter-text">Date Range</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        
+        <!-- Activity Types Dropdown -->
+        <div id="activity-types-dropdown" class="filter-dropdown">
+          <div class="dropdown-content">
+            <div class="activity-type-option" data-type="All">All</div>
+            <div class="activity-type-option" data-type="Meat">Meat</div>
+            <div class="activity-type-option" data-type="Vegetarian">Vegetarian</div>
+            <div class="activity-type-option" data-type="Vegan">Vegan</div>
+          </div>
+        </div>
+        
+        <!-- Date Range Picker -->
+        <div id="date-range-picker" class="filter-dropdown date-picker-dropdown">
+          <div class="dropdown-content">
+            <div class="date-picker-header">
+              <h3>Select Date Range</h3>
+              <button id="close-date-picker" class="close-button">×</button>
+            </div>
+            <div class="date-inputs">
+              <div class="date-input-group">
+                <label for="start-date">From</label>
+                <input type="date" id="start-date" name="start-date">
+              </div>
+              <div class="date-input-group">
+                <label for="end-date">To</label>
+                <input type="date" id="end-date" name="end-date">
+              </div>
+            </div>
+            <div class="date-filter-buttons">
+              <button id="apply-date-filter" class="apply-date-btn">Apply</button>
+              <button id="reset-date-filter" class="reset-date-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <?php
         $servername = "localhost";
@@ -153,7 +199,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         function formatDate($date) {
           if ($date == date("d-m-Y")) {
               return "Today";
-          } elseif ($date == date("d-m-Y", strtotime("-1 day"))) {
+          } else if ($date == date("d-m-Y", strtotime("-1 day"))) {
               return "Yesterday";
           } else {
               return date('d F Y', strtotime($date)); // Return normal date for older days
@@ -195,6 +241,31 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
       $conn->close();
       ?>
+    </div>
+
+    <!-- Chatbot Interface -->
+    <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-header-left">
+                    <img src="./assets/icons/cat-logo-tabs.png">
+                    <h3>MEWAI</h3>
+                </div>
+                <button class="close-chat">&times;</button>
+            </div>
+            <div class="chatbot-transparent-top-down"></div>
+            <div class="chatbot-messages"></div>
+            <div class="chatbot-input">
+                <input type="text" placeholder="Ask me about fitness...">
+                <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button class="chatbot-toggle">
+            <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+        </button>
+      </div>
+
+      <div class="container-side-transparent-left"></div>
+      <div class="container-side-transparent-right"></div>
     </div>
   </body>
   <script src="./js/navigation_bar.js"></script>

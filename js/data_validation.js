@@ -288,13 +288,21 @@ function SignUpValid() {
 
   // Check valid target BMI data
   document.getElementById("target-warning").textContent = "";
-  if (target_weight - weight > 4) {
+  if (fitness_goal == "Gain weight" && target_weight < weight) {
     document.getElementById("target-warning").textContent =
-      "Gaining more than 4kg / 9lbs is dangerous in a span of one month";
+      "Please enter a value greater than your current weight";
     isValid = false;
-  } else if (weight - target_weight > 4) {
+  } else if (fitness_goal == "Lose weight" && target_weight > weight) {
     document.getElementById("target-warning").textContent =
-      "Losing more than 4kg / 9lbs is dangerous in a span of one month";
+      "Please enter a value greater than your current weight";
+    isValid = false;
+  } else if (fitness_goal == "Gain weight" && target_weight - weight > 4) {
+    document.getElementById("target-warning").textContent =
+      "Gaining more than 4KG (9lbs) in a span of one month is considered unhealty";
+    isValid = false;
+  } else if (fitness_goal == "Lose weight" && weight - target_weight > 4) {
+    document.getElementById("target-warning").textContent =
+      "Losing more than 4KG (9lbs) in a span of one month is considered unhealty";
     isValid = false;
   } else {
     document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);
@@ -314,35 +322,35 @@ function SignUpValid() {
 function validateName(input, feedbackElement) {
   const name = input.value.trim();
   const minLength = 5;
-  const maxLength = 100; 
-  const namePattern = /^[A-Za-z\s]+$/; 
+  const maxLength = 100;
+  const namePattern = /^[A-Za-z\s]+$/;
   feedbackElement.style.color = "red";
 
   if (name.length < minLength) {
-      feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
+    feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
   } else if (name.length > maxLength) {
-      feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
+    feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
   } else if (!namePattern.test(name)) {
-      feedbackElement.textContent = 'Name can only contain letters and spaces.';
-  }else {
-    feedbackElement.textContent = ""; 
-}
+    feedbackElement.textContent = "Name can only contain letters and spaces.";
+  } else {
+    feedbackElement.textContent = "";
+  }
 }
 
 function validateName(input, feedbackElement) {
   const name = input.value.trim();
   const minLength = 5;
-  const maxLength = 100; 
-  const namePattern = /^[A-Za-z\s]+$/; 
+  const maxLength = 100;
+  const namePattern = /^[A-Za-z\s]+$/;
   feedbackElement.style.color = "red";
 
   if (name.length < minLength) {
-      feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
+    feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
   } else if (name.length > maxLength) {
-      feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
+    feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
   } else if (!namePattern.test(name)) {
-      feedbackElement.textContent = 'Name can only contain letters and spaces.';
-  }else {
-    feedbackElement.textContent = ""; 
-}
+    feedbackElement.textContent = "Name can only contain letters and spaces.";
+  } else {
+    feedbackElement.textContent = "";
+  }
 }
