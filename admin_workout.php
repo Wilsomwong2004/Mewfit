@@ -89,7 +89,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                                 echo "<td>" . (isset($rows['calories']) ? $rows['calories'] : '') . "</td>";
                                 echo "<td>" . (isset($rows['duration']) ? $rows['duration'] : '') . "</td>";
                                 if (!empty($rows['image'])) {
-                                    echo "<td><img src='./uploads/workout_pics/" . $rows['image'] . "' alt='" . $rows['workout_name'] . "' width='100' loading='lazy'></td>";
+                                    echo "<td><img src='./assets/workout_pics/" . basename($rows['image']) . "' alt='" . $rows['workout_name'] . "' width='100' loading='lazy'></td>";
                                 } else {
                                     echo "<td>No image available</td>";
                                 }
@@ -115,7 +115,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 <center>
                     <h2>Add New <span>Workout</span></h2>
                 </center>
-                <form action="" method="POST">
+                <form action="" method="POST" enctype="multipart/form-data">
                     <div class="form-columns">
                         <div class="column">
                             <label for="workout-name">Workout Name</label>
@@ -162,8 +162,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     </div>
 
                     <label for="exercise_id">Exercises Checklist</label>
-                    <div class="exercise-select-container">
-                    </div>
+                    <div class="exercise-select-container"></div>
 
                     <div class="form-columns">
                         <div class="column">
@@ -220,9 +219,60 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     document.getElementById('desc').addEventListener('input', validateForm);
                     document.getElementById('long_description').addEventListener('input', validateForm);
                     document.getElementById('exercise_checklist').addEventListener('input', validateForm);
-
                 </script>
             </div>
+            <?php
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                include "conn.php";
+
+                $name = $_POST['workout-name'] ?? '';
+                $type = $_POST['workout-type'] ?? '';
+                $sets = $_POST['sets'] ?? 0;
+                $difficulty = $_POST['workout-difficulty'] ?? '';
+                $calories = $_POST['calories'] ?? 0;
+                $duration = $_POST['duration'] ?? 0;
+                $description = $_POST['desc'] ?? '';
+                $long_description = $_POST['long_description'] ?? '';
+
+                $image = '';
+                if (isset($_FILES['workout_picture']) && $_FILES['workout_picture']['error'] === 0) {
+                    $target_dir = "./assets/workout_pics/";
+                    $file_extension = pathinfo($_FILES['workout_picture']['name'], PATHINFO_EXTENSION);
+                    $filename = strtolower(str_replace(' ', '_', $name)) . "." . $file_extension;
+                    $target_file = $target_dir . $filename;
+
+                    if (move_uploaded_file($_FILES['workout_picture']['tmp_name'], $target_file)) {
+                        $image = $target_file;
+                    }
+                }
+
+                $exercise_checklist = [];
+                if (isset($_POST['exercise_ids'])) {
+                    $exercise_checklist = explode(',', $_POST['exercise_ids']); // Convert string to array
+                }
+
+                $formatted_exercise_list = "[" . implode(", ", $exercise_checklist) . "]";
+
+                $date_registered = date('Y-m-d');
+
+                // Insert data into workout table
+                $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, sets, exercise_checklist, date_registered)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                $stmt = $dbConn->prepare($sql);
+                $stmt->bind_param("sssiisssiss", $name, $type, $difficulty, $calories, $duration, $filename, $description, $long_description, $sets, $formatted_exercise_list, $date_registered);
+
+                if ($stmt->execute()) {
+                    echo "<script>alert('Successfully inserted workout data');</script>";
+                    echo "<script>window.location.href = 'admin_workout.php';</script>";
+                } else {
+                    echo "<script>alert('Failed to insert data: " . $stmt->error . "');</script>";
+                }
+
+                $stmt->close();
+                $dbConn->close();
+            }
+            ?>
 
             <!-- Edit Workout Form -->
             <div class="edit-profile" id="dedit-profile" enctype="multipart/form-data">
@@ -234,8 +284,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     <input type="hidden" id="table" name="table" value="workout">
                     <label for="eworkout-name">Workout Name</label>
                     <input type="text" id="eworkout-name" name="eworkout-name"
-                        oninput="checkUniqueName(this, 
-            document.getElementById('eworkout-name-feedback'), 
+                        oninput="checkUniqueName(this, document.getElementById('eworkout-name-feedback'), 
             'Workout Name already exists', 
             'workout', 
             'workout_name', 
@@ -283,13 +332,16 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                         </div>
                     </div>
 
+                    <label for="exercise_id">Exercises Checklist</label>
+                    <div class="exercise-select-container"></div>
+
                     <div class="form-columns">
                         <div class="column">
                             <label for="eworkout_picture">Workout Picture</label>
                             <div class="picture" onclick="document.getElementById('eworkout_picture').click()">
                                 <p id="ewords">Click To Upload Workout Picture Here</p>
                                 <input type="file" name="eworkout_picture" id="eworkout_picture" accept="image/*" style="display: none;">
-                                <img id="eimagePreview" src="./uploads/workout_pics/" alt="Image Preview">
+                                <img id="eimagePreview" src="./assets/workout_pics/" alt="Image Preview">
                             </div>
                         </div>
                         <div class="column">
@@ -300,10 +352,6 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
                     <label for="elong_description">Long Description</label>
                     <textarea id="elong_description" name="elong_description" rows="4" placeholder="Detailed workout description..." required></textarea>
-
-                    <label for="eexercise_checklist">Exercise Checklist</label>
-                    <textarea id="eexercise_checklist" name="eexercise_checklist" rows="4" placeholder="Enter exercises following the format (Ex: Exercise name: sets x reps;)" required oninput="checkExerciseChecklist('eexercise_checklist', 'eexercise_checklist-feedback');"></textarea>
-                    <p id="eexercise_checklist-feedback" class="feedback" style="color: red;"></p>
 
                     <div class="table-option">
                         <button type="button" id="discard-btn">Discard Changes</button>
@@ -316,7 +364,6 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                         const caloriesFeedback = document.getElementById('ecalories-feedback').textContent.trim();
                         const durationFeedback = document.getElementById('eduration-feedback').textContent.trim();
                         const setsFeedback = document.getElementById('esets-feedback').textContent.trim();
-                        const exerciseChecklistFeedback = document.getElementById('eexercise_checklist-feedback').textContent.trim();
 
                         const workoutName = document.getElementById('eworkout-name').value.trim();
                         const workoutType = document.getElementById('eworkout-type').value.trim();
@@ -326,10 +373,11 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                         const sets = document.getElementById('esets').value.trim();
                         const description = document.getElementById('edesc').value.trim();
                         const longDescription = document.getElementById('elong_description').value.trim();
-                        const exerciseChecklist = document.getElementById('eexercise_checklist').value.trim();
+                        const exerciseIds = document.getElementById('eexercise_ids').value.trim();
 
-                        const allFieldsFilled = workoutName && workoutType && difficulty && calories && duration && sets && description && longDescription && exerciseChecklist;
-                        const noValidationErrors = !workoutNameFeedback && !caloriesFeedback && !durationFeedback && !setsFeedback && !exerciseChecklistFeedback;
+                        const allFieldsFilled = workoutName && workoutType && difficulty && calories && duration &&
+                            sets && description && longDescription && exerciseIds;
+                        const noValidationErrors = !workoutNameFeedback && !caloriesFeedback && !durationFeedback && !setsFeedback;
 
                         document.getElementById('confirm-btn').disabled = !(allFieldsFilled && noValidationErrors);
                     }
@@ -337,12 +385,13 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     document.getElementById('eworkout-name').addEventListener('input', editValidateForm);
                     document.getElementById('eworkout-type').addEventListener('change', editValidateForm);
                     document.getElementById('eworkout-difficulty').addEventListener('change', editValidateForm);
+                    document.getElementById('eworkout_picture').addEventListener('change', editValidateForm);
                     document.getElementById('ecalories').addEventListener('input', editValidateForm);
                     document.getElementById('eduration').addEventListener('input', editValidateForm);
                     document.getElementById('esets').addEventListener('input', editValidateForm);
                     document.getElementById('edesc').addEventListener('input', editValidateForm);
                     document.getElementById('elong_description').addEventListener('input', editValidateForm);
-                    document.getElementById('eexercise_checklist').addEventListener('input', editValidateForm);
+                    document.querySelector('.edit-profile .exercise-select-container').addEventListener('click', editValidateForm);
                 </script>
             </div>
             <div class="popup" id="popup">
@@ -355,62 +404,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             </div>
         </div>
     </div>
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        include "conn.php";
 
-        $name = $_POST['workout-name'] ?? '';
-        $type = $_POST['workout-type'] ?? '';
-        $sets = $_POST['sets'] ?? 0;
-        $difficulty = $_POST['difficulty'] ?? '';
-        $calories = $_POST['calorie'] ?? 0;
-        $duration = $_POST['minutes'] ?? 0;
-        $description = $_POST['description'] ?? '';
-        $long_description = $_POST['long-description'] ?? '';
-
-        $image = '';
-        if (isset($_FILES['workout-image']) && $_FILES['workout-image']['error'] === 0) {
-            $target_dir = "./assets/workout_pics/";
-            $file_extension = pathinfo($_FILES['workout-image']['name'], PATHINFO_EXTENSION);
-            $filename = strtolower(str_replace(' ', '_', $name)) . "." . $file_extension;
-            $target_file = $target_dir . $filename;
-
-            // Move uploaded file
-            if (move_uploaded_file($_FILES['workout-image']['tmp_name'], $target_file)) {
-                $image = $target_file;
-            }
-        }
-
-        // Handle exercise checklist selection
-        $exercise_checklist = [];
-        if (isset($_POST['exercises']) && is_array($_POST['exercises'])) {
-            $exercise_checklist = $_POST['exercises'];
-        }
-
-        // Format the exercise_checklist as shown in your example [3, [1, 2, 3, 4]]
-        $formatted_exercise_list = "[" . implode(", ", $exercise_checklist) . "]";
-
-        // Current date for registration
-        $date_registered = date('Y-m-d');
-
-        // Insert data into workout table
-        $sql = "INSERT INTO workout (workout_name, workout_type, difficulty, calories, duration, image, description, long_description, sets, exercise_checklist, date_registered)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $dbConn->prepare($sql);
-        $stmt->bind_param("sssiisssiss", $name, $type, $difficulty, $calories, $duration, $image, $description, $long_description, $sets, $formatted_exercise_list, $date_registered);
-
-        if ($stmt->execute()) {
-            echo "<script>alert('Successfully inserted workout data');</script>";
-            echo "<script>window.location.href = 'admin_workout.php';</script>";
-        } else {
-            echo "<script>alert('Failed to insert data: " . $stmt->error . "');</script>";
-        }
-
-        $stmt->close();
-        $dbConn->close();
-    }
-    ?>
 </body>
 
 
@@ -771,14 +765,23 @@ $jsonFile = file_get_contents('./exercises.json');
                 document.getElementById("eworkout-name").value = data.workout_name;
                 document.getElementById("edesc").value = data.description;
                 document.getElementById("eworkout-type").value = data.workout_type;
-                document.getElementById("ecalories").value = data.calories_burned;
+                document.getElementById("eworkout-difficulty").value = data.difficulty;
+                document.getElementById("ecalories").value = data.calories;
                 document.getElementById("eduration").value = data.duration;
                 document.getElementById("esets").value = data.sets;
                 document.getElementById("elong_description").value = data.long_description;
-                document.getElementById("eexercise_checklist").value = data.exercise_checklist;
+                document.getElementById("eexercise_ids").value = data.exercise_checklist;
 
-                if (data.picture) {
-                    const imagePath = `./uploads/workout_pics/${data.picture}`;
+                let exerciseIds = [];
+                if (data.exercise_checklist) {
+                    exerciseIds = data.exercise_checklist.replace(/[\[\]]/g, '').split(',')
+                        .map(id => id.trim())
+                        .filter(id => id !== '');
+                }
+                setSelectedExerciseIds(exerciseIds);
+
+                if (data.image) {
+                    const imagePath = `./assets/workout_pics/${data.image}`;
                     const imagePreview = document.getElementById("eimagePreview");
                     imagePreview.src = imagePath;
                     imagePreview.style.display = "block";
