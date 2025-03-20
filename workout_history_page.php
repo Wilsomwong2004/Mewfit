@@ -170,7 +170,7 @@ if (isset($_SESSION['member id'])) {
       </nav>
       <header class="page-header">
         <button class="previous"><i class="bx bxs-chevron-left"></i></button>
-        <h1>History</h1>
+        <h1>Workout</h1>
       </header>
 
       <div class="filter-controls">
@@ -225,7 +225,6 @@ if (isset($_SESSION['member id'])) {
 
             $exist_record = false;
 
-            
             $sql = "SELECT 
                     workout_history.workout_history_id,
                     workout_history.date,
@@ -262,7 +261,7 @@ if (isset($_SESSION['member id'])) {
             function formatDate($date) {
               if ($date == date("Y-m-d")) {
                   return "Today";
-              } elseif ($date == date("Y-m-d", strtotime("-1 day"))) {
+              } else if ($date == date("Y-m-d", strtotime("-1 day"))) {
                   return "Yesterday";
               } else {
                   return date('d F Y', strtotime($date)); // Return normal date for older days

@@ -106,9 +106,13 @@ html.dark-mode .page-header i {
   padding: 0px 0px 0px 5px;
 }
 
-.page-header h1::before {
-  content: "Workout ";
+.page-header h1 {
   color: #ffad84;
+}
+
+.page-header h1::after {
+  content: " History";
+  color: #000000;
 }
 
 html.dark-mode .page-header h1 {
@@ -230,7 +234,7 @@ html.dark-mode #all-filter {
 }
 
 #date-range-filter {
-  border: 1px solid #FFCBB1;
+  border: 1px solid #ffcbb1;
 }
 
 html.dark-mode #date-range-filter {
