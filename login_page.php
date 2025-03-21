@@ -14,16 +14,6 @@
   </head>
   <body>
 
-    <div class="navbar">
-        <button class="nav-button" onclick="goBack()">Back</button>
-        <div class="logo-and-title">
-            <center>
-            <img src="assets/icons/logo.svg" style="height:40px;" alt="Logo">
-            </center>
-        </div>
-        <div class="gradient-navbar"></div>
-    </div>
-
     <div class="login-box">
       <div class="login-form-box">
         <div class="logo-icon">
