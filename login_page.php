@@ -11,6 +11,7 @@
     <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="css/account.css" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+    <script defer src="./js/login_page.js"></script>
   </head>
   <body>
 
@@ -106,16 +107,10 @@
 
     <div id="overlay"></div>
   </body>
-  <script src="./js/login_page.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script type="text/javascript">
     (function() {
         emailjs.init("sW8jqtPVyoHZyuTY2");
     })();
-  </script>
-  <script>
-        function goBack() {
-          window.history.back();
-        }
   </script>
 </html>
