@@ -197,12 +197,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         $result = $conn->query($sql); // create a variable and store the sql query result inside it
         
         function formatDate($date) {
-          if ($date == date("d-m-Y")) {
+          if ($date == date("Y-m-d")) {
               return "Today";
-          } else if ($date == date("d-m-Y", strtotime("-1 day"))) {
+          } else if ($date == date("Y-m-d", strtotime("-1 day"))) {
               return "Yesterday";
           } else {
-              return date('d F Y', strtotime($date)); // Return normal date for older days
+              return date('d F Y', strtotime($date)); 
           }
         }
 
@@ -221,7 +221,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                   <div class=\"workout-record\" data-diet-id=\"{$diet_id}\">
                     <img
                     class=\"picture\"
-                    src=\"./assets/workout_pics/{$row['picture']}\"
+                    src=\"./uploads/diet/{$row['picture']}\"
                     alt=\"{$row['diet_name']}\"
                     />
                     <p class=\"name\">{$row['diet_name']}</p>
