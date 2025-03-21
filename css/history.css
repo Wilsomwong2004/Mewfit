@@ -510,8 +510,8 @@ html.dark-mode .date-input-group label {
   }
 
   #date-range-picker {
-    left: 10px;
-    width: 280px;
+    left: 115px;
+    width: 300px;
   }
 
   .workout-record {
@@ -545,7 +545,7 @@ html.dark-mode .date-input-group label {
   }
 
   .filter-button {
-    padding: 6px 15px;
+    padding: 8px 15px;
     font-size: 13px;
   }
 

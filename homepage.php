@@ -1347,8 +1347,8 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                             <h3 class="workout-title">${item.workout_name}</h3>
                             <span class="workout-level">${item.difficulty || ''}</span>
                             <div class="workout-stats">
-                                <span><i class="fas fa-clock"></i> ${item.duration || ''}</span>
-                                <span><i class="fas fa-fire"></i> ${item.calories || 0}</span>
+                                <span><i class="fas fa-clock"></i> ${item.duration || ''} min</span>
+                                <span><i class="fas fa-fire"></i> ${item.calories || 0} kcal</span>
                             </div>
                         </div>
                     </div>
