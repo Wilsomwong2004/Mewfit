@@ -182,12 +182,10 @@ function validatePhoneNumber(inputElement, feedbackElement) {
 function checkUsername() {
   let username = document.getElementById("username").value;
   let warning = document.getElementById("exist-username");
-  let submit_btn = document.getElementById("submit-btn");
 
   if (username.trim() === "") {
     warning.textContent = "";
-    submit_btn.disabled = true;
-    return;
+    return false;
   }
 
   fetch("check_username.php?username=" + encodeURIComponent(username))
@@ -196,18 +194,18 @@ function checkUsername() {
       warning.innerHTML = data;
 
       if (data.includes("Username already taken")) {
-        submit_btn.disabled = true;
         warning.style.color = "red";
+        return false;
       } else {
         warning.style.color = "green";
-        checkEmail();
+        return true;
       }
     })
     .catch((error) => {
       console.error("Error:", error);
       warning.textContent = "Error checking username";
       warning.style.color = "red";
-      submit_btn.disabled = true;
+      return false;
     });
 }
 
@@ -218,16 +216,14 @@ function checkEmail() {
 
   if (email.trim() === "") {
     warning.textContent = "";
-    submit_btn.disabled = true;
-    return;
+    return false;
   }
 
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailPattern.test(email)) {
     warning.textContent = "(Please enter a valid e-mail)";
     warning.style.color = "red";
-    submit_btn.disabled = true;
-    return;
+    return false;
   }
 
   fetch("check_email.php?email=" + encodeURIComponent(email))
@@ -236,21 +232,22 @@ function checkEmail() {
       warning.innerHTML = data;
       if (data.includes("already in use")) {
         warning.style.color = "red";
-        submit_btn.disabled = true;
+        return false;
       } else {
         warning.style.color = "green";
-        SignUpValid();
+        return true;
       }
     })
     .catch((error) => {
       console.error("Error:", error);
       warning.textContent = "Error checking email";
       warning.style.color = "red";
-      submit_btn.disabled = true;
+      return false;
     });
 }
 
 function SignUpValid() {
+  let age = parseInt(document.getElementById("age").value);
   let gender = document.getElementById("gender").value;
   let weight = parseFloat(document.getElementById("weight").value) || 0;
   let height = parseFloat(document.getElementById("height").value) / 100 || 0;
@@ -267,6 +264,25 @@ function SignUpValid() {
   // Check if any field is empty
   let inputs = document.querySelectorAll("form input, form select");
   let isEmpty = Array.from(inputs).some((input) => input.value.trim() === "");
+
+  // Check Existing Username
+  isValid = checkUsername();
+
+  // Check Email
+  isValid = checkEmail();
+
+  // Check the age
+  if (age === "") {
+    document.getElementById("valid-age").textContent = "";
+    isValid = false;
+  } else if (age > 110 || age < 0) {
+    document.getElementById("valid-age").style.color = "red";
+    document.getElementById("valid-age").textContent =
+      "Please enter a valid age";
+    isValid = false;
+  } else {
+    document.getElementById("valid-age").textContent = "";
+  }
 
   // Ensure fitness goal is not the default option
   if (fitness_goal === "") {

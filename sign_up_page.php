@@ -18,6 +18,7 @@ session_start();
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <script src="js/data_validation.js" defer></script>
     <script src="js/sign-in-steps.js" defer></script>
   </head>
@@ -53,7 +54,7 @@ session_start();
               <!-- Username input -->
               <div class="inputs">
                 <label for="username">Username <span id="exist-username"></span></label>
-                <input type="text" id="username" name="username" oninput="checkUsername()"/>
+                <input type="text" id="username" name="username" oninput="SignUpValid()"/>
               </div>
 
               <!-- Email-input -->
@@ -73,7 +74,7 @@ session_start();
                 <!-- Age input -->
                 <div class="half-inputs">
                   <label for="age">Your Age</label>
-                  <input type="number" id="age" name="age" oninput="checkNumber(this, document.getElementById('valid-age'), '(Please Enter a valid age)'), SignUpValid()"/>
+                  <input type="number" id="age" name="age" oninput="SignUpValid()"/>
                 </div>
 
                 <!-- Gender input -->
