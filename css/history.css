@@ -451,40 +451,233 @@ html.dark-mode .date-input-group label {
   color: #e0e0e0;
 }
 
-@media only screen and (max-width: 480px) {
-  .workout-record {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    grid-template-areas:
-      "picture name name name"
-      "picture type kcal time";
+@media screen and (max-width: 1200px) {
+  .workout-record img {
+    margin-left: 50px;
   }
 
+  .workout-date {
+    margin: 0 50px;
+  }
+
+  .filter-controls {
+    margin: 5px 40px;
+  }
+}
+
+@media screen and (max-width: 992px) {
   .workout-record img {
+    margin-left: 30px;
     width: 100px;
+  }
+
+  .workout-date {
+    margin: 0 30px;
+  }
+
+  .filter-controls {
+    margin: 5px 30px;
+  }
+
+  .workout-record {
+    grid-template-columns: 1.2fr 2.5fr 2fr 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .workout-record img {
+    margin-left: 20px;
+    width: 90px;
     height: 70px;
   }
 
-  .page-header h1 {
-    font-size: 1.7rem;
+  .workout-date {
+    margin: 0 20px;
+    font-size: 1.1rem;
   }
 
-  .picture {
+  .filter-controls {
+    margin: 5px 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-button {
+    padding: 8px 20px;
+  }
+
+  #all-filter {
+    padding: 8px 30px;
+  }
+
+  #date-range-picker {
+    left: 10px;
+    width: 280px;
+  }
+
+  .workout-record {
+    grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr;
+    padding: 10px 5px;
+  }
+
+  .no-filtered-records {
+    padding: 150px 20px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .page-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .workout-record {
+    grid-template-columns: 0.8fr 1.5fr 1fr 0.8fr 0.8fr;
+    font-size: 14px;
+  }
+
+  .workout-record img {
+    width: 80px;
+    height: 60px;
+    margin-left: 15px;
+  }
+
+  .filter-controls {
+    gap: 8px;
+  }
+
+  .filter-button {
+    padding: 6px 15px;
+    font-size: 13px;
+  }
+
+  #all-filter {
+    padding: 6px 20px;
+  }
+}
+
+/* Enhance existing mobile styles */
+@media screen and (max-width: 480px) {
+  .workout-record {
+    width: 100%;
+    display: grid;
+    /* grid-template-columns: 85px 1fr auto auto; */
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "picture name name name"
+      "picture type kcal time";
+    gap: 8px;
+    padding: 10px 15px;
+    align-items: center;
+  }
+
+  .workout-record img {
     grid-area: picture;
+    width: 75px;
+    height: 65px;
+    margin: 0;
+    border-radius: 8px;
   }
 
   .name {
-    text-align: center;
     grid-area: name;
+    text-align: left;
+    font-size: 15px;
+    padding-left: 5px;
+  }
+
+  .type {
+    grid-area: type;
+    font-size: 13px;
+    padding-left: 5px;
+  }
+
+  .kcal,
+  .time {
+    font-size: 13px;
   }
 
   .kcal {
     grid-area: kcal;
+    font-size: 13px;
+    justify-self: start;
+    margin-right: 10px;
   }
 
   .time {
     grid-area: time;
+    font-size: 13px;
+    justify-self: end;
+    margin-left: 10px;
+  }
+
+  .workout-date {
+    margin: 0 15px;
+    padding: 15px 0 10px 0;
+    font-size: 1rem;
+  }
+
+  .page-header {
+    padding: 15px;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .filter-controls {
+    margin: 5px 15px 15px;
+    gap: 10px;
+  }
+
+  .filter-button {
+    width: calc(50% - 5px);
+    padding: 8px 0;
+    justify-content: center;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+    max-width: calc(100% - 30px);
+    left: 15px;
+  }
+
+  .date-picker-dropdown {
+    width: 100%;
+  }
+
+  /* Adjust no records message for mobile */
+  .no-filtered-records {
+    padding: 100px 20px;
+    font-size: 16px;
+  }
+}
+
+/* For very small screens */
+@media screen and (max-width: 360px) {
+  .workout-record {
+    /* grid-template-columns: 70px 1fr auto auto; */
+    padding: 8px 16px;
+  }
+
+  .workout-record img {
+    width: 65px;
+    height: 55px;
+  }
+
+  .name {
+    font-size: 14px;
+  }
+
+  .type,
+  .kcal,
+  .time {
+    font-size: 12px;
+  }
+
+  .page-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .workout-date {
+    font-size: 0.9rem;
   }
 }
