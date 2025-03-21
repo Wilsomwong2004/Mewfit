@@ -26,7 +26,6 @@ checkScroll();
 
 //for page 3 color rect animation
 document.addEventListener('DOMContentLoaded', function () {
-    // Get all slides
     const slides = document.querySelectorAll('.content-slide');
     const totalSlides = slides.length;
 
@@ -34,10 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentSlideIndex = 0;
     let isScrolling = false;
 
-    // Activate first slide
     slides[0].classList.add('active');
 
-    // Get the page3 section
     const page3 = document.getElementById('page3');
 
     // Track if we're currently within page3

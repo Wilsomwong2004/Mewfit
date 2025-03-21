@@ -4,7 +4,7 @@ require_once 'conn.php';
 session_start();
 
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-    header("Location: prelogin.html");
+    header("Location: index.php");
     exit;
 }
 
