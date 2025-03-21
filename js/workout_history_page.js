@@ -93,7 +93,7 @@ function setupFilters() {
         const workoutDates = document.querySelectorAll('.workout-date');
 
         workoutRecords.forEach(record => {
-          record.style.display = 'flex';
+          record.style.display = 'grid';
         });
 
         workoutDates.forEach(date => {
@@ -235,7 +235,7 @@ function filterByDateRange(startDate, endDate) {
     const inRange = recordDate >= start && recordDate <= end;
 
     if (inRange) {
-      record.style.display = 'flex';
+      record.style.display = 'grid';
       prevElement.style.display = 'block';
       visibleCount++;
     } else {
@@ -383,58 +383,49 @@ function displayWorkoutPopup(workout) {
 function createDetailedPopupElement() {
   const popupHTML = `
   <div id="popup-container" class="popup-container">
-    <div class="popup-content">
-      <div class="popup-close">&times;</div>
-      
-      <div class="popup-header">
-        <div class="popup-image-container">
-          <img id="popup-workout-image" src="" alt="Workout Image">
-        </div>
-        
-        <div class="popup-info">
-          <h2 id="popup-title">WORKOUT TITLE</h2>
-          <p id="popup-desc">Workout description goes here.</p>
-
-          <h3>Exercises</h3>
-          <div class="exercise-list-wrapper">
-            <button class="exercise-arrow exercise-arrow-left hidden">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            
-            <div id="exercise-list-container" class="exercise-list-container">
-              <!-- Exercise items will be added here dynamically -->
+            <div class="popup-content">
+                <div class="seperate-workout-pic-details">
+                    <div class="popup-workout-pic">
+                        <img id="popup-workout-image" src="" alt="Workout Image">
+                    </div>
+                    <div class="gradient-white"></div>
+                    <div id="popup-body">
+                        <span class="popup-close">&times;</span>
+                        <h2 id="popup-title"></h2>
+                        <p id="popup-desc"></p>
+                        <!-- Exercise List Section -->
+                        <div class="exercise-list-section">
+                            <div class="exercise-list-wrapper">
+                                <div class="exercise-list-arrow exercise-arrow-left">
+                                    <i class="fas fa-chevron-left"></i>
+                                </div>
+                                <div class="exercise-list-container" id="exercise-list-container">
+                                    <!-- Exercise items will be inserted here via JavaScript -->
+                                </div>
+                                <div class="exercise-list-arrow exercise-arrow-right">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popup-stats">
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-duration"></div>
+                                <div class="popup-stat-label">Minutes</div>
+                            </div>
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-calories"></div>
+                                <div class="popup-stat-label">Kcal</div>
+                            </div>
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-level"></div>
+                                <div class="popup-stat-label">Level</div>
+                            </div>
+                        </div>
+                        <button class="popup-start-button">Start Workout</button>
+                    </div>
+                </div>
             </div>
-            
-            <button class="exercise-arrow exercise-arrow-right">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-          
-          <div class="popup-stats">
-            <div class="popup-stat">
-              <div id="popup-duration">30</div>
-              <div>Minutes</div>
-            </div>
-            
-            <div class="popup-stat">
-              <div id="popup-calories">240</div>
-              <div>Kcal</div>
-            </div>
-            
-            <div class="popup-stat level-indicator">
-              <div class="level-dots">
-                <span class="level-dot"></span>
-                <span class="level-dot"></span>
-                <span class="level-dot"></span>
-              </div>
-              <div>Level</div>
-            </div>
-          </div>
-          <button class="popup-start-button">Start Workout</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
+        </div>`;
 
   // Add the popup to the document
   document.body.insertAdjacentHTML('beforeend', popupHTML);
@@ -481,29 +472,37 @@ function setupPopupCloseHandlers() {
  * Update level indicator in popup
  */
 function updatePopupLevel(level) {
-  const levelDots = document.querySelectorAll('.level-dot');
+  const popupLevel = document.getElementById('popup-level');
+  if (!popupLevel) return;
 
-  // Reset all dots first
-  levelDots.forEach(dot => {
-    dot.classList.remove('active');
-  });
+  const currentMeter = popupLevel.querySelector('.difficulty-meter');
 
-  // Determine how many dots to activate
-  let dotsToActivate = 1; // Default: beginner
-
-  if (level && typeof level === 'string') {
-    level = level.toLowerCase();
-    if (level.includes('intermediate')) {
-      dotsToActivate = 2;
-    } else if (level.includes('advanced') || level.includes('expert')) {
-      dotsToActivate = 3;
-    }
+  if (currentMeter) {
+    currentMeter.remove();
   }
 
-  // Activate the appropriate number of dots
-  for (let i = 0; i < dotsToActivate; i++) {
-    if (levelDots[i]) levelDots[i].classList.add('active');
+  const meterContainer = document.createElement('div');
+  meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
+
+  // Create three bars for the difficulty meter
+  for (let i = 0; i < 3; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'difficulty-bar';
+    meterContainer.appendChild(bar);
   }
+
+  // Set active bars based on level
+  const bars = meterContainer.querySelectorAll('.difficulty-bar');
+  const activeBars = level.toLowerCase() === 'beginner' ? 1
+    : level.toLowerCase() === 'intermediate' ? 2
+      : 3;
+
+  for (let i = 0; i < activeBars; i++) {
+    bars[i].classList.add('active');
+  }
+
+  popupLevel.innerHTML = '';
+  popupLevel.appendChild(meterContainer);
 }
 
 /**
@@ -805,142 +804,212 @@ function setupExerciseListArrows() {
 // Add CSS for the detailed popup
 const popupStyles = `
 .popup-container {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: all 0.3s;
 }
 
 .popup-container.active {
-  display: flex;
+    display: flex;
 }
 
-.popup-content {
-  background-color: white;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.popup-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 24px;
-  cursor: pointer;
-  color: black;
-  z-index: 10;
-  background: white;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.popup-header {
-  display: flex;
-  background-color: white;
-}
-
-.popup-image-container {
-  flex: 1;
-  height: 300px;
-  overflow: hidden;
+.popup-workout-pic {
+    width: 50%;
+    height: 100%;
+    border-radius: 16px 0 0 16px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000000;
+    transition: all 0.3s;
 }
 
 #popup-workout-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    max-height: 600px;
+    object-fit: cover;
+    object-position: center;
 }
 
-.popup-info {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+.seperate-workout-pic-details {
+    display: flex;
+    max-height: 600px;
+    height: 100%;
+    width: 100%;
 }
 
-#popup-title {
-  margin: 0 0 10px 0;
-  font-size: 24px;
-  font-weight: bold;
+#popup-body {
+    width: 50%;
+    padding: 2rem 2rem 2rem 0;
+    transition: all 0.3s;
 }
 
-#popup-desc {
-  color: #666;
-  margin: 0 0 20px 0;
-  flex-grow: 1;
+.popup-workout-pic::before {
+    content: "No Image Available";
+    color: white;
+    display: none;
+    position: absolute;
+}
+
+.popup-workout-pic:empty::before {
+    display: block;
+}
+
+.gradient-white {
+    position: relative;
+    left: -28px;
+    width: 30px;
+    max-height: 600px;
+    height: 100%;
+    background: linear-gradient(to left, white, transparent);
+    pointer-events: none;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+html.dark-mode .gradient-white {
+    background: linear-gradient(to left, #393939, transparent);
+}
+
+.popup-content {
+    background: var(--card-background);
+    padding: 0rem;
+    border-radius: 16px;
+    max-width: 1000px;
+    max-height: 600px;
+    width: 100%;
+    height: 100%;
+    box-shadow: var(--box-shadow-light);
+    position: relative;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+.popup-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.popup-content p {
+    position: relative;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+    color: var(--text-color);
+}
+
+html.dark-mode .popup-content h2 {
+    color: white;
 }
 
 .popup-stats {
-  display: flex;
-  gap: 20px;
+    display: flex;
+    position: relative;
+    top: 60px;
+    justify-content: center;
+    gap: 2.4rem;
+    margin-bottom: 2rem;
 }
 
-.popup-stat {
-  text-align: center;
+.popup-stat-item {
+    text-align: center;
 }
 
-.popup-stat:first-child {
-  color: #888;
+.popup-stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
-.popup-stat:nth-child(2) {
-  color: #FF7F50;
+.popup-stat-label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    margin-top: 0.5rem;
 }
 
-.level-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.popup-start-button {
+    width: 100%;
+    position: relative;
+    top: 60px;
+    padding: 0.9rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
 }
 
-.level-dots {
-  display: flex;
-  gap: 3px;
-  margin-bottom: 5px;
+.popup-start-button:hover {
+    background: #ff9b6a;
 }
 
-.level-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #ddd;
+/* Difficult level graphes */
+.difficulty-meter {
+    width: 50px;
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+    margin-bottom: 12px;
 }
 
-.level-dot.active {
-  background-color: #FF6347;
+.difficulty-bar {
+    height: 20px;
+    flex: 1;
+    background-color: #e0e0e0;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
 }
 
-.popup-body {
-  padding: 20px;
-  overflow-y: auto;
+.difficulty-bar.active {
+    background-color: #4CAF50;
 }
 
-.popup-body h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
+.beginner .difficulty-bar.active {
+    background-color: #4CAF50;
 }
 
+.intermediate .difficulty-bar.active {
+    background-color: #FFA726;
+}
+
+.advanced .difficulty-bar.active {
+    background-color: #F44336;
+}
+
+/* Exercise List */
 .exercise-list-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .exercise-list-container {
@@ -957,38 +1026,55 @@ const popupStyles = `
   display: none;
 }
 
-.exercise-arrow {
-  position: absolute;
-  z-index: 5;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s;
+.exercise-list-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    position: absolute;
+    z-index: 100;
+    transition: all 0.3s ease;
 }
 
-.exercise-arrow:hover {
-  background-color: #f8f8f8;
+html.dark-mode .exercise-list-arrow {
+    background-color: #4d4d4e;
 }
 
-.exercise-arrow.hidden {
-  display: none;
+.exercise-list-arrow.hidden {
+    opacity: 0;
+    pointer-events: none;
+    /* Better than display:none as it preserves layout */
+}
+
+.exercise-list-arrow i {
+    font-size: 16px;
+    color: #333;
+}
+
+html.dark-mode .exercise-list-arrow i {
+    color: #bdbdbd;
+}
+
+.exercise-list-arrow:hover {
+    background-color: #f0f0f0;
 }
 
 .exercise-arrow-left {
-  left: 0;
-  transform: translateX(-50%);
+    left: -10px;
 }
 
 .exercise-arrow-right {
-  right: 0;
-  transform: translateX(50%);
+    right: -10px;
+}
+
+/* Hide arrows when not needed */
+.exercise-list-arrow.hidden {
+    display: none;
 }
 
 .exercise-item {
@@ -1056,29 +1142,6 @@ const popupStyles = `
   font-size: 14px;
 }
 
-.popup-footer {
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  border-top: 1px solid #eee;
-}
-
-.popup-start-button {
-  background-color: #FF7F50;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 12px 40px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.popup-start-button:hover {
-  background-color: #FF6347;
-}
-
 /* Make workout records look clickable */
 .workout-record {
   cursor: pointer;
@@ -1091,14 +1154,27 @@ const popupStyles = `
 }
 
 /* Media query for smaller screens */
-@media (max-width: 768px) {
-  .popup-header {
-    flex-direction: column;
-  }
-  
-  .popup-image-container {
-    height: 200px;
-  }
+@media screen and (max-width: 1062px) {
+    .popup-workout-pic {
+        display: none;
+        transition: all 0.3s;
+    }
+
+    #popup-body {
+        width: 100%;
+        padding: 2rem 2rem 2rem 2rem;
+        transition: all 0.3s;
+    }
+
+    .gradient-white {
+        transition: all 0.3s;
+        display: none;
+    }
+
+    .popup-content {
+        max-width: 90%;
+        transition: all 0.3s;
+    }
 }
 `;
 

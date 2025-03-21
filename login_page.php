@@ -54,6 +54,7 @@
         </div>
       </div>
     </div>
+    
     <div class="forget-password-modal" id="modal">
       <div class="modal-header">
         <div class="modal-title">Forget password</div>
@@ -82,10 +83,27 @@
               <button type="button" class="otp-button">Send OTP</button>
             </div>
             <div class="reset-vertification-btn"></div>
-                    </div>
           </form>
+        </div>
       </div>
     </div>
+
+    <div class="password-reset-form-template" style="display: none;">
+      <div class="email-display">
+        <label for="email-display-value">Email:</label>
+        <input type="email" id="email-display-value" disabled>
+      </div>
+      <div class="new-password-wrapper">
+        <label for="new-password">New Password:</label>
+        <input type="password" id="new-password" placeholder="Enter new password">
+      </div>
+      <div class="confirm-password-wrapper">
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" placeholder="Confirm new password">
+      </div>
+      <button id="reset-password-button">Reset Password</button>
+    </div>
+
     <div id="overlay"></div>
   </body>
   <script src="./js/login_page.js"></script>

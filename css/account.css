@@ -511,6 +511,192 @@ button:disabled {
   margin-bottom: 60px;
 }
 
+/* Reset Password */
+.forget-password-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 10px;
+  z-index: 10;
+  background-color: white;
+  width: 500px;
+  max-width: 80%;
+  transition: 0.3s ease-in-out;
+}
+
+.forget-password-modal.active {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-header {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.close-button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.modal-body {
+  padding: 10px 15px;
+}
+
+/* Overlay styles */
+#overlay {
+  position: fixed;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: 0.3s ease-in-out;
+}
+
+#overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* OTP section styles */
+.otp-wrapper {
+  margin-top: 15px;
+  display: none;
+}
+
+.verify-email-wrapper {
+  margin-bottom: 15px;
+}
+
+.countdown {
+  text-align: center;
+  margin-top: 10px;
+  color: #ff946e;
+}
+
+.email-verify, #email-otp, #email-display-value, #new-password, #confirm-password {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ff946e;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.otp-verify, .otp-button, #reset-password-button {
+  width: 100%;
+  background-color: #ff946e;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: bold;
+  padding: 10px;
+  transition: all 0.5s;
+  color: white;
+  cursor: pointer;
+}
+
+.resend-button {
+  width: 100%;
+  text-align: center;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: sandybrown;
+  margin-top: 10px;
+  transition: all 0.5s;
+  cursor: pointer;
+  background: none;
+}
+
+/* Password reset form */
+.password-reset-form {
+  padding: 20px;
+}
+
+.email-display, .new-password-wrapper, .confirm-password-wrapper {
+  margin-bottom: 15px;
+}
+
+.email-display label, .new-password-wrapper label, .confirm-password-wrapper label {
+  color: #666666;
+  display: block;
+  margin-bottom: 7px;
+}
+
+#reset-password-button {
+  margin-top: 20px;
+}
+
+/* Notification */
+.notification {
+  padding: 15px;
+  text-align: center;
+  border-radius: 16px;
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  transition: top 0.5s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+}
+
+.notification.success {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.notification.error {
+  background-color: #f44336;
+  color: white;
+}
+
+.notification.active {
+  top: 20px;
+}
+
+/* Success message */
+.success-message {
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  border-radius: 5px;
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  transition: top 0.5s ease-in-out;
+}
+
+.success-message.active {
+  top: 20px;
+}
+
 @media only screen and (max-width: 768px) {
   form {
     padding: 0px;
