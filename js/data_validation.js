@@ -179,7 +179,7 @@ function validatePhoneNumber(inputElement, feedbackElement) {
   }
 }
 
-function checkUsername() {
+async function checkUsername() {
   let username = document.getElementById("username").value;
   let warning = document.getElementById("exist-username");
 
@@ -188,31 +188,32 @@ function checkUsername() {
     return false;
   }
 
-  fetch("check_username.php?username=" + encodeURIComponent(username))
-    .then((response) => response.text())
-    .then((data) => {
-      warning.innerHTML = data;
+  try {
+    let response = await fetch(
+      "check_username.php?username=" + encodeURIComponent(username)
+    );
+    let data = await response.text();
 
-      if (data.includes("Username already taken")) {
-        warning.style.color = "red";
-        return false;
-      } else {
-        warning.style.color = "green";
-        return true;
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      warning.textContent = "Error checking username";
+    warning.innerHTML = data;
+
+    if (data.includes("Username already taken")) {
       warning.style.color = "red";
       return false;
-    });
+    } else {
+      warning.style.color = "green";
+      return true;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    warning.textContent = "Error checking username";
+    warning.style.color = "red";
+    return false;
+  }
 }
 
-function checkEmail() {
+async function checkEmail() {
   let email = document.getElementById("e-mail").value;
   let warning = document.getElementById("exist-email");
-  let submit_btn = document.getElementById("submit-btn");
 
   if (email.trim() === "") {
     warning.textContent = "";
@@ -226,27 +227,30 @@ function checkEmail() {
     return false;
   }
 
-  fetch("check_email.php?email=" + encodeURIComponent(email))
-    .then((response) => response.text())
-    .then((data) => {
-      warning.innerHTML = data;
-      if (data.includes("already in use")) {
-        warning.style.color = "red";
-        return false;
-      } else {
-        warning.style.color = "green";
-        return true;
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      warning.textContent = "Error checking email";
+  try {
+    let response = await fetch(
+      "check_email.php?email=" + encodeURIComponent(email)
+    );
+    let data = await response.text();
+
+    warning.innerHTML = data;
+
+    if (data.includes("already in use")) {
       warning.style.color = "red";
       return false;
-    });
+    } else {
+      warning.style.color = "green";
+      return true;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    warning.textContent = "Error checking email";
+    warning.style.color = "red";
+    return false;
+  }
 }
 
-function SignUpValid() {
+async function SignUpValid() {
   let age = parseInt(document.getElementById("age").value);
   let gender = document.getElementById("gender").value;
   let weight = parseFloat(document.getElementById("weight").value) || 0;
@@ -259,23 +263,21 @@ function SignUpValid() {
 
   let submit_btn = document.getElementById("submit-btn");
   let warningText = document.getElementById("all-valid");
-  let isValid = true;
+
+  // Run username and email checks in parallel
+  let [isUsernameValid, isEmailValid] = await Promise.all([
+    checkUsername(),
+    checkEmail(),
+  ]);
+
+  let isValid = isUsernameValid && isEmailValid;
 
   // Check if any field is empty
   let inputs = document.querySelectorAll("form input, form select");
   let isEmpty = Array.from(inputs).some((input) => input.value.trim() === "");
 
-  // Check Existing Username
-  isValid = checkUsername();
-
-  // Check Email
-  isValid = checkEmail();
-
   // Check the age
-  if (age === "") {
-    document.getElementById("valid-age").textContent = "";
-    isValid = false;
-  } else if (age > 110 || age < 0) {
+  if (age === "" || age < 0 || age > 110) {
     document.getElementById("valid-age").style.color = "red";
     document.getElementById("valid-age").textContent =
       "Please enter a valid age";
@@ -284,10 +286,8 @@ function SignUpValid() {
     document.getElementById("valid-age").textContent = "";
   }
 
-  // Ensure fitness goal is not the default option
-  if (fitness_goal === "") {
-    isValid = false;
-  } else if (gender === "") {
+  // Ensure fitness goal and gender are selected
+  if (fitness_goal === "" || gender === "") {
     isValid = false;
   }
 
@@ -310,15 +310,15 @@ function SignUpValid() {
     isValid = false;
   } else if (fitness_goal == "Lose weight" && target_weight > weight) {
     document.getElementById("target-warning").textContent =
-      "Please enter a value greater than your current weight";
+      "Please enter a value lesser than your current weight";
     isValid = false;
   } else if (fitness_goal == "Gain weight" && target_weight - weight > 4) {
     document.getElementById("target-warning").textContent =
-      "Gaining more than 4KG (9lbs) in a span of one month is considered unhealty";
+      "Gaining more than 4KG (9lbs) in a span of one month is considered unhealthy";
     isValid = false;
   } else if (fitness_goal == "Lose weight" && weight - target_weight > 4) {
     document.getElementById("target-warning").textContent =
-      "Losing more than 4KG (9lbs) in a span of one month is considered unhealty";
+      "Losing more than 4KG (9lbs) in a span of one month is considered unhealthy";
     isValid = false;
   } else {
     document.getElementById("target-bmi").textContent = target_bmi.toFixed(2);

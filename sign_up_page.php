@@ -60,13 +60,13 @@ session_start();
               <!-- Email-input -->
               <div class="inputs">
                 <label for="e-mail">Email <span id="exist-email"></span></label>
-                <input type="email" id="e-mail" name="e-mail" oninput="checkUsername()"/>
+                <input type="email" id="e-mail" name="e-mail" oninput="SignUpValid()"/>
               </div>
 
               <!-- Password input -->
               <div class="inputs">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" oninput="checkUsername()"/>
+                <input type="password" id="password" name="password" oninput="SignUpValid()"/>
               </div>
 
               <div class="half-input-wrapper">
@@ -80,7 +80,7 @@ session_start();
                 <!-- Gender input -->
                 <div class="gender-inputs">
                   <label for="gender">Your Gender</label>
-                  <select id="gender" name="gender" onchange="checkUsername()">
+                  <select id="gender" name="gender" onchange="SignUpValid()">
                     <option value="" disabled selected>
                       Select your gender
                     </option>
@@ -129,7 +129,7 @@ session_start();
                     id="weight" 
                     name="weight" 
                     placeholder="KG"
-                    oninput="checkUsername()"
+                    oninput="SignUpValid()"
                   />
                 </div>
 
@@ -141,7 +141,7 @@ session_start();
                     id="height" 
                     name="height"
                     placeholder="CM"
-                    oninput="checkUsername()"
+                    oninput="SignUpValid()"
                   />
                 </div>
 
@@ -153,7 +153,7 @@ session_start();
               <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
-                <select id="fitness-goal" name="fitness-goal" onchange="checkUsername()">
+                <select id="fitness-goal" name="fitness-goal" onchange="SignUpValid()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
@@ -167,7 +167,7 @@ session_start();
                   id="target-weight"
                   name="target-weight"
                   placeholder="KG"
-                  oninput="checkUsername()"
+                  oninput="SignUpValid()"
                 />
               </div>
 
