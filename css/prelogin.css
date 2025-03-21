@@ -193,6 +193,7 @@ body {
 .scroll div,
 .scroll2 div {
     display: flex;
+    object-fit: cover;
     animation: moving 30s linear infinite;
 }
 
@@ -217,6 +218,7 @@ body {
     opacity: 0.5;
     padding: 10px;
     border-radius: 20px;
+    object-fit: cover;
 }
 
 #page2-heading {
@@ -768,6 +770,7 @@ body {
     width: 7vw;
     height: 7vw;
     opacity: 1;
+    object-fit: cover;
 }
 
 .cus-comment p {

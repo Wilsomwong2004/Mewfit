@@ -4,6 +4,6 @@ $_SESSION = array();
 
 session_destroy();
 
-header('Location: prelogin.html');
+header('Location: index.php');
 ?>
 ```
