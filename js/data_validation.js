@@ -211,9 +211,9 @@ async function checkUsername() {
   }
 }
 
-async function checkEmail() {
-  let email = document.getElementById("e-mail").value;
-  let warning = document.getElementById("exist-email");
+async function checkEmail(inputValue, feedback) {
+  let email = document.getElementById(inputValue).value;
+  let warning = document.getElementById(feedback);
 
   if (email.trim() === "") {
     warning.textContent = "";
@@ -267,7 +267,7 @@ async function SignUpValid() {
   // Run username and email checks in parallel
   let [isUsernameValid, isEmailValid] = await Promise.all([
     checkUsername(),
-    checkEmail(),
+    checkEmail("email", "exist-email"),
   ]);
 
   let isValid = isUsernameValid && isEmailValid;

@@ -17,12 +17,16 @@
 
     <div class="login-box">
       <div class="login-form-box">
+        
         <div class="logo-icon">
           <img src="assets/icons/logo.svg" alt="" />
         </div>
+        
         <div class="login-form">
+
           <form action="login_member.php" method="post">
             <div class="login-header"><h1>WELCOME BACK!</h1></div>
+            
             <div class="input-box">
               <input
                 type="text"
@@ -31,6 +35,7 @@
                 required
               />
             </div>
+            
             <div class="input-box">
               <input
                 type="password"
@@ -39,6 +44,7 @@
                 required
               />
             </div>
+            
             <button
               type="button"
               data-modal-target="#modal"
@@ -46,24 +52,29 @@
             >
               Forget Password?
             </button>
-            <!-- <div class="forget-password"><a href="">Forget Password?</a></div> -->
+            
             <div class="login-button">
               <button type="submit" name="login" class="btn">LOGIN</button>
             </div>
+            
             <div class="sign_up"><a href="sign_up_page.php">SIGN UP</a></div>
+          
           </form>
         </div>
+      
       </div>
     </div>
     
     <div class="forget-password-modal" id="modal">
+
       <div class="modal-header">
         <div class="modal-title">Forget password</div>
         <button data-close-button class="close-button">&times;</button>
       </div>
+
       <div class="modal-body">
         <div class="otp-input-wrapper">
-          <form action="">
+            
             <div class="verify-email-wrapper">
               <input
                 type="email"
@@ -71,6 +82,7 @@
                 placeholder="Enter your email"
               />
             </div>
+            
             <div class="otp-wrapper">
               <input
                 type="number"
@@ -78,31 +90,40 @@
                 placeholder="Vertification Code"
               />
             </div>
+            
             <div class="countdown"></div>
+            
             <div class="modal-buttons">
               <button class="otp-verify" type="button" onclick="sendOTP()">Verify</button>
               <button type="button" class="otp-button">Send OTP</button>
             </div>
+            
             <div class="reset-vertification-btn"></div>
-          </form>
+          
         </div>
       </div>
+    
     </div>
 
     <div class="password-reset-form-template" style="display: none;">
+      
       <div class="email-display">
         <label for="email-display-value">Email:</label>
         <input type="email" id="email-display-value" disabled>
       </div>
+      
       <div class="new-password-wrapper">
         <label for="new-password">New Password:</label>
         <input type="password" id="new-password" placeholder="Enter new password">
       </div>
+      
       <div class="confirm-password-wrapper">
         <label for="confirm-password">Confirm Password:</label>
         <input type="password" id="confirm-password" placeholder="Confirm new password">
       </div>
+      
       <button id="reset-password-button">Reset Password</button>
+    
     </div>
 
     <div id="overlay"></div>

@@ -153,7 +153,7 @@ button:disabled {
 
 .modal-header {
   background-color: #ff946e;
-  border-radius: 18px 18px 0px 0px;
+  border-radius: 10px 10px 0px 0px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -206,7 +206,7 @@ button:disabled {
 }
 
 .otp-wrapper input {
-  display: none;
+  display: block;
 }
 
 .modal-buttons {
@@ -589,13 +589,17 @@ button:disabled {
   color: #ff946e;
 }
 
-.email-verify, #email-otp, #email-display-value, #new-password, #confirm-password {
+.email-verify,
+#email-otp,
+#email-display-value,
+#new-password,
+#confirm-password {
   width: 100%;
   padding: 10px;
   border: 2px solid #ff946e;
   border-radius: 8px;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .modal-buttons {
@@ -604,12 +608,14 @@ button:disabled {
   justify-content: space-between;
 }
 
-.otp-verify, .otp-button, #reset-password-button {
+.otp-verify,
+.otp-button,
+#reset-password-button {
   width: 100%;
   background-color: #ff946e;
   border: none;
   border-radius: 5px;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: bold;
   padding: 10px;
   transition: all 0.5s;
@@ -621,7 +627,7 @@ button:disabled {
   width: 100%;
   text-align: center;
   border: none;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   color: sandybrown;
   margin-top: 10px;
@@ -635,11 +641,15 @@ button:disabled {
   padding: 20px;
 }
 
-.email-display, .new-password-wrapper, .confirm-password-wrapper {
+.email-display,
+.new-password-wrapper,
+.confirm-password-wrapper {
   margin-bottom: 15px;
 }
 
-.email-display label, .new-password-wrapper label, .confirm-password-wrapper label {
+.email-display label,
+.new-password-wrapper label,
+.confirm-password-wrapper label {
   color: #666666;
   display: block;
   margin-bottom: 7px;
@@ -665,7 +675,7 @@ button:disabled {
 }
 
 .notification.success {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -680,7 +690,7 @@ button:disabled {
 
 /* Success message */
 .success-message {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 15px;
   text-align: center;
