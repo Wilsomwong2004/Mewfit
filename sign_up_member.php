@@ -1,16 +1,6 @@
 <?php
 session_start();
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mewfit";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include "conn.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
@@ -53,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "SELECT username FROM member WHERE username = '$username' 
             UNION 
             SELECT username FROM administrator WHERE username = '$username'";
-    $result = $conn->query($sql);
+    $result = $dbConn->query($sql);
 
     if ($result->num_rows > 0) {
         $_SESSION['error_message'] = "Username already taken, please choose another one.";
@@ -64,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "SELECT email_address FROM member WHERE email_address = '$email'
             UNION
             SELECT email_address FROM administrator WHERE email_address = '$email'";
-    $result = $conn->query($sql);
+    $result = $dbConn->query($sql);
 
     if ($result->num_rows > 0) {
         $_SESSION['error_message'] = "Email is already in use, please use another e-mail";
@@ -75,17 +65,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "INSERT INTO member (`member_pic`, `username`, `email_address`, `password`, `level`, `height`, `weight`, `age`, `fitness_goal`, `target_weight`, `gender`, `day_streak_starting_date`, `last_session_date`, `weight_registered_date`, `date_registered`)
             VALUES ('Unknown_acc-removebg.png', '$username', '$email', '$password', 1, '$height',  '$weight', '$age', '$fitness_goal', '$target_weight', '$gender', '$start_streak', '$start_streak', '$start_streak', '$start_streak')";
 
-    if ($conn->query($sql)) {
+    if ($dbConn->query($sql)) {
         echo '<script>
                 alert("Account added successfully!");
                 window.location.href = "login_page.php";
               </script>';
     } else {
-        $_SESSION['error_message'] = "Error: " . $conn->error;
+        $_SESSION['error_message'] = "Error: " . $dbConn->error;
         header("Location: sign_up_page.php");
         exit;
     }
 }
 
-$conn->close();
+$dbConn->close();
 ?>

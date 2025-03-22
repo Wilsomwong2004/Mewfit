@@ -267,7 +267,7 @@ async function SignUpValid() {
   // Run username and email checks in parallel
   let [isUsernameValid, isEmailValid] = await Promise.all([
     checkUsername(),
-    checkEmail("email", "exist-email"),
+    checkEmail("e-mail", "exist-email"),
   ]);
 
   let isValid = isUsernameValid && isEmailValid;

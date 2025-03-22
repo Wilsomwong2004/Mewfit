@@ -219,11 +219,21 @@ document.addEventListener("DOMContentLoaded", function () {
       if (newPassword === "" || confirmPassword === "") {
         showNotification("Please fill in all fields", "error");
         return;
-      }
-
-      if (newPassword !== confirmPassword) {
+      } else if (newPassword !== confirmPassword) {
         showNotification("Passwords do not match", "error");
         return;
+      }
+
+      try {
+        fetch("update_password.php", {
+          method: POST,
+          body: FormData,
+        })
+          .then((response) => response.json())
+          .then((data) => alert(data.message))
+          .catch((error) => console.error("Error:", error));
+      } catch (error) {
+        console.log("Error: ", error);
       }
 
       // Password reset logic would go here (API call, etc.)
