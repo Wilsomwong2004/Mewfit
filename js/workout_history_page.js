@@ -105,6 +105,11 @@ function setupFilters() {
 
         // Update any visible indicators that filtering is active
         document.getElementById('date-range-filter').classList.remove('active-filter');
+
+        const noRecordsMsg = document.querySelector('.no-filtered-records');
+        if (noRecordsMsg) {
+          noRecordsMsg.style.display = 'none';
+        }
       });
     }
 
