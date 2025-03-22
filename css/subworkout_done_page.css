@@ -126,3 +126,44 @@ h1 {
 .restart-btn:hover {
     transform: scale(1.05);
 }
+
+/* Feedback */
+#feedback-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 80%;
+    max-width: 400px;
+}
+
+.feedback {
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.success {
+    background-color: #4CAF50;
+}
+
+.error {
+    background-color: #F44336;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

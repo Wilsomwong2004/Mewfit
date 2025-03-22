@@ -3245,14 +3245,19 @@ class WorkoutManager {
                 }
                 localStorage.removeItem('currentWorkout');
                 console.log("Navigating to completion page...");
-                window.location.href = 'subworkout_done_page.php';
+
+                // Convert duration from minutes to seconds for consistent handling
+                const durationInSeconds = workoutDuration * 60;
+
+                // Pass workout ID and stats as URL parameters
+                window.location.href = `subworkout_done_page.php?workout_id=${workoutId}&duration=${durationInSeconds}&calories=${workoutCalories}`;
             }, 2000);
         } catch (error) {
             console.error('Error ending workout:', error);
             // Fallback navigation in case of error
             alert("Workout complete! Redirecting to completion page.");
             localStorage.removeItem('currentWorkout');
-            window.location.href = 'subworkout_done_page.php';
+            window.location.href = `subworkout_done_page.php?workout_id=${workoutId}`;
         }
     }
 }

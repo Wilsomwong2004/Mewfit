@@ -1,7 +1,18 @@
 <?php
 session_start();
+require_once 'conn.php';
 
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
+    header("Location: index.php");
+    exit;
+}
+
+// Get member ID from session - ensure consistency with naming
+$member_id = isset($_SESSION["member_id"]) ? $_SESSION["member_id"] : 
+            (isset($_SESSION["member id"]) ? $_SESSION["member id"] : 0);
+
+// If we didn't find a valid member ID, redirect to login
+if (!$member_id) {
     header("Location: index.php");
     exit;
 }
@@ -30,8 +41,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             <button id="done-btn" class="done-btn">Done</button>
             <div id="restart-btn" class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div>
         </div>
+
+        <div id="feedback-container"></div>
     </body>
-    <!-- <script src="./js/subworkout_done_page.js"></script> -->
+    <script>
+        const memberId = <?php echo $member_id; ?>;
+    </script>
     <script src="./js/darkmode.js"></script>
     <script src="./js/subworkout_done_page.js"></script>
 </html>

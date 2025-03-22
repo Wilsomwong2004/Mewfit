@@ -40,7 +40,7 @@ $email_address = $member['email_address'];
         <nav class="navbar" id="navbar">
             <div class="nav-links" id="nav-links">
                 <span class="workout-home"><a href="homepage.php">HOME</a></span>
-                <span class="workout-navbar"><a href="workout_page.html">WORKOUT</a></span>
+                <span class="workout-navbar"><a href="workout_page.php">WORKOUT</a></span>
                 <img src="./assets/icons/logo.svg" alt="logo" class="nav-logo" id="nav-logo">
                 <span class="workout-dietplan"><a href="#" class="active">DIET PLAN</a></span>
                 <span class="workout-settings"><a href="settings_page.php">SETTINGS</a></span>
