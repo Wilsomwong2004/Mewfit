@@ -212,10 +212,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add event listener to the reset button
     const resetButton = clonedForm.querySelector("#reset-password-button");
     resetButton.addEventListener("click", function () {
+      const email = document.getElementById("email-display-value").value;
       const newPassword = clonedForm.querySelector("#new-password").value;
       const confirmPassword =
         clonedForm.querySelector("#confirm-password").value;
 
+      console.log(email);
       if (newPassword === "" || confirmPassword === "") {
         showNotification("Please fill in all fields", "error");
         return;
@@ -224,17 +226,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      try {
-        fetch("update_password.php", {
-          method: POST,
-          body: FormData,
-        })
-          .then((response) => response.json())
-          .then((data) => alert(data.message))
-          .catch((error) => console.error("Error:", error));
-      } catch (error) {
-        console.log("Error: ", error);
-      }
+      let updateData = new FormData();
+      updateData.append("email", email);
+      updateData.append("newPass", newPassword);
+
+      fetch("update_password.php", {
+        method: "POST",
+        body: updateData,
+      })
+        .then((response) => response.json())
+        .then((data) => alert(data.message))
+        .catch((error) => console.error("Error:", error));
 
       // Password reset logic would go here (API call, etc.)
       // For demo, just show success message
