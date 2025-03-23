@@ -35,6 +35,7 @@ html.dark-mode {
 
 body {
   background-color: var(--background-color);
+  color: var(--text-color);
   margin-bottom: 50px;
 }
 
@@ -585,11 +586,11 @@ html.dark-mode .search-bar-small {
 .diet-recently-title a {
   color: inherit;
   text-decoration: none;
-  padding-right: 1rem;
+  padding: 1.7rem 3rem 1rem 0;
 }
 
 .diet-recently-title span {
-  padding-left: 1rem;
+  padding-left: 10px;
 }
 
 html.dark-mode .diet-body {
@@ -683,6 +684,72 @@ html.dark-mode .diet-stats {
 
 .diet-stats i {
   margin-right: 0.2rem;
+}
+
+/* Arrow Scroll Style */
+/* Wrapper styling */
+.grid-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Gradient styling */
+.scroll-gradient {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 80px;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-gradient-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(30, 30, 30, 0.8), transparent);
+}
+
+.scroll-gradient-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(30, 30, 30, 0.8), transparent);
+}
+
+/* Arrow styling */
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.scroll-arrow:hover {
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-arrow-left {
+  left: 10px;
+}
+
+.scroll-arrow-right {
+  right: 10px;
+}
+
+/* Icon styling */
+.scroll-arrow i {
+  color: #333;
+  font-size: 16px;
 }
 
 @media screen and (max-width: 1274px) {

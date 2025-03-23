@@ -18,14 +18,11 @@ $email_address = $member['email_address'];
 
 // Single query to fetch all diet information
 $sql = "SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, 
-        SUM(n.calories) AS total_calories, d.diet_type, dh.date
-        FROM diet_history dh
-        JOIN diet d ON dh.diet_id = d.diet_id
-        LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
-        LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
-        WHERE dh.member_id = ?
-        GROUP BY d.diet_id, dh.date
-        ORDER BY date DESC, d.diet_id DESC";
+        d.diet_type, MAX(dh.date) as latest_date
+        FROM diet d
+        LEFT JOIN diet_history dh ON dh.diet_id = d.diet_id AND dh.member_id = ?
+        GROUP BY d.diet_id, d.diet_name, d.difficulty, d.preparation_min, d.diet_type
+        ORDER BY latest_date DESC, d.diet_id DESC";
 
 $stmt = $dbConn->prepare($sql);
 $stmt->bind_param("i", $member_id);
@@ -34,13 +31,23 @@ $result = $stmt->get_result();
 
 $diets = [];
 while ($row = $result->fetch_assoc()) {
-    // Format the diet data only once
+    // Get calories for this diet
+    $sqlCalories = "SELECT SUM(n.calories) AS total_calories 
+                   FROM diet_nutrition dn
+                   JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
+                   WHERE dn.diet_id = ?";
+    $stmtCalories = $dbConn->prepare($sqlCalories);
+    $stmtCalories->bind_param("i", $row['diet_id']);
+    $stmtCalories->execute();
+    $calories = $stmtCalories->get_result()->fetch_assoc();
+
+    // Format the diet data
     $diets[] = [
         'diet_id' => $row['diet_id'],
         'title' => $row['diet_name'],
         'level' => $row['difficulty'],
         'duration' => $row['preparation_min'] . ' min',
-        'calories' => $row['total_calories'] . ' kcal',
+        'calories' => ($calories['total_calories'] ?? 0) . ' kcal',
         'type' => [$row['diet_type']],
         'image' => "./uploads/diet/{$row['diet_id']}.jpg"
     ];
@@ -49,6 +56,7 @@ while ($row = $result->fetch_assoc()) {
 $response = [
     'diets' => !empty($diets) ? $diets : ['no_data' => true]
 ];
+
 ?>
 
 <!DOCTYPE html>
@@ -150,11 +158,11 @@ $response = [
                         <p>Vegetarian</p>
                     </div>
                     <div class="activity-card activity-card-vegan">
-                        <img src="./assets/icons/vegan.svg" alt="Vegan">
+                        <img src="./assets/icons/vegan.svg" alt="vegan">
                         <p>Vegan</p>
                     </div>
                     <div class="activity-card activity-card-meat">
-                        <img src="./assets/icons/meat.svg" alt="Meat">
+                        <img src="./assets/icons/meat.svg" alt="meat">
                         <p>Meat</p>
                     </div>
                 </div>
@@ -168,7 +176,7 @@ $response = [
 
             <!-- Recent Meals Section -->
             <div class="diet-recently-title">
-                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recent Diet Meals</h2>
+                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
                 <a href="diet_history_page.php">View More <span>></span></a>
             </div>
 
