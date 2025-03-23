@@ -167,10 +167,10 @@ $response = [
             </section>
 
             <!-- Recent Meals Section -->
-            <section class="diet-body">
-                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recent Meals</h2>
-                <div class="diet-history-grid"></div>
-            </section>
+            <div class="diet-recently-title">
+                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recent Diet Meals</h2>
+                <a href="diet_history_page.php">View More <span>></span></a>
+            </div>
 
             <!-- Diet Type Sections - Generated dynamically by JS -->
             <section class="diet-body">
