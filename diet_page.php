@@ -16,7 +16,7 @@ $resultMember = $stmtMember->get_result();
 $member = $resultMember->fetch_assoc();
 $email_address = $member['email_address'];
 
-// Single query to fetch all diet information
+// Main diets query - this appears to be for the general diet page
 $sql = "SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, 
         d.diet_type, MAX(dh.date) as latest_date
         FROM diet d
@@ -57,6 +57,41 @@ $response = [
     'diets' => !empty($diets) ? $diets : ['no_data' => true]
 ];
 
+// Query to get the recent diet history for this member
+$sqlRecentDiets = "SELECT 
+        diet_history.diet_history_id,
+        diet_history.date,
+        diet_history.diet_id,
+        diet.diet_name,
+        diet.diet_type,
+        diet.preparation_min,
+        diet.picture
+        FROM diet_history 
+        INNER JOIN diet 
+        ON diet_history.diet_id = diet.diet_id
+        WHERE diet_history.member_id = ?
+        ORDER BY diet_history.date DESC
+        LIMIT 3"; // Limiting to 3 most recent meals
+
+$stmtRecentDiets = $dbConn->prepare($sqlRecentDiets);
+$stmtRecentDiets->bind_param("i", $member_id);
+$stmtRecentDiets->execute();
+$resultRecentDiets = $stmtRecentDiets->get_result();
+
+// Store results in array
+$recentUserDiets = [];
+if ($resultRecentDiets->num_rows > 0) {
+    while($row = $resultRecentDiets->fetch_assoc()) {
+        $recentUserDiets[] = [
+            'id' => $row['diet_id'],
+            'title' => $row['diet_name'],
+            'type' => $row['diet_type'],
+            'duration' => $row['preparation_min'] . ' min',
+            'image' => './uploads/diet/' . $row['picture'],
+            'date' => $row['date']
+        ];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -175,12 +210,47 @@ $response = [
             </section>
 
             <!-- Recent Meals Section -->
-            <div class="diet-recently-title">
-                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
-                <a href="diet_history_page.php">View More <span>></span></a>
-            </div>
+            <section class="diet-body">
+                <div class="diet-recently-title">
+                    <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
+                    <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
+                        View More <span style="padding-left: 10px;">></span>
+                    </a>
+                </div>
+                <div class="diet-grid" id="recently-diet-grid">
+                    <?php if (empty($recentUserDiets)): ?>
+                        <div class="no-recent-diets">
+                            <p>You haven't added any meals to your diet history yet.</p>
+                            <p>Start your healthy eating journey today!</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentUserDiets as $diet): ?>
+                            <div class="diet-card-recently" data-diet-id="<?php echo htmlspecialchars($diet['id']); ?>">
+                                <div class="diet-card-image">
+                                    <img src="<?php echo htmlspecialchars($diet['image']); ?>" alt="<?php echo htmlspecialchars($diet['title']); ?>">
+                                </div>
+                                <div class="diet-card-content-recently">
+                                    <h3 class="diet-card-title"><?php echo htmlspecialchars($diet['title']); ?></h3>
+                                    <div class="diet-card-type">
+                                        <span><?php echo htmlspecialchars($diet['type']); ?></span>
+                                    </div>
+                                    <div class="diet-card-stats-recently">
+                                        <div class="diet-card-stat">
+                                            <i class="fas fa-clock"></i>
+                                            <span><?php echo htmlspecialchars(str_replace(' min', '', $diet['duration'])); ?> min</span>
+                                        </div>
+                                    </div>
+                                    <div class="diet-card-completed">
+                                        <i class="fas fa-utensils"></i>
+                                        <span>Added: <?php echo date('d M Y', strtotime($diet['date'])); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </section>
 
-            <!-- Diet Type Sections - Generated dynamically by JS -->
             <section class="diet-body">
                 <h2 class="section-title"><img src="./assets/icons/vegetable.png">Vegetarian</h2>
                 <div class="diet-history-grid"></div>

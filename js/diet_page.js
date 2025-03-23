@@ -1,12 +1,142 @@
 let selectedDiet = null;
 
+function updateDietCarousel(selectedType) {
+    // Get filtered diets based on selected type
+    let filteredDiets;
+    if (selectedType === 'All') {
+        filteredDiets = diets.slice(0, 3); // Show first 3 diets for "All"
+    } else {
+        // Convert to lowercase for comparison
+        const typeLower = selectedType.toLowerCase();
+
+        filteredDiets = diets.filter(diet => {
+            if (!diet.type) return false;
+
+            if (Array.isArray(diet.type)) {
+                return diet.type.some(t =>
+                    typeof t === 'string' && t.toLowerCase() === typeLower
+                );
+            } else {
+                return typeof diet.type === 'string' &&
+                    diet.type.toLowerCase() === typeLower;
+            }
+        }).slice(0, 3); // Take top 3 matching diets
+    }
+
+    // If no diets match the filter, show a placeholder
+    if (filteredDiets.length === 0) {
+        filteredDiets = [{
+            title: `No ${selectedType} Diet Plans Found`,
+            description: "Try a different diet category",
+            duration: "0 min",
+            calories: "0 kcal",
+            image: "./assets/icons/diet.svg"
+        }];
+    }
+
+    // Recreate the carousel with filtered diets
+    const carousel = document.querySelector('.diet-carousel');
+    if (carousel) {
+        // Remove existing carousel
+        carousel.innerHTML = '';
+
+        // Create new track
+        const track = document.createElement('div');
+        track.className = 'diet-slides';
+        carousel.appendChild(track);
+
+        // Create slides HTML
+        const slidesHTML = filteredDiets.map((diet, index) => `
+            <div class="diet-slide" data-index="${index}">
+                <div class="diet-card">
+                    <div class="card-content">
+                        <h3>${diet.title}</h3>
+                        <p>${diet.description || "Diet plan based on your preferences"}</p>
+                        <div class="diet-meta">
+                            <span class="duration">
+                                <i class="fas fa-clock"></i> ${diet.duration || "0 min"}
+                            </span>
+                            <span class="calories">
+                                <i class="fas fa-fire"></i> ${diet.calories || "0 kcal"}
+                            </span>
+                        </div>
+                        <button class="start-diet">Start Diet</button>
+                    </div>
+                    <div class="seperate-diet-transparent"></div>
+                    <div class="card-image">
+                        <img src="${diet.image || './assets/icons/diet.svg'}" alt="diet">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        track.innerHTML = slidesHTML;
+
+        // Create navigation dots
+        const nav = document.createElement('div');
+        nav.className = 'carousel-nav';
+
+        filteredDiets.forEach((_, index) => {
+            const dot = document.createElement('button');
+            dot.className = `nav-dot ${index === 0 ? 'active' : ''}`;
+            dot.addEventListener('click', () => {
+                // Update active dot
+                nav.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === index);
+                });
+
+                // Update slide positions
+                track.querySelectorAll('.diet-slide').forEach((slide, i) => {
+                    const offset = (i - index) * 100;
+                    slide.style.transform = `translateX(${offset}%)`;
+                    slide.style.opacity = i === index ? '1' : '0.5';
+                    slide.style.visibility = Math.abs(i - index) <= 1 ? 'visible' : 'hidden';
+                    slide.style.zIndex = i === index ? '1' : '0';
+                });
+            });
+            nav.appendChild(dot);
+        });
+
+        carousel.appendChild(nav);
+
+        // Set initial positions
+        track.querySelectorAll('.diet-slide').forEach((slide, index) => {
+            slide.style.transform = `translateX(${index * 100}%)`;
+            slide.style.opacity = index === 0 ? '1' : '0.5';
+            slide.style.visibility = index <= 1 ? 'visible' : 'hidden';
+            slide.style.zIndex = index === 0 ? '1' : '0';
+        });
+    }
+}
+
+
 class DietCarousel {
-    constructor() {
+    constructor(filterType = 'All') {
         this.carousel = document.querySelector('.diet-carousel');
         this.track = document.querySelector('.diet-slides');
 
-        // Use the database diet data for carousel instead of hardcoded workout data
-        this.slides = diets.slice(0, 3).map(diet => ({
+        // Filter diets based on the selected type
+        let filteredDiets;
+        if (filterType === 'All') {
+            filteredDiets = diets.slice(0, 3);
+        } else {
+            const typeLower = filterType.toLowerCase();
+            filteredDiets = diets.filter(diet => {
+                if (!diet.type) return false;
+
+                if (Array.isArray(diet.type)) {
+                    return diet.type.some(t =>
+                        typeof t === 'string' && t.toLowerCase() === typeLower
+                    );
+                } else {
+                    return typeof diet.type === 'string' &&
+                        diet.type.toLowerCase() === typeLower;
+                }
+            }).slice(0, 3);
+        }
+
+        // Use the filtered diet data for carousel
+        this.slides = filteredDiets.map(diet => ({
             title: diet.title,
             description: "Diet plan based on your preferences",
             duration: diet.duration,
@@ -17,14 +147,15 @@ class DietCarousel {
         // If no diets are available, use a placeholder
         if (this.slides.length === 0) {
             this.slides = [{
-                title: "No Diet Plans Found",
-                description: "Create a new diet plan to get started",
+                title: `No ${filterType} Diet Plans Found`,
+                description: "Try a different diet category",
                 duration: "0 min",
                 calories: "0 kcal",
                 image: "./assets/icons/diet.svg"
             }];
         }
 
+        // The rest of your code remains the same
         this.currentIndex = 0;
         this.isTransitioning = false;
         this.touchStartX = 0;
@@ -249,6 +380,27 @@ function checkDarkMode() {
     return false;
 }
 
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Recently diet history
+document.addEventListener("DOMContentLoaded", function () {
+    // Add event listeners to diet cards
+    const dietCards = document.querySelectorAll(".diet-card-recently");
+
+    // Initialize carousel with default "All" filter
+    const carousel = new DietCarousel();
+
+    // Add a global reference to easily update later
+    window.currentCarousel = carousel;
+
+    dietCards.forEach(card => {
+        card.addEventListener("click", function () {
+            const dietId = this.getAttribute("data-diet-id");
+            if (dietId) {
+                window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+            }
+        });
+    });
+});
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
 function updateCardStyles(card, isActive = false) {
@@ -702,7 +854,7 @@ async function initializeTopPicksDiet() {
             }).join('');
 
             // Setup scroll arrows
-            setupDietScrollArrows(dietGrid);
+            setupScrollArrows(dietGrid);
 
             // Setup click handlers
             setupDietCardClick();
@@ -726,6 +878,7 @@ function filterDietsByCategory(category) {
 
     if (category === 'All') {
         // Show all diet cards
+        // initializeTopPicksDiet();
         dietCards.forEach(card => {
             card.style.display = '';
         });
@@ -784,15 +937,104 @@ function setupCategorySelection() {
     }
 }
 
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Helper function to create a unified diet card
+function setupRecentDietCards() {
+    // Select all recently diet cards
+    document.querySelectorAll('.recently-diet-grid').forEach(card => {
+        card.addEventListener('click', () => {
+            const dietId = card.getAttribute('data-diet-id');
+
+            // Find the diet by ID
+            const diet = diets.find(d => d.diet_id === dietId);
+
+            if (!diet) {
+                console.error('Diet not found with ID:', dietId);
+                return;
+            }
+
+            // Store the selected diet
+            selectedDiet = diet;
+
+            // Update popup content
+            const popup = document.getElementById('popup-container');
+
+            document.getElementById('popup-title').textContent = diet.title.toUpperCase();
+
+            // Set description if available
+            if (document.getElementById('popup-desc')) {
+                document.getElementById('popup-desc').textContent = diet.description || 'No description available';
+            }
+
+            // Extract numbers only from duration (preparation time)
+            const durationNum = diet.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            // Extract numbers only from calories
+            const caloriesNum = diet.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
+            // Update difficulty level
+            updatePopupLevel(diet.level);
+
+            // Update image
+            const dietImage = document.getElementById('popup-diet-image');
+            if (diet.image) {
+                dietImage.src = diet.image;
+                dietImage.alt = `${diet.title} Image`;
+                dietImage.style.objectFit = 'cover';
+            } else {
+                dietImage.src = './assets/icons/error.svg';
+                dietImage.alt = 'Diet Image Not Found';
+                dietImage.style.objectFit = 'contain';
+                dietImage.style.width = '60%';
+                dietImage.style.height = 'auto';
+            }
+
+            // Update ingredients list (assuming there's a function for this)
+            updateIngredientsList(diet);
+
+            // Show popup
+            popup.classList.add('active');
+        });
+    });
+}
+
+// Start Button Event Listener
+// document.querySelector('.popup-start-button').addEventListener('click', () => {
+//     if (selectedDiet) {
+//         localStorage.setItem('currentDiet', JSON.stringify([selectedDiet]));
+//         window.location.href = 'subdiet_page.php';
+//     } else {
+//         console.error('No diet selected');
+//     }
+// });
+
+// Initialize everything on DOM Content Loaded
 // Initialize everything on DOM Content Loaded
 document.addEventListener('DOMContentLoaded', () => {
     initializeTopPicksDiet();
     setupCategorySelection();
+    setupRecentDietCards();
 
     // Set default category selection
     const defaultCard = document.querySelector('.activity-card-all');
     if (defaultCard) {
         defaultCard.classList.add('active');
+    }
+
+    // Add the popup start button event listener here with a check
+    const popupStartButton = document.querySelector('.popup-start-button');
+    if (popupStartButton) {
+        popupStartButton.addEventListener('click', () => {
+            if (selectedDiet) {
+                localStorage.setItem('currentDiet', JSON.stringify([selectedDiet]));
+                window.location.href = 'subdiet_page.php';
+            } else {
+                console.error('No diet selected');
+            }
+        });
     }
 });
 // -------------------------------------------------------------------------------------------------------------------------------------- //
@@ -819,8 +1061,8 @@ function createDietCard(diet) {
 
 // Function to filter diets by type`
 function filterDiets(type) {
-    console.log("Filtering by type:", type);
-    console.log("Available diets:", diets);
+    // console.log("Filtering by type:", type);
+    // console.log("Available diets:", diets);
 
     if (type === 'All') return diets;
 
@@ -1153,35 +1395,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.style.color = 'white';
             }
 
-            // Filter sections based on selection
-            document.querySelectorAll('section.diet-body').forEach(section => {
-                const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
-                const dietGrid = section.querySelector('.diet-grid, .diet-history-grid');
+            updateDietCarousel(selectedType);
 
-                if (['Top Picks For You', 'Recently Meals'].includes(sectionTitle)) {
-                    if (selectedType === 'All') {
-                        section.style.display = selectedType === 'All' ? '' : 'none';
-
-                    } else {
-                        section.style.display = 'none';
-                    }
-                    return;
-                }
-
-                if (selectedType === 'All') {
+            // First, make all sections visible by default when "All" is selected
+            if (selectedType === 'All') {
+                document.querySelectorAll('section.diet-body').forEach(section => {
                     section.style.display = '';
+                    const dietGrid = section.querySelector('.diet-grid, .diet-history-grid');
                     if (dietGrid) {
                         dietGrid.classList.add('scroll-layout');
                         dietGrid.classList.remove('grid-layout');
                     }
-                } else {
-                    if (['Categories', 'Top Picks For You', 'Recently Meals'].includes(sectionTitle)) {
+                });
+            } else {
+                // Filter sections based on selection for non-"All" types
+                document.querySelectorAll('section.diet-body').forEach(section => {
+                    const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+                    const dietGrid = section.querySelector('.diet-grid, .diet-history-grid');
+
+                    // Special handling for Top Picks and Recently Meals - hide for non-All selections
+                    if (['Top Picks For You', 'Recently Meals'].includes(sectionTitle)) {
+                        section.style.display = 'none';
+                        return;
+                    }
+
+                    // For Categories, always show
+                    if (sectionTitle === 'Categories') {
                         section.style.display = '';
-                        if (dietGrid && ['Top Picks For You', 'Recently Meals'].includes(sectionTitle)) {
-                            dietGrid.classList.add('scroll-layout');
-                            dietGrid.classList.remove('grid-layout');
-                        }
-                    } else if (sectionTitle.includes(selectedType)) {
+                    }
+                    // For specific type sections, only show if they match the selected type
+                    else if (sectionTitle.includes(selectedType)) {
                         section.style.display = '';
                         if (dietGrid) {
                             dietGrid.classList.add('grid-layout');
@@ -1190,8 +1433,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         section.style.display = 'none';
                     }
-                }
-            });
+                });
+            }
 
             // Update diet content
             document.querySelectorAll('.diet-grid, .diet-history-grid').forEach(grid => {
@@ -1199,10 +1442,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
                 const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
 
-                if (['Top Picks For You', 'Recently Meals'].includes(sectionTitle) ||
-                    sectionTitle.includes(selectedType) ||
-                    selectedType === 'All') {
-
+                // Only update content if the section is visible
+                if (section.style.display !== 'none') {
                     let filterType = selectedType;
 
                     // Map selected type to database value

@@ -709,7 +709,7 @@ html.dark-mode .diet-stats {
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  z-index: 1;
+  z-index: 1000;
 }
 
 html.dark-mode .scroll-arrow {
@@ -736,6 +736,37 @@ html.dark-mode .scroll-arrow:hover {
 .scroll-arrow i {
   color: #333;
   font-size: 16px;
+}
+
+html.dark-mode .scroll-arrow i {
+  color: white;
+}
+
+.scroll-gradient {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-gradient-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
+}
+
+html.dark-mode .scroll-gradient-left {
+  background: linear-gradient(to right, rgb(53, 53, 54), transparent);
+}
+
+.scroll-gradient-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+}
+
+html.dark-mode .scroll-gradient-right {
+  background: linear-gradient(to left, rgb(53, 53, 54), transparent);
 }
 
 
@@ -876,7 +907,7 @@ html.dark-mode .scroll-arrow:hover {
   padding: 1rem;
   transition: all 0.3s ease;
   overflow: hidden;
-  padding-left: 3.5vw;
+  padding-left: 40px;
 }
 
 .diet-history-grid.scroll-layout {
