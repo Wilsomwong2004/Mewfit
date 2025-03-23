@@ -249,26 +249,556 @@ function checkDarkMode() {
     return false;
 }
 
-// Unified function to update card styles
-function updateCardStyles(card, isDefault = false) {
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Activity Types
+function updateCardStyles(card, isActive = false) {
     const isDark = checkDarkMode();
 
     if (isDark) {
-        card.style.background = isDefault ? '#ffa07a' : '#4d4d4e';
-        card.style.color = '#E5E7EB';
-        card.style.border = isDefault ? '1px solid #ffa07a' : '1px solid #374151';
+        card.style.background = isActive ? '#ffa07a' : '#4d4d4e';
+        card.style.color = isActive ? '#ffffff' : '#E5E7EB';
+        card.style.border = isActive ? '2px solid#ea8b47' : '1px solid #374151';
     } else {
-        card.style.background = isDefault ? '#FFAD84' : 'white';
-        card.style.color = isDefault ? 'white' : 'black';
-        card.style.border = '1px solid #E5E7EB';
+        card.style.background = isActive ? '#FFAD84' : '#ffffff';
+        card.style.color = isActive ? '#ffffff' : '#000000';
+        card.style.border = isActive ? '2px solid #FFAD84' : '1px solid #E5E7EB';
     }
     card.style.transition = 'all 0.3s ease';
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Dark mode initialization
+    const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
+    const cards = document.querySelectorAll('.activity-card');
+    const defaultSelection = document.getElementById('default-selection');
 
+    function setupActivityTypesScroll() {
+        const cardContainer = document.querySelector('.activity-cards-container');
+        if (!cardContainer) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            cardContainer.style.cursor = 'grabbing';
+            startX = e.pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+            e.preventDefault();
+        });
+
+        cardContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5; // Scroll speed multiplier
+            cardContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDown = true;
+            startX = e.touches[0].pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+        });
+
+        cardContainer.addEventListener('touchend', () => {
+            isDown = false;
+        });
+
+        cardContainer.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            cardContainer.scrollLeft = scrollLeft - walk;
+            e.preventDefault();
+        });
+    }
+
+    function applyDarkMode(isDarkMode) {
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+
+        cards.forEach(card => {
+            updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
+        });
+
+        // Dispatch a custom event to notify changes
+        const event = new CustomEvent('darkModeChange', { detail: { isDarkMode } });
+        window.dispatchEvent(event);
+    }
+
+    function checkDarkMode() {
+        return document.documentElement.classList.contains('dark-mode');
+    }
+
+    function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        darkModeToggle.checked = isDarkMode;
+        applyDarkMode(isDarkMode);
+    }
+
+    // Toggle dark mode when the checkbox changes
+    darkModeToggle.addEventListener('change', (event) => {
+        const isDarkMode = event.target.checked;
+        localStorage.setItem('darkMode', isDarkMode);
+        applyDarkMode(isDarkMode);
+    });
+
+    // Add event handlers to all cards
+    cards.forEach(card => {
+        updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
+
+        // Click to toggle active state
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            cards.forEach(c => updateCardStyles(c, c.classList.contains('active')));
+        });
+
+        // Mouseover (hover) to temporarily highlight the card
+        card.addEventListener('mouseover', () => {
+            const isDark = checkDarkMode();
+            if (!card.classList.contains('active')) {
+                card.style.background = isDark ? '#cc916a' : '#FFE4D2';
+            }
+        });
+
+        // Mouseout to revert the card's style
+        card.addEventListener('mouseout', () => {
+            if (!card.classList.contains('active')) {
+                updateCardStyles(card);
+            }
+        });
+
+        // Update card styles on dark mode change
+        window.addEventListener('darkModeChange', () => {
+            updateCardStyles(card, card.classList.contains('active'));
+        });
+    });
+
+    // Initialize dark mode and activity types scroll
+    initializeDarkMode();
+    setupActivityTypesScroll();
+});
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Top Picks For You - Diet Plan
+let displayedDiets = [];
+
+function getRecommendedDiets(userProfile, allDiets) {
+    // Destructure user profile data
+    const {
+        height,
+        weight,
+        goal, // 'lose', 'gain', or 'maintain'
+        dietaryPreferences = [], // Array of preferred diet types (vegetarian, vegan, meat)
+        completedDiets = [], // Array of diet IDs the user has completed
+        healthConditions = [], // Any health conditions to consider
+        timeConstraint = 30 // Default time constraint in minutes
+    } = userProfile;
+
+    // Calculate BMI (for personalized recommendations)
+    const bmi = weight / ((height / 100) ** 2);
+
+    // Define scoring criteria based on user goal
+    const scoreDiet = (diet) => {
+        let score = 0;
+
+        // Parse calories and preparation time
+        const calories = parseInt(diet.calories);
+        const prepTime = parseInt(diet.duration);
+
+        // Base score adjustments by goal
+        if (goal === 'lose') {
+            // For weight loss, prioritize lower calorie meals
+            if (calories < 400) score += 3;
+            else if (calories < 600) score += 2;
+            else if (calories < 800) score += 1;
+
+            // Vegetarian and vegan options often have lower calories
+            if (diet.type.includes('Vegetarian') || diet.type.includes('Vegan')) score += 1;
+        }
+        else if (goal === 'gain') {
+            // For weight gain, prioritize higher calorie, protein-rich meals
+            if (calories > 800) score += 3;
+            else if (calories > 600) score += 2;
+            else if (calories > 400) score += 1;
+
+            // Meat options often have more protein
+            if (diet.type.includes('Meat')) score += 2;
+        }
+        else { // 'maintain' or general health
+            // Balanced approach
+            score += 1; // Base score for all diets
+
+            // Prefer balanced meals
+            if (calories >= 500 && calories <= 700) score += 2;
+        }
+
+        // Match diet difficulty to user's time constraint
+        const levelScore = {
+            'Easy': prepTime <= 20 ? 3 : 1,
+            'Medium': prepTime <= 30 ? 2 : 0,
+            'Hard': prepTime <= 40 ? 1 : -1
+        };
+        score += levelScore[diet.level] || 0;
+
+        // Respect user's time constraint
+        if (prepTime <= timeConstraint) score += 2;
+        else score -= Math.floor((prepTime - timeConstraint) / 10); // Penalty for each 10 min over
+
+        // Respect user dietary preferences
+        dietaryPreferences.forEach(pref => {
+            if (diet.type.includes(pref)) score += 3;
+        });
+
+        // Consider health conditions
+        if (healthConditions.includes('diabetes') &&
+            calories < 500) {
+            score += 2;
+        }
+
+        if (healthConditions.includes('high_cholesterol') &&
+            (diet.type.includes('Vegetarian') || diet.type.includes('Vegan'))) {
+            score += 2;
+        }
+
+        // Variety - downrank diets the user has recently completed
+        if (completedDiets.includes(diet.diet_id)) score -= 2;
+
+        return score;
+    };
+
+    // Score and sort all diets
+    const scoredDiets = allDiets.map(diet => ({
+        ...diet,
+        score: scoreDiet(diet)
+    }));
+
+    // Sort by score (highest first)
+    scoredDiets.sort((a, b) => b.score - a.score);
+
+    // Return top diets
+    return scoredDiets.slice(0, 6);
+}
+
+function findTopPicksDietSection() {
+    // Find all sections with the diet-body class
+    const sections = document.querySelectorAll('section.diet-body');
+
+    // Loop through them to find the one with the title we want
+    for (const section of sections) {
+        const titleElement = section.querySelector('.section-title');
+        if (titleElement && titleElement.textContent.includes('Top Picks For You')) {
+            return section;
+        }
+    }
+    return null;
+}
+
+// Function to load user profile data
+function loadUserProfile() {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'get_user_data.php', true);
+        xhr.onload = function () {
+            if (this.status === 200) {
+                try {
+                    const response = JSON.parse(this.responseText);
+
+                    if (response.isLoggedIn && response.memberData) {
+                        resolve(response.memberData);
+                    } else {
+                        console.log('User not logged in or data not available:', response.error || 'Unknown error');
+                        resolve(null);
+                    }
+                } catch (e) {
+                    console.error('Error parsing user profile data:', e);
+                    reject(e);
+                }
+            } else {
+                reject(new Error('Failed to load user profile: ' + this.status));
+            }
+        };
+        xhr.onerror = function () {
+            reject(new Error('Network error when loading user profile'));
+        };
+        xhr.send();
+    });
+}
+
+// Function to create a diet card
+function createDietCard(diet, position) {
+    return `
+        <div class="diet-card" data-diet-id="${diet.diet_id}" data-position="${position}">
+            <div class="diet-image">
+                <img src="${diet.image || './assets/icons/error.svg'}" alt="${diet.title}">
+            </div>
+            <div class="diet-info">
+                <h3 class="diet-title">${diet.title}</h3>
+                <span class="diet-level">${diet.level}</span>
+                <div class="diet-stats">
+                    <span><i class="fas fa-clock"></i> ${diet.duration}</span>
+                    <span><i class="fas fa-fire"></i> ${diet.calories}</span>
+                </div>
+                <div class="diet-type-tags">
+                    ${diet.type.map(type => `<span class="diet-type-tag">${type}</span>`).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to setup scroll arrows
+// function setupDietScrollArrows(container) {
+//     const parentSection = container.closest('section');
+//     if (!parentSection) return;
+
+//     // Check if arrows already exist
+//     let leftArrow = parentSection.querySelector('.scroll-arrow.left');
+//     let rightArrow = parentSection.querySelector('.scroll-arrow.right');
+
+//     // Create arrow container if needed
+//     let arrowContainer = parentSection.querySelector('.arrow-container');
+//     if (!arrowContainer) {
+//         arrowContainer = document.createElement('div');
+//         arrowContainer.className = 'arrow-container';
+//         // Position the container relative to the grid
+//         arrowContainer.style.position = 'relative';
+//         arrowContainer.style.width = '100%';
+//         arrowContainer.style.height = '0';
+//         // Insert before the grid
+//         container.parentNode.insertBefore(arrowContainer, container);
+//     }
+
+//     if (!leftArrow) {
+//         leftArrow = document.createElement('button');
+//         leftArrow.className = 'scroll-arrow left';
+//         leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+//         // Position left arrow
+//         leftArrow.style.position = 'absolute';
+//         leftArrow.style.top = '50%';
+//         leftArrow.style.left = '0';
+//         leftArrow.style.transform = 'translateY(-50%)';
+//         leftArrow.style.zIndex = '10';
+//         arrowContainer.appendChild(leftArrow);
+//     }
+
+//     if (!rightArrow) {
+//         rightArrow = document.createElement('button');
+//         rightArrow.className = 'scroll-arrow right';
+//         rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+//         // Position right arrow
+//         rightArrow.style.position = 'absolute';
+//         rightArrow.style.top = '50%';
+//         rightArrow.style.right = '0';
+//         rightArrow.style.transform = 'translateY(-50%)';
+//         rightArrow.style.zIndex = '10';
+//         arrowContainer.appendChild(rightArrow);
+//     }
+
+//     // Add event listeners
+//     leftArrow.onclick = () => {
+//         container.scrollBy({ left: -300, behavior: 'smooth' });
+//     };
+
+//     rightArrow.onclick = () => {
+//         container.scrollBy({ left: 300, behavior: 'smooth' });
+//     };
+
+//     // Show/hide arrows based on scroll position
+//     function updateArrowVisibility() {
+//         if (container.scrollLeft <= 10) {
+//             leftArrow.style.display = 'none';
+//         } else {
+//             leftArrow.style.display = 'block';
+//         }
+
+//         if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+//             rightArrow.style.display = 'none';
+//         } else {
+//             rightArrow.style.display = 'block';
+//         }
+//     }
+
+//     // Initial check
+//     updateArrowVisibility();
+
+//     // Listen for scroll events
+//     container.addEventListener('scroll', updateArrowVisibility);
+// }
+
+// Function to setup diet card click events
+function setupDietCardClick() {
+    document.querySelectorAll('.diet-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+
+            // Get the diet ID and position
+            const dietId = card.getAttribute('data-diet-id');
+            const position = parseInt(card.getAttribute('data-position'));
+
+            // Get the actual diet object from our stored recommendations
+            const diet = displayedDiets[position];
+
+            if (!diet) {
+                console.error('Diet not found in displayedDiets array at position', position);
+                return;
+            }
+
+            // Navigate to the diet details page
+            window.location.href = `diet_details.php?id=${dietId}`;
+        });
+    });
+}
+
+// Function to initialize Top Picks section
+async function initializeTopPicksDiet() {
+    try {
+        // Load user profile
+        const userProfile = await loadUserProfile();
+
+        // Find the Top Picks section
+        const topPicksSection = findTopPicksDietSection();
+        const dietGrid = topPicksSection?.querySelector('.diet-grid');
+
+        if (!dietGrid) return;
+
+        // Clear existing diets
+        dietGrid.innerHTML = '';
+
+        let recommendedDiets = [];
+
+        if (userProfile) {
+            // User is logged in, use personalized recommendations
+            recommendedDiets = getRecommendedDiets(userProfile, diets);
+        } else {
+            // User not logged in, show generic recommendations
+            recommendedDiets = [...diets] // Create a copy to avoid mutating the original array
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 6);
+        }
+
+        if (recommendedDiets.length > 0) {
+            dietGrid.classList.add('scroll-layout');
+
+            // Store these recommendations for reference
+            displayedDiets = recommendedDiets;
+
+            // Create diet cards
+            dietGrid.innerHTML = recommendedDiets.map((diet, position) => {
+                return createDietCard(diet, position);
+            }).join('');
+
+            // Setup scroll arrows
+            setupDietScrollArrows(dietGrid);
+
+            // Setup click handlers
+            setupDietCardClick();
+
+            // Show the section
+            topPicksSection.style.display = '';
+        } else {
+            // Show message when no diets are available
+            dietGrid.innerHTML = '<div class="no-diets-message">No diet plans available at the moment.</div>';
+            topPicksSection.style.display = '';
+        }
+    } catch (error) {
+        console.error('Error initializing Top Picks for Diet:', error);
+    }
+}
+
+// Function to update category display
+function filterDietsByCategory(category) {
+    // Find all diet cards across all sections
+    const dietCards = document.querySelectorAll('.diet-card');
+
+    if (category === 'All') {
+        // Show all diet cards
+        dietCards.forEach(card => {
+            card.style.display = '';
+        });
+    } else {
+        // Filter by category
+        dietCards.forEach(card => {
+            const position = parseInt(card.getAttribute('data-position'));
+            const diet = displayedDiets[position];
+
+            if (diet && diet.type.includes(category)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+}
+
+// Setup category selection
+function setupCategorySelection() {
+    const allBtn = document.querySelector('.activity-card-all');
+    const vegetarianBtn = document.querySelector('.activity-card-vegetarian');
+    const veganBtn = document.querySelector('.activity-card-vegan');
+    const meatBtn = document.querySelector('.activity-card-meat');
+
+    if (allBtn) {
+        allBtn.addEventListener('click', () => {
+            document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('active'));
+            allBtn.classList.add('active');
+            filterDietsByCategory('All');
+        });
+    }
+
+    if (vegetarianBtn) {
+        vegetarianBtn.addEventListener('click', () => {
+            document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('active'));
+            vegetarianBtn.classList.add('active');
+            filterDietsByCategory('Vegetarian');
+        });
+    }
+
+    if (veganBtn) {
+        veganBtn.addEventListener('click', () => {
+            document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('active'));
+            veganBtn.classList.add('active');
+            filterDietsByCategory('Vegan');
+        });
+    }
+
+    if (meatBtn) {
+        meatBtn.addEventListener('click', () => {
+            document.querySelectorAll('.activity-card').forEach(card => card.classList.remove('active'));
+            meatBtn.classList.add('active');
+            filterDietsByCategory('Meat');
+        });
+    }
+}
+
+// Initialize everything on DOM Content Loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializeTopPicksDiet();
+    setupCategorySelection();
+
+    // Set default category selection
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.classList.add('active');
+    }
+});
+// -------------------------------------------------------------------------------------------------------------------------------------- //
 // Helper function to create a unified diet card
 function createDietCard(diet) {
-    const imgSrc = diet.image || './assets/icons/error.svg';
+    const imgSrc = diet.picture ? '${diet.picture}' : './assets/icons/error.svg';
 
     return `
         <div class="diet-card-content" data-diet-id="${diet.diet_id}" data-diet-type="${diet.type}">
@@ -287,8 +817,7 @@ function createDietCard(diet) {
     `;
 }
 
-// Function to filter diets by type
-// Replace your current filterDiets function with this:
+// Function to filter diets by type`
 function filterDiets(type) {
     console.log("Filtering by type:", type);
     console.log("Available diets:", diets);
@@ -571,10 +1100,9 @@ class SearchImplementation {
                     <h3 class="diet-title">${result.title}</h3>
                     <div class="result-meta">
                         <span class="duration">
-                            <i class="fas fa-clock"></i> ${result.duration}
+                            ${result.duration}
                         </span>
                         <span class="calories">
-                            <i class="fas fa-fire"></i>
                             ${result.calories}
                         </span>
                     </div>
@@ -605,29 +1133,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.activity-card').forEach(card => {
         updateCardStyles(card, card === defaultSelection);
 
-        // Hover effects
-        card.addEventListener('mouseover', () => {
-            const isDark = checkDarkMode();
-            const isActive = isDark ?
-                (card.style.background === 'rgb(249, 115, 22)') :
-                (card.style.background === 'rgb(255, 173, 132)');
-
-            if (!isActive) {
-                card.style.background = isDark ? '#374151' : '#FFE4D2';
-            }
-        });
-
-        card.addEventListener('mouseout', () => {
-            const isDark = checkDarkMode();
-            const isActive = isDark ?
-                (card.style.background === 'rgb(249, 115, 22)') :
-                (card.style.background === 'rgb(255, 173, 132)');
-
-            if (!isActive) {
-                updateCardStyles(card);
-            }
-        });
-
         // Click handling
         card.addEventListener('click', () => {
             const selectedType = card.querySelector('p').textContent.trim();
@@ -640,8 +1145,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Highlight selected card
             const isDark = checkDarkMode();
             if (isDark) {
-                card.style.background = '#F97316';
-                card.style.border = '1px solid #F97316';
+                card.style.background = '#ffa07a';
+                card.style.border = '1px solid #ffa07a';
                 card.style.color = 'white';
             } else {
                 card.style.background = '#FFAD84';

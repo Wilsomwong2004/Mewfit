@@ -93,7 +93,7 @@ html.dark-mode .nav-links a {
   padding: 5px 20px;
   font-size: 12px;
   border-radius: 68px;
-  color: white !important;
+  color: white;
   cursor: pointer;
 }
 
@@ -694,27 +694,6 @@ html.dark-mode .diet-stats {
   overflow: hidden;
 }
 
-/* Gradient styling */
-.scroll-gradient {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 80px;
-  pointer-events: none;
-  z-index: 2;
-  transition: opacity 0.3s ease;
-}
-
-.scroll-gradient-left {
-  left: 0;
-  background: linear-gradient(to right, rgba(30, 30, 30, 0.8), transparent);
-}
-
-.scroll-gradient-right {
-  right: 0;
-  background: linear-gradient(to left, rgba(30, 30, 30, 0.8), transparent);
-}
-
 /* Arrow styling */
 .scroll-arrow {
   position: absolute;
@@ -722,20 +701,27 @@ html.dark-mode .diet-stats {
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 3;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+  z-index: 1;
+}
+
+html.dark-mode .scroll-arrow {
+  background: #505050;
 }
 
 .scroll-arrow:hover {
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
+}
+
+html.dark-mode .scroll-arrow:hover {
+  background: #727272;
 }
 
 .scroll-arrow-left {
@@ -751,6 +737,7 @@ html.dark-mode .diet-stats {
   color: #333;
   font-size: 16px;
 }
+
 
 @media screen and (max-width: 1274px) {
   .search-bar input {
@@ -782,7 +769,7 @@ html.dark-mode .diet-stats {
 
   .diet-image {
     width: 100%;
-    height: 200px;
+    height: 100%;
   }
 
   .diet-info {
@@ -889,7 +876,7 @@ html.dark-mode .diet-stats {
   padding: 1rem;
   transition: all 0.3s ease;
   overflow: hidden;
-  margin-left: 3vw;
+  padding-left: 3.5vw;
 }
 
 .diet-history-grid.scroll-layout {
@@ -916,6 +903,8 @@ html.dark-mode .diet-stats {
   box-shadow: 0 2px 4px #0000002c;
   border-radius: 16px;
   flex: 0 0 300px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .diet-card-content:hover {
@@ -924,9 +913,9 @@ html.dark-mode .diet-stats {
 }
 
 .diet-image {
-  height: 200px;
   width: 100%;
-  object-fit: cover;
+  height: 200px;
+  /* object-fit: cover; */
 }
 
 .diet-info {
