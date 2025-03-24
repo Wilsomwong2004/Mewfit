@@ -228,7 +228,7 @@ button:disabled {
 }
 
 .modal-buttons button:active {
-  background-color: rgb(20, 195, 20);
+  background-color: rgb(54, 167, 54);
 }
 
 .otp-verify {

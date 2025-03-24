@@ -279,7 +279,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
     records.forEach(record => {
       record.addEventListener("click", function () {
-        const dietId = this.getAttribute("data-diet-id"); // Get diet_id from the div
+        const dietId = this.getAttribute("data-diet-id"); 
         if (dietId) {
           window.location.href = `subdiet_page.php?diet_id=${dietId}`;
         }
