@@ -71,8 +71,8 @@
                 <img src="./assets/workout_pics/workout7.jpeg" alt="Diet Icon">
                 <img src="./assets/workout_pics/workout8.png" alt="Diet Icon">
             </div>
-        </div>
-        <div class="scroll2">
+        </div> 
+        <!-- <div class="scroll2">
             <div>
                 <img src="./assets/workout_pics/workout1.jpeg" alt="Diet Icon">
                 <img src="./assets/workout_pics/workout2.jpeg" alt="Diet Icon">
@@ -85,8 +85,8 @@
                 <img src="./assets/workout_pics/workout3.jpeg" alt="Diet Icon">
                 <img src="./assets/workout_pics/workout4.jpeg" alt="Diet Icon">
             </div>
-        </div>
-        <div class="scroll-visible">
+        </div>  -->
+        <!-- <div class="scroll-visible">
             <div class="scroll2">
                 <div>
                     <img src="./assets/workout_pics/workout1.jpeg" alt="Diet Icon">
@@ -114,7 +114,7 @@
                 <img src="./assets/workout_pics/workout7.jpeg" alt="Diet Icon">
                 <img src="./assets/workout_pics/workout8.png" alt="Diet Icon">
             </div>
-        </div>
+        </div> -->
         </div>
         <div class="right-fade-in" id="page2-heading">
             <div>
@@ -145,40 +145,48 @@
                         <p class="content-style">MEWFIT engages users through a unique cat tower game,<br> transforming workouts into fun challenges that keep you motivated.</p>
                     </div>
                     <div class="page3-pic">
-                        <div class="color-rect1"></div>
-                        <div class="color-rect2"></div>
-                        <img src="./assets/workout_pics/workout1.jpeg" class="image-style">
-                    </div>
-                </div>
-            </div>
-            <div class="content-slide" id="slide-2">
-                <div class="slide-container">
-                    <div class="page1n3-words">
-                        <h1 class="header-style">Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!</h1>
-                        <p class="content-style">MEWFIT offers tailored diet plans with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.</p>
-                    </div>
-                    <div class="page3-pic">
-                        <div class="color-rect1"></div>
-                        <div class="color-rect2"></div>
-                        <img src="./assets/workout_pics/workout2.jpeg" class="image-style">
+                        <!-- <div class="color-rect1"></div>
+                        <div class="color-rect2"></div> -->
+                        <img src="./assets/screenshot_interface/homepage.jpeg" class="image-style">
                     </div>
                 </div>
             </div>
             
-            <!-- Third slide -->
+            <!-- Second slide -->
             <div class="content-slide" id="slide-3">
                 <div class="slide-container">
                     <div class="page1n3-words">
-                        <h1 class="header-style">Effortless Calorie Tracking <br>and Beyond!</h1>
-                        <p class="content-style">Keep tabs on your daily calories burnt and consumed, <br> plus a host of other fitness metrics with <br> MEWFIT's comprehensive tracking features.</p>
+                        <!-- Dynamic header based on workout type and user type -->
+                        <h1 class="header-style">
+                            <span id="workout-type">Workout</span> for <span id="user-type">EVERYONE!</span>
+                        </h1>
+                        <p class="content-style">
+                            Tailored workout plans for every fitness level. Track your <br> progress and elevate your training with MEWFIT's <br> comprehensive workout tracking features.
+                        </p>
                     </div>
                     <div class="page3-pic">
-                        <div class="color-rect1"></div>
-                        <div class="color-rect2"></div>
-                        <img src="./assets/workout_pics/workout3.jpeg" class="image-style">
+                        <!-- <div class="color-rect1"></div>
+                        <div class="color-rect2"></div> -->
+                        <img src="./assets/screenshot_interface/workoutpage.jpeg" class="image-style">
                     </div>
                 </div>
             </div>
+
+            <!-- Second slide -->
+            <div class="content-slide" id="slide-2">
+                <div class="slide-container" style="gap: 90px;">
+                    <div class="page1n3-words">
+                        <h1 class="header-style">Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!</h1>
+                        <p class="content-style">MEWFIT offers tailored diet plans <br> with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.</p>
+                    </div>
+                    <div class="page3-pic">
+                        <!-- <div class="color-rect1"></div>
+                        <div class="color-rect2"></div> -->
+                        <img src="./assets/screenshot_interface/subdiet.png" class="image-style">
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </section>
 
@@ -263,6 +271,14 @@
                 <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
             </div>
         </div>
+        <div class="scroll">
+            <div>
+                <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
+            </div>
+            <div>
+                <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
+            </div>
+        </div>
         <div class="scroll-visible">
             <div class="scroll">
                 <div>
@@ -360,6 +376,14 @@
                     <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
                 </div>
             </div>
+            <div class="scroll">
+            <div>
+                <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
+            </div>
+            <div>
+                <h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3><h3>MEWFIT</h3>
+            </div>
+        </div>
         </div>
         <div class="right-fade-in" id="page4-heading">
             <div>
@@ -374,7 +398,9 @@
                     Whether it’s squats, push-ups, or any exercise—providing real-time feedback to perfect your form and enhance your progress. Seamlessly blending cutting-edge technology with simplicity, it empowers you to move smarter, train harder, and achieve more.</p>
             </div>
             <div id="page3-pic">
-                <image src="assets/workout_pics/workout4.jpeg"></image>
+                <video disablePictureInPicture autoplay loop muted>
+                    <source src="assets/screenshot_interface/pose detection 1.mp4" type="video/mp4">
+                </video>
             </div>
         </div>
     </section>
@@ -585,7 +611,7 @@
                     <div class="overlay-text">With <span style="color:#FFAD84">MewTrack</span></div>
                 </div>
             </div>
-            <div>
+            <div style="margin-top: 25px;">
                 <h2 style="color:#3B3636">Why our <span style="color:#FFAD84">MEWTRACK?</span></h2>
                 <div>
                     <div style="display:flex;">

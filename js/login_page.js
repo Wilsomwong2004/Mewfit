@@ -36,18 +36,50 @@ function close_modal(modal) {
   overlay.classList.remove("active");
 }
 
+async function checkEmail(inputValue) {
+  let email = document.getElementById(inputValue).value;
+
+  if (email.trim() === "") {
+    return false;
+  }
+
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailPattern.test(email)) {
+    return false;
+  }
+
+  try {
+    let response = await fetch(
+      "check_email.php?email=" + encodeURIComponent(email)
+    );
+    let data = await response.text();
+
+    if (data.includes("already in use")) {
+      return false;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return false;
+  }
+}
+
 // email-otp.js
-document.addEventListener('DOMContentLoaded', function () {
-  const modal = document.querySelector('.forget-password-modal');
-  const overlay = document.getElementById('overlay');
-  const emailInput = document.getElementById('email-verify');
-  const otpInput = document.getElementById('email-otp');
-  const otpWrapper = document.querySelector('.otp-wrapper');
-  const otpWrapperInput = document.querySelector('.otp-input-wrapper');
-  const modalButtons = document.querySelector('.modal-buttons');
-  const verifyButton = modalButtons.querySelector('.otp-verify');
-  const otpButton = modalButtons.querySelector('.otp-button');
-  const modalBody = document.querySelector('.modal-body');
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.querySelector(".forget-password-modal");
+  const overlay = document.getElementById("overlay");
+  const emailInput = document.getElementById("email-verify");
+  const otpInput = document.getElementById("email-otp");
+  const otpWrapper = document.querySelector(".otp-wrapper");
+  const modalButtons = document.querySelector(".modal-buttons");
+  const verifyButton = modalButtons.querySelector(".otp-verify");
+  const otpButton = modalButtons.querySelector(".otp-button");
+  const modalBody = document.querySelector(".modal-body");
+  const resetBtnContainer = document.querySelector(".reset-vertification-btn");
+  const passwordResetTemplate = document.querySelector(
+    ".password-reset-form-template"
+  );
 
   let otpValue = ""; // Store OTP value
   let countdownInterval; // Store countdown interval
@@ -62,11 +94,14 @@ document.addEventListener('DOMContentLoaded', function () {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  function sendOTP() {
+  async function sendOTP() {
     const email = emailInput.value.trim();
 
     if (!isValidEmail(email)) {
-      showNotification('Please enter a valid email', 'error');
+      showNotification("Please enter a valid email", "error");
+      return;
+    } else if (await checkEmail("email-verify")) {
+      showNotification("Email is not registered", "error");
       return;
     }
 
@@ -74,42 +109,42 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("Generated OTP:", otpValue); // For testing purposes
 
     emailInput.disabled = true;
-    otpInput.style.display = "block";
+    otpWrapper.style.display = "block";
 
-    verifyButton.style.display = 'none';
-    otpButton.textContent = 'Verify';
-    otpButton.style.display = 'block';
-    otpButton.classList.remove('otp-button');
+    verifyButton.style.display = "none";
+    otpButton.textContent = "Verify";
+    otpButton.style.display = "block";
+    otpButton.classList.remove("otp-button");
 
     const templateParams = {
       to_email: email,
-      verification_code: otpValue
+      verification_code: otpValue,
     };
 
     // Send email using Email.js
-    emailjs.send('service_8umn0df', 'template_ulh1kc4', templateParams)
+    emailjs
+      .send("service_8umn0df", "template_ulh1kc4", templateParams)
       .then(function (response) {
-        console.log('Email successfully sent!', response);
-        showNotification('Verification code sent to your email', 'success');
+        console.log("Email successfully sent!", response);
+        showNotification("Verification code sent to your email", "success");
         startCountdown();
       })
       .catch(function (error) {
-        console.error('Error sending email:', error);
-        showNotification('Failed to send verification code. Please try again.', 'error');
+        console.error("Error sending email:", error);
+        showNotification(
+          "Failed to send verification code. Please try again.",
+          "error"
+        );
         resetForm();
       });
   }
 
   function startCountdown() {
-    const countdownElement = document.querySelector('.countdown');
+    const countdownElement = document.querySelector(".countdown");
     if (!countdownElement) {
-      console.error('Countdown element not found');
+      console.error("Countdown element not found");
       return;
     }
-
-    countdownElement.style.textAlign = 'center';
-    countdownElement.style.marginTop = '10px';
-    countdownElement.style.color = '#ff946e';
 
     let timeLeft = 60;
     updateCountdown();
@@ -120,26 +155,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
+        countdownElement.textContent = "";
 
-        countdownElement.textContent = '';
-        const resendButton = document.querySelector('.reset-vertification-btn');
-        resendButton.textContent = 'Resend verification code';
-        resendButton.className = 'resend-button';
-        resendButton.style.width = '100%';
-        resendButton.style.textAlign = 'center';
-        resendButton.style.border = 'none';
-        resendButton.style.fontFamily = 'Poppins';
-        resendButton.style.fontWeight = '400';
-        resendButton.style.color = "sandybrown";
-        resendButton.style.marginTop = '10px';
-        resendButton.style.transition = 'all 0.5s';
-        resendButton.style.cursor = 'pointer';
+        // Create resend button
+        const resendButton = document.createElement("button");
+        resendButton.textContent = "Resend verification code";
+        resendButton.className = "resend-button";
 
-        resendButton.addEventListener('click', function () {
-          countdownElement.textContent = '';
+        resendButton.addEventListener("click", function () {
+          countdownElement.textContent = "";
           resendButton.remove();
           sendOTP();
         });
+
+        resetBtnContainer.innerHTML = "";
+        resetBtnContainer.appendChild(resendButton);
       }
     }, 1000);
 
@@ -153,136 +183,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const userInputOTP = otpInput.value.trim();
 
     if (userInputOTP === otpValue) {
-      showNotification('Verification successful', 'success');
+      showNotification("Verification successful", "success");
       showPasswordResetForm();
     } else {
-      showNotification('Invalid verification code. Please try again.', 'error');
+      showNotification("Invalid verification code. Please try again.", "error");
     }
   }
 
   // Function to show password reset form
   function showPasswordResetForm() {
-    // Clear the modal body
-    modalBody.innerHTML = '';
+    // Clear the existing form
+    const formContainer = document.querySelector(".otp-input-wrapper");
+    formContainer.style.display = "none";
 
     // Create password reset form
-    const passwordResetForm = document.createElement('div');
-    passwordResetForm.className = 'password-reset-form';
-    passwordResetForm.style.padding = '20px';
+    const passwordResetForm = document.createElement("div");
+    passwordResetForm.className = "password-reset-form";
 
-    // Email display (disabled)
-    const emailDisplay = document.createElement('div');
-    emailDisplay.className = 'email-display';
-    emailDisplay.style.marginBottom = '15px';
+    // Clone the template
+    const clonedForm = passwordResetTemplate.cloneNode(true);
+    clonedForm.style.display = "block";
+    passwordResetForm.appendChild(clonedForm);
 
-    const emailLabel = document.createElement('label');
-    emailLabel.textContent = 'Email:';
-    emailLabel.style.color = '#666666';
-    emailLabel.style.display = 'block';
-    emailLabel.style.marginBottom = '7px';
+    // Set the email value
+    const emailDisplay = clonedForm.querySelector("#email-display-value");
+    emailDisplay.value = emailInput.value;
 
-    const emailValue = document.createElement('input');
-    emailValue.type = 'email';
-    emailValue.value = emailInput.value;
-    emailValue.disabled = true;
-    emailValue.style.width = '100%';
-    emailValue.style.padding = '10px';
-    emailValue.style.border = '#ff946e 2px solid';
-    emailValue.style.borderRadius = '8px';
-    emailValue.style.boxSizing = 'border-box';
-    emailValue.style.fontFamily = 'poppins';
+    // Add event listener to the reset button
+    const resetButton = clonedForm.querySelector("#reset-password-button");
+    resetButton.addEventListener("click", function () {
+      const email = document.getElementById("email-display-value").value;
+      const newPassword = clonedForm.querySelector("#new-password").value;
+      const confirmPassword =
+        clonedForm.querySelector("#confirm-password").value;
 
-    emailDisplay.appendChild(emailLabel);
-    emailDisplay.appendChild(emailValue);
-
-    // New password input
-    const newPasswordWrapper = document.createElement('div');
-    newPasswordWrapper.className = 'new-password-wrapper';
-    newPasswordWrapper.style.marginBottom = '15px';
-
-    const passwordLabel = document.createElement('label');
-    passwordLabel.textContent = 'New Password:';
-    passwordLabel.style.color = '#666666';
-    passwordLabel.style.display = 'block';
-    passwordLabel.style.marginBottom = '7px';
-
-    const passwordInput = document.createElement('input');
-    passwordInput.type = 'password';
-    passwordInput.id = 'new-password';
-    passwordInput.placeholder = 'Enter new password';
-    passwordInput.style.width = '100%';
-    passwordInput.style.padding = '10px';
-    passwordInput.style.border = '#ff946e 2px solid';
-    passwordInput.style.borderRadius = '8px';
-    passwordInput.style.boxSizing = 'border-box';
-    passwordInput.style.fontFamily = 'poppins';
-
-    newPasswordWrapper.appendChild(passwordLabel);
-    newPasswordWrapper.appendChild(passwordInput);
-
-    // Confirm password input
-    const confirmPasswordWrapper = document.createElement('div');
-    confirmPasswordWrapper.className = 'confirm-password-wrapper';
-    confirmPasswordWrapper.style.marginBottom = '15px';
-
-    const confirmLabel = document.createElement('label');
-    confirmLabel.textContent = 'Confirm Password:';
-    confirmLabel.style.color = '#666666';
-    confirmLabel.style.display = 'block';
-    confirmLabel.style.marginBottom = '7px';
-
-    const confirmInput = document.createElement('input');
-    confirmInput.type = 'password';
-    confirmInput.id = 'confirm-password';
-    confirmInput.placeholder = 'Confirm new password';
-    confirmInput.style.width = '100%';
-    confirmInput.style.padding = '10px';
-    confirmInput.style.border = '#ff946e 2px solid';
-    confirmInput.style.borderRadius = '8px';
-    confirmInput.style.boxSizing = 'border-box';
-    confirmInput.style.fontFamily = 'poppins';
-
-    confirmPasswordWrapper.appendChild(confirmLabel);
-    confirmPasswordWrapper.appendChild(confirmInput);
-
-    // Submit button
-    const submitButton = document.createElement('button');
-    submitButton.textContent = 'Reset Password';
-    submitButton.style.width = '100%';
-    submitButton.style.backgroundColor = '#ff946e';
-    submitButton.style.border = 'none';
-    submitButton.style.borderRadius = '5px';
-    submitButton.style.fontFamily = 'poppins';
-    submitButton.style.fontWeight = 'bold';
-    submitButton.style.padding = '10px';
-    submitButton.style.transition = 'all 0.5s';
-    submitButton.style.color = 'white';
-    submitButton.style.marginTop = '20px';
-    submitButton.style.cursor = 'pointer';
-
-    submitButton.addEventListener('click', function () {
-      const newPassword = passwordInput.value;
-      const confirmPassword = confirmInput.value;
-
-      if (newPassword === '' || confirmPassword === '') {
-        showNotification('Please fill in all fields', 'error');
+      console.log(email);
+      if (newPassword === "" || confirmPassword === "") {
+        showNotification("Please fill in all fields", "error");
+        return;
+      } else if (newPassword !== confirmPassword) {
+        showNotification("Passwords do not match", "error");
         return;
       }
 
-      if (newPassword !== confirmPassword) {
-        showNotification('Passwords do not match', 'error');
-        return;
-      }
+      let updateData = new FormData();
+      updateData.append("email", email);
+      updateData.append("newPass", newPassword);
+
+      fetch("update_password.php", {
+        method: "POST",
+        body: updateData,
+      })
+        .then((response) => response.json())
+        .then((data) => alert(data.message))
+        .catch((error) => console.error("Error:", error));
 
       // Password reset logic would go here (API call, etc.)
       // For demo, just show success message
       showSuccessMessage();
     });
-
-    passwordResetForm.appendChild(emailDisplay);
-    passwordResetForm.appendChild(newPasswordWrapper);
-    passwordResetForm.appendChild(confirmPasswordWrapper);
-    passwordResetForm.appendChild(submitButton);
 
     modalBody.appendChild(passwordResetForm);
   }
@@ -290,29 +249,17 @@ document.addEventListener('DOMContentLoaded', function () {
   // Function to show success message with animation
   function showSuccessMessage() {
     // Create success message
-    const successMessage = document.createElement('div');
-    successMessage.className = 'success-message';
-    successMessage.textContent = 'Password changed successfully!';
-    successMessage.style.backgroundColor = '#4CAF50';
-    successMessage.style.color = 'white';
-    successMessage.style.padding = '15px';
-    successMessage.style.textAlign = 'center';
-    successMessage.style.borderRadius = '5px';
-    successMessage.style.position = 'fixed';
-    successMessage.style.top = '-100px';
-    successMessage.style.left = '50%';
-    successMessage.style.transform = 'translateX(-50%)';
-    successMessage.style.zIndex = '1000';
-    successMessage.style.transition = 'top 0.5s ease-in-out';
-
+    const successMessage = document.createElement("div");
+    successMessage.className = "success-message";
+    successMessage.textContent = "Password changed successfully!";
     document.body.appendChild(successMessage);
 
     setTimeout(function () {
-      successMessage.style.top = '20px';
+      successMessage.classList.add("active");
     }, 100);
 
     setTimeout(function () {
-      successMessage.style.top = '-100px';
+      successMessage.classList.remove("active");
 
       setTimeout(function () {
         successMessage.remove();
@@ -324,41 +271,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Function to show notification
   function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll(".notification");
+    existingNotifications.forEach((note) => note.remove());
+
+    // Create notification
+    const notification = document.createElement("div");
+    notification.className =
+      type === "error" ? "notification error" : "notification success";
     notification.textContent = message;
-
-    notification.style.padding = '15px';
-    notification.style.textAlign = 'center';
-    notification.style.borderRadius = '16px';
-    notification.style.position = 'fixed';
-    notification.style.top = '-100px';
-    notification.style.left = '50%';
-    notification.style.transform = 'translateX(-50%)';
-    notification.style.zIndex = '1000';
-    notification.style.transition = 'top 0.5s ease-in-out';
-    notification.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-    notification.style.minWidth = '300px';
-
-    if (type === 'error') {
-      notification.style.backgroundColor = '#f44336';
-      notification.style.color = 'white';
-    } else {
-      notification.style.backgroundColor = '#4CAF50';
-      notification.style.color = 'white';
-    }
-
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(note => note.remove());
-
     document.body.appendChild(notification);
 
     setTimeout(function () {
-      notification.style.top = '20px';
+      notification.classList.add("active");
     }, 100);
 
     setTimeout(function () {
-      notification.style.top = '-100px';
+      notification.classList.remove("active");
 
       setTimeout(function () {
         notification.remove();
@@ -368,59 +297,66 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function resetForm() {
     emailInput.disabled = false;
-    otpInput.style.display = 'none';
-    otpInput.value = '';
-    verifyButton.style.display = 'block';
-    otpButton.style.display = 'none';
-    otpButton.textContent = 'Send OTP';
-    otpButton.classList.add('otp-button');
+    otpWrapper.style.display = "none";
+    otpInput.value = "";
+    verifyButton.style.display = "block";
+    otpButton.style.display = "none";
+    otpButton.textContent = "Send OTP";
+    otpButton.classList.add("otp-button");
 
     if (countdownInterval) {
       clearInterval(countdownInterval);
       countdownInterval = null;
     }
 
-    const countdownElement = document.querySelector('.countdown');
+    const countdownElement = document.querySelector(".countdown");
     if (countdownElement) {
-      countdownElement.remove();
+      countdownElement.textContent = "";
     }
 
-    const resendButton = document.querySelector('.resend-button');
-    if (resendButton) {
-      resendButton.remove();
-    }
+    resetBtnContainer.innerHTML = "";
   }
 
   // Function to completely reset the form (when reopening modal)
   function resetFormCompletely() {
     resetForm();
-    emailInput.value = '';
+    emailInput.value = "";
     otpValue = "";
     timeLeft = 60;
+
+    // Remove password reset form if it exists
+    const passwordResetForm = document.querySelector(".password-reset-form");
+    if (passwordResetForm) {
+      passwordResetForm.remove();
+    }
+
+    // Show the original form
+    const formContainer = document.querySelector(".otp-input-wrapper");
+    formContainer.style.display = "block";
   }
 
   // Event listeners
-  otpButton.addEventListener('click', function () {
-    if (otpButton.textContent === 'Send OTP') {
+  otpButton.addEventListener("click", function () {
+    if (otpButton.textContent === "Send OTP") {
       sendOTP();
     } else {
       verifyOTP();
     }
   });
 
-  verifyButton.addEventListener('click', function () {
+  verifyButton.addEventListener("click", function () {
     sendOTP();
   });
 
-  document.querySelectorAll('[data-close-button]').forEach(button => {
-    button.addEventListener('click', function () {
-      const modal = button.closest('.forget-password-modal');
+  document.querySelectorAll("[data-close-button]").forEach((button) => {
+    button.addEventListener("click", function () {
+      const modal = button.closest(".forget-password-modal");
       resetFormCompletely();
     });
   });
 
   // Reset form when overlay is clicked (modal closed)
-  overlay.addEventListener('click', function () {
+  overlay.addEventListener("click", function () {
     resetFormCompletely();
   });
 });

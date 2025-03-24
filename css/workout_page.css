@@ -1141,6 +1141,7 @@ html.dark-mode .popup-content h2 {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .exercise-list-container {

@@ -25,11 +25,13 @@ body {
     text-align: center;
     padding: 12px;
     font-weight: bold;
+    transition: all 0.3s;
 }
 
 .login_btn:hover,
 #tryforfree_btn:hover {
-    background-color: #f48e7c;
+    background-color: #ff8c52;
+    transition: all 0.3s;
 }
 
 @media (max-width: 900px) {
@@ -171,6 +173,7 @@ body {
         width: 200px;
         padding: 2vw;
         font-size: 22px;
+        transition: all 0.3s;
     }
 }
 
@@ -309,150 +312,115 @@ body {
 /* Apple-style scroll section */
 #page3 {
     position: relative;
-    height: 300vh;
-    /* Height for 3 sections */
-    background: white;
+    width: 100%;
+    overflow: hidden;
 }
 
-/* Container for all slides */
 .content-slides {
     position: relative;
+    width: 100%;
     height: 100%;
 }
 
-/* Individual slide */
 .content-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.8s ease;
+    pointer-events: none;
+    transition: opacity 0.8s ease-in-out;
 }
 
-/* Slide container for content alignment */
-.slide-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    /* width: 100%; */
-    height: 100vh;
-    padding: 0 5vw;
-}
-
-/* Active slide */
 .content-slide.active {
     opacity: 1;
-    visibility: visible;
+    pointer-events: auto;
 }
 
-/* Text content styling */
-/* .page1n3-words {
-    max-width: 50%;
-    transform: translateY(30px);
-    transition: transform 0.8s ease, opacity 0.8s ease;
-    opacity: 0;
-} */
-
-.active .page1n3-words {
-    transform: translateY(0);
-    opacity: 1;
+.slide-container {
+    height: 100vh;
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    justify-content: center;
 }
 
-.header-style {
-    font-size: 40px;
-    color: #FFAD84;
-    margin-bottom: 20px;
-}
-
-.content-style {
-    font-size: 20px;
-    line-height: 30px;
-    color: #333;
-}
-
-/* Image content */
 .page3-pic {
     position: relative;
-    width: 500px;
-    height: 500px;
-    transform: translateY(30px);
-    transition: transform 0.8s ease 0.2s, opacity 0.8s ease 0.2s;
-    opacity: 0;
+    margin-left: 20px;
 }
 
-.active .page3-pic {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.image-style {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 20px;
-    position: relative;
-    z-index: 3;
-}
-
-/* Decorative rectangles */
 .color-rect1,
 .color-rect2 {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 30px;
+    border-radius: 20px;
     transition: transform 0.8s ease;
 }
 
 .color-rect1 {
-    background: #ffe0c0;
-    transform: translateY(40px);
-    z-index: 1;
+    width: 300px;
+    height: 300px;
+    background-color: rgba(255, 99, 71, 0.7);
+    /* Tomato with opacity */
+    top: -20px;
+    left: -20px;
+    z-index: -1;
 }
 
 .color-rect2 {
-    background: #FFAD84;
-    transform: translateY(20px);
-    z-index: 2;
+    width: 300px;
+    height: 300px;
+    background-color: rgba(65, 105, 225, 0.7);
+    /* RoyalBlue with opacity */
+    bottom: -20px;
+    right: -20px;
+    z-index: -1;
 }
 
-.active .color-rect1 {
-    transform: translateY(20px);
+.content-slide.active .color-rect1 {
+    transform: translateY(20px) translateX(20px);
 }
 
-.active .color-rect2 {
-    transform: translateY(10px);
+.content-slide.active .color-rect2 {
+    transform: translateY(-20px) translateX(-20px);
+}
+
+.image-style {
+    border-radius: 20px;
+    width: 400px;
+    height: 500px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.page1n3-words {
+    text-align: left;
+    padding-right: 40px;
+}
+
+.header-style {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.content-style {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #555;
 }
 
 /* Responsive styles */
-@media (max-width: 800px) {
+@media (max-width: 1200px) {
     .slide-container {
-        flex-direction: column;
-        justify-content: center;
+        text-align: center;
     }
 
     .page1n3-words {
-        max-width: 90%;
         text-align: center;
+        padding-right: 0;
         margin-bottom: 40px;
     }
 
-    .header-style {
-        font-size: 10vw;
-        line-height: 11vw;
-    }
-
-    .content-style {
-        font-size: 4.5vw;
-        line-height: 5vw;
-    }
-
-    .page3-pic {
-        width: 75vw;
-        height: 75vw;
+    .image-style {
+        width: 80%;
     }
 }
 
@@ -462,7 +430,7 @@ body {
     overflow: hidden;
     background: #FFE6DA;
     position: relative;
-    height: 800px;
+    height: 100vh;
 }
 
 .scroll h3,
@@ -492,6 +460,7 @@ body {
 
 #line1 {
     font-size: 35px;
+    margin-top: 90px;
 }
 
 #line2 {
@@ -506,7 +475,7 @@ body {
 #page4-content {
     position: absolute;
     z-index: 1;
-    top: 20%;
+    top: 29%;
     padding: 4vw;
     padding-top: 3vw;
     width: 95vw;
@@ -516,7 +485,7 @@ body {
 }
 
 #page4-content h2 {
-    padding-top: 4vw;
+    /* padding-top: 4vw; */
     font-size: 30px;
     width: 40vw;
 }
@@ -524,11 +493,11 @@ body {
 #page4-content p {
     font-size: 20px;
     line-height: 40px;
-    width: 40vw;
+    width: 45vw;
 }
 
-#page4-content img {
-    width: 30vw;
+#page4-content video {
+    width: 40vw;
     height: 350px;
     border-radius: 20px;
     margin-top: 50px;
@@ -604,19 +573,20 @@ body {
     background: linear-gradient(0deg, white 90%, #FFE6DA);
     position: relative;
     justify-content: center;
-    height: 1000px;
+    height: 110vh;
+    top: -50px;
 }
 
 #page5-content {
     position: absolute;
     z-index: 1;
-    top: 2%;
-    padding-left: 4vw;
+    top: 15%;
+    padding-left: 5vw;
     display: flex;
 }
 
 #page5-content h2 {
-    font-size: 50px;
+    font-size: 35px;
     width: 55vw;
     margin-bottom: 2vw;
     margin-top: 1.5vw;
@@ -628,7 +598,7 @@ body {
     font-weight: bold;
     padding-left: 1vw;
     margin-bottom: 0.5vw;
-    font-size: 30px;
+    font-size: 20px;
 }
 
 #page5-content p {
@@ -651,7 +621,7 @@ body {
 .page5-icon {
     width: 20px;
     height: 20px;
-    padding-top: 37px;
+    padding-top: 20px;
     padding-left: 5.5vw;
 }
 
@@ -847,7 +817,7 @@ body {
     font-size: 1.5vw;
     padding-right: 25vw;
     line-height: 2vw;
-    padding-top: 0vw;
+    padding-top: 0.5vw;
     display: block;
 }
 

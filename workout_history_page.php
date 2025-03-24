@@ -264,7 +264,7 @@ if (isset($_SESSION['member id'])) {
               } else if ($date == date("Y-m-d", strtotime("-1 day"))) {
                   return "Yesterday";
               } else {
-                  return date('d F Y', strtotime($date)); // Return normal date for older days
+                  return date('d F Y', strtotime($date)); 
               }
             }
 

@@ -1,11 +1,60 @@
-<!-- <?php
-session_start();  
+<?php
+require_once 'conn.php';
+session_start(); 
 
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: index.php");
     exit;
 }
-?> -->
+
+$member_id = $_SESSION["member id"];
+
+$workout_id = isset($_GET['workout_id']) ? intval($_GET['workout_id']) : 0;
+
+// Get workout details
+$workout_name = "Default Workout";
+$workout_exercises = [];
+
+if ($workout_id > 0) {
+    // Get workout name and details
+    $sql = "SELECT workout_name FROM workouts WHERE workout_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $workout_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        $workout_name = $row["workout_name"];
+    }
+    
+    // Get workout exercises
+    $sql = "SELECT * FROM workout_exercises WHERE workout_id = ? ORDER BY exercise_order";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $workout_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $workout_exercises[] = $row;
+    }
+}
+
+// Get user performance data
+$sql = "SELECT * FROM performance_table WHERE member_id = ? ORDER BY performance_id DESC LIMIT 1";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$performance_result = $stmt->get_result();
+$current_performance = $performance_result->fetch_assoc();
+
+// Get user profile data
+$sql = "SELECT * FROM member WHERE member_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $member_id);
+$stmt->execute();
+$member_result = $stmt->get_result();
+$member_data = $member_result->fetch_assoc();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -80,6 +129,13 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         <div id="popup-container-more" class="popup-container-more"></div>
 
     </body>
+    <script>
+        const workoutData = <?php echo json_encode($workout_exercises); ?>;
+        const memberData = <?php echo json_encode($member_data); ?>;
+        const performanceData = <?php echo json_encode($current_performance); ?>;
+        const workoutId = <?php echo $workout_id; ?>;
+        const memberId = <?php echo $member_id; ?>;
+    </script>
     <script src="./js/darkmode.js"></script>
     <script src="./js/subworkout_page.js"></script>
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=PkV2hzuC"></script>

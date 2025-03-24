@@ -18,6 +18,7 @@ session_start();
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <script src="js/data_validation.js" defer></script>
     <script src="js/sign-in-steps.js" defer></script>
   </head>
@@ -53,19 +54,19 @@ session_start();
               <!-- Username input -->
               <div class="inputs">
                 <label for="username">Username <span id="exist-username"></span></label>
-                <input type="text" id="username" name="username" oninput="checkUsername()"/>
+                <input type="text" id="username" name="username" oninput="SignUpValid()"/>
               </div>
 
               <!-- Email-input -->
               <div class="inputs">
                 <label for="e-mail">Email <span id="exist-email"></span></label>
-                <input type="email" id="e-mail" name="e-mail" oninput="checkUsername()"/>
+                <input type="email" id="e-mail" name="e-mail" oninput="SignUpValid()"/>
               </div>
 
               <!-- Password input -->
               <div class="inputs">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" oninput="checkUsername()"/>
+                <input type="password" id="password" name="password" oninput="SignUpValid()"/>
               </div>
 
               <div class="half-input-wrapper">
@@ -73,13 +74,13 @@ session_start();
                 <!-- Age input -->
                 <div class="half-inputs">
                   <label for="age">Your Age</label>
-                  <input type="number" id="age" name="age" oninput="checkNumber(this, document.getElementById('valid-age'), '(Please Enter a valid age)'), SignUpValid()"/>
+                  <input type="number" id="age" name="age" oninput="SignUpValid()"/>
                 </div>
 
                 <!-- Gender input -->
                 <div class="gender-inputs">
                   <label for="gender">Your Gender</label>
-                  <select id="gender" name="gender" onchange="checkUsername()">
+                  <select id="gender" name="gender" onchange="SignUpValid()">
                     <option value="" disabled selected>
                       Select your gender
                     </option>
@@ -128,7 +129,7 @@ session_start();
                     id="weight" 
                     name="weight" 
                     placeholder="KG"
-                    oninput="checkUsername()"
+                    oninput="SignUpValid()"
                   />
                 </div>
 
@@ -140,7 +141,7 @@ session_start();
                     id="height" 
                     name="height"
                     placeholder="CM"
-                    oninput="checkUsername()"
+                    oninput="SignUpValid()"
                   />
                 </div>
 
@@ -152,7 +153,7 @@ session_start();
               <!-- Fitness Goal -->
               <div class="select-inputs">
                 <label for="fitness-goal">Fitness Goal:</label>
-                <select id="fitness-goal" name="fitness-goal" onchange="checkUsername()">
+                <select id="fitness-goal" name="fitness-goal" onchange="SignUpValid()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
                   <option value="Gain weight">Gain weight</option>
@@ -166,7 +167,7 @@ session_start();
                   id="target-weight"
                   name="target-weight"
                   placeholder="KG"
-                  oninput="checkUsername()"
+                  oninput="SignUpValid()"
                 />
               </div>
 
