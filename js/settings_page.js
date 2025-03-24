@@ -108,29 +108,29 @@ class DarkModeSync {
   }
 }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // 显示模态框
-    document.querySelector('.setting-item[href="#"]').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('updateModal').style.display = 'block';
-    });
+document.addEventListener('DOMContentLoaded', function() {
+  // 显示模态框
+  document.querySelector('.setting-item[href="#"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('updateModal').style.display = 'block';
+  });
 
-    // 关闭模态框
-    document.querySelectorAll('.close-modal, .cancel-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('updateModal').style.display = 'none';
-      });
-    });
-
-    // 表单提交处理
-    document.getElementById('updateForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      // 这里添加AJAX提交逻辑
-      console.log('Form data:', new FormData(this));
-      alert('Changes saved!');
+  // 关闭模态框
+  document.querySelectorAll('.close-modal, .cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
       document.getElementById('updateModal').style.display = 'none';
     });
   });
+
+  // 表单提交处理
+  document.getElementById('updateForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // 这里添加AJAX提交逻辑
+    console.log('Form data:', new FormData(this));
+    alert('Changes saved!');
+    document.getElementById('updateModal').style.display = 'none';
+  });
+});
 
 // 确保单例运行
 if (!window.darkModeSyncInstance) {
@@ -141,55 +141,56 @@ class LogoutToggle {
   constructor() {
     this.logoutProfile = document.getElementById("logout-profile");
     this.logoutSettings = document.getElementById("logout-settings");
+    this.logoutModal = document.getElementById("logout-modal");
+    this.cancelLogoutBtn = document.getElementById("cancel-logout");
+    this.confirmLogoutBtn = document.getElementById("confirm-logout");
     this.isSyncing = false; // 状态标志，防止重复触发
     this.init();
   }
 
   init() {
     if (this.logoutProfile) {
-      this.logoutProfile.addEventListener("click", (e) =>
-        this.handleLogout(e, "profile")
-      );
+      this.logoutProfile.addEventListener("click", () => this.showLogoutModal());
     }
     if (this.logoutSettings) {
-      this.logoutSettings.addEventListener("click", (e) =>
-        this.handleLogout(e, "settings")
-      );
+      this.logoutSettings.addEventListener("click", () => this.showLogoutModal());
+    }
+    if (this.cancelLogoutBtn) {
+      this.cancelLogoutBtn.addEventListener("click", () => this.hideLogoutModal());
+    }
+    if (this.confirmLogoutBtn) {
+      this.confirmLogoutBtn.addEventListener("click", () => this.processLogout());
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener("click", (event) => {
+      if (event.target === this.logoutModal) {
+        this.hideLogoutModal();
+      }
+    });
+  }
+  
+  showLogoutModal() {
+    if (this.logoutModal) {
+      this.logoutModal.style.display = "flex";
+    } else {
+      console.error("Logout modal not found!");
     }
   }
-
-  handleLogout(e, source) {
-    e.preventDefault();
-    if (this.isSyncing) return; // 已在同步中则直接返回
-    this.isSyncing = true;
-
-    // 如果需要，可以程序化触发另一按钮的点击事件（但注意这样可能会导致循环调用）
-    // 例如：
-    // if (source === 'profile' && this.logoutSettings) {
-    //   this.logoutSettings.dispatchEvent(new Event('click'));
-    // } else if (source === 'settings' && this.logoutProfile) {
-    //   this.logoutProfile.dispatchEvent(new Event('click'));
-    // }
-
-    // 统一执行退出逻辑
-    this.logoutAction();
-
-    this.isSyncing = false;
-  }
-
-  logoutAction() {
-    const modal = document.getElementById("logout-modal");
-    if (modal) {
-      modal.classList.toggle("active");
-      document.body.style.overflow = modal.classList.contains("active")
-        ? "hidden"
-        : "auto";
+  
+  hideLogoutModal() {
+    if (this.logoutModal) {
+      this.logoutModal.style.display = "none";
     }
-    console.log("执行退出操作");
-    // 在这里加入实际退出逻辑
+  }
+  
+  processLogout() {
+    // Redirect to logout processing script
+    window.location.href = "logout.php";
   }
 }
 
+// Initialize the logout functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   new LogoutToggle();
 });

@@ -18,7 +18,7 @@ $workout_exercises = [];
 if ($workout_id > 0) {
     // Get workout name and details
     $sql = "SELECT workout_name FROM workouts WHERE workout_id = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -29,7 +29,7 @@ if ($workout_id > 0) {
     
     // Get workout exercises
     $sql = "SELECT * FROM workout_exercises WHERE workout_id = ? ORDER BY exercise_order";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -40,8 +40,8 @@ if ($workout_id > 0) {
 }
 
 // Get user performance data
-$sql = "SELECT * FROM performance_table WHERE member_id = ? ORDER BY performance_id DESC LIMIT 1";
-$stmt = $conn->prepare($sql);
+$sql = "SELECT * FROM member_performance WHERE member_id = ? ORDER BY performance_id DESC LIMIT 1";
+$stmt = $dbConn->prepare($sql);
 $stmt->bind_param("i", $member_id);
 $stmt->execute();
 $performance_result = $stmt->get_result();
@@ -49,7 +49,7 @@ $current_performance = $performance_result->fetch_assoc();
 
 // Get user profile data
 $sql = "SELECT * FROM member WHERE member_id = ?";
-$stmt = $conn->prepare($sql);
+$stmt = $dbConn->prepare($sql);
 $stmt->bind_param("i", $member_id);
 $stmt->execute();
 $member_result = $stmt->get_result();
