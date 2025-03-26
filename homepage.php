@@ -1263,19 +1263,26 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
             <div class="diet-history-grid">
             <?php
                 $sql = "SELECT 
-                            d.diet_id,
-                            d.diet_name,
-                            d.diet_type,
-                            d.difficulty,
-                            d.preparation_min,
-                            d.picture,
-                            SUM(n.calories) AS total_calories
-                        FROM diet d
-                        LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
-                        LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
-                        GROUP BY d.diet_id, d.diet_name, d.diet_type, d.difficulty, d.preparation_min, d.picture";
+                    dh.diet_history_id,
+                    dh.date,
+                    d.diet_id,
+                    d.diet_name,
+                    d.diet_type,
+                    d.difficulty,
+                    d.preparation_min,
+                    d.picture,
+                    SUM(n.calories) AS total_calories
+                    FROM diet_history dh
+                    JOIN diet d ON dh.diet_id = d.diet_id
+                    LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
+                    LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+                    WHERE dh.member_id = ?
+                    GROUP BY dh.diet_history_id, dh.date, d.diet_id, d.diet_name, d.diet_type, d.difficulty, d.preparation_min, d.picture
+                    ORDER BY dh.date DESC
+                    LIMIT 5";
 
                 $stmt = $dbConn->prepare($sql);
+                $stmt->bind_param("i", $member_id);  
                 $stmt->execute();
                 $result = $stmt->get_result();
 
