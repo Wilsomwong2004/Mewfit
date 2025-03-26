@@ -61,12 +61,13 @@ $fitness_goal = $member['fitness_goal'];
     }
 
     .modal-content h3 {
-      margin-top: 10px;
+      margin: 20px 0px;
+      font-size: 22px;
       color: var(--text-color);
     }
 
     .modal-content p {
-      margin: 20px 0;
+      margin: 10px 0;
       color: var(--text-color);
     }
 
@@ -74,7 +75,7 @@ $fitness_goal = $member['fitness_goal'];
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin-top: 20px;
+      margin-top: 30px;
     }
 
     .cancel-btn, .delete-confirm-btn, .save-btn {
@@ -459,8 +460,8 @@ $fitness_goal = $member['fitness_goal'];
           </div>
           
           <div class="modal-buttons">
-            <button type="button" class="cancel-btn" id="cancel-update">Cancel</button>
             <button type="submit" class="save-btn">Save Changes</button>
+            <button type="button" class="cancel-btn" id="cancel-update">Cancel</button>
           </div>
         </form>
       </div>
@@ -470,10 +471,11 @@ $fitness_goal = $member['fitness_goal'];
     <div class="modal" id="delete-account-modal">
       <div class="modal-content">
         <h3>Delete Account</h3>
-        <p>Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.</p>
+        <p>Are you sure you want to delete your account? </p>
+        <p style="color: red;">This action cannot be undone and all your data will be permanently removed.</p>
         <div class="modal-buttons">
-          <button class="cancel-btn" id="cancel-delete">Cancel</button>
           <button class="delete-confirm-btn" id="confirm-delete">Delete Account</button>
+          <button class="cancel-btn" id="cancel-delete">Cancel</button>
         </div>
       </div>
     </div>
