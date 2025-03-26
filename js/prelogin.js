@@ -6,9 +6,9 @@ function checkScroll() {
     const windowHeight = window.innerHeight;
     rightAnimation.forEach(element => {
         const rightHeight = element.getBoundingClientRect();
-      
+
         if (rightHeight.top < windowHeight && rightHeight.bottom > 0) {
-            element.classList.add('visible'); 
+            element.classList.add('visible');
         }
     })
     leftAnimation.forEach(element => {
@@ -25,101 +25,271 @@ checkScroll();
 
 
 //for page 3 color rect animation
-const rectangle = document.getElementById('color-rect1');
-const rectangle2 = document.getElementById('color-rect2');
-const page3 = document.getElementById('page3');
+document.addEventListener('DOMContentLoaded', function () {
+    const slides = document.querySelectorAll('.content-slide');
+    const totalSlides = slides.length;
+    const page3 = document.getElementById('page3');
 
-window.addEventListener('scroll', function() {
-    const page3Rect = page3.getBoundingClientRect(); // position of page 3
-    const viewportHeight = window.innerHeight; 
+    // Set initial state
+    let currentSlideIndex = 0;
+    let isChangingSlide = false;
+    let isInPage3 = false;
+    let hasEnteredPage3 = false;
+    let lastScrollTime = 0;
 
-    // Calculate the amount of page 3 that is visible
-    const visibleHeight = Math.min(viewportHeight - 250, page3Rect.bottom) - Math.max(-200, page3Rect.top);    
-    const page3Height = page3Rect.height;
+    // Initialize first slide as active
+    slides[0].classList.add('active');
 
-    // Calculate the exposure percentage
-    const exposurePercentage = Math.max(0, Math.min(1, visibleHeight / page3Height));
+    // Set the height of page3 to exactly one viewport height
+    page3.style.height = '100vh';
+    page3.style.overflow = 'hidden'; // Prevent scrolling within page3
 
-    // Map the exposure percentage to the rectangle's Y position
-    const newYPosition1 = -50 + (exposurePercentage * 100); 
-    const newYPosition2 = -20 + (exposurePercentage * 40);
+    // Make all slides position: absolute so they stack
+    slides.forEach(slide => {
+        slide.style.position = 'absolute';
+        slide.style.top = '0';
+        slide.style.left = '0';
+        slide.style.width = '100%';
+        slide.style.height = '100vh';
+        slide.style.opacity = '0';
+        slide.style.transition = 'opacity 0.8s ease-in-out';
+    });
 
-    rectangle.style.transform = `translateY(${newYPosition1}px)`;
-    rectangle2.style.transform = `translateY(${newYPosition2}px)`;
+    // Make active slide visible
+    slides[0].style.opacity = '1';
+
+    // Check if user is in page3 section
+    function checkIfInPage3() {
+        const rect = page3.getBoundingClientRect();
+        const pageTop = rect.top;
+        const pageBottom = rect.bottom;
+
+        // Consider user in page3 if it's taking up most of the viewport
+        return (pageTop < window.innerHeight * 0.3 && pageBottom > window.innerHeight * 0.3);
+    }
+
+    // Handle slide changes
+    function changeSlide(direction) {
+        if (isChangingSlide) return;
+
+        // Calculate target slide index
+        const targetIndex = currentSlideIndex + direction;
+
+        // Check if target index is valid
+        if (targetIndex < 0) {
+            // If trying to go up from the first slide, exit page3
+            if (direction < 0) {
+                isChangingSlide = true;
+
+                // Scroll to above page3
+                window.scrollTo({
+                    top: page3.offsetTop - window.innerHeight * 0.5,
+                    behavior: 'smooth'
+                });
+
+                // Reset flags after animation
+                setTimeout(() => {
+                    isChangingSlide = false;
+                    hasEnteredPage3 = false;
+                }, 800);
+            }
+            return;
+        }
+
+        // If trying to go beyond the last slide, exit page3
+        if (targetIndex >= totalSlides) {
+            isChangingSlide = true;
+
+            // Scroll to below page3
+            window.scrollTo({
+                top: page3.offsetTop + page3.offsetHeight + 10,
+                behavior: 'smooth'
+            });
+
+            // Reset flags after animation
+            setTimeout(() => {
+                isChangingSlide = false;
+                hasEnteredPage3 = false;
+            }, 800);
+
+            return;
+        }
+
+        // Change to the target slide
+        isChangingSlide = true;
+
+        // Hide all slides
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+            slide.style.opacity = '0';
+        });
+
+        // Show target slide
+        slides[targetIndex].classList.add('active');
+        slides[targetIndex].style.opacity = '1';
+
+        // Update current slide index
+        currentSlideIndex = targetIndex;
+
+        // Reset changing flag after animation completes
+        setTimeout(() => {
+            isChangingSlide = false;
+        }, 800);
+    }
+
+    // Handle wheel events for scrolling through slides
+    window.addEventListener('wheel', function (e) {
+        // Update whether we're in page3
+        isInPage3 = checkIfInPage3();
+
+        // When we first enter page3
+        if (isInPage3 && !hasEnteredPage3) {
+            e.preventDefault();
+            hasEnteredPage3 = true;
+
+            // Fix the scroll position to page3
+            window.scrollTo({
+                top: page3.offsetTop,
+                behavior: 'smooth'
+            });
+
+            // If scrolling down, start at first slide
+            // If scrolling up, start at last slide
+            if (e.deltaY > 0) {
+                currentSlideIndex = 0;
+            } else {
+                currentSlideIndex = totalSlides - 1;
+            }
+
+            // Update slide visibility
+            slides.forEach((slide, index) => {
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                    slide.style.opacity = '1';
+                } else {
+                    slide.classList.remove('active');
+                    slide.style.opacity = '0';
+                }
+            });
+
+            return;
+        }
+
+        // When we're in page3, prevent normal scrolling and handle slide changes
+        if (isInPage3) {
+            e.preventDefault();
+
+            // Don't process if we're currently changing slides or scrolled too recently
+            const now = Date.now();
+            if (isChangingSlide || now - lastScrollTime < 400) return;
+
+            lastScrollTime = now;
+
+            // Determine scroll direction
+            const direction = e.deltaY > 0 ? 1 : -1;
+
+            // Change slide based on direction
+            changeSlide(direction);
+        }
+    }, { passive: false });
+
+    // Mobile touch support
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let isTouchActive = false;
+
+    page3.addEventListener('touchstart', function (e) {
+        touchStartY = e.touches[0].clientY;
+        touchStartX = e.touches[0].clientX;
+        isTouchActive = true;
+    }, { passive: true });
+
+    page3.addEventListener('touchmove', function (e) {
+        if (!isTouchActive || isChangingSlide) {
+            e.preventDefault();
+            return;
+        }
+
+        const touchY = e.touches[0].clientY;
+        const touchX = e.touches[0].clientX;
+        const diffY = touchStartY - touchY;
+        const diffX = touchStartX - touchX;
+
+        // Only handle significant vertical movements
+        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
+            e.preventDefault();
+            isTouchActive = false;
+
+            // Determine direction and change slide
+            const direction = diffY > 0 ? 1 : -1;
+            changeSlide(direction);
+        }
+    }, { passive: false });
+
+    page3.addEventListener('touchend', function () {
+        isTouchActive = false;
+    }, { passive: true });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', function (e) {
+        // Check if we're in page3
+        isInPage3 = checkIfInPage3();
+        if (!isInPage3 || isChangingSlide) return;
+
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            changeSlide(1);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeSlide(-1);
+        }
+    });
+
+    // Handle entering page3 from scroll events
+    window.addEventListener('scroll', function () {
+        // Skip if currently animating
+        if (isChangingSlide) return;
+
+        // Update whether we're in page3
+        const wasInPage3 = isInPage3;
+        isInPage3 = checkIfInPage3();
+
+        // When we enter page3, snap to it
+        if (isInPage3 && !wasInPage3 && !hasEnteredPage3) {
+            hasEnteredPage3 = true;
+
+            // Determine if we're entering from top or bottom
+            const page3Rect = page3.getBoundingClientRect();
+            const enteringFromBottom = page3Rect.top < 0;
+
+            // Set initial slide based on entry direction
+            if (enteringFromBottom) {
+                currentSlideIndex = totalSlides - 1;
+            } else {
+                currentSlideIndex = 0;
+            }
+
+            // Fix scroll position to page3
+            window.scrollTo({
+                top: page3.offsetTop,
+                behavior: 'smooth'
+            });
+
+            // Update slide visibility
+            slides.forEach((slide, index) => {
+                if (index === currentSlideIndex) {
+                    slide.classList.add('active');
+                    slide.style.opacity = '1';
+                } else {
+                    slide.classList.remove('active');
+                    slide.style.opacity = '0';
+                }
+            });
+        }
+
+        // Reset when we leave page3
+        if (!isInPage3 && wasInPage3) {
+            hasEnteredPage3 = false;
+        }
+    });
 });
-
-
-//for page 3 transition animation
-let scrollProgress = 0;
-const fixedContent = document.getElementById("fix");
-const scrollableSection = document.getElementById("page3");
-
-const scrollText = document.getElementById("header");
-scrollText.classList.add("header-style");
-
-const scrollText2 = document.getElementById("content");
-scrollText2.classList.add("content-style");
-
-const img = document.getElementById("image");
-img.classList.add("image-style");
-
-window.addEventListener("wheel", (event) => {
-    const rect = scrollableSection.getBoundingClientRect();
-    const sectionHeight = scrollableSection.clientHeight;
-    const viewportHeight = window.innerHeight;
-
-    // Check if 80% of the section is within the viewport
-    const isFullyVisible =
-        rect.top >= -sectionHeight * 0.15 &&
-        rect.bottom <= viewportHeight + sectionHeight * 0.15;
-
-    if (!isFullyVisible) {
-        return; 
-    }
-    
-    const direction = event.deltaY > 0 ? 1 : -1;
-    const newProgress = Math.min(Math.max(scrollProgress + direction, 0), 3);
-
-
-    if (newProgress !== scrollProgress) {
-        scrollProgress = newProgress;
-        handleTextUpdate(scrollProgress);
-
-        // Temporarily disable scrolling
-        document.body.style.overflow = "hidden";
-    }
-
-    if (scrollProgress < 2 && scrollProgress > 0) {
-        event.preventDefault();
-    } else{
-        document.body.style.overflow = "auto"; 
-    }
-});
-
-function handleTextUpdate(progress) {
-    switch (progress) {
-        case 0:
-            scrollText.innerHTML = "Unleash Fun with <br> MEWFIT's Cat Tower!";
-            scrollText2.innerHTML = "MEWFIT engages users through a unique cat tower game,<br> transforming workouts into fun challenges that keep you motivated.";
-            img.src = "./assets/workout_pics/workout1.jpeg";
-            break;
-        case 1:
-            scrollText.innerHTML = "Tailor-Made Diet Plans: <br> Meat, Vegan, or Vegetarian!";
-            scrollText2.innerHTML = "MEWFIT offers tailored diet plans with meat, vegan, and vegetarian options <br> to suit your lifestyle and dietary preferences.";
-            img.src = "./assets/workout_pics/workout2.jpeg";
-            break;
-        case 2:
-            scrollText.innerHTML = "Effortless Calorie Tracking <br>and Beyond!";
-            scrollText2.innerHTML = "Keep tabs on your daily calories burnt and consumed, <br> plus a host of other fitness metrics with <br> MEWFIT's comprehensive tracking features.";
-            img.src = "./assets/workout_pics/workout3.jpeg";
-            break;
-        case 3:
-            fixedContent.classList.add("hidden");
-            break;
-    }
-
-    fixedContent.style.opacity = 0;
-    setTimeout(() => {
-        fixedContent.style.opacity = 1; 
-    }, 900); 
-}

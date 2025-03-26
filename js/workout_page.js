@@ -1,32 +1,9 @@
-let selectedWorkout = null;
 class WorkoutCarousel {
     constructor() {
         this.carousel = document.querySelector('.workout-carousel');
         this.track = document.querySelector('.workout-slides');
-        this.slides = [
-            {
-                title: "Today Workout",
-                description: "Carefully crafted by AI, this invigorating routine is designed to jumpstart your day with movements that enhance flexibility, improve overall stamina, and uplift your mood.",
-                duration: "15 Minutes",
-                calories: "200 kcal",
-                image: "./assets/workout_pics/workout9.jpg"
-            },
-            {
-                title: "10 Minute Cardio",
-                description: "This fast-paced, high-energy cardio session is perfect for those with a busy schedule. Designed to elevate your heart rate and improve cardiovascular health in 10 minutes.",
-                duration: "10 Minutes",
-                calories: "150 kcal",
-                image: "./assets/workout_pics/workout11.jpg"
-            },
-            {
-                title: "No Joke Cardio",
-                description: "Push your limits with this advanced, high-intensity cardio workout that’s not for the faint of heart. Make you feel suffering and don't want to do again.  ",
-                duration: "30 Minutes",
-                calories: "350 kcal",
-                image: "./assets/workout_pics/workout10.jpg"
-            }
-        ];
-
+        // We'll use the carouselWorkouts from PHP
+        this.slides = this.getWorkoutsForToday();
         this.currentIndex = 0;
         this.isTransitioning = false;
         this.touchStartX = 0;
@@ -34,6 +11,41 @@ class WorkoutCarousel {
         this.autoSlideInterval = null;
         this.autoSlideDelay = 10000;
         this.init();
+    }
+
+    getWorkoutsForToday() {
+        // Use carouselWorkouts that was passed from PHP
+        // This already contains one random workout from each activity type
+        const today = new Date();
+        const seed = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+
+        // Create a simple hash from the date string to use as a seed
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+            hash = hash & hash; // Convert to 32bit integer
+        }
+
+        // Shuffle the array based on the date seed
+        const shuffledWorkouts = [...carouselWorkouts];
+        for (let i = shuffledWorkouts.length - 1; i > 0; i--) {
+            const j = Math.abs((hash + i) % (i + 1));
+            [shuffledWorkouts[i], shuffledWorkouts[j]] = [shuffledWorkouts[j], shuffledWorkouts[i]];
+        }
+
+        // Transform the workout data into the format needed for carousel
+        return shuffledWorkouts.map(workout => ({
+            id: workout.id,
+            title: workout.title,
+            description: workout.description || "Experience this carefully crafted workout routine designed to enhance your fitness journey.",
+            duration: workout.duration,
+            long_description: workout.long_description,
+            calories: workout.calories,
+            image: workout.image || "./assets/workout_pics/workout9.jpg",
+            level: workout.level,
+            type: workout.type,
+            exercises: workout.exercises
+        }));
     }
 
     init() {
@@ -77,11 +89,11 @@ class WorkoutCarousel {
 
     createSlides() {
         const slidesHTML = this.slides.map((slide, index) => `
-            <div class="workout-slide" data-index="${index}">
+            <div class="workout-slide" data-index="${index}" data-workout-id="${slide.id}" data-workout-index="${index}">
                 <div class="workout-card">
                     <div class="card-content">
                         <h3>${slide.title}</h3>
-                        <p>${slide.description}</p>
+                        <p>${slide.long_description}</p>
                         <div class="workout-meta">
                             <span class="duration">
                                 <i class="fas fa-clock"></i> ${slide.duration}
@@ -90,11 +102,11 @@ class WorkoutCarousel {
                                 <i class="fas fa-fire"></i> ${slide.calories}
                             </span>
                         </div>
-                        <button class="start-workout">Start Workout</button>
+                        <button class="start-workout" data-workout-id="${slide.id}">Start Workout</button>
                     </div>
                     <div class="seperate-workout-transparent"></div>
                     <div class="card-image">
-                        <img src="${slide.image}" alt="Workout">
+                        <img src="${slide.image}" alt="${slide.title}">
                     </div>
                 </div>
             </div>
@@ -102,6 +114,25 @@ class WorkoutCarousel {
 
         this.track.innerHTML = slidesHTML;
         this.slides = document.querySelectorAll('.workout-slide');
+
+        document.querySelectorAll('.start-workout').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const clickedButton = e.currentTarget || e.target;
+                const workoutId = clickedButton.getAttribute('data-workout-id');
+
+                if (workouts && workouts.length > 0) {
+                    const workout = workouts.find(w => w.id == workoutId);
+                    if (workout) {
+                        selectedWorkout = workout;
+                        displayWorkoutPopup(workout);
+                    } else {
+                        console.error('Workout not found with ID:', workoutId);
+                    }
+                } else {
+                    console.error('Workouts array is empty or undefined');
+                }
+            });
+        });
     }
 
     createNavigation() {
@@ -123,6 +154,7 @@ class WorkoutCarousel {
         this.carousel.addEventListener('touchstart', (e) => {
             this.touchStartX = e.touches[0].clientX;
             this.touchStartY = e.touches[0].clientY;
+            this.pauseAutoSlide();
         });
 
         this.carousel.addEventListener('touchmove', (e) => {
@@ -159,6 +191,8 @@ class WorkoutCarousel {
                     this.previousSlide();
                 }
             }
+
+            this.resumeAutoSlide();
         });
 
         // Mouse wheel event
@@ -169,6 +203,8 @@ class WorkoutCarousel {
 
                 if (this.isTransitioning) return;
 
+                this.pauseAutoSlide();
+
                 // Accumulate deltaX until it reaches a threshold
                 if (Math.abs(e.deltaX) > 50) {
                     if (e.deltaX > 0) {
@@ -177,6 +213,8 @@ class WorkoutCarousel {
                         this.previousSlide();
                     }
                 }
+
+                this.resumeAutoSlide();
             }
             // If it's primarily vertical scrolling, let the page scroll naturally
         }, { passive: false });
@@ -186,15 +224,33 @@ class WorkoutCarousel {
             if (this.isTransitioning) return;
 
             if (e.key === 'ArrowRight') {
+                this.pauseAutoSlide();
                 this.nextSlide();
+                this.resumeAutoSlide();
             } else if (e.key === 'ArrowLeft') {
+                this.pauseAutoSlide();
                 this.previousSlide();
+                this.resumeAutoSlide();
             }
         });
 
         // Navigation dots
         document.querySelectorAll('.nav-dot').forEach((dot, index) => {
-            dot.addEventListener('click', () => this.goToSlide(index));
+            dot.addEventListener('click', () => {
+                this.pauseAutoSlide();
+                this.goToSlide(index);
+                this.resumeAutoSlide();
+            });
+        });
+
+        // Pause auto slide when user interacts with carousel
+        this.carousel.addEventListener('mouseenter', () => {
+            this.pauseAutoSlide();
+        });
+
+        // Resume auto slide when user stops interacting with carousel
+        this.carousel.addEventListener('mouseleave', () => {
+            this.resumeAutoSlide();
         });
     }
 
@@ -254,292 +310,570 @@ class WorkoutCarousel {
     }
 }
 
-const styles = `
-`;
+// Helper function to display the workout popup
+function displayWorkoutPopup(workout) {
+    const popupContainer = document.getElementById('popup-container');
+
+    // Set popup content
+    document.getElementById('popup-title').textContent = workout.title;
+    document.getElementById('popup-desc').textContent = workout.description;
+    document.getElementById('popup-duration').textContent = workout.duration.replace(' min', '');
+    document.getElementById('popup-calories').textContent = workout.calories.replace(' kcal', '');
+
+    // Update the difficulty level using the separate function
+    if (workout.level) {
+        updatePopupLevel(workout.level);
+    } else {
+        // Fallback if level is not defined
+        document.getElementById('popup-level').textContent = 'Beginner';
+    }
+
+    document.getElementById('popup-workout-image').src = workout.image;
+
+    // Update exercise list with video capabilities
+    updateExerciseList(workout);
+
+    // Show popup
+    popupContainer.classList.add('active');
+    setTimeout(forceArrowCheck, 100);
+    setupExerciseListArrows();
+
+    // Add event listener to start workout button in popup
+    const startButton = document.querySelector('.popup-start-button');
+    if (startButton) {
+        // Remove any existing event listeners
+        const newButton = startButton.cloneNode(true);
+        startButton.parentNode.replaceChild(newButton, startButton);
+
+        // Add new event listener
+        newButton.addEventListener('click', () => {
+            // Redirect to workout session page with the selected workout ID
+            window.location.href = `workout_session.php?id=${workout.id}`;
+        });
+    }
+}
+
+// Filter workouts by type function
+function filterWorkouts(type) {
+    if (type === 'All') return workouts;
+    return workouts.filter(workout => workout.type.includes(type));
+}
+
+// Initialize workout grid event listeners
+function initWorkoutGrid() {
+    // Add click event listeners to workout cards
+    document.querySelectorAll('.workout-card').forEach(card => {
+        card.addEventListener('click', function () {
+            const workoutId = this.getAttribute('data-workout-id');
+            const workout = workouts.find(w => w.id == workoutId);
+            if (workout) {
+                selectedWorkout = workout;
+                displayWorkoutPopup(workout);
+            }
+        });
+    });
+}
 
 // Initialize carousel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Add styles
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
-
-    // Initialize carousel
     new WorkoutCarousel();
+
+    // Setup popup close button
+    const popupContainer = document.getElementById('popup-container');
+    const closeButton = document.querySelector('.popup-close');
+
+    if (closeButton && popupContainer) {
+        closeButton.addEventListener('click', () => {
+            popupContainer.classList.remove('active');
+            selectedWorkout = null;
+            stopAllVideos();
+        });
+
+        // Close popup when clicking outside
+        popupContainer.addEventListener('click', (e) => {
+            if (e.target === popupContainer) {
+                popupContainer.classList.remove('active');
+                selectedWorkout = null;
+                stopAllVideos();
+            }
+        });
+    }
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
-document.querySelectorAll('.activity-card').forEach(card => {
+document.addEventListener('DOMContentLoaded', () => {
+    // Dark mode initialization
+    const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
+    const cards = document.querySelectorAll('.activity-card');
     const defaultSelection = document.getElementById('default-selection');
 
-    function checkDarkMode() {
-        const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
-        if (darkModeToggle) {
-            // Set initial state based on localStorage
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            darkModeToggle.checked = isDarkMode;
-            document.documentElement.classList.toggle('dark-mode', isDarkMode);
-        }
+    function setupActivityTypesScroll() {
+        const cardContainer = document.querySelector('.activity-cards-container');
+        if (!cardContainer) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            cardContainer.style.cursor = 'grabbing';
+            startX = e.pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+            e.preventDefault();
+        });
+
+        cardContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            cardContainer.style.cursor = 'grab';
+        });
+
+        cardContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5; // Scroll speed multiplier
+            cardContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDown = true;
+            startX = e.touches[0].pageX - cardContainer.offsetLeft;
+            scrollLeft = cardContainer.scrollLeft;
+        });
+
+        cardContainer.addEventListener('touchend', () => {
+            isDown = false;
+        });
+
+        cardContainer.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - cardContainer.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            cardContainer.scrollLeft = scrollLeft - walk;
+            e.preventDefault();
+        });
     }
 
-    function updateCardStyles(card, isDefault = false) {
+    function applyDarkMode(isDarkMode) {
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+
+        cards.forEach(card => {
+            updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
+        });
+
+        // Dispatch a custom event to notify changes
+        const event = new CustomEvent('darkModeChange', { detail: { isDarkMode } });
+        window.dispatchEvent(event);
+    }
+
+    function checkDarkMode() {
+        return document.documentElement.classList.contains('dark-mode');
+    }
+
+    function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        darkModeToggle.checked = isDarkMode;
+        applyDarkMode(isDarkMode);
+    }
+
+    function updateCardStyles(card, isActive = false) {
         const isDark = checkDarkMode();
 
         if (isDark) {
-            card.style.background = isDefault ? '#F97316' : '#4d4d4e';
-            card.style.color = '#E5E7EB';
-            card.style.border = isDefault ? '1px solid #F97316' : '1px solid #374151';
+            card.style.background = isActive ? '#ffa07a' : '#4d4d4e';
+            card.style.color = isActive ? '#ffffff' : '#E5E7EB';
+            card.style.border = isActive ? '2px solid#ea8b47' : '1px solid #374151';
         } else {
-            card.style.background = isDefault ? '#FFAD84' : 'white';
-            card.style.color = isDefault ? 'white' : 'black';
-            card.style.border = '1px solid #E5E7EB';
+            card.style.background = isActive ? '#FFAD84' : '#ffffff';
+            card.style.color = isActive ? '#ffffff' : '#000000';
+            card.style.border = isActive ? '2px solid #FFAD84' : '1px solid #E5E7EB';
         }
         card.style.transition = 'all 0.3s ease';
     }
 
-    updateCardStyles(card, card === defaultSelection);
-
-    card.addEventListener('mouseover', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        if (!isActive) {
-            card.style.background = isDark ? '#374151' : '#FFE4D2';
-        }
+    // Toggle dark mode when the checkbox changes
+    darkModeToggle.addEventListener('change', (event) => {
+        const isDarkMode = event.target.checked;
+        localStorage.setItem('darkMode', isDarkMode);
+        applyDarkMode(isDarkMode);
     });
 
-    card.addEventListener('mouseout', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
+    // Add event handlers to all cards
+    cards.forEach(card => {
+        updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
 
-        if (!isActive) {
-            updateCardStyles(card);
-        }
-    });
-
-    // Handle click states
-    card.addEventListener('click', () => {
-        const isDark = checkDarkMode();
-        const isActive = isDark ?
-            (card.style.background === 'rgb(249, 115, 22)') :
-            (card.style.background === 'rgb(255, 173, 132)');
-
-        document.querySelectorAll('.activity-card').forEach(c => {
-            updateCardStyles(c);
+        // Click to toggle active state
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            cards.forEach(c => updateCardStyles(c, c.classList.contains('active')));
         });
 
-        if (!isActive) {
-            if (isDark) {
-                card.style.background = '#F97316';
-                card.style.border = '1px solid #F97316';
-                card.style.color = 'white';
-            } else {
-                card.style.background = '#FFAD84';
-                card.style.color = 'white';
+        // Mouseover (hover) to temporarily highlight the card
+        card.addEventListener('mouseover', () => {
+            const isDark = checkDarkMode();
+            if (!card.classList.contains('active')) {
+                card.style.background = isDark ? '#cc916a' : '#FFE4D2';
             }
-        }
+        });
+
+        // Mouseout to revert the card's style
+        card.addEventListener('mouseout', () => {
+            if (!card.classList.contains('active')) {
+                updateCardStyles(card);
+            }
+        });
+
+        // Update card styles on dark mode change
+        window.addEventListener('darkModeChange', () => {
+            updateCardStyles(card, card.classList.contains('active'));
+        });
     });
 
-    window.addEventListener('darkModeChange', (event) => {
-        const isDefault = card === defaultSelection;
-        updateCardStyles(card, isDefault);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateCardStyles(card, card === defaultSelection);
-    });
+    // Initialize dark mode and activity types scroll
+    initializeDarkMode();
+    setupActivityTypesScroll();
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
-// Workout Cards
-const workouts = [
-    {
-        title: 'Quick Cardio Starter',
-        duration: '10 minutes',
-        calories: '80Kcal',
-        level: 'Beginner',
-        description: 'A quick and easy cardio workout to get started.',
-        image: '',
-        video: '',
-        type: ['All', 'Cardio'],
-        sets: 1,
-        exercises: [
-            { exercise: 'March in Place', duration: '3 minutes' },
-            { exercise: 'Side Steps', duration: '3 minutes' },
-            { exercise: 'Low Impact Jumping Jacks', duration: '3 minutes' },
-            { exercise: 'Cool Down Stretches', duration: '1 minute' }
-        ]
-    },
-    {
-        title: 'Push-Up Basics',
-        duration: '15 minutes',
-        calories: '150Kcal',
-        level: 'Beginner',
-        description: 'Learn the basics of push-ups and build strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Weightfree'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Knee Push-ups', reps: 12 },
-            { exercise: 'Incline Push-ups', reps: 10 },
-            { exercise: 'Wide Arm Push-ups', reps: 8 },
-            { exercise: 'Rest', duration: '2 minutes' }
-        ]
-    },
-    {
-        title: 'Yoga for Relaxation',
-        duration: '20 minutes',
-        calories: '120Kcal',
-        level: 'Beginner',
-        description: 'A calming yoga session for flexibility and stress relief.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Child’s Pose', duration: '5 minutes' },
-            { pose: 'Cat-Cow Stretch', duration: '5 minutes' },
-            { pose: 'Seated Forward Bend', duration: '5 minutes' },
-            { pose: 'Corpse Pose', duration: '5 minutes' }
-        ]
-    },
-    {
-        title: 'Mindful Breathing',
-        duration: '15 minutes',
-        calories: '50Kcal',
-        level: 'Beginner',
-        description: 'Focus on your breath to relax your body and mind.',
-        image: '',
-        video: '',
-        type: ['All', 'Meditation'],
-        sets: 1,
-        exercises: [
-            { activity: 'Breathing Exercise', duration: '5 minutes' },
-            { activity: 'Body Awareness Meditation', duration: '5 minutes' },
-            { activity: 'Closing Reflection', duration: '5 minutes' }
-        ]
-    },
-    {
-        title: 'Core Strength Builder',
-        duration: '20 minutes',
-        calories: '200Kcal',
-        level: 'Intermediate',
-        description: 'Strengthen your core with targeted exercises.',
-        image: '',
-        video: '',
-        type: ['All', 'Weightfree'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Plank Hold', duration: '1 minute' },
-            { exercise: 'Bicycle Crunches', reps: 20 },
-            { exercise: 'Leg Raises', reps: 15 },
-            { exercise: 'Side Planks', duration: '30 seconds each side' },
-            { exercise: 'Rest', duration: '2 minutes' }
-        ]
-    },
-    {
-        title: 'Pull-Up Progression',
-        duration: '25 minutes',
-        calories: '300Kcal',
-        level: 'Intermediate',
-        description: 'Improve your pull-up form and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Weighted'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Assisted Pull-ups', reps: 10 },
-            { exercise: 'Chin-ups', reps: 8 },
-            { exercise: 'Negative Pull-ups', reps: 6 },
-            { exercise: 'Wide-grip Pull-ups', reps: 6 },
-            { exercise: 'Rest', duration: '2 minutes' }
-        ]
-    },
-    {
-        title: 'Dynamic Yoga Flow',
-        duration: '25 minutes',
-        calories: '200Kcal',
-        level: 'Intermediate',
-        description: 'A more active yoga sequence for flexibility and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Sun Salutations', duration: '10 minutes' },
-            { pose: 'Warrior I and II', duration: '5 minutes' },
-            { pose: 'Triangle Pose', duration: '5 minutes' },
-            { pose: 'Pigeon Pose', duration: '5 minutes' }
-        ]
-    },
-    {
-        title: 'Cardio Extreme',
-        duration: '20 minutes',
-        calories: '300Kcal',
-        level: 'Advanced',
-        description: 'A high-intensity cardio session for experienced athletes.',
-        image: '',
-        video: '',
-        type: ['All', 'Cardio'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Sprint Intervals', duration: '4 minutes' },
-            { exercise: 'Burpees', duration: 'llenge' },
-            { exercise: 'Jump Squats', duration: '4 minutes' },
-            { exercise: 'Mountain Climbers', duration: '4 minutes' },
-            { exercise: 'Cool Down', duration: '4 minutes' }
-        ]
-    },
-    {
-        title: 'Strength Max',
-        duration: '30 minutes',
-        calories: '350Kcal',
-        level: 'Advanced',
-        description: 'Build maximum strength with a challenging routine.',
-        image: '',
-        video: '',
-        type: ['All', 'Weighted'],
-        sets: 3,
-        exercises: [
-            { exercise: 'Deadlifts', reps: 10 },
-            { exercise: 'Barbell Squats', reps: 10 },
-            { exercise: 'Bench Press', reps: 8 },
-            { exercise: 'Pull-ups', reps: 10 },
-            { exercise: 'Rest', duration: '3 minutes' }
-        ]
-    },
-    {
-        title: 'Advanced Yoga Challenge',
-        duration: '30 minutes',
-        calories: '250Kcal',
-        level: 'Advanced',
-        description: 'A powerful yoga sequence for flexibility and strength.',
-        image: '',
-        video: '',
-        type: ['All', 'Yoga'],
-        sets: 1,
-        exercises: [
-            { pose: 'Handstand Practice', duration: '10 minutes' },
-            { pose: 'Crow Pose', duration: '5 minutes' },
-            { pose: 'Wheel Pose', duration: '10 minutes' },
-            { pose: 'Savasana', duration: '5 minutes' }
-        ]
+// Top Picks For You
+let displayedWorkouts = [];
+
+function getRecommendedWorkouts(userProfile, allWorkouts) {
+    // Destructure user profile data - mapped to match PHP response format
+    const {
+        height,
+        weight,
+        goal, // 'lose', 'gain', or 'maintain'
+        fitnessLevel = 'beginner', // Default to beginner if not specified
+        preferences = [], // Array of preferred workout types
+        completedWorkouts = [], // Array of workout IDs the user has completed
+        healthConditions = [] // Any health conditions to consider
+    } = userProfile;
+
+    // Calculate BMI (optional - can be used for more personalized recommendations)
+    const bmi = weight / ((height / 100) ** 2);
+
+    // Define scoring criteria based on user goal
+    const scoreWorkout = (workout) => {
+        let score = 0;
+
+        // Base score adjustments by goal
+        if (goal === 'lose') {
+            // For weight loss, prioritize cardio and HIIT workouts with higher calorie burn
+            if (workout.type.includes('Cardio')) score += 3;
+            if (workout.type.includes('Weight-free')) score += 2;
+
+            // Higher calorie burn is better for weight loss
+            const calories = parseInt(workout.calories);
+            if (calories > 300) score += 3;
+            else if (calories > 200) score += 2;
+            else if (calories > 100) score += 1;
+        }
+        else if (goal === 'gain') {
+            // For weight gain (muscle), prioritize weighted workouts
+            if (workout.type.includes('Weighted')) score += 3;
+
+            // Longer duration strength workouts are good for muscle gain
+            const duration = parseInt(workout.duration);
+            if (duration >= 40) score += 2;
+            else if (duration >= 25) score += 1;
+        }
+        else { // 'maintain' or general fitness
+            // Balanced approach
+            score += 1; // Base score for all workouts
+
+            // Slight preference for balanced workouts
+            if (workout.type.length >= 2) score += 1; // Multi-type workouts
+        }
+
+        // Match workout difficulty to user's fitness level
+        if (workout.level.toLowerCase() === fitnessLevel.toLowerCase()) score += 2;
+
+        // Don't recommend workouts that are too advanced for beginners
+        if (fitnessLevel === 'beginner' && workout.level === 'Advanced') score -= 3;
+
+        // Respect user preferences
+        preferences.forEach(pref => {
+            if (workout.type.includes(pref)) score += 2;
+        });
+
+        // Consider health conditions
+        if (healthConditions.includes('joint_pain') &&
+            (workout.type.includes('Yoga') || workout.description.toLowerCase().includes('low impact'))) {
+            score += 2;
+        }
+
+        // Consider age for certain workout types
+        if (userProfile.age > 50) {
+            // For older users, prioritize low-impact workouts
+            if (workout.description.toLowerCase().includes('low impact')) score += 2;
+            // Reduce score for high-intensity workouts unless they're already at advanced level
+            if (workout.description.toLowerCase().includes('high intensity') &&
+                fitnessLevel !== 'advanced') score -= 1;
+        }
+
+        // Variety - downrank workouts the user has recently completed
+        if (completedWorkouts.includes(workout.id)) score -= 2;
+
+        return score;
+    };
+
+    // Score and sort all workouts
+    const scoredWorkouts = allWorkouts.map(workout => ({
+        ...workout,
+        score: scoreWorkout(workout)
+    }));
+
+    // Sort by score (highest first)
+    scoredWorkouts.sort((a, b) => b.score - a.score);
+
+    // Return top workouts (can adjust number as needed)
+    return scoredWorkouts.slice(0, 6);
+}
+
+function findTopPicksSection() {
+    // First find all sections with the workout-body class
+    const sections = document.querySelectorAll('section.workout-body');
+
+    // Then loop through them to find the one with the title we want
+    for (const section of sections) {
+        const titleElement = section.querySelector('.section-title');
+        if (titleElement && titleElement.textContent.includes('Top Picks For You')) {
+            return section;
+        }
     }
-];
+    return null;
+}
 
+// Function to update Top Picks section on the workout page
+function updateTopPicksSection(userProfile) {
+    // Get recommended workouts
+    const recommendedWorkouts = getRecommendedWorkouts(userProfile, workouts);
 
-// Helper function to create a workout card
+    // Find the Top Picks section
+    const topPicksSection = findTopPicksSection();
+    const workoutGrid = topPicksSection?.querySelector('.workout-grid');
+
+    if (workoutGrid) {
+        // Clear existing workouts
+        workoutGrid.innerHTML = '';
+
+        // Add recommended workouts
+        if (recommendedWorkouts.length > 0) {
+            workoutGrid.classList.add('scroll-layout');
+
+            // Create workout cards with appropriate indexing
+            workoutGrid.innerHTML = recommendedWorkouts.map((workout, index) => {
+                const originalIndex = workouts.findIndex(w => w.id === workout.id);
+                return createWorkoutCard(workout, originalIndex);
+            }).join('');
+
+            // Setup scroll arrows for this grid
+            setupScrollArrows(workoutGrid);
+
+            // Make sure to update click handlers
+            setupWorkoutCardClick();
+
+            // Show the section
+            topPicksSection.style.display = '';
+        } else {
+            // Hide section if no recommendations
+            topPicksSection.style.display = 'none';
+        }
+    }
+}
+
+function loadUserProfile() {
+    return new Promise((resolve, reject) => {
+        // Make AJAX call to get user profile data from your PHP endpoint
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'get_user_data.php', true);
+        xhr.onload = function () {
+            if (this.status === 200) {
+                try {
+                    const response = JSON.parse(this.responseText);
+
+                    // Check if user is logged in and data is available
+                    if (response.isLoggedIn && response.memberData) {
+                        // Changed from userData to memberData to match PHP
+                        resolve(response.memberData);
+                    } else {
+                        // User not logged in or data not available
+                        console.log('User not logged in or data not available:', response.error || 'Unknown error');
+                        resolve(null);
+                    }
+                } catch (e) {
+                    console.error('Error parsing user profile data:', e);
+                    reject(e);
+                }
+            } else {
+                reject(new Error('Failed to load user profile: ' + this.status));
+            }
+        };
+        xhr.onerror = function () {
+            reject(new Error('Network error when loading user profile'));
+        };
+        xhr.send();
+    });
+}
+
+// Function to initialize the Top Picks section
+async function initializeTopPicks() {
+    try {
+        // Load user profile
+        const userProfile = await loadUserProfile();
+
+        // Find the Top Picks section
+        const topPicksSection = findTopPicksSection();
+        const workoutGrid = topPicksSection?.querySelector('.workout-grid');
+
+        if (!workoutGrid) return;
+
+        // Clear existing workouts
+        workoutGrid.innerHTML = '';
+
+        let recommendedWorkouts = [];
+
+        if (userProfile) {
+            // User is logged in, use personalized recommendations
+            recommendedWorkouts = getRecommendedWorkouts(userProfile, workouts);
+        } else {
+            // User not logged in, show generic recommendations
+            recommendedWorkouts = [...workouts] // Create a copy to avoid mutating the original array
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 6);
+        }
+
+        if (recommendedWorkouts.length > 0) {
+            workoutGrid.classList.add('scroll-layout');
+
+            // IMPORTANT: Store these recommendations so we can reference them later
+            // This is crucial for making sure we show the correct workout
+            displayedWorkouts = recommendedWorkouts;
+
+            // Create workout cards - each card includes the actual workout ID
+            workoutGrid.innerHTML = recommendedWorkouts.map((workout, position) => {
+                // Using workout ID as a reliable identifier
+                return `
+                    <div class="workout-card-content" data-workout-id="${workout.id}" data-position="${position}">
+                        <div class="workout-image">
+                            <img src="${workout.image || './assets/icons/error.svg'}" alt="${workout.title}">
+                        </div>
+                        <div class="workout-info">
+                            <h3 class="workout-title">${workout.title}</h3>
+                            <span class="workout-level">${workout.level}</span>
+                            <div class="workout-stats">
+                                <span><i class="fas fa-clock"></i> ${workout.duration}</span>
+                                <span><i class="fas fa-fire"></i> ${workout.calories}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Setup scroll arrows for this grid
+            setupScrollArrows(workoutGrid);
+
+            // Show the section
+            topPicksSection.style.display = '';
+        }
+
+        // Setup click event handlers specifically for the Top Picks section
+        workoutGrid.querySelectorAll('.workout-card-content').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling
+
+                // Get the workout ID and position
+                const workoutId = card.getAttribute('data-workout-id');
+                const position = parseInt(card.getAttribute('data-position'));
+
+                // Get the actual workout object from our stored recommendations
+                const workout = displayedWorkouts[position];
+
+                if (!workout) {
+                    console.error('Workout not found in displayedWorkouts array at position', position);
+                    return;
+                }
+
+                // Store the selected workout
+                selectedWorkout = workout;
+
+                // Update popup content
+                const popup = document.getElementById('popup-container');
+
+                document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+                document.getElementById('popup-desc').textContent = workout.description;
+
+                // Extract numbers only
+                const durationNum = workout.duration.match(/\d+/)[0];
+                document.getElementById('popup-duration').textContent = durationNum;
+
+                const caloriesNum = workout.calories.match(/\d+/)[0];
+                document.getElementById('popup-calories').textContent = caloriesNum;
+
+                updatePopupLevel(workout.level);
+
+                // Update image
+                const workoutImage = document.getElementById('popup-workout-image');
+                if (workout.image) {
+                    workoutImage.src = workout.image;
+                    workoutImage.alt = `${workout.title} Image`;
+                    workoutImage.style.objectFit = 'cover';
+                } else {
+                    workoutImage.src = './assets/icons/error.svg';
+                    workoutImage.alt = 'Workout Image Not Found';
+                    workoutImage.style.objectFit = 'contain';
+                    workoutImage.style.width = '60%';
+                    workoutImage.style.height = 'auto';
+                }
+
+                // Update exercise list
+                updateExerciseList(workout);
+
+                // Show popup
+                popup.classList.add('active');
+            });
+        });
+    } catch (error) {
+        console.error('Error initializing Top Picks:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWorkoutSections();
+    initializeTopPicks();
+    setupRecentWorkoutCards();
+
+    // Apply scroll arrows to recently workout section
+    const recentlyWorkoutGrid = document.getElementById('recently-workout-grid');
+    if (recentlyWorkoutGrid) {
+        setupScrollArrows(recentlyWorkoutGrid);
+    }
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
+});
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Workout Card
 const createWorkoutCard = (workout, index) => {
+    const image = workout.image ? `${workout.image}` : './assets/icons/error.svg';
+
     return `
         <div class="workout-card-content" data-workout-index="${index}" data-workout-type="${workout.type.join(',')}" data-workout-title="${workout.title}">
             <div class="workout-image">
-                <img src="${workout.image || './assets/default-workout.jpg'}" alt="${workout.title}">
+                <img src="${image}" alt="${workout.title}">
             </div>
             <div class="workout-info">
                 <h3 class="workout-title">${workout.title}</h3>
@@ -554,57 +888,46 @@ const createWorkoutCard = (workout, index) => {
 };
 
 
-const filterWorkouts = (type) => {
+function filterWorkouts(type) {
     if (type === 'All') return workouts;
     return workouts.filter(workout => workout.type.includes(type));
-};
+}
 
-const styleSheet = document.createElement('style');
-styleSheet.textContent = styles;
-document.head.appendChild(styleSheet);
+// const styleSheet = document.createElement('style');
+// styleSheet.textContent = styles;
+// document.head.appendChild(styleSheet);
 
 // Function to update the popup level display
 function updatePopupLevel(level) {
     const popupLevel = document.getElementById('popup-level');
+    if (!popupLevel) return;
+
     const currentMeter = popupLevel.querySelector('.difficulty-meter');
 
-    // Remove existing meter if it exists
     if (currentMeter) {
         currentMeter.remove();
     }
 
-    // Create difficulty meter container
     const meterContainer = document.createElement('div');
     meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
 
-    // Create three bars
+    // Create three bars for the difficulty meter
     for (let i = 0; i < 3; i++) {
         const bar = document.createElement('div');
         bar.className = 'difficulty-bar';
         meterContainer.appendChild(bar);
     }
 
-    // Determine how many bars to fill based on level
-    let activeBars = 0;
-    switch (level.toLowerCase()) {
-        case 'beginner':
-            activeBars = 1;
-            break;
-        case 'intermediate':
-            activeBars = 2;
-            break;
-        case 'advanced':
-            activeBars = 3;
-            break;
-    }
-
-    // Activate the appropriate number of bars
+    // Set active bars based on level
     const bars = meterContainer.querySelectorAll('.difficulty-bar');
+    const activeBars = level.toLowerCase() === 'beginner' ? 1
+        : level.toLowerCase() === 'intermediate' ? 2
+            : 3;
+
     for (let i = 0; i < activeBars; i++) {
         bars[i].classList.add('active');
     }
 
-    // Replace the content of popup-level
     popupLevel.innerHTML = '';
     popupLevel.appendChild(meterContainer);
 }
@@ -612,50 +935,140 @@ function updatePopupLevel(level) {
 // Modify your existing setupWorkoutCardClick function
 function setupWorkoutCardClick() {
     document.querySelectorAll('.workout-card-content').forEach(card => {
-        card.addEventListener('click', () => {
-            const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
-            const workoutTitle = card.getAttribute('data-workout-title');
+        // Remove any existing click listeners to prevent duplicates
+        const cardClone = card.cloneNode(true);
+        card.parentNode.replaceChild(cardClone, card);
+
+        cardClone.addEventListener('click', () => {
+            // Get the workout title directly from the data attribute
+            const workoutTitle = cardClone.getAttribute('data-workout-title');
+
+            // Find the workout by title instead of index
             const workout = workouts.find(w => w.title === workoutTitle);
 
             if (!workout) {
-                console.error('Workout not found:', workoutTitle);
+                console.error('Workout not found with title:', workoutTitle);
                 return;
             }
 
+            // Store the selected workout
             selectedWorkout = workout;
 
             // Update popup content
-            const workoutImage = document.getElementById('popup-workout-image');
-            workoutImage.src = workout.image || './assets/default-workout.jpg';
-            workoutImage.alt = `${workout.title} Image`;
+            const popup = document.getElementById('popup-container');
 
-            // Set other details
             document.getElementById('popup-title').textContent = workout.title.toUpperCase();
             document.getElementById('popup-desc').textContent = workout.description;
-            document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
-            document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
 
-            // Update the level display with the new meter
+            // Extract numbers only
+            const durationNum = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            const caloriesNum = workout.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
             updatePopupLevel(workout.level);
 
+            // Update image
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+                workoutImage.style.objectFit = 'cover';
+            } else {
+                workoutImage.src = './assets/icons/error.svg';
+                workoutImage.alt = 'Workout Image Not Found';
+                workoutImage.style.objectFit = 'contain';
+                workoutImage.style.width = '60%';
+                workoutImage.style.height = 'auto';
+            }
+
+            // Update exercise list
+            updateExerciseList(workout);
+
             // Show popup
-            document.getElementById('popup-container').classList.add('active');
+            popup.classList.add('active');
         });
     });
 
     // Setup popup close handlers
-    document.getElementById('popup-container').addEventListener('click', (e) => {
-        if (e.target.classList.contains('popup-close') || e.target === document.getElementById('popup-container')) {
-            document.getElementById('popup-container').classList.remove('active');
+    const popup = document.getElementById('popup-container');
+    const closeHandlers = popup.querySelectorAll('.popup-close');
+
+    // Remove existing event listeners to prevent duplicates
+    popup.outerHTML = popup.outerHTML;
+
+    // Re-select popup after replacing it
+    const newPopup = document.getElementById('popup-container');
+
+    newPopup.addEventListener('click', (e) => {
+        if (e.target.classList.contains('popup-close') || e.target === newPopup) {
+            newPopup.classList.remove('active');
             selectedWorkout = null;
         }
     });
 }
 
+function setupRecentWorkoutCards() {
+    // Select all recently workout cards
+    document.querySelectorAll('.workout-card-recently').forEach(card => {
+        card.addEventListener('click', () => {
+            const workoutId = card.getAttribute('data-workout-id');
+
+            // Find the workout by ID
+            const workout = workouts.find(w => w.id === workoutId);
+
+            if (!workout) {
+                console.error('Workout not found with ID:', workoutId);
+                return;
+            }
+
+            // Store the selected workout
+            selectedWorkout = workout;
+
+            // Update popup content
+            const popup = document.getElementById('popup-container');
+
+            document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+            document.getElementById('popup-desc').textContent = workout.description;
+
+            // Extract numbers only
+            const durationNum = workout.duration.match(/\d+/)[0];
+            document.getElementById('popup-duration').textContent = durationNum;
+
+            const caloriesNum = workout.calories.match(/\d+/)[0];
+            document.getElementById('popup-calories').textContent = caloriesNum;
+
+            updatePopupLevel(workout.level);
+
+            // Update image
+            const workoutImage = document.getElementById('popup-workout-image');
+            if (workout.image) {
+                workoutImage.src = workout.image;
+                workoutImage.alt = `${workout.title} Image`;
+                workoutImage.style.objectFit = 'cover';
+            } else {
+                workoutImage.src = './assets/icons/error.svg';
+                workoutImage.alt = 'Workout Image Not Found';
+                workoutImage.style.objectFit = 'contain';
+                workoutImage.style.width = '60%';
+                workoutImage.style.height = 'auto';
+            }
+
+            // Update exercise list
+            updateExerciseList(workout);
+
+            // Show popup
+            popup.classList.add('active');
+        });
+    });
+}
+
+
 document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
         localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
-        window.location.href = 'subworkout_page.html';
+        window.location.href = 'subworkout_page.php';
     } else {
         console.error('No workout selected');
     }
@@ -666,84 +1079,930 @@ function initializeWorkoutSections() {
         const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
         const workoutGrid = section.querySelector('.workout-grid');
 
-        if (workoutGrid) {
+        if (!workoutGrid) return;
+
+        // Skip Top Picks and Recently Workout sections
+        if (sectionTitle === 'Top Picks For You' || sectionTitle === 'Recently Workout') {
+            return;
+        }
+
+        const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '').trim();
+        const filteredWorkouts = filterWorkouts(sectionType);
+
+        // Store section-specific workouts in a data attribute
+        section.setAttribute('data-section-workouts', JSON.stringify(filteredWorkouts.map(w => w.id)));
+
+        // Only add scroll layout for non-empty sections
+        if (filteredWorkouts.length > 0) {
             workoutGrid.classList.add('scroll-layout');
-            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
-            const filteredWorkouts = filterWorkouts(sectionType);
-            workoutGrid.innerHTML = filteredWorkouts.map((workout, index) =>
-                createWorkoutCard(workout, index)
-            ).join('');
+
+            // Display the workouts
+            workoutGrid.innerHTML = filteredWorkouts.map((workout, index) => {
+                return `
+                    <div class="workout-card-content" data-workout-id="${workout.id}" data-section-index="${index}"  data-workout-title="${workout.title}">
+                        <div class="workout-image">
+                            <img src="${workout.image || './assets/icons/error.svg'}" alt="${workout.title}">
+                        </div>
+                        <div class="workout-info">
+                            <h3 class="workout-title">${workout.title}</h3>
+                            <span class="workout-level">${workout.level}</span>
+                            <div class="workout-stats">
+                                <span><i class="fas fa-clock"></i> ${workout.duration}</span>
+                                <span><i class="fas fa-fire"></i> ${workout.calories}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            setupScrollArrows(workoutGrid);
+
+            // Add click handlers for each card in this section
+            workoutGrid.querySelectorAll('.workout-card-content').forEach(card => {
+                card.addEventListener('click', () => {
+                    const workoutId = card.getAttribute('data-workout-id');
+                    const sectionIndex = parseInt(card.getAttribute('data-section-index'));
+
+                    // Get section's workouts
+                    const sectionWorkouts = JSON.parse(section.getAttribute('data-section-workouts'));
+
+                    // Find the workout by ID
+                    const workout = workouts.find(w => w.id === workoutId);
+
+                    if (!workout) {
+                        console.error('Workout not found with ID:', workoutId);
+                        return;
+                    }
+
+                    // Store the selected workout
+                    selectedWorkout = workout;
+
+                    // Update popup content
+                    const popup = document.getElementById('popup-container');
+
+                    document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+                    document.getElementById('popup-desc').textContent = workout.description;
+
+                    // Extract numbers only
+                    const durationNum = workout.duration.match(/\d+/)[0];
+                    document.getElementById('popup-duration').textContent = durationNum;
+
+                    const caloriesNum = workout.calories.match(/\d+/)[0];
+                    document.getElementById('popup-calories').textContent = caloriesNum;
+
+                    updatePopupLevel(workout.level);
+
+                    // Update image
+                    const workoutImage = document.getElementById('popup-workout-image');
+                    if (workout.image) {
+                        workoutImage.src = workout.image;
+                        workoutImage.alt = `${workout.title} Image`;
+                        workoutImage.style.objectFit = 'cover';
+                    } else {
+                        workoutImage.src = './assets/icons/error.svg';
+                        workoutImage.alt = 'Workout Image Not Found';
+                        workoutImage.style.objectFit = 'contain';
+                        workoutImage.style.width = '60%';
+                        workoutImage.style.height = 'auto';
+                    }
+
+                    // Update exercise list
+                    updateExerciseList(workout);
+
+                    // Show popup
+                    popup.classList.add('active');
+                });
+            });
         }
     });
-
-    setupWorkoutCardClick();
 }
 
-document.querySelectorAll('.activity-card').forEach(card => {
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeWorkoutSections();
+function setupScrollArrows(grid) {
+    // Remove any existing wrapper and arrows
+    const existingWrapper = grid.parentElement.querySelector('.grid-wrapper');
+    if (existingWrapper) {
+        const originalGrid = existingWrapper.querySelector('.workout-grid');
+        if (originalGrid) {
+            existingWrapper.replaceWith(originalGrid);
+        }
+    }
 
-        const defaultCard = document.querySelector('.activity-card-all');
-        if (defaultCard) {
-            defaultCard.click();
+    // Create new wrapper and elements
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'grid-wrapper';
+    grid.parentNode.insertBefore(gridWrapper, grid);
+    gridWrapper.appendChild(grid);
+
+    const gradientLeft = document.createElement('div');
+    gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+    const gradientRight = document.createElement('div');
+    gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'scroll-arrow scroll-arrow-left';
+    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'scroll-arrow scroll-arrow-right';
+    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+    gridWrapper.appendChild(gradientLeft);
+    gridWrapper.appendChild(gradientRight);
+    gridWrapper.appendChild(leftArrow);
+    gridWrapper.appendChild(rightArrow);
+
+    const updateArrowVisibility = () => {
+        const isAtStart = grid.scrollLeft <= 0;
+        const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+        const hasOverflow = grid.scrollWidth > grid.clientWidth;
+
+        // Only show arrows and gradients if there's overflow
+        const showControls = hasOverflow && grid.children.length > 0;
+
+        gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+        leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+        gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+        rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+    };
+
+    // Handle arrow clicks with stopPropagation
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: -300,
+            behavior: 'smooth'
+        });
+    });
+
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        grid.scrollBy({
+            left: 300,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update arrow visibility on various events
+    grid.addEventListener('scroll', updateArrowVisibility);
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Initial check
+    updateArrowVisibility();
+
+    // Add mutation observer to watch for content changes
+    const observer = new MutationObserver(updateArrowVisibility);
+    observer.observe(grid, { childList: true, subtree: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWorkoutSections();
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
+});
+
+function saveOriginalContent() {
+    const specialSections = {};
+
+    document.querySelectorAll('section.workout-body').forEach(section => {
+        const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
+        if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
+            // Get the original workout cards
+            const workoutGrid = section.querySelector('.workout-grid');
+            if (workoutGrid) {
+                // Store both the HTML content and any workout objects for this section
+                specialSections[sectionTitle] = {
+                    html: workoutGrid.innerHTML,
+                    element: workoutGrid
+                };
+            }
         }
     });
 
+    return specialSections;
+}
+
+// Store the original content when the page loads
+let originalSpecialSections;
+document.addEventListener('DOMContentLoaded', () => {
+    originalSpecialSections = saveOriginalContent();
+});
+
+document.querySelectorAll('.activity-card').forEach(card => {
     card.addEventListener('click', () => {
         const selectedType = card.querySelector('p').textContent.trim();
+        let displayedWorkouts = [];
+        let currentIndex = 0;
 
         document.querySelectorAll('section.workout-body').forEach(section => {
             const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
             const workoutGrid = section.querySelector('.workout-grid');
 
-            if (selectedType === 'All') {
-                section.style.display = '';
-                if (workoutGrid) {
-                    workoutGrid.classList.add('scroll-layout');
-                    workoutGrid.classList.remove('grid-layout');
-                }
-            } else {
-                if (['Activity Types', 'Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                    section.style.display = '';
-                    if (workoutGrid && ['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
-                        workoutGrid.classList.add('scroll-layout');
-                        workoutGrid.classList.remove('grid-layout');
-                    }
-                } else if (sectionTitle.includes(selectedType)) {
-                    section.style.display = '';
-                    if (workoutGrid) {
-                        workoutGrid.classList.add('grid-layout');
-                        workoutGrid.classList.remove('scroll-layout');
-                    }
+            if (!workoutGrid) return;
+
+            // Handle special sections differently
+            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle)) {
+                if (selectedType === 'All') {
+                    section.style.display = selectedType === 'All' ? '' : 'none';
+
                 } else {
+                    // Just hide the section but don't clear it
                     section.style.display = 'none';
                 }
+                return;
             }
-            setupWorkoutCardClick();
-        });
 
-        document.querySelectorAll('.workout-grid').forEach(grid => {
-            const section = grid.closest('section');
-            const sectionTitle = section.querySelector('.section-title')?.textContent.trim();
-            const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
+            // The rest of the code for handling other sections remains the same
+            if (selectedType === 'All' || sectionTitle.includes(selectedType)) {
+                section.style.display = '';
+                const layout = selectedType === 'All' ? 'scroll-layout' : 'grid-layout';
+                workoutGrid.classList.add(layout);
+                workoutGrid.classList.remove(layout === 'scroll-layout' ? 'grid-layout' : 'scroll-layout');
 
-            // Only update content if section is relevant
-            if (['Top Picks For You', 'Recently Workout'].includes(sectionTitle) ||
-                sectionTitle.includes(selectedType) ||
-                selectedType === 'All') {
-
+                const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '');
                 const filteredWorkouts = filterWorkouts(selectedType === 'All' ? sectionType : selectedType);
 
-                // Use the enhanced createWorkoutCard with proper indexing
-                grid.innerHTML = filteredWorkouts.map((workout, index) =>
-                    createWorkoutCard(workout, index)
-                ).join('');
+                filteredWorkouts.forEach(workout => {
+                    displayedWorkouts.push({
+                        workout: workout,
+                        globalIndex: currentIndex
+                    });
+                    currentIndex++;
+                });
+
+                // Create workout cards with correct indices
+                workoutGrid.innerHTML = filteredWorkouts.map((workout, index) => {
+                    const globalIndex = displayedWorkouts.findIndex(w => w.workout === workout);
+                    return createWorkoutCard(workout, globalIndex);
+                }).join('');
+
+                setupScrollArrows(workoutGrid);
+            } else {
+                section.style.display = 'none';
             }
         });
 
-        // Reattach click handlers to newly created workout cards
-        setupWorkoutCardClick();
+        // Modified setupWorkoutCardClick to use the displayed workouts array
+        document.querySelectorAll('.workout-card-content').forEach(card => {
+            card.addEventListener('click', () => {
+                const workoutIndex = parseInt(card.getAttribute('data-workout-index'));
+                const workoutData = displayedWorkouts.find(w => w.globalIndex === workoutIndex);
+
+                if (!workoutData) {
+                    console.error('Workout not found for index:', workoutIndex);
+                    return;
+                }
+
+                const workout = workoutData.workout;
+                selectedWorkout = workout;
+
+                // Update popup content
+                const popup = document.getElementById('popup-container');
+
+                // Update title
+                document.getElementById('popup-title').textContent = workout.title.toUpperCase();
+
+                // Update description
+                document.getElementById('popup-desc').textContent = workout.description;
+
+                // Update duration
+                document.getElementById('popup-duration').textContent = workout.duration.match(/\d+/)[0];
+
+                // Update calories
+                document.getElementById('popup-calories').textContent = workout.calories.match(/\d+/)[0];
+
+                // Update difficulty level
+                updatePopupLevel(workout.level);
+
+                // Update image
+                const workoutImage = document.getElementById('popup-workout-image');
+                if (workout.image) {
+                    workoutImage.src = workout.image;
+                    workoutImage.alt = `${workout.title} Image`;
+                    workoutImage.style.objectFit = 'cover';
+                } else {
+                    workoutImage.src = './assets/icons/error.svg';
+                    workoutImage.alt = 'Workout Image Not Found';
+                    workoutImage.style.objectFit = 'contain';
+                    workoutImage.style.width = '60%';
+                    workoutImage.style.height = 'auto';
+                }
+
+                // Update exercise list - NEW
+                updateExerciseList(workout);
+
+                // Show popup
+                popup.classList.add('active');
+            });
+        });
     });
+});
+
+// -------------------------------------------------------------------------------------------------------------------------------------- //
+// Exercise List
+
+// Function to create thumbnail from video path
+// function generateThumbnail(exercise) {
+//     // Extract exercise name for path building
+//     const exerciseName = exercise.exercise;
+//     const exerciseNameFormatted = exerciseName.toLowerCase().replace(/\s+/g, '_');
+
+//     // Extract workout category from video path
+//     const videoPath = exercise.video;
+//     const workoutCategory = videoPath.split('/')[3]; // Assuming format: .assets/workout_video/[Category]/[Exercise].mp4
+//     const workoutCategoryFormatted = workoutCategory ? workoutCategory.toLowerCase().replace(/\s+/g, '_') : 'general';
+
+//     // Build potential image paths with fallbacks
+//     const possibleImagePaths = [
+//         // Primary location - specific exercise thumbnail
+//         `./assets/exercise_thumbs/${exerciseNameFormatted}.jpg`,
+//         // Secondary location - based on workout category
+//         `./assets/workout_thumbs/${workoutCategoryFormatted}/${exerciseNameFormatted}.jpg`,
+//         // Tertiary location - workout category thumbnail
+//         `./assets/workout_thumbs/${workoutCategoryFormatted}.jpg`,
+//         // Final fallback - placeholder
+//         './assets/icons/video_placeholder.svg'
+//     ];
+
+//     // Generate image tag with fallback chain using onerror
+//     let imgTag = `<img src="${possibleImagePaths[0]}"`;
+
+//     // Add fallback chain using onerror
+//     for (let i = 1; i < possibleImagePaths.length; i++) {
+//         imgTag += ` onerror="if(this.src !== '${possibleImagePaths[i]}') this.src='${possibleImagePaths[i]}';"`;
+//     }
+
+//     imgTag += ` alt="${exerciseName}" class="exercise-thumb-img">`;
+
+//     // Return the complete thumbnail HTML
+//     return `<div class="exercise-thumbnail">
+//         ${imgTag}
+//         <i class="fas fa-play-circle exercise-video-icon"></i>
+//     </div>`;
+// }
+
+let globalCurrentlyPlaying = null;
+
+function initializeExerciseVideos() {
+    console.log("Initializing exercise videos...");
+
+    // Step 1: Make sure all videos are stopped and reset first
+    stopAllVideos();
+
+    // Step 2: Attach click handlers to all video elements
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        const videoId = item.getAttribute('data-video-id');
+        const video = document.getElementById(videoId);
+        const overlay = item.querySelector('.video-overlay');
+        const playButton = item.querySelector('.play-button');
+
+        if (!video || !overlay || !playButton) {
+            console.error("Missing video elements for:", videoId);
+            return;
+        }
+
+        // Remove any existing event listeners to prevent duplicates
+        item.replaceWith(item.cloneNode(true));
+
+        // Get the elements again after cloning
+        const updatedItem = document.querySelector(`[data-video-id="${videoId}"]`);
+        const updatedVideo = document.getElementById(videoId);
+        const updatedOverlay = updatedItem.querySelector('.video-overlay');
+        const updatedPlayButton = updatedItem.querySelector('.play-button');
+
+        // Main click handler for the play button
+        updatedPlayButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            console.log("Play button clicked for:", videoId);
+
+            // If this is already the currently playing video, pause it
+            if (globalCurrentlyPlaying === videoId) {
+                console.log("Pausing current video:", videoId);
+                updatedVideo.pause();
+                updatedOverlay.style.display = 'flex';
+                this.querySelector('i').className = 'fas fa-play';
+                globalCurrentlyPlaying = null;
+            }
+            // Otherwise, stop any currently playing video and play this one
+            else {
+                console.log("Playing new video:", videoId);
+                stopAllVideos();
+
+                // Try to play the video
+                updatedVideo.play().then(() => {
+                    updatedOverlay.style.display = 'none';
+                    this.querySelector('i').className = 'fas fa-pause';
+                    globalCurrentlyPlaying = videoId;
+                }).catch(err => {
+                    console.error("Error playing video:", err);
+                    alert("There was an error playing the video. Please try again.");
+                });
+            }
+        });
+
+        // Handle video ended event
+        updatedVideo.addEventListener('ended', function () {
+            console.log("Video ended:", videoId);
+            updatedOverlay.style.display = 'flex';
+            updatedPlayButton.querySelector('i').className = 'fas fa-play';
+            globalCurrentlyPlaying = null;
+        });
+    });
+
+    console.log("Video initialization complete");
+}
+
+function initializeStartWorkoutButtons() {
+    document.querySelectorAll('.start-workout').forEach(button => {
+        button.addEventListener('click', (e) => {
+            // Use currentTarget to ensure we get the button itself
+            const clickedButton = e.currentTarget;
+            const workoutId = clickedButton.getAttribute('data-workout-id');
+
+            // Make sure workouts is defined and accessible
+            if (workouts && workouts.length > 0) {
+                const workout = workouts.find(w => w.id == workoutId);
+                if (workout) {
+                    selectedWorkout = workout;
+                    displayWorkoutPopup(workout);
+                } else {
+                    console.error('Workout not found with ID:', workoutId);
+                }
+            } else {
+                console.error('Workouts array is empty or undefined');
+            }
+        });
+    });
+}
+
+// Function to create exercise item
+function createExerciseItem(exercise) {
+    // Validate input
+    if (!exercise || typeof exercise !== 'object') {
+        console.error('Invalid exercise object:', exercise);
+        return '';
+    }
+
+    // Ensure required properties exist with fallbacks
+    const exerciseName = exercise.exercise || exercise.name || 'unknown-exercise';
+    const videoSrc = exercise.video || '';
+
+    // Determine if we have reps or duration
+    const detailText = exercise.reps
+        ? `${exercise.reps} reps`
+        : exercise.duration
+            ? exercise.duration
+            : (exercise.time || '5 minutes');
+
+    // Create a unique ID for the video element
+    const videoId = `video-${exerciseName.toString().toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+
+    return `
+        <div class="exercise-item" data-video="${videoSrc}" data-exercise="${exerciseName}" data-video-id="${videoId}">
+            <div class="exercise-video-container">
+                <video id="${videoId}" class="exercise-video" preload="metadata">
+                    <source src="${videoSrc}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-overlay">
+                    <button class="play-button">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="exercise-info">
+                <div class="exercise-name">${exerciseName}</div>
+                <div class="exercise-details">${detailText}</div>
+            </div>
+        </div>
+    `;
+}
+
+function setupVideoPlayers() {
+    // Keep track of currently playing video
+    let currentlyPlaying = null;
+
+    // Find all play buttons
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        const videoId = item.getAttribute('data-video-id');
+        const video = document.getElementById(videoId);
+        const overlay = item.querySelector('.video-overlay');
+        const playButton = item.querySelector('.play-button');
+
+        if (!video || !overlay || !playButton) return;
+
+        // Function to stop all videos
+        function stopAllVideos() {
+            console.log("Stopping all videos");
+
+            // Reset the global playing state
+            globalCurrentlyPlaying = null;
+
+            // Stop all videos and reset UI
+            document.querySelectorAll('.exercise-video').forEach(video => {
+                if (!video.paused) {
+                    console.log("Pausing video:", video.id);
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+
+            // Reset all UI elements
+            document.querySelectorAll('.video-overlay').forEach(overlay => {
+                overlay.style.display = 'flex';
+            });
+
+            document.querySelectorAll('.play-button i').forEach(icon => {
+                icon.className = 'fas fa-play';
+            });
+        }
+
+        // Play button click event
+        playButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling up
+            e.preventDefault();  // Prevent default behavior
+
+            // If this video is already playing, pause it
+            if (currentlyPlaying === videoId) {
+                video.pause();
+                overlay.style.display = 'flex';
+                playButton.querySelector('i').className = 'fas fa-play';
+                currentlyPlaying = null;
+            } else {
+                // Stop any currently playing video
+                stopAllVideos();
+
+                // Play this video
+                video.play().catch(err => {
+                    console.error('Error playing video:', err);
+                });
+
+                // Hide overlay while playing
+                overlay.style.display = 'none';
+                playButton.querySelector('i').className = 'fas fa-pause';
+                currentlyPlaying = videoId;
+            }
+        });
+
+        // Make the entire exercise item clickable for video control
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.play-button')) {
+                playButton.click();
+            }
+        });
+
+        // Video ended event
+        video.addEventListener('ended', () => {
+            // Reset when video ends
+            overlay.style.display = 'flex';
+            playButton.querySelector('i').className = 'fas fa-play';
+            currentlyPlaying = null;
+        });
+
+        // Video play event - ensure we're tracking the correct video
+        video.addEventListener('play', () => {
+            if (currentlyPlaying !== videoId) {
+                stopAllVideos();
+                currentlyPlaying = videoId;
+
+                // Update UI for this video
+                overlay.style.display = 'none';
+                playButton.querySelector('i').className = 'fas fa-pause';
+            }
+        });
+    });
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    console.log("Updating exercise list with:", workout);
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        console.error("Missing workout data or container");
+        return;
+    }
+
+    // First stop any currently playing videos
+    stopAllVideos();
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        // Ensure exercise has all required properties
+        if (!exercise.exercise) {
+            console.warn("Exercise is missing 'exercise' property:", exercise);
+            exercise.exercise = exercise.name || "Unknown Exercise";
+        }
+
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Initialize videos after DOM is updated
+    setTimeout(() => {
+        initializeExerciseVideos();
+
+        // Initialize the scroll arrows
+        forceArrowCheck();
+        setupExerciseListArrows();
+    }, 300);
+}
+
+
+// Function to handle exercise list scroll arrows
+function setupExerciseListArrows() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Function to update arrow visibility
+    function updateArrowVisibility() {
+        // Get the current scroll position and dimensions
+        const isAtStart = container.scrollLeft <= 0;
+        const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+        const hasOverflow = container.scrollWidth > container.clientWidth;
+
+        // Show/hide arrows based on scroll position and if there's overflow
+        leftArrow.classList.toggle('hidden', isAtStart);
+        rightArrow.classList.toggle('hidden', isAtEnd);
+
+        // Force arrows to be visible if there's overflow content and we're not at the edge
+        if (hasOverflow) {
+            if (!isAtStart) leftArrow.classList.remove('hidden');
+            if (!isAtEnd) rightArrow.classList.remove('hidden');
+        }
+
+        console.log("Container width:", container.clientWidth, "Content width:", container.scrollWidth, "Has overflow:", hasOverflow);
+    }
+
+    // Initial check - but wait for content to be fully rendered
+    setTimeout(updateArrowVisibility, 100);
+
+    // Left arrow click
+    leftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: -250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Right arrow click
+    rightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        container.scrollBy({
+            left: 250,
+            behavior: 'smooth'
+        });
+    });
+
+    // Update on scroll
+    container.addEventListener('scroll', updateArrowVisibility);
+
+    // Update on window resize
+    window.addEventListener('resize', updateArrowVisibility);
+
+    // Use MutationObserver to detect when content changes
+    const observer = new MutationObserver(entries => {
+        // Wait a short time for the browser to calculate new dimensions
+        setTimeout(updateArrowVisibility, 50);
+    });
+
+    // Start observing the container for content changes
+    observer.observe(container, {
+        childList: true,    // Watch for changes to child elements
+        subtree: true,      // Watch the entire subtree
+        attributes: true    // Watch for attribute changes that might affect size
+    });
+}
+
+// Function to update the exercise list in the popup
+function updateExerciseList(workout) {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!workout || !workout.exercises || !container) {
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Add exercise items
+    workout.exercises.forEach(exercise => {
+        container.innerHTML += createExerciseItem(exercise);
+    });
+
+    // Setup video players after adding to DOM
+    setupVideoPlayers();
+
+    // Initialize the scroll arrows after a short delay to ensure content is rendered
+    setTimeout(() => {
+        forceArrowCheck();
+        setupExerciseListArrows();
+    }, 200);
+}
+
+// Function to force arrow visibility check after content is loaded
+function forceArrowCheck() {
+    const container = document.getElementById('exercise-list-container');
+    const leftArrow = document.querySelector('.exercise-arrow-left');
+    const rightArrow = document.querySelector('.exercise-arrow-right');
+
+    if (!container || !leftArrow || !rightArrow) {
+        return;
+    }
+
+    // Force recalculation of dimensions
+    const hasOverflow = container.scrollWidth > container.clientWidth;
+    const isAtStart = container.scrollLeft <= 0;
+    const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+
+    // Make sure arrows are visible if content needs scrolling
+    if (hasOverflow) {
+        if (!isAtStart) leftArrow.classList.remove('hidden');
+        if (!isAtEnd) rightArrow.classList.remove('hidden');
+
+        // Additional backup - make right arrow visible if we have multiple items
+        // and we're at the start position (common initial state)
+        if (isAtStart && container.children.length > 1) {
+            rightArrow.classList.remove('hidden');
+        }
+    }
+
+    console.log("Force check - hasOverflow:", hasOverflow, "Items:", container.children.length);
+}
+
+// Touch scroll implementation for the exercise list
+function setupExerciseListTouchScroll() {
+    const container = document.getElementById('exercise-list-container');
+
+    if (!container) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events for mobile
+    container.addEventListener('touchstart', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('touchend', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDown) return;
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+}
+
+function addVideoStyles() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .exercise-item {
+            width: 260px;
+            margin-right: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .exercise-video-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            background-color: #000;
+        }
+        
+        .exercise-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .play-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.8);
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.1);
+            background-color: rgba(255,255,255,0.9);
+        }
+        
+        .play-button i {
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .exercise-info {
+            padding: 10px;
+        }
+        
+        .exercise-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .exercise-details {
+            font-size: 12px;
+            color: #666;
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
+// Initialize video styles when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    addVideoStyles();
+    initializeStartWorkoutButtons();
+    initializeWorkoutSections();
+    setupExerciseListTouchScroll();
+
+    // Additional styles for better video controls
+    const additionalStyles = document.createElement('style');
+    additionalStyles.textContent = `
+        .play-button {
+            cursor: pointer !important;
+            z-index: 10;
+        }
+        .exercise-item {
+            user-select: none;
+        }
+        .video-overlay {
+            z-index: 5;
+        }
+    `;
+    document.head.appendChild(additionalStyles);
+
+    const defaultCard = document.querySelector('.activity-card-all');
+    if (defaultCard) {
+        defaultCard.click();
+    }
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
@@ -752,22 +2011,27 @@ class SearchImplementation {
     constructor() {
         this.searchInput = document.querySelector('.search-bar input');
         this.searchBarSmall = document.querySelector('.search-bar-small');
+        this.searchBar = document.querySelector('.search-bar');
+        this.searchIcon = document.querySelector('.search-bar .search-icon');
+        this.searchBarCloseIcon = document.getElementById('search-close-btn');
         this.dropdownContainer = null;
         this.workoutSections = document.querySelectorAll('section.workout-body');
         this.isDropdownVisible = false;
         this.searchBackdrop = document.querySelector('.search-backdrop');
         this.isMobile = window.innerWidth <= 768;
+        this.isSearchOpen = false;
+        this.isNavigating = false;
+
+        this.currentQuery = '';
+        this.cachedResults = [];
 
         this.init();
-
-        window.addEventListener('resize', () => {
-            this.isMobile = window.innerWidth <= 768;
-        });
     }
 
     init() {
         this.createDropdownContainer();
         this.bindEvents();
+        this.handleResize();
     }
 
     createDropdownContainer() {
@@ -777,40 +2041,110 @@ class SearchImplementation {
             this.dropdownContainer.style.maxHeight = '300px';
             this.dropdownContainer.style.overflowY = 'auto';
             this.searchInput.parentElement.appendChild(this.dropdownContainer);
-
             this.dropdownContainer.style.display = 'none';
+        }
+    }
+
+    handleResize() {
+        const wasSearchOpen = this.isSearchOpen;
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 768;
+
+        if (wasMobile !== this.isMobile) {
+            if (this.isMobile) {
+                // Switching to mobile
+                this.searchBar.classList.remove('show-search');
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+                this.hideDropdown();
+
+                if (!wasSearchOpen) {
+                    this.searchBarSmall.style.display = 'block';
+                }
+            } else {
+                // Switching to desktop
+                if (wasSearchOpen) {
+                    // If search was open in mobile, keep it visible in desktop
+                    this.searchBar.classList.remove('show-search');
+                    this.searchBarSmall.style.display = 'none';
+                    if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                        this.updateDropdown(this.cachedResults);
+                    }
+                } else {
+                    // Normal desktop view
+                    this.searchBarSmall.style.display = 'none';
+                    this.searchBar.classList.remove('show-search');
+                }
+                this.searchBackdrop.style.display = 'none';
+                this.searchBarCloseIcon.style.display = 'none';
+            }
+        } else if (this.isMobile) {
+            if (wasSearchOpen) {
+                this.searchBarSmall.style.display = 'none';
+                this.searchBar.classList.add('show-search');
+                this.searchBarCloseIcon.style.display = 'block';
+                if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                    this.updateDropdown(this.cachedResults);
+                }
+            } else {
+                this.searchBarSmall.style.display = 'block';
+                this.searchBar.classList.remove('show-search');
+            }
+        }
+
+    }
+
+    updateDropdownPosition() {
+        if (this.isMobile) {
+            const inputRect = this.searchInput.getBoundingClientRect();
+            this.dropdownContainer.style.position = 'fixed';
+            this.dropdownContainer.style.top = `${inputRect.bottom + 10}px`;
+            this.dropdownContainer.style.left = '20px';
+            this.dropdownContainer.style.right = '20px';
+            this.dropdownContainer.style.maxHeight = 'calc(100vh - 150px)';
+        } else {
+            this.dropdownContainer.style.position = 'absolute';
+            this.dropdownContainer.style.top = '100%';
+            this.dropdownContainer.style.left = '0';
+            this.dropdownContainer.style.right = '0';
+            this.dropdownContainer.style.maxHeight = '300px';
         }
     }
 
     bindEvents() {
         let debounceTimeout;
+
+        window.addEventListener('resize', () => {
+            this.handleResize();
+        });
+
         this.searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(() => {
+                this.currentQuery = e.target.value;
                 this.handleSearch(e.target.value);
             }, 300);
         });
 
-        this.searchBarSmall.addEventListener('click', () => {
-            const searchBar = document.querySelector('.search-bar');
-            searchBar.classList.toggle('show-search');
-            searchBar.querySelector('input').focus();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!this.searchInput.parentElement.contains(e.target)) {
-                this.hideDropdown();
+        this.searchInput.addEventListener('focus', () => {
+            if (this.currentQuery.trim() && this.cachedResults.length > 0) {
+                this.updateDropdown(this.cachedResults);
             }
         });
 
         this.searchBarSmall.addEventListener('click', () => {
-            const searchBar = document.querySelector('.search-bar');
-            searchBar.classList.add('show-search');
-            this.searchBackdrop.style.display = 'block';
-            searchBar.querySelector('input').focus();
+            this.openMobileSearch();
         });
 
-        this.searchBackdrop.addEventListener('click', () => {
+        document.addEventListener('click', (e) => {
+            const navLink = e.target.closest('a[href]');
+            if (navLink && navLink.getAttribute('href') !== '#') {
+                this.isNavigating = true;
+                this.handleNavigation();
+            }
+        });
+
+        this.searchBarCloseIcon.addEventListener('click', () => {
             this.closeMobileSearch();
         });
 
@@ -821,11 +2155,42 @@ class SearchImplementation {
         });
     }
 
-    closeMobileSearch() {
-        const searchBar = document.querySelector('.search-bar');
-        searchBar.classList.remove('show-search');
+    handleNavigation() {
+        // Hide search elements during navigation
+        this.searchBarSmall.style.display = 'none';
+        this.searchBar.classList.remove('show-search');
         this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
         this.hideDropdown();
+
+        // Reset after navigation
+        setTimeout(() => {
+            this.isNavigating = false;
+            if (this.isMobile && !this.isSearchOpen) {
+                this.searchBarSmall.style.display = 'block';
+            }
+        }, 100);
+    }
+
+    openMobileSearch() {
+        this.isSearchOpen = true;
+        this.searchBar.classList.add('show-search');
+        this.searchBackdrop.style.display = 'block';
+        this.searchBarSmall.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'block';
+        this.searchInput.focus();
+    }
+
+    closeMobileSearch() {
+        this.isSearchOpen = false;
+        this.searchBar.classList.remove('show-search');
+        this.searchBackdrop.style.display = 'none';
+        this.searchBarCloseIcon.style.display = 'none';
+        this.hideDropdown();
+
+        if (this.isMobile) {
+            this.searchBarSmall.style.display = 'block';
+        }
     }
 
     handleSearch(query) {
@@ -835,18 +2200,27 @@ class SearchImplementation {
         }
 
         const searchResults = [];
-        this.workoutSections.forEach(section => {
+        const uniqueTitles = new Set(); // Track unique workout titles
+
+        this.workoutSections.forEach((section) => {
             const sectionTitle = section.querySelector('.section-title')?.textContent;
             const workoutCards = section.querySelectorAll('.workout-card-content');
 
-            workoutCards.forEach(card => {
+            workoutCards.forEach((card) => {
                 const title = card.querySelector('.workout-title')?.textContent;
+
+                // Skip if we've already added this title
+                if (uniqueTitles.has(title)) {
+                    return;
+                }
+
                 const duration = card.querySelector('.workout-stats span:first-child')?.textContent;
                 const calories = card.querySelector('.workout-stats span:last-child')?.textContent;
                 const image = card.querySelector('img')?.src;
 
                 if (this.startsWithSearch(query, title)) {
                     searchResults.push({ title, duration, calories, image, section: sectionTitle });
+                    uniqueTitles.add(title); // Mark this title as processed
                 }
 
                 if (this.isMobile) {
@@ -859,6 +2233,7 @@ class SearchImplementation {
             });
         });
 
+        this.cachedResults = searchResults; // Cache the results
         this.updateDropdown(searchResults);
     }
 
@@ -880,13 +2255,16 @@ class SearchImplementation {
 
             this.dropdownContainer.innerHTML = `
                 <div class="visible-results">
-                    ${visibleResults.map(result => this.createResultItem(result)).join('')}
+                    ${visibleResults.map((result) => this.createResultItem(result)).join('')}
                 </div>
-                ${remainingResults.length > 0 ? `
+                ${remainingResults.length > 0
+                    ? `
                     <div class="remaining-results">
-                        ${remainingResults.map(result => this.createResultItem(result)).join('')}
+                        ${remainingResults.map((result) => this.createResultItem(result)).join('')}
                     </div>
-                ` : ''}
+                `
+                    : ''
+                }
             `;
         }
 
@@ -902,14 +2280,8 @@ class SearchImplementation {
                 <div class="result-content">
                     <h3 class="workout-title">${result.title}</h3>
                     <div class="result-meta">
-                        <span class="duration">
-                            
-                            <i class="fas fa-clock"></i> ${result.duration}
-                        </span>
-                        <span class="calories">
-                            <i class="fas fa-fire"></i>
-                            ${result.calories}
-                        </span>
+                        <span class="duration"> ${result.duration} </span>
+                        <span class="calories"> ${result.calories} </span>
                     </div>
                 </div>
             </div>
@@ -919,6 +2291,7 @@ class SearchImplementation {
     showDropdown() {
         this.dropdownContainer.style.display = 'block';
         this.isDropdownVisible = true;
+        this.updateDropdownPosition();
     }
 
     hideDropdown() {
@@ -931,3 +2304,5 @@ class SearchImplementation {
 document.addEventListener('DOMContentLoaded', () => {
     new SearchImplementation();
 });
+
+window.workouts = workouts;

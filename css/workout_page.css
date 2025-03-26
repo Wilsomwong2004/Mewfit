@@ -128,8 +128,7 @@ html.dark-mode .search-bar i,
     top: 125%;
     left: 0;
     right: 0;
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--background-color);
     border-radius: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 3;
@@ -137,7 +136,6 @@ html.dark-mode .search-bar i,
 
 html.dark-mode .search-dropdown {
     background-color: #494949;
-    border: 1px solid #494949;
     color: white;
 }
 
@@ -147,6 +145,11 @@ html.dark-mode .search-dropdown {
     display: flex;
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
+}
+
+html.dark-mode .search-result-item {
+    border: 1px solid #4d4d4d;
 }
 
 
@@ -469,6 +472,11 @@ html.dark-mode .seperate-workout-transparent {
     transform: scale(1);
 }
 
+.workout-image img {
+    width: 100%;
+    height: 100%;
+}
+
 .section-title {
     font-size: 1rem;
     padding: 1.5rem 0 1rem 0;
@@ -579,13 +587,166 @@ html.dark-mode .container-side-transparent-right {
     padding-left: 5px;
 }
 
+/* Activity Card Arrow */
+.grid-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.workout-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+.workout-grid::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+.scroll-gradient {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-gradient-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
+}
+
+html.dark-mode .scroll-gradient-left {
+    background: linear-gradient(to right, rgb(53, 53, 54), transparent);
+}
+
+.scroll-gradient-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+}
+
+html.dark-mode .scroll-gradient-right {
+    background: linear-gradient(to left, rgb(53, 53, 54), transparent);
+}
+
+.scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+html.dark-mode .scroll-arrow {
+    background: #505050;
+}
+
+.scroll-arrow:hover {
+    background: #f0f0f0;
+}
+
+html.dark-mode .scroll-arrow:hover {
+    background: #727272;
+}
+
+.scroll-arrow-left {
+    left: 10px;
+}
+
+.scroll-arrow-right {
+    right: 10px;
+}
+
+/* Activity Types Arrow */
+.activity-types-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.activity-cards-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    user-select: none;
+    /* Prevent text selection during drag */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: grab;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    padding: 1rem;
+    /* Important for smooth dragging */
+    touch-action: pan-y pinch-zoom;
+}
+
+/* Hide scrollbar for Chrome/Safari */
+.activity-cards-container::-webkit-scrollbar {
+    display: none;
+}
+
+.activity-card {
+    flex: 0 0 auto;
+    /* Prevent cards from shrinking */
+    /* Add your existing card styles */
+}
+
+.scroll-gradient {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-gradient-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.scroll-gradient-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+/* Dark mode gradient adjustments */
+.dark-mode .scroll-gradient-left {
+    background: linear-gradient(to right, rgba(31, 41, 55, 1), rgba(31, 41, 55, 0));
+}
+
+.dark-mode .scroll-gradient-right {
+    background: linear-gradient(to left, rgba(31, 41, 55, 1), rgba(31, 41, 55, 0));
+}
+
+/* Search Bar Small */
 .search-bar-small {
     display: none;
-    position: fixed;
-    top: 12px;
-    right: 15px;
+    position: relative;
+    top: 0px;
+    right: 0px;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
     padding: 10px;
     border-radius: 20px;
     cursor: pointer;
@@ -601,11 +762,13 @@ html.dark-mode .search-bar-small {
     top: 0;
     left: 0;
     right: 0;
+    height: 100%;
     background: var(--card-background);
     padding: 1rem;
     z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     animation: slideDown 0.3s ease;
+    display: none;
 }
 
 search-bar.show-search input {
@@ -614,7 +777,19 @@ search-bar.show-search input {
 }
 
 .search-bar.show-search .fa-search {
-    left: 25px !important;
+    left: 38px !important;
+    margin-top: 51px;
+}
+
+#search-close-btn {
+    display: none;
+    position: relative;
+    top: -60px;
+    right: -15px;
+    font-size: 25px;
+    z-index: 1001;
+    animation: slideDown 0.4s ease;
+    cursor: pointer;
 }
 
 /* Add backdrop effect */
@@ -650,6 +825,11 @@ search-bar.show-search input {
 html.dark-mode .workout-body {
     background-color: #353536;
     color: white;
+}
+
+.workout-recently-title {
+    display: flex;
+    justify-content: space-between;
 }
 
 .workout-card-content {
@@ -756,6 +936,7 @@ html.dark-mode .workout-stats {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    transition: all 0.3s;
 }
 
 .popup-container.active {
@@ -778,14 +959,14 @@ html.dark-mode .workout-stats {
 #popup-workout-image {
     width: 100%;
     height: 100%;
-    max-height: 500px;
+    max-height: 600px;
     object-fit: cover;
     object-position: center;
 }
 
 .seperate-workout-pic-details {
     display: flex;
-    max-height: 500px;
+    max-height: 600px;
     height: 100%;
     width: 100%;
 }
@@ -793,6 +974,7 @@ html.dark-mode .workout-stats {
 #popup-body {
     width: 50%;
     padding: 2rem 2rem 2rem 0;
+    transition: all 0.3s;
 }
 
 .popup-workout-pic::before {
@@ -808,13 +990,14 @@ html.dark-mode .workout-stats {
 
 .gradient-white {
     position: relative;
-    left: -29px;
+    left: -28px;
     width: 30px;
-    max-height: 500px;
+    max-height: 600px;
     height: 100%;
     background: linear-gradient(to left, white, transparent);
     pointer-events: none;
     z-index: 100;
+    transition: all 0.3s;
 }
 
 html.dark-mode .gradient-white {
@@ -825,13 +1008,14 @@ html.dark-mode .gradient-white {
     background: var(--card-background);
     padding: 0rem;
     border-radius: 16px;
-    max-width: 800px;
-    max-height: 500px;
+    max-width: 1000px;
+    max-height: 600px;
     width: 100%;
     height: 100%;
     box-shadow: var(--box-shadow-light);
     position: relative;
     text-align: center;
+    transition: all 0.3s;
 }
 
 .popup-close {
@@ -868,7 +1052,7 @@ html.dark-mode .popup-content h2 {
 .popup-stats {
     display: flex;
     position: relative;
-    top: 155px;
+    top: 10px;
     justify-content: center;
     gap: 2.4rem;
     margin-bottom: 2rem;
@@ -893,7 +1077,7 @@ html.dark-mode .popup-content h2 {
 .popup-start-button {
     width: 100%;
     position: relative;
-    top: 155px;
+    top: 5px;
     padding: 0.9rem;
     background: var(--primary-color);
     color: white;
@@ -942,6 +1126,275 @@ html.dark-mode .popup-content h2 {
     background-color: #F44336;
 }
 
+/* Exercise List */
+.exercise-list-section {
+    margin: 20px 0;
+}
+
+.exercise-list-section h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.exercise-list-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.exercise-list-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    padding: 10px 0;
+    width: 100%;
+    gap: 15px;
+    padding: 10px 20px;
+}
+
+.exercise-list-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+.exercise-item {
+    min-width: 200px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+html.dark-mode .exercise-item {
+    background-color: #4d4d4e;
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
+}
+
+.exercise-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+html.dark-mode .exercise-item:hover {
+    box-shadow: 0 5px 10px rgba(255, 255, 255, 0.15);
+}
+
+.exercise-name {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.exercise-details {
+    font-size: 14px;
+    color: #666;
+}
+
+html.dark-mode .exercise-details {
+    color: #bdbdbd;
+}
+
+.exercise-list-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    position: absolute;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+html.dark-mode .exercise-list-arrow {
+    background-color: #4d4d4e;
+}
+
+.exercise-list-arrow.hidden {
+    opacity: 0;
+    pointer-events: none;
+    /* Better than display:none as it preserves layout */
+}
+
+.exercise-list-arrow i {
+    font-size: 16px;
+    color: #333;
+}
+
+html.dark-mode .exercise-list-arrow i {
+    color: #bdbdbd;
+}
+
+.exercise-list-arrow:hover {
+    background-color: #f0f0f0;
+}
+
+.exercise-arrow-left {
+    left: -10px;
+}
+
+.exercise-arrow-right {
+    right: -10px;
+}
+
+/* Hide arrows when not needed */
+.exercise-list-arrow.hidden {
+    display: none;
+}
+
+/* Video thumbnail style */
+.exercise-thumbnail {
+    width: 100%;
+    height: 120px;
+    background-color: #e5e5e5;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.exercise-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.exercise-video-icon {
+    position: absolute;
+    color: #fff;
+    font-size: 24px;
+    opacity: 0.8;
+}
+
+/* -------------------------------------------------------------------------------------------------- */
+/* Recent Workout */
+.workout-card-recently {
+    display: flex;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    flex: 0 0 600px;
+
+}
+
+.workout-card-content-recently {
+    width: 50%;
+    background: white;
+    overflow: hidden;
+    border-radius: 0px 16px 16px 0px;
+    cursor: pointer;
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+html.dark-mode .workout-card-content-recently {
+    background: #4d4d4e;
+    color: white;
+}
+
+.workout-card-recently:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+html.dark-mode .workout-card-recently:hover {
+    box-shadow: 0 4px 12px rgb(98, 98, 98);
+}
+
+html.dark-mode .workout-card-recently {
+    background: #4d4d4e;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgb(98, 98, 98);
+    border-radius: 16px;
+}
+
+.workout-card-image {
+    width: 50%;
+}
+
+.workout-card-image img {
+    height: 100%;
+}
+
+.workout-card-type {
+    padding: 0.2rem 1rem;
+    background-color: #FFAD84;
+    color: white;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    width: fit-content;
+    margin: 10px 0 20px 0;
+}
+
+.workout-card-stats-recently {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+html.dark-mode .workout-card-stats-recently {
+    color: #bdbdbd;
+}
+
+.workout-card-stat {
+    padding: 5px 0px;
+}
+
+.workout-card-stat i {
+    padding-right: 5px;
+}
+
+.no-recent-workouts {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: rgb(203 203 203 / 20%);
+    border-radius: 10px;
+}
+
+.no-recent-workouts p {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.workout-card-completed {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #4caf50;
+}
+
+.workout-card-completed i {
+    margin-right: 5px;
+}
+
+/* For dark mode */
+.dark-mode .no-recent-workouts {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .workout-card-completed {
+    color: #81c784;
+}
+
+/* -------------------------------------------------------------------------------------------------- */
 /* Responsive Design */
 @media screen and (max-width: 1274px) {
     .search-bar input {
@@ -951,18 +1404,7 @@ html.dark-mode .popup-content h2 {
     }
 }
 
-@media screen and (max-width: 968px) {
-    .card-image {
-        display: none;
-    }
-}
-
-
-@media screen and (max-width: 864px) {
-    .activity-types {
-        gap: 1rem;
-    }
-
+@media screen and (max-width: 1062px) {
     .popup-workout-pic {
         display: none;
         transition: all 0.3s;
@@ -980,10 +1422,22 @@ html.dark-mode .popup-content h2 {
     }
 
     .popup-content {
-        max-width: 60%;
+        max-width: 90%;
         transition: all 0.3s;
     }
+}
 
+@media screen and (max-width: 968px) {
+    .card-image {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width: 864px) {
+    .activity-types {
+        gap: 1rem;
+    }
 }
 
 @media screen and (max-width: 768px) {
@@ -1012,9 +1466,16 @@ html.dark-mode .popup-content h2 {
     }
 
     .search-bar input {
-        width: 250px;
+        width: 1250px;
         padding: 10px 20px 10px 50px;
         transition: all 0.3s;
+        max-height: 50px;
+        margin-top: 60px;
+    }
+
+    .search-bar.show-search i {
+        position: relative;
+        bottom: 1200px;
     }
 
     .search-bar {
@@ -1029,7 +1490,6 @@ html.dark-mode .popup-content h2 {
 
     .search-dropdown {
         position: fixed !important;
-        top: 80px !important;
         left: 20px !important;
         right: 20px !important;
         max-height: 60vh !important;
@@ -1041,6 +1501,10 @@ html.dark-mode .popup-content h2 {
 
     .search-bar.show-search {
         display: flex;
+    }
+
+    .no-recent-workouts {
+        padding: 1.5rem;
     }
 }
 
