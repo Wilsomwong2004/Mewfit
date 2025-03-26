@@ -1264,7 +1264,49 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                     </a>
                 </h4>
             </div>
-            <div class="diet-history-grid"></div>
+            <div class="diet-history-grid">
+            <?php
+                $sql = "SELECT 
+                            d.diet_id,
+                            d.diet_name,
+                            d.diet_type,
+                            d.difficulty,
+                            d.preparation_min,
+                            d.picture,
+                            SUM(n.calories) AS total_calories
+                        FROM diet d
+                        LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
+                        LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+                        GROUP BY d.diet_id, d.diet_name, d.diet_type, d.difficulty, d.preparation_min, d.picture";
+
+                $stmt = $dbConn->prepare($sql);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows == 0) {
+                    echo "no record";
+                } else {
+                    while ($row = $result->fetch_assoc()) {
+
+                        echo "
+                            <div class=\"diet-card-content\" data-diet-id=\"{$row['diet_id']}\">
+                                <div>
+                                    <img src=\"./uploads/diet/{$row['picture']}\" alt=\"{$row['diet_name']}\" class=\"diet-image\">
+                                </div>
+                                <div class=\"diet-info\">
+                                    <h3 class=\"diet-title\">{$row['diet_name']}</h3>
+                                    <span class=\"diet-level\">{$row['difficulty']}</span>
+                                    <div class=\"diet-stats\">
+                                        <span><i class=\"fas fa-clock\"></i> {$row['preparation_min']}</span>
+                                        <span><i class=\"fas fa-fire\"></i> {$row['total_calories']} kcal</span>
+                                    </div>
+                                 </div>
+                            </div>
+                            ";
+                        }
+                }
+                ?>
+            </div>
         </section>
 
         <!-- load workout and diet history -->
@@ -1353,27 +1395,28 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                         </div>
                     </div>
                 `;
-                } else if (type === 'diet') {
-                    return `
-                    <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
-                        <div>
-                            <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
-                        </div>
-                        <div class="diet-info">
-                            <h3 class="diet-title">${item.diet_name}</h3>
-                            <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
-                            <div class="diet-stats">
-                                <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
-                                <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                }
+                } 
+                // else if (type === 'diet') {
+                //     return `
+                //     <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
+                //         <div>
+                //             <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
+                //         </div>
+                //         <div class="diet-info">
+                //             <h3 class="diet-title">${item.diet_name}</h3>
+                //             <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
+                //             <div class="diet-stats">
+                //                 <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
+                //                 <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
+                //             </div>
+                //         </div>
+                //     </div>
+                // `;
+                // }
             };
 
             const workoutGrid = document.querySelector('.workout-history-grid');
-            const dietGrid = document.querySelector('.diet-history-grid');
+            // const dietGrid = document.querySelector('.diet-history-grid');
 
             if (response.workouts && !response.workouts.no_data) {
                 workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
@@ -1390,26 +1433,26 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                 workoutGrid.innerHTML = '<div class="no-history">No workout available.</div>';
             }
 
-            if (response.diets && !response.diets.no_data) {
-                dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
+            // if (response.diets && !response.diets.no_data) {
+            //     dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
 
-                const dietCards = dietGrid.querySelectorAll('.diet-card-content');
-                dietCards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        const dietId = card.getAttribute('data-id');
-                        const dietType = card.getAttribute('data-type');
+            //     const dietCards = dietGrid.querySelectorAll('.diet-card-content');
+            //     dietCards.forEach(card => {
+            //         card.addEventListener('click', () => {
+            //             const dietId = card.getAttribute('data-id');
+            //             const dietType = card.getAttribute('data-type');
 
-                        if (dietType === 'custom') {
+            //             if (dietType === 'custom') {
 
-                        } else {
-                            window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-                        }
-                    });
-                    card.style.cursor = 'pointer';
-                });
-            } else {
-                dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
-            }
+            //             } else {
+            //                 window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+            //             }
+            //         });
+            //         card.style.cursor = 'pointer';
+            //     });
+            // } else {
+            //     dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
+            // }
         </script>
 
 
@@ -1624,4 +1667,20 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
     window.onload = function() {
         updateCats();
     };
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Select all workout records
+    const records = document.querySelectorAll(".diet-card-content");
+
+    records.forEach(record => {
+      record.addEventListener("click", function () {
+        const dietId = this.getAttribute("data-diet-id"); 
+        if (dietId) {
+          window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+        }
+      });
+    });
+  });
 </script>
