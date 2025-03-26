@@ -17,11 +17,11 @@ $member = $resultMember->fetch_assoc();
 $email_address = $member['email_address'];
 
 // Main diets query - this appears to be for the general diet page
-$sql = "SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, 
+$sql = "SELECT d.diet_id, d.diet_name, d.description, d.picture, d.difficulty, d.preparation_min, 
         d.diet_type, MAX(dh.date) as latest_date
         FROM diet d
         LEFT JOIN diet_history dh ON dh.diet_id = d.diet_id AND dh.member_id = ?
-        GROUP BY d.diet_id, d.diet_name, d.difficulty, d.preparation_min, d.diet_type
+        GROUP BY d.diet_id, d.diet_name, d.description, d.picture, d.difficulty, d.preparation_min, d.diet_type
         ORDER BY latest_date DESC, d.diet_id DESC";
 
 $stmt = $dbConn->prepare($sql);
@@ -45,11 +45,12 @@ while ($row = $result->fetch_assoc()) {
     $diets[] = [
         'diet_id' => $row['diet_id'],
         'title' => $row['diet_name'],
+        'description' => $row['description'] ?? 'No description available',
         'level' => $row['difficulty'],
         'duration' => $row['preparation_min'] . ' min',
         'calories' => ($calories['total_calories'] ?? 0) . ' kcal',
         'type' => [$row['diet_type']],
-        'image' => "./uploads/diet/{$row['diet_id']}.jpg"
+        'image' => "./uploads/diet/{$row['picture']}"
     ];
 }
 
@@ -71,14 +72,13 @@ $sqlRecentDiets = "SELECT
         ON diet_history.diet_id = diet.diet_id
         WHERE diet_history.member_id = ?
         ORDER BY diet_history.date DESC
-        LIMIT 3"; // Limiting to 3 most recent meals
+        LIMIT 3"; 
 
 $stmtRecentDiets = $dbConn->prepare($sqlRecentDiets);
 $stmtRecentDiets->bind_param("i", $member_id);
 $stmtRecentDiets->execute();
 $resultRecentDiets = $stmtRecentDiets->get_result();
 
-// Store results in array
 $recentUserDiets = [];
 if ($resultRecentDiets->num_rows > 0) {
     while($row = $resultRecentDiets->fetch_assoc()) {
@@ -87,7 +87,7 @@ if ($resultRecentDiets->num_rows > 0) {
             'title' => $row['diet_name'],
             'type' => $row['diet_type'],
             'duration' => $row['preparation_min'] . ' min',
-            'image' => './uploads/diet/' . $row['picture'],
+            'image' => !empty($row['picture']) ? './uploads/diet/' . $row['picture'] : './assets/icons/error.svg',
             'date' => $row['date']
         ];
     }
@@ -211,45 +211,45 @@ if ($resultRecentDiets->num_rows > 0) {
 
             <!-- Recent Meals Section -->
             <section class="diet-body">
-                <div class="diet-recently-title">
-                    <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
-                    <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
-                        View More <span style="padding-left: 10px;">></span>
-                    </a>
-                </div>
-                <div class="diet-grid" id="recently-diet-grid">
-                    <?php if (empty($recentUserDiets)): ?>
-                        <div class="no-recent-diets">
-                            <p>You haven't added any meals to your diet history yet.</p>
-                            <p>Start your healthy eating journey today!</p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($recentUserDiets as $diet): ?>
-                            <div class="diet-card-recently" data-diet-id="<?php echo htmlspecialchars($diet['id']); ?>">
-                                <div class="diet-card-image">
-                                    <img src="<?php echo htmlspecialchars($diet['image']); ?>" alt="<?php echo htmlspecialchars($diet['title']); ?>">
+            <div class="diet-recently-title">
+                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
+                <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
+                    View More <span style="padding-left: 10px;">></span>
+                </a>
+            </div>
+            <div class="diet-grid" id="recently-diet-grid">
+                <?php if (empty($recentUserDiets)): ?>
+                    <div class="no-recent-diets">
+                        <p>You haven't added any meals to your diet history yet.</p>
+                        <p>Start your healthy eating journey today!</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($recentUserDiets as $diet): ?>
+                        <div class="diet-card-recently" data-diet-id="<?php echo htmlspecialchars($diet['id']); ?>">
+                            <div class="diet-card-image">
+                                <img src="<?php echo htmlspecialchars($diet['image']); ?>" alt="<?php echo htmlspecialchars($diet['title']); ?>">
+                            </div>
+                            <div class="diet-card-content-recently">
+                                <h3 class="diet-card-title"><?php echo htmlspecialchars($diet['title']); ?></h3>
+                                <div class="diet-card-type">
+                                    <span><?php echo htmlspecialchars($diet['type']); ?></span>
                                 </div>
-                                <div class="diet-card-content-recently">
-                                    <h3 class="diet-card-title"><?php echo htmlspecialchars($diet['title']); ?></h3>
-                                    <div class="diet-card-type">
-                                        <span><?php echo htmlspecialchars($diet['type']); ?></span>
+                                <div class="diet-card-stats-recently">
+                                    <div class="diet-card-stat">
+                                        <i class="fas fa-clock"></i>
+                                        <span><?php echo htmlspecialchars(str_replace(' min', '', $diet['duration'])); ?> min</span>
                                     </div>
-                                    <div class="diet-card-stats-recently">
-                                        <div class="diet-card-stat">
-                                            <i class="fas fa-clock"></i>
-                                            <span><?php echo htmlspecialchars(str_replace(' min', '', $diet['duration'])); ?> min</span>
-                                        </div>
-                                    </div>
-                                    <div class="diet-card-completed">
-                                        <i class="fas fa-utensils"></i>
-                                        <span>Added: <?php echo date('d M Y', strtotime($diet['date'])); ?></span>
-                                    </div>
+                                </div>
+                                <div class="diet-card-completed">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>Added: <?php echo date('d M Y', strtotime($diet['date'])); ?></span>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </section>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </section>
 
             <section class="diet-body">
                 <h2 class="section-title"><img src="./assets/icons/vegetable.png">Vegetarian</h2>
@@ -294,6 +294,9 @@ if ($resultRecentDiets->num_rows > 0) {
         // Pass diet data to JavaScript once
         const diets = <?php echo json_encode($diets); ?>;
         const response = <?php echo json_encode($response); ?>;
+        const recentUserDiets = <?php echo json_encode($recentUserDiets); ?>;
+        window.recentUserDiets = <?php echo json_encode($recentUserDiets); ?>;
+        // console.log('Recent User Diets:', recentUserDiets);
     </script>
     <script src="./js/diet_page.js"></script>
     <script src="./js/navigation_bar.js"></script>
