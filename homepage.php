@@ -1287,7 +1287,7 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                 $result = $stmt->get_result();
 
                 if ($result->num_rows == 0) {
-                    echo "no record";
+                    echo "<div class=\"no-history\">No diet recorded.</div>";
                 } else {
                     while ($row = $result->fetch_assoc()) {
 
