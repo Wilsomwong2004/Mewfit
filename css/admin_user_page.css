@@ -53,9 +53,9 @@ nav {
 .container {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Align at the top */
+    align-items: flex-start; 
     padding: 1px 25px;
-    gap: 20px; /* Ensure spacing between sections */
+    gap: 20px; 
 }
 
 /* Profile Table */
