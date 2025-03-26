@@ -1227,7 +1227,7 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                                             <input type="number" id="calorie" name="calorie" required>
                                         </div>
                                     </div>
-                                    <button onclick="recordCalorieDone()">Record Weight</button>
+                                    <button onclick="recordCalorieDone()">Record Meal</button>
                         </div>
                     </div>
                 </div>

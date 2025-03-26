@@ -58,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["member id"] = $row['member_id'];
         $_SESSION["username"] = $row['username'];
         $_SESSION["member pic"] = $row['member_pic'];
+        $_SESSION["email"] = $row['email_address'];
         
         header("Location: " . $homepage);
         exit();
