@@ -506,7 +506,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php foreach ($other_recipes as $recipe): ?>
                     <div class="other-recipes">
                         <a href="subdiet_page.php?diet_id=<?php echo $recipe['diet_id']; ?>">
-                            <img src="./database_uploads/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
+                            <img src="./uploads/diet/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
                             <h5><?php echo htmlspecialchars($recipe['diet_name']); ?></h5>
                         </a>
                     </div>
