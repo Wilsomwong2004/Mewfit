@@ -92,6 +92,94 @@ html.dark-mode .setting-item {
   color: white;
 }
 
+
+.metrics-card {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow-light);
+  margin: 20px 0;
+  border: 1px solid var(--border-color);
+}
+
+html.dark-mode .metrics-card {
+  box-shadow: var(--box-shadow-dark);
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.metric-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.metric-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-color);
+  color: var(--text-color);
+  transition: border-color 0.3s;
+}
+
+.metric-group input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.progress-container {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.5s ease;
+}
+
+.goal-switch {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.goal-btn {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.goal-btn.active {
+  border-color: var(--primary-color);
+  background: rgba(255, 173, 132, 0.1);
+}
+
+.goal-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .arrow {
   color: #000;
   font-size: 1.2rem;
@@ -227,15 +315,14 @@ html.dark-mode .toggle-item {
   padding: 8px 40px;
   border-radius: 32px;
   border: none;
-  background-color: #ff4d4d;
-  color: white;
+  background-color: transparent;
+  color: transparent;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
 }
 
 .logout-btn:hover {
-  background-color: red;
+  background-color: transparent;
   transition: all 0.3s;
 }
 

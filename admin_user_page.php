@@ -129,7 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form method="post" action="">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));">
+                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));
+                    checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'member', 'username', document.getElementById('add-profile-btn'));">
                     <p id="username-feedback" class="feedback"></p>
 
                     <label for="password">Password</label>
@@ -197,7 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="table" name="table" value="administrator">
 
                     <label for="eusername">Username</label>
-                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);" required>
+                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);
+                    checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'member', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);" required>
                     <p id="eusername-feedback" class="feedback"></p>
 
                     <label for="epassword">Password</label>
@@ -287,7 +289,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </tr>
 
                     <?php
-                    // Database connection (Ensure $dbConn is properly initialized)
                     $sql = "SELECT * FROM member";
                     $result = mysqli_query($dbConn, $sql);
 

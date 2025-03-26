@@ -165,14 +165,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     $updateQuery = "UPDATE member SET level = ?, day_streak_starting_date = ? WHERE member_id = ?";
     $updateStmt = $dbConn->prepare($updateQuery);
     $updateStmt->bind_param("isi", $new_level, $new_streak_start_date, $member_id);
-    $updateStmt->execute(); // Add this line to execute the update
+    $updateStmt->execute(); 
 
-    // If handling AJAX request
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         echo json_encode(['success' => true, 'new_level' => $new_level]);
         exit;
     } else {
-        // For regular form submissions
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
@@ -1018,8 +1016,6 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                 exit();
             }
 
-
-
             ?>
             <script>
                 function recordWeight() {
@@ -1486,7 +1482,7 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
 <script>
     // ------------------Cat Tower Stuff-----------------------------
     // Create new cat elements
-    let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10) || 1;
+    let userLevel = parseInt(document.getElementById("level-num")?.textContent, 10);
 
     const maxLevel = 50;
     const catsPerLevel = 9;
