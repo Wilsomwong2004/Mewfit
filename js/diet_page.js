@@ -1058,10 +1058,9 @@ function setupRecentDietCards() {
 }
 
 function initializeRecentDiet() {
-    // First, try to use the server-side recent diets if available
     let recentDiets = [];
 
-    // Check if window.recentUserDiets exists and is not empty
+
     if (window.recentUserDiets && window.recentUserDiets.length > 0) {
         recentDiets = window.recentUserDiets.map(diet => ({
             diet_id: diet.id,
@@ -1121,11 +1120,9 @@ function initializeRecentDiet() {
                 <h3>${diet.title}</h3>
                 <div class="diet-card-info">
                     <span class="diet-duration">
-                        <img src="./assets/icons/clock.svg" alt="Duration">
                         ${diet.duration || 'N/A'}
                     </span>
                     <span class="diet-calories">
-                        <img src="./assets/icons/fire.svg" alt="Calories">
                         ${diet.calories || '0 kcal'}
                     </span>
                 </div>
@@ -1180,6 +1177,8 @@ function addToRecentDiets(diet) {
 document.addEventListener('DOMContentLoaded', () => {
     initializeTopPicksDiet();
     setupCategorySelection();
+    setupRecentDietCards();
+    setupScrollArrows(document.getElementById('recently-diet-grid'));
 
     // Set default category selection
     const defaultCard = document.querySelector('.activity-card-all');
@@ -1228,9 +1227,6 @@ function createDietCard(diet) {
 
 // Function to filter diets by type`
 function filterDiets(type) {
-    // console.log("Filtering by type:", type);
-    // console.log("Available diets:", diets);
-
     if (type === 'All') return diets;
 
     // Convert to lowercase for comparison
@@ -1242,8 +1238,7 @@ function filterDiets(type) {
             console.log("Diet missing type:", diet);
             return false;
         }
-
-        // Handle both array type and string type
+        
         if (Array.isArray(diet.type)) {
             console.log(`Checking ${diet.title} with types:`, diet.type);
             return diet.type.some(t =>
@@ -1366,7 +1361,6 @@ function initializeDietSections() {
             const sectionType = sectionTitle.replace(/^(🔥|⚡|⏰|❤️|💪|🏋️|🧘‍♀️|🧘)?\s*/, '').trim();
             console.log(`Section type: ${sectionType}`);
 
-            // Filter diets based on section type
             let filteredDiets;
             if (sectionType === 'Top Picks For You' || sectionType === 'Recently Meals') {
                 filteredDiets = diets.slice(0, 5);
@@ -1567,6 +1561,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // First, make all sections visible by default when "All" is selected
             if (selectedType === 'All') {
                 initializeTopPicksDiet();
+                initializeRecentDiet();
                 document.querySelectorAll('section.diet-body').forEach(section => {
                     section.style.display = '';
                     const dietGrid = section.querySelector('.diet-grid, .diet-history-grid');

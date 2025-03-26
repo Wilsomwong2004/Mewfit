@@ -211,45 +211,45 @@ if ($resultRecentDiets->num_rows > 0) {
 
             <!-- Recent Meals Section -->
             <section class="diet-body">
-            <div class="diet-recently-title">
-                <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
-                <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
-                    View More <span style="padding-left: 10px;">></span>
-                </a>
-            </div>
-            <div class="diet-grid" id="recently-diet-grid">
-                <?php if (empty($recentUserDiets)): ?>
-                    <div class="no-recent-diets">
-                        <p>You haven't added any meals to your diet history yet.</p>
-                        <p>Start your healthy eating journey today!</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($recentUserDiets as $diet): ?>
-                        <div class="diet-card-recently" data-diet-id="<?php echo htmlspecialchars($diet['id']); ?>">
-                            <div class="diet-card-image">
-                                <img src="<?php echo htmlspecialchars($diet['image']); ?>" alt="<?php echo htmlspecialchars($diet['title']); ?>">
-                            </div>
-                            <div class="diet-card-content-recently">
-                                <h3 class="diet-card-title"><?php echo htmlspecialchars($diet['title']); ?></h3>
-                                <div class="diet-card-type">
-                                    <span><?php echo htmlspecialchars($diet['type']); ?></span>
+                <div class="diet-recently-title">
+                    <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
+                    <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
+                        View More <span style="padding-left: 10px;">></span>
+                    </a>
+                </div>
+                <div class="diet-grid" id="recently-diet-grid">
+                    <?php if (empty($recentUserDiets)): ?>
+                        <div class="no-recent-diets">
+                            <p>You haven't added any meals to your diet history yet.</p>
+                            <p>Start your healthy eating journey today!</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentUserDiets as $diet): ?>
+                            <div class="diet-card-recently" data-diet-id="<?php echo htmlspecialchars($diet['id']); ?>">
+                                <div class="diet-card-image">
+                                    <img src="<?php echo htmlspecialchars($diet['image']); ?>" alt="<?php echo htmlspecialchars($diet['title']); ?>">
                                 </div>
-                                <div class="diet-card-stats-recently">
-                                    <div class="diet-card-stat">
-                                        <i class="fas fa-clock"></i>
-                                        <span><?php echo htmlspecialchars(str_replace(' min', '', $diet['duration'])); ?> min</span>
+                                <div class="diet-card-content-recently">
+                                    <h3 class="diet-card-title"><?php echo htmlspecialchars($diet['title']); ?></h3>
+                                    <div class="diet-card-type">
+                                        <span><?php echo htmlspecialchars($diet['type']); ?></span>
+                                    </div>
+                                    <div class="diet-card-stats-recently">
+                                        <div class="diet-card-stat">
+                                            <i class="fas fa-clock"></i>
+                                            <span><?php echo htmlspecialchars(str_replace(' min', '', $diet['duration'])); ?> min</span>
+                                        </div>
+                                    </div>
+                                    <div class="diet-card-completed">
+                                        <i class="fas fa-utensils"></i>
+                                        <span>Added: <?php echo date('d M Y', strtotime($diet['date'])); ?></span>
                                     </div>
                                 </div>
-                                <div class="diet-card-completed">
-                                    <i class="fas fa-utensils"></i>
-                                    <span>Added: <?php echo date('d M Y', strtotime($diet['date'])); ?></span>
-                                </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </section>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </section>
 
             <section class="diet-body">
                 <h2 class="section-title"><img src="./assets/icons/vegetable.png">Vegetarian</h2>
