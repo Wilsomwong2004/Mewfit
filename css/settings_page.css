@@ -392,10 +392,12 @@ html.dark-mode .transparent-box h2 {
   align-items: center;
   padding-left: 4rem;
   padding-right: 4rem;
+  padding-top: 5rem;
 }
 
 .right-frame {
   width: 25%;
+  padding-top: 5rem;
 }
 
 .profile-section {
@@ -460,6 +462,18 @@ html.dark-mode .profile-section h2 {
 .change-photo:hover {
   color: #2c2c2c;
   transition: color 0.3s;
+}
+
+/* Error message */
+.form-group input.invalid {
+  border-color: red;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 5px;
 }
 
 @media screen and (max-width: 1200px) {

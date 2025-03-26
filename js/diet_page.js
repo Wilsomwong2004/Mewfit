@@ -382,25 +382,25 @@ function checkDarkMode() {
 
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Recently diet history
-// document.addEventListener("DOMContentLoaded", function () {
-//     // Add event listeners to diet cards
-//     const dietCards = document.querySelectorAll(".diet-card-recently");
+document.addEventListener("DOMContentLoaded", function () {
+    // Add event listeners to diet cards
+    const dietCards = document.querySelectorAll(".diet-card-recently");
 
-//     // Initialize carousel with default "All" filter
-//     const carousel = new DietCarousel();
+    // Initialize carousel with default "All" filter
+    const carousel = new DietCarousel();
 
-//     // Add a global reference to easily update later
-//     window.currentCarousel = carousel;
+    // Add a global reference to easily update later
+    window.currentCarousel = carousel;
 
-//     dietCards.forEach(card => {
-//         card.addEventListener("click", function () {
-//             const dietId = this.getAttribute("data-diet-id");
-//             if (dietId) {
-//                 window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-//             }
-//         });
-//     });
-// });
+    dietCards.forEach(card => {
+        card.addEventListener("click", function () {
+            const dietId = this.getAttribute("data-diet-id");
+            if (dietId) {
+                window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+            }
+        });
+    });
+});
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
 function updateCardStyles(card, isActive = false) {
