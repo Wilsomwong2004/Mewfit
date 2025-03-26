@@ -115,7 +115,7 @@ html.dark-mode .page-header i {
   color: #000000;
 }
 
-html.dark-mode .page-header h1 {
+html.dark-mode .page-header h1::after {
   color: white;
 }
 

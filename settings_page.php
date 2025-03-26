@@ -388,7 +388,20 @@ $fitness_goal = $member['fitness_goal'];
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" value="<?php echo $email_address; ?>">
               </div>
-              
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="current-password" placeholder="Enter current password" required>
+              </div>
+              <div class="form-group">
+                <label for="new-password">New Password (leave blank if unchanged)</label>
+                <input type="password" id="new-password" name="new-password" placeholder="Enter new password">
+              </div>
+              <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm new password">
+              </div>
+            </div>
+            <div class="form-right">
               <!-- Fitness Metrics Section -->
               <div class="metrics-card">
                 <div class="fitness-metrics-title">
@@ -443,21 +456,6 @@ $fitness_goal = $member['fitness_goal'];
                       value="<?php echo $fitness_goal; ?>">
               </div>
             </div>
-            
-            <div class="form-right">
-              <div class="form-group">
-                <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" name="current-password" placeholder="Enter current password" required>
-              </div>
-              <div class="form-group">
-                <label for="new-password">New Password (leave blank if unchanged)</label>
-                <input type="password" id="new-password" name="new-password" placeholder="Enter new password">
-              </div>
-              <div class="form-group">
-                <label for="confirm-password">Confirm New Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm new password">
-              </div>
-            </div>
           </div>
           
           <div class="modal-buttons">
@@ -506,7 +504,6 @@ $fitness_goal = $member['fitness_goal'];
 
   // Handle delete confirmation
   confirmDeleteBtn.addEventListener('click', () => {
-    // 使用fetch API发送删除请求
     fetch('process_delete_account.php', {
       method: 'POST',
       headers: {
@@ -517,14 +514,14 @@ $fitness_goal = $member['fitness_goal'];
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert('您的账号已成功删除');
-        window.location.href = 'prelogin.html'; // 删除成功后重定向到登录页
+        alert('Account been deleted succesfully');
+        window.location.href = 'prelogin.html';
       } else {
-        alert('删除账号失败: ' + data.message);
+        alert('Failed to delete account: ' + data.message);
       }
     })
     .catch(error => {
-      alert('发生错误，请重试');
+      alert('An error occurred, please try again');
       console.error('Error:', error);
     });
   });

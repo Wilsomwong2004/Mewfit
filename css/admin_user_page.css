@@ -7,8 +7,6 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
-    overflow: hidden;
-    /* Prevents scrolling (We need this)*/
 }
 
 .content {
@@ -125,10 +123,9 @@ body {
 .admin-container {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding-left: 25px;
-    padding-right: 40px;
-    height: 1000px;
+    align-items: flex-start; 
+    padding: 1px 25px;
+    gap: 20px; 
 }
 
 /* Profile Table */
