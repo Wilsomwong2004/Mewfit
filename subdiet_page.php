@@ -379,7 +379,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <section class="section-1">
             <div style="display:flex;">
                 <a onclick="goBack()" class="back-button">&lt;</a>
-                <h1><?php echo $diet_name ?></h1>
+                <h1><?php echo $diet_name?></h1>
             </div>
             <div class="general-info">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->

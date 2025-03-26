@@ -23,7 +23,6 @@ function updateDietCarousel(selectedType) {
         }).slice(0, 3); // Take top 3 matching diets
     }
 
-    // If no diets match the filter, show a placeholder
     if (filteredDiets.length === 0) {
         filteredDiets = [{
             title: `No ${selectedType} Diet Plans Found`,
@@ -72,9 +71,30 @@ function updateDietCarousel(selectedType) {
 
         track.innerHTML = slidesHTML;
 
-        // Create navigation dots
         const nav = document.createElement('div');
         nav.className = 'carousel-nav';
+
+        const startDietButtons = document.querySelectorAll('.start-diet');
+        startDietButtons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                const selectedDiet = filteredDiets[index];
+
+                if (selectedDiet) {
+                    const dietId = selectedDiet.id || selectedDiet.diet_id;
+
+                    if (dietId != null && dietId !== 'undefined') {
+                        const destinationPage = `subdiet_page.php?diet_id=${dietId}`;
+
+                        localStorage.setItem('selectedDiet', JSON.stringify(selectedDiet));
+
+                        window.location.href = destinationPage;
+                    } else {
+                        console.error('Invalid diet ID:', dietId);
+                        alert('Unable to load diet details. Please try again.');
+                    }
+                }
+            });
+        });
 
         filteredDiets.forEach((_, index) => {
             const dot = document.createElement('button');
@@ -99,7 +119,6 @@ function updateDietCarousel(selectedType) {
 
         carousel.appendChild(nav);
 
-        // Set initial positions
         track.querySelectorAll('.diet-slide').forEach((slide, index) => {
             slide.style.transform = `translateX(${index * 100}%)`;
             slide.style.opacity = index === 0 ? '1' : '0.5';
@@ -107,6 +126,30 @@ function updateDietCarousel(selectedType) {
             slide.style.zIndex = index === 0 ? '1' : '0';
         });
     }
+}
+
+function handleStartDiet(diet) {
+    if (!diet) {
+        console.error('No diet object provided');
+        return;
+    }
+
+    const dietId = diet.id || diet.diet_id;
+
+    if (dietId == null || dietId === 'undefined') {
+        console.error('Invalid diet ID:', dietId);
+
+        alert('Unable to load diet details. Please try again.');
+        return;
+    }
+
+    const destinationPage = `subdiet_page.php?diet_id=${dietId}`;
+    console.log('Destination Page:', destinationPage);
+
+    localStorage.setItem('selectedDiet', JSON.stringify(diet));
+
+    // Navigate to the diet-specific page
+    window.location.href = destinationPage;
 }
 
 
@@ -135,7 +178,6 @@ class DietCarousel {
             }).slice(0, 3);
         }
 
-        // Use the filtered diet data for carousel
         this.slides = filteredDiets.map(diet => ({
             title: diet.title,
             description: "Diet plan based on your preferences",
@@ -144,7 +186,6 @@ class DietCarousel {
             image: diet.image
         }));
 
-        // If no diets are available, use a placeholder
         if (this.slides.length === 0) {
             this.slides = [{
                 title: `No ${filterType} Diet Plans Found`,
@@ -163,6 +204,7 @@ class DietCarousel {
         this.autoSlideInterval = null;
         this.autoSlideDelay = 10000;
         this.init();
+        this.bindStartDietEvents();
     }
 
     init() {
@@ -312,6 +354,44 @@ class DietCarousel {
         });
     }
 
+    bindStartDietEvents() {
+        this.carousel.addEventListener('click', (event) => {
+            const startDietButton = event.target.closest('.start-diet');
+            if (startDietButton) {
+                const dietSlide = startDietButton.closest('.diet-slide');
+                if (dietSlide) {
+                    const index = parseInt(dietSlide.dataset.index, 10);
+                    const selectedDiet = diets && diets[index] ? diets[index] : null;
+
+                    if (selectedDiet) {
+                        handleStartDiet(selectedDiet);
+                    } else {
+                        console.error('No diet found at index:', index);
+                        alert('Unable to load diet details. Please try again.');
+                    }
+                }
+            }
+        });
+    }
+
+    startSelectedDiet(diet) {
+        // Mapping of diet titles to their respective pages
+        const dietPages = {
+            'Greek Salad': '/diets/greek-salad.html',
+            'No All Diet Plans Found': '/diets/default.html',
+            'default': '/diets/default.html'
+        };
+
+        // Determine the destination page
+        const destinationPage = dietPages[diet.title] || dietPages['default'];
+
+        // Optional: Store selected diet in localStorage
+        localStorage.setItem('selectedDiet', JSON.stringify(diet));
+
+        // Navigate to the diet-specific page
+        window.location.href = destinationPage;
+    }
+
     updateSlidePosition() {
         this.isTransitioning = true;
 
@@ -380,27 +460,6 @@ function checkDarkMode() {
     return false;
 }
 
-// -------------------------------------------------------------------------------------------------------------------------------------- //
-// Recently diet history
-document.addEventListener("DOMContentLoaded", function () {
-    // Add event listeners to diet cards
-    const dietCards = document.querySelectorAll(".diet-card-recently");
-
-    // Initialize carousel with default "All" filter
-    const carousel = new DietCarousel();
-
-    // Add a global reference to easily update later
-    window.currentCarousel = carousel;
-
-    dietCards.forEach(card => {
-        card.addEventListener("click", function () {
-            const dietId = this.getAttribute("data-diet-id");
-            if (dietId) {
-                window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-            }
-        });
-    });
-});
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
 function updateCardStyles(card, isActive = false) {
