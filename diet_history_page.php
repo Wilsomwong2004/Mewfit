@@ -224,8 +224,8 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                     <img class='picture' src='{$picture}' alt='{$diet_name}' />
                     <p class='name'>{$diet_name}</p>
                     <p class='type'>{$diet_type}</p>
-                    <p class='time'>{$preparation_min}</p>
-                    <p class='calories'>{$total_calories} kcal</p>
+                    <p class='kcal'>{$preparation_min}</p>
+                    <p class='time'>{$total_calories} kcal</p>
                 </div>";            
             }
         }
