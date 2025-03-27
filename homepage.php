@@ -1436,26 +1436,26 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                 workoutGrid.innerHTML = '<div class="no-history">No workout available.</div>';
             }
 
-            // if (response.diets && !response.diets.no_data) {
-            //     dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
+            if (response.diets && !response.diets.no_data) {
+                dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
 
-            //     const dietCards = dietGrid.querySelectorAll('.diet-card-content');
-            //     dietCards.forEach(card => {
-            //         card.addEventListener('click', () => {
-            //             const dietId = card.getAttribute('data-id');
-            //             const dietType = card.getAttribute('data-type');
+                const dietCards = dietGrid.querySelectorAll('.diet-card-content');
+                dietCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const dietId = card.getAttribute('data-id');
+                        const dietType = card.getAttribute('data-type');
 
-            //             if (dietType === 'custom') {
+                        if (dietType === 'custom') {
 
-            //             } else {
-            //                 window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-            //             }
-            //         });
-            //         card.style.cursor = 'pointer';
-            //     });
-            // } else {
-            //     dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
-            // }
+                        } else {
+                            window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+                        }
+                    });
+                    card.style.cursor = 'pointer';
+                });
+            } else {
+                dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
+            }
         </script>
 
 

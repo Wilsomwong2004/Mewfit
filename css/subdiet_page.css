@@ -204,12 +204,12 @@ html.dark-mode .container-side-transparent-right {
 
 .diet-image {
   border-radius: 20px;
-  /* max-height: 70vh; */
+  height: 86vh;
   width: 100%;
   grid-column-start: 1;
   grid-column-end: 3;
-  /* object-fit: cover;
-  object-position: center; */
+  object-fit: cover;
+  object-position: center;
 }
 
 .nutrient-box-box {
@@ -276,6 +276,7 @@ html.dark-mode .container-side-transparent-right {
 
 @media (max-width: 910px) {
   .diet-image {
+    max-height: 60vh;
     border-radius: 20px;
     grid-column: 1 / -1;
   }
