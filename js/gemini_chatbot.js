@@ -4,14 +4,14 @@ class FitnessChatbot {
         this.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
         this.chatHistory = [];
         this.userContext = {};
-        this.userData = null; // Will store user data from database
+        this.userData = null;
         this.allWorkouts = [];
         this.allDiets = [];
         this.userWorkoutHistory = [];
         this.userDietHistory = [];
         this.userCustomDiets = [];
         this.initChatbot();
-        this.fetchUserData(); // Fetch user data when chatbot loads
+        this.fetchUserData();
     }
 
     initChatbot() {
@@ -37,12 +37,12 @@ class FitnessChatbot {
 
             setTimeout(() => {
                 this.chatContainer.classList.remove('closing');
-                this.chatContainer.style.display = 'none'; // Add this line
+                this.chatContainer.style.display = 'none';
                 this.toggleBtn.style.display = 'block';
             }, 300);
         } else {
             this.chatContainer.style.display = 'block';
-            setTimeout(() => {  // Add small delay to ensure display:block is applied first
+            setTimeout(() => {
                 this.chatContainer.classList.add('active');
                 this.toggleBtn.style.display = 'none';
             }, 10);
@@ -56,13 +56,9 @@ class FitnessChatbot {
         this.addMessage(message, 'user');
         this.inputField.value = '';
 
-        // NEW: Conversation analysis
         this.analyzeMessage(message);
+        const typingDelay = Math.random() * 300 + 100;
 
-        // NEW: Add human-like typing variation
-        const typingDelay = Math.random() * 300 + 100; // 100-400ms
-
-        // UPDATED: Enhanced error handling
         try {
             const response = await this.getBotResponse(message);
             await this.typeMessage(response, 'bot', typingDelay);
@@ -74,22 +70,6 @@ class FitnessChatbot {
             await this.typeMessage("Hmm, my circuits are feeling tired 🥱. Could you rephrase that?", 'bot', 50);
         }
     }
-
-    async handleSend() {
-        const message = this.inputField.value.trim();
-        if (!message) return;
-
-        this.addMessage(message, 'user');
-        this.inputField.value = '';
-
-        try {
-            const response = await this.getBotResponse(message);
-            await this.typeMessage(response, 'bot');
-        } catch (error) {
-            await this.typeMessage("Sorry, I'm having trouble connecting. Please try again later.", 'bot');
-        }
-    }
-
 
     isGreeting(message) {
         const greetings = [
@@ -107,9 +87,7 @@ class FitnessChatbot {
         return context.join('\n') || '- No known context yet';
     }
 
-    // NEW: Conversation analysis
     analyzeMessage(message) {
-        // Detect goals/intents
         if (/(lose weight|slim down)/i.test(message)) {
             this.userContext.goal = 'weight loss';
         }
@@ -117,7 +95,6 @@ class FitnessChatbot {
             this.userContext.goal = 'muscle gain';
         }
 
-        // Detect personal mentions
         const nameMatch = message.match(/my name is (\w+)/i);
         if (nameMatch) this.userContext.name = nameMatch[1];
     }
@@ -132,8 +109,7 @@ class FitnessChatbot {
         await this.typeMessage(question, 'bot');
     }
 
-    // UPDATED: Enhanced typing simulation
-    async typeMessage(content, sender, baseDelay = 50) { // Ensure default parameter is set
+    async typeMessage(content, sender, baseDelay = 50) { 
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);
         this.messagesContainer.appendChild(messageDiv);
@@ -154,13 +130,11 @@ class FitnessChatbot {
     }
 
     formatMessage(text) {
-        // Replace line breaks with proper spacing
         return text.replace(/\s*\*\s*/g, '\n').trim();
     }
 
     async fetchUserData() {
         try {
-            // Fetch user profile data
             const userResponse = await fetch('get_user_data.php');
             const userData = await userResponse.json();
 
@@ -169,7 +143,6 @@ class FitnessChatbot {
                 return;
             }
 
-            // Directly use the memberData instead of looking for userData.member
             this.userData = userData;
             const memberData = userData.memberData;
 
@@ -182,25 +155,21 @@ class FitnessChatbot {
                 this.userContext.age = memberData.age;
                 this.userContext.gender = memberData.gender;
 
-                // Add performance data if available
                 if (memberData.performance) {
                     this.userContext.currentWeight = memberData.performance.current_weight;
                     this.userContext.workoutCount = memberData.performance.workout_history_count;
                     this.userContext.dietCount = memberData.performance.diet_history_count;
                 }
-
-                // Store workout and diet history
+                
                 this.userWorkoutHistory = memberData.workout_history || [];
                 this.userDietHistory = memberData.diet_history || [];
                 this.userCustomDiets = memberData.custom_diets || [];
                 this.userNutrition = memberData.nutrition || [];
 
-                // Fetch all workouts and diets for recommendations
                 await this.fetchWorkoutsAndDiets();
 
                 console.log('User context initialized:', this.userContext);
 
-                // Update the initial message to personalize if user data is available
                 if (this.userContext.name) {
                     this.addMessage(`Welcome back, ${this.userContext.name}! How can I help with your ${this.userContext.goal} journey today?`, 'bot');
                 }
@@ -212,7 +181,6 @@ class FitnessChatbot {
 
     async fetchWorkoutsAndDiets() {
         try {
-            // Fetch all workouts and diets for recommendations
             const response = await fetch('get_all_workouts_diets.php');
             const data = await response.json();
 
@@ -226,7 +194,6 @@ class FitnessChatbot {
     }
 
     formatWorkoutDietData() {
-        // Format workout data
         let workoutTypes = this.allWorkouts.length > 0
             ? [...new Set(this.allWorkouts.map(w => w.workout_type))].join(', ')
             : 'Cardio, Strength, Flexibility, HIIT';
@@ -262,7 +229,6 @@ class FitnessChatbot {
         };
     }
 
-    // Update the formatContextPrompt method to include more user data
     formatContextPrompt() {
         let context = [];
         if (this.userContext.name) context.push(`- User's name: ${this.userContext.name}`);
@@ -282,13 +248,11 @@ class FitnessChatbot {
         try {
             const workoutDietData = this.formatWorkoutDietData();
 
-            // Modified data access with proper error handling
             const workoutTypes = workoutDietData.workoutTypes || 'General Fitness';
             const dietTypes = workoutDietData.dietTypes || 'Balanced Nutrition';
             const recentWorkouts = workoutDietData.recentWorkouts || 'No recent workouts';
             const recentDiets = workoutDietData.recentDiets || 'No recent diets';
 
-            // Add user-specific information to the prompt
             let userSpecificInfo = '';
             if (this.userData && this.userData.member) {
                 userSpecificInfo = `
@@ -307,7 +271,6 @@ class FitnessChatbot {
                 - Recent Diets: ${recentDiets}
                 `;
 
-                // Add nutrition data if available
                 if (this.userData.nutrition && this.userData.nutrition.length > 0) {
                     userSpecificInfo += `
                     - Recent Nutrition (${this.userData.nutrition[0].date}):
@@ -391,7 +354,6 @@ class FitnessChatbot {
                 throw new Error('No valid responses from API');
             }
 
-            // Clean up any remaining asterisks that might come through
             let response_text = data.candidates[0].content.parts[0].text;
             response_text = response_text.replace(/\*/g, '');
 
@@ -412,7 +374,6 @@ class FitnessChatbot {
             if (/intermediate/i.test(lowerMessage)) level = 'intermediate';
             if (/advanced/i.test(lowerMessage)) level = 'advanced';
 
-            // Filter workouts by level
             const filteredWorkouts = this.allWorkouts.filter(w =>
                 w.difficulty && w.difficulty.toLowerCase() === level.toLowerCase()
             ).slice(0, 3);
@@ -433,7 +394,6 @@ class FitnessChatbot {
             if (/keto/i.test(lowerMessage)) type = 'keto';
             if (/low.?carb/i.test(lowerMessage)) type = 'low-carb';
 
-            // Filter diets by type
             const filteredDiets = this.allDiets.filter(d =>
                 d.diet_type && d.diet_type.toLowerCase().includes(type.toLowerCase())
             ).slice(0, 3);
@@ -483,7 +443,6 @@ class FitnessChatbot {
                 prompt += `- Target weight: ${targetWeight} kg\n`;
                 prompt += `- Goal: ${goal}\n`;
 
-                // Calculate progress percentage
                 if (goal === 'Lose Weight' && currentWeight < this.userData.member.weight) {
                     const weightToLose = this.userData.member.weight - targetWeight;
                     const weightLost = this.userData.member.weight - currentWeight;
