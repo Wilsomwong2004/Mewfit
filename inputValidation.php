@@ -5,7 +5,7 @@ include "conn.php";
 $table = $_POST['table'] ?? '';
 $column = $_POST['column'] ?? '';
 $value = $_POST['value'] ?? '';
-$id = $_POST['id'] ?? null; 
+$id = $_POST['id'] ?? null;
 
 if (empty($table) || empty($column) || empty($value)) {
     echo json_encode(["error" => "Table, column, and value are required"]);
@@ -13,8 +13,8 @@ if (empty($table) || empty($column) || empty($value)) {
 }
 
 // Sanitize input to prevent SQL injection
-$table = preg_replace("/[^a-zA-Z0-9_]/", "", $table); 
-$column = preg_replace("/[^a-zA-Z0-9_]/", "", $column); 
+$table = preg_replace("/[^a-zA-Z0-9_]/", "", $table);
+$column = preg_replace("/[^a-zA-Z0-9_]/", "", $column);
 
 $id_column = '';
 switch ($table) {
@@ -39,23 +39,23 @@ try {
     if ($id) {
         $query = "SELECT COUNT(*) as count FROM `$table` WHERE `$column` = ? AND `$id_column` != ?";
         $stmt = $dbConn->prepare($query);
-        
+
         if (!$stmt) {
             throw new Exception("Failed to prepare the SQL statement");
         }
-        
+
         $stmt->bind_param("si", $value, $id);
     } else {
         $query = "SELECT COUNT(*) as count FROM `$table` WHERE `$column` = ?";
         $stmt = $dbConn->prepare($query);
-        
+
         if (!$stmt) {
             throw new Exception("Failed to prepare the SQL statement");
         }
-        
+
         $stmt->bind_param("s", $value);
     }
-    
+
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
@@ -70,4 +70,3 @@ try {
     }
     $dbConn->close();
 }
-?>

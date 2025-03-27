@@ -129,8 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form method="post" action="">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));
-                    checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'member', 'username', document.getElementById('add-profile-btn'));">
+                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));">
                     <p id="username-feedback" class="feedback"></p>
 
                     <label for="password">Password</label>

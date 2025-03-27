@@ -521,16 +521,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                     $labels[] = $row["period_label"];
                     $weights[] = $row["avg_weight"];
 
-                    // Check if we have at least one non-null weight value
                     if ($row["avg_weight"] !== null) {
                         $hasValidWeights = true;
                     }
                 }
             }
 
-            // If we have no rows OR all weights are null, run the fallback query
             if ($result->num_rows == 0 || !$hasValidWeights) {
-                // Clear the arrays before populating with fallback data
                 $labels = [];
                 $weights = [];
 
@@ -608,21 +605,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
                 }
             }
 
-            // Fetch current week's weight
-            $sql_current = "SELECT current_weight FROM member_performance 
-WHERE member_id = $member_id 
-AND weeks_date_mon BETWEEN '$start_of_current_week' AND '$end_of_current_week' 
-ORDER BY weeks_date_mon DESC LIMIT 1";
-            $result_current = $dbConn->query($sql_current);
             $current_weight = "-";
-
-            if ($result_current->num_rows > 0) {
-                $row_current = $result_current->fetch_assoc();
-                $current_weight = $row_current['current_weight'];
-                if ($current_weight == null) {
-                    $current_weight = "-";
-                }
-            }
+            $last_performance_weight = "-";
+            $last_performance_date = "-";
 
             // Fetch last week's weight
             $start_of_last_week = date('Y-m-d', strtotime($start_of_current_week . ' -7 days'));
@@ -639,11 +624,11 @@ ORDER BY weeks_date_mon DESC LIMIT 1";
                 $last_week_weight = $row_last_week['current_weight'];
             }
 
-            //if no current weight
+
             $latest_weight_query = "
 SELECT current_weight, weeks_date_mon 
 FROM member_performance 
-WHERE member_id = ? 
+WHERE member_id = ? AND current_weight IS NOT NULL
 ORDER BY weeks_date_mon DESC 
 LIMIT 1
 ";
@@ -658,79 +643,69 @@ LIMIT 1
                     $latest_record = $latest_result->fetch_assoc();
                     $last_performance_weight = $latest_record['current_weight'];
                     $last_performance_date = $latest_record['weeks_date_mon'];
-                } else {
-                    $last_performance_weight = "-";
-                    $last_performance_date = null;
                 }
                 $latest_stmt->close();
-            } else {
-                $last_performance_weight = "-";
-                $last_performance_date = null;
             }
 
-            // Get the registered weight and date from member table
-            $member_query = "
-            SELECT weight, weight_registered_date 
-            FROM member 
-            WHERE member_id = ?
-            ";
+            if (!empty($last_performance_weight)) {
+                $is_same_week = (
+                    strtotime($weight_registered_date) >= strtotime($last_performance_date) &&
+                    strtotime($weight_registered_date) < strtotime($last_performance_date . ' +6 days')
+                );
 
-            $member_stmt = $dbConn->prepare($member_query);
-            $registered_weight = "-";
-            $registered_date = null;
-
-            if ($member_stmt) {
-                $member_stmt->bind_param("i", $member_id);
-                $member_stmt->execute();
-                $member_result = $member_stmt->get_result();
-
-                if ($member_result->num_rows > 0) {
-                    $member_record = $member_result->fetch_assoc();
-                    $registered_weight = $member_record['weight'];
-                    $registered_date = $member_record['weight_registered_date'];
-                }
-                $member_stmt->close();
-            }
-
-            // Store the registered weight in a variable to be displayed
-            $member_registered_weight = $registered_weight;
-            $last_weight = "-";
-            if ($last_performance_date === null) {
-                $last_weight = $registered_weight;
-            } else if ($registered_date === null) {
-                $last_weight = $last_performance_weight;
-            } else {
-                if (strtotime($last_performance_date) >= strtotime($registered_date)) {
-                    $last_weight = $last_performance_weight;
+                if ($is_same_week) {
+                    $current_weight = $last_performance_weight;
                 } else {
-                    $last_weight = $registered_weight;
-                }
-            }
-
-            if ($current_weight == "-") {
-                $current_weight = $last_weight;
-            }
-
-            // weekly target to hit goal
-            $weekly_target = "-";
-            if ($weight_registered_date != "") {
-                $registration_timestamp = strtotime($weight_registered_date);
-                $current_timestamp = strtotime($current_date);
-                $weeks_since_registration = floor(($current_timestamp - $registration_timestamp) / (7 * 24 * 60 * 60));
-
-                $total_weeks_for_target = 4;
-                $weeks_remaining = max(0, $total_weeks_for_target - $weeks_since_registration);
-
-                if ($target_weight != 0 && $last_weight != "-" && is_numeric($last_weight)) {
-                    if ($weeks_remaining <= 1) {
-                        $weekly_target = $target_weight;
+                    if (strtotime($weight_registered_date) >= strtotime($last_performance_date)) {
+                        $current_weight = $registered_weight;
                     } else {
-                        $remaining_weight_to_lose = floatval($last_weight) - floatval($target_weight);
-                        $weekly_weight_loss = $remaining_weight_to_lose / $weeks_remaining;
-                        $weekly_target = floatval($last_weight) - $weekly_weight_loss;
+                        $current_weight = $last_performance_weight;
                     }
                 }
             }
+
+            if ($current_weight == "-" || $current_weight == 0) {
+                $current_weight = $registered_weight;
+            }
+
+            function checkWeightGoal($currentWeight, $targetWeight, $fitnessGoal)
+            {
+                $currentWeight = floatval($currentWeight);
+                $targetWeight = floatval($targetWeight);
+                $fitnessGoal = strtolower($fitnessGoal);
+
+                if ($fitnessGoal === "lose weight" && $currentWeight <= $targetWeight) {
+                    return true;
+                }
+
+                if ($fitnessGoal === "gain muscle" && $currentWeight >= $targetWeight) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            // Weekly target calculation
+            $weekly_target = "-";
+            $registration_timestamp = strtotime($weight_registered_date);
+            $current_timestamp = strtotime($current_date);
+            $weeks_since_registration = floor(($current_timestamp - $registration_timestamp) / (7 * 24 * 60 * 60));
+
+            $total_weeks_for_target = 4;
+            $weeks_remaining = max(0, $total_weeks_for_target - $weeks_since_registration);
+
+            if (!checkWeightGoal($current_weight, $target_weight, $fitness_goal)) {
+                if ($weeks_remaining <= 1) {
+                    $weekly_target = $target_weight;
+                } else {
+                    $remaining_weight_to_lose = floatval($current_weight) - floatval($target_weight);
+                    $weekly_weight_loss = $remaining_weight_to_lose / $weeks_remaining;
+                    $weekly_target = floatval($current_weight) - $weekly_weight_loss;
+                }
+            } else {
+                $weekly_target = "-";
+            }
+
 
             if ($current_weight != "-") {
                 $current_weight = floatval($current_weight);
@@ -765,10 +740,8 @@ LIMIT 1
                     ) AS combined_calories;
                 ";
 
-            // Prepare and execute the statement
             $stmt = $dbConn->prepare($queryToday);
             if ($stmt) {
-                // Bind member_id twice for both placeholders
                 $stmt->bind_param("ii", $member_id, $member_id);
 
                 $stmt->execute();
@@ -859,6 +832,9 @@ LIMIT 1
                         noChart1.style.display = "none";
 
                         const ctx = weightChart.getContext("2d");
+                        const minWeight = Math.min(...weights);
+                        const weightYMin = minWeight === 0 ? 0 : Math.floor(minWeight) - 5;
+
                         new Chart(ctx, {
                             type: "bar",
                             data: {
@@ -876,7 +852,7 @@ LIMIT 1
                                 scales: {
                                     y: {
                                         beginAtZero: false,
-                                        min: Math.min(...weights) - 5,
+                                        min: weightYMin,
                                         title: {
                                             display: true,
                                             text: "Weight Progress (kg)"
@@ -904,6 +880,8 @@ LIMIT 1
 
                         const labels = nutritionData.map(item => item.week_start_date);
                         const avgCaloriesArray = nutritionData.map(item => item.average_calories);
+                        const minCalories = Math.min(...avgCaloriesArray);
+                        const caloriesYMin = minCalories === 0 ? 0 : Math.floor(minCalories) - 5;
 
                         new Chart(ctxDiet, {
                             type: "bar",
@@ -922,7 +900,7 @@ LIMIT 1
                                 scales: {
                                     y: {
                                         beginAtZero: false,
-                                        min: Math.min(...avgCaloriesArray) - 500, // Adjust minimum value for better scaling
+                                        min: caloriesYMin,
                                         title: {
                                             display: true,
                                             text: "Diet Progress (kcal)"
@@ -984,7 +962,6 @@ LIMIT 1
             }
 
             //enter weight
-
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["newweight"])) {
                 $newWeight = floatval($_POST['newweight']);
                 $currentWeekMonday = date('Y-m-d', strtotime('monday this week'));
@@ -1092,48 +1069,61 @@ LIMIT 1
             <!-- level up-->
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    //enter day streak
-                    let dayStreak = <?php echo $day_streak; ?>;
-                    let targetDayStreak = <?php echo $target_day_streak; ?>;
-                    let level = <?php echo $level; ?>
+                    // Pass PHP variables safely using json_encode
+                    let dayStreak = <?php echo json_encode($day_streak); ?>;
+                    let targetDayStreak = <?php echo json_encode($target_day_streak); ?>;
+                    let level = <?php echo json_encode($level); ?>;
+                    let currentWeight = <?php echo json_encode($current_weight); ?>;
+                    let targetWeight = <?php echo json_encode($target_weight); ?>;
+                    let fitnessGoal = <?php echo json_encode($fitness_goal); ?>;
 
-                    if (dayStreak >= targetDayStreak && $level <= 50) {
+                    // Weight goal check function
+                    function checkWeight(currentWeight, targetWeight, goal) {
+                        goal = goal.toLowerCase();
+                        if (
+                            (goal === "lose weight" && currentWeight <= targetWeight) ||
+                            (goal === "gain muscle" && currentWeight >= targetWeight)
+                        ) {
+                            return "You have reached your target weight. Please update your personal info for your next target.";
+                        }
+                        return null;
+                    }
+
+                    // Check weight goal
+                    const weightMessage = checkWeight(currentWeight, targetWeight, fitnessGoal);
+                    if (weightMessage) {
+                        alert(weightMessage);
+                    }
+
+                    // Streak and level up check
+                    if (dayStreak >= targetDayStreak && level <= 50) {
                         if (confirm("🎉 Congratulations! You've reached your streak goal. Do you want to level up?")) {
                             let form = document.createElement('form');
                             form.method = 'POST';
                             form.action = window.location.href;
 
-                            let input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'level_up';
-                            input.value = 'true';
+                            let levelInput = document.createElement('input');
+                            levelInput.type = 'hidden';
+                            levelInput.name = 'level_up';
+                            levelInput.value = 'true';
 
-                            form.appendChild(input);
+                            form.appendChild(levelInput);
                             document.body.appendChild(form);
                             form.submit();
                         }
                     }
+
+                    // Optional: Debug logging
+                    console.log({
+                        dayStreak,
+                        targetDayStreak,
+                        level,
+                        currentWeight,
+                        targetWeight,
+                        fitnessGoal
+                    });
                 });
             </script>
-            <?php
-            function checkWeight($currentWeight, $targetWeight, $goal)
-            {
-                $goal = strtolower($goal);
-
-                if (($goal === "lose weight" && $currentWeight <= $targetWeight) ||
-                    ($goal === "gain muscle" && $currentWeight >= $targetWeight)
-                ) {
-                    return "You have reached your target weight. Please update your personal info for your next target.";
-                }
-                return null;
-            }
-            if ($current_weight !== null && $target_weight !== null && $fitness_goal !== null) {
-                $message = checkWeight($current_weight, $target_weight, $fitness_goal);
-                if ($message) {
-                    echo "<script>alert('$message');</script>";
-                }
-            }
-            ?>
 
             <section class="section2a">
                 <div class="box" style="animation-delay:2s;">
@@ -1162,7 +1152,7 @@ LIMIT 1
                             </div>
 
                             <div class="section2a-description">
-                                <h3>Average Last Week</h3>
+                                <h3>Weight Last Week</h3>
                                 <p class="data-details" id="averageLastWeek"><?= $last_week_weight ?> <span>kg</span></p>
                             </div>
 
@@ -1346,8 +1336,7 @@ LIMIT 1
                         </div>
                     </div>
                 `;
-                } 
-                else if (type === 'diet') {
+                } else if (type === 'diet') {
                     return `
                     <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
                         <div>
@@ -1621,17 +1610,17 @@ LIMIT 1
 </script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Select all workout records
-    const records = document.querySelectorAll(".diet-card-content");
+    document.addEventListener("DOMContentLoaded", function() {
+        // Select all workout records
+        const records = document.querySelectorAll(".diet-card-content");
 
-    records.forEach(record => {
-      record.addEventListener("click", function () {
-        const dietId = this.getAttribute("data-diet-id"); 
-        if (dietId) {
-          window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-        }
-      });
+        records.forEach(record => {
+            record.addEventListener("click", function() {
+                const dietId = this.getAttribute("data-diet-id");
+                if (dietId) {
+                    window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+                }
+            });
+        });
     });
-  });
 </script>

@@ -1,4 +1,4 @@
-function checkUniqueName(
+async function checkUniqueName(
   inputElement,
   feedbackElement,
   existingMessage,
@@ -8,67 +8,76 @@ function checkUniqueName(
   id
 ) {
   const value = inputElement.value.trim();
+  
+  try {
+    let exists = false;
+    let memberExists = false;
+    
+    if (table === "administrator") {
+      memberExists = await checkTableUniqueness("member", column, value, id);
 
-  if (value === "") {
-    if (
-      !inputElement.dataset.bracketError ||
-      inputElement.dataset.bracketError === "false"
-    ) {
-      feedbackElement.textContent = "";
+      if (memberExists) {
+        feedbackElement.textContent = existingMessage;
+        feedbackElement.style.color = "red";
+        inputElement.dataset.uniqueError = "true";
+        if (button) button.disabled = true;
+        return true;
+      }
     }
-    inputElement.dataset.uniqueError = "false";
-    return;
+    
+    // Check the specific table
+    exists = await checkTableUniqueness(table, column, value, id);
+    
+    if (exists) {
+      feedbackElement.textContent = existingMessage;
+      feedbackElement.style.color = "red";
+      inputElement.dataset.uniqueError = "true";
+      if (button) button.disabled = true;
+      return true;
+    } else {
+      if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
+        feedbackElement.textContent = "";
+      }
+      inputElement.dataset.uniqueError = "false";
+      if (button) button.disabled = false;
+      return false;
+    }
+  } catch (error) {
+    console.error("Error checking uniqueness:", error);
+    feedbackElement.textContent = "An error occurred while checking the value.";
+    feedbackElement.style.color = "red";
+    inputElement.dataset.uniqueError = "true";
+    if (button) button.disabled = true;
+    return true;
   }
+}
 
-  let bodyParams = `table=${encodeURIComponent(
-    table
-  )}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
-
+async function checkTableUniqueness(table, column, value, id) {
+  let bodyParams = `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
+  
   if (id) {
     bodyParams += `&id=${encodeURIComponent(id)}`;
   }
-
-  fetch("inputValidation.php", {
+  
+  const response = await fetch("inputValidation.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: bodyParams,
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.error) {
-        feedbackElement.textContent = data.error;
-        feedbackElement.style.color = "red";
-        inputElement.dataset.uniqueError = "true";
-      } else if (data.exists) {
-        feedbackElement.textContent = existingMessage;
-        feedbackElement.style.color = "red";
-        inputElement.dataset.uniqueError = "true";
-        button.disabled = true;
-      } else {
-        if (
-          !inputElement.dataset.bracketError ||
-          inputElement.dataset.bracketError === "false"
-        ) {
-          feedbackElement.textContent = "";
-        }
-        inputElement.dataset.uniqueError = "false";
-        return;
-      }
-    })
-    .catch((error) => {
-      console.error("Error checking uniqueness:", error);
-      feedbackElement.textContent =
-        "An error occurred while checking the value.";
-      feedbackElement.style.color = "red";
-      inputElement.dataset.uniqueError = "true";
-    });
+  });
+  
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  
+  const data = await response.json();
+  
+  if (data.error) {
+    throw new Error(data.error);
+  }
+  
+  return data.exists;
 }
 
 function checkNumber(inputElement, feedbackElement, errorMessage) {
@@ -353,20 +362,3 @@ function validateName(input, feedbackElement) {
   }
 }
 
-function validateName(input, feedbackElement) {
-  const name = input.value.trim();
-  const minLength = 5;
-  const maxLength = 100;
-  const namePattern = /^[A-Za-z\s]+$/;
-  feedbackElement.style.color = "red";
-
-  if (name.length < minLength) {
-    feedbackElement.textContent = `Name must be at least ${minLength} characters long.`;
-  } else if (name.length > maxLength) {
-    feedbackElement.textContent = `Name must be no more than ${maxLength} characters long.`;
-  } else if (!namePattern.test(name)) {
-    feedbackElement.textContent = "Name can only contain letters and spaces.";
-  } else {
-    feedbackElement.textContent = "";
-  }
-}
