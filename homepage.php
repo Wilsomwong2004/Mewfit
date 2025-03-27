@@ -42,7 +42,7 @@ $stmtMember->execute();
 $resultMember = $stmtMember->get_result();
 $member = $resultMember->fetch_assoc();
 
-$email_address = $member['email_address']; 
+$email_address = $member['email_address'];
 $weight = $member['weight'];
 $height = $member['height'];
 $target_weight = $member['target_weight'];
@@ -165,7 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     $updateQuery = "UPDATE member SET level = ?, day_streak_starting_date = ? WHERE member_id = ?";
     $updateStmt = $dbConn->prepare($updateQuery);
     $updateStmt->bind_param("isi", $new_level, $new_streak_start_date, $member_id);
-    $updateStmt->execute(); 
+    $updateStmt->execute();
 
     if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         echo json_encode(['success' => true, 'new_level' => $new_level]);
@@ -507,54 +507,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["level_up"])) {
     ORDER BY weeks_date_mon ASC;
 ";
 
-$stmt = $dbConn->prepare($sql2);
-$stmt->bind_param("i", $member_id);
-$stmt->execute();
-$result = $stmt->get_result();
+            $stmt = $dbConn->prepare($sql2);
+            $stmt->bind_param("i", $member_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-$labels = [];
-$weights = [];
-$hasValidWeights = false;
+            $labels = [];
+            $weights = [];
+            $hasValidWeights = false;
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $labels[] = $row["period_label"];
-        $weights[] = $row["avg_weight"];
-        
-        // Check if we have at least one non-null weight value
-        if ($row["avg_weight"] !== null) {
-            $hasValidWeights = true;
-        }
-    }
-}
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $labels[] = $row["period_label"];
+                    $weights[] = $row["avg_weight"];
 
-// If we have no rows OR all weights are null, run the fallback query
-if ($result->num_rows == 0 || !$hasValidWeights) {
-    // Clear the arrays before populating with fallback data
-    $labels = [];
-    $weights = [];
-    
-    $sqlFallback = "
+                    // Check if we have at least one non-null weight value
+                    if ($row["avg_weight"] !== null) {
+                        $hasValidWeights = true;
+                    }
+                }
+            }
+
+            // If we have no rows OR all weights are null, run the fallback query
+            if ($result->num_rows == 0 || !$hasValidWeights) {
+                // Clear the arrays before populating with fallback data
+                $labels = [];
+                $weights = [];
+
+                $sqlFallback = "
         SELECT weight, DATE_FORMAT(weight_registered_date, '%d %b %Y') AS period_label
         FROM member
         WHERE member_id = ?
     ";
-    
-    $stmtFallback = $dbConn->prepare($sqlFallback);
-    $stmtFallback->bind_param("i", $member_id);
-    $stmtFallback->execute();
-    $resultFallback = $stmtFallback->get_result();
-    
-    if ($resultFallback->num_rows > 0) {
-        while ($row = $resultFallback->fetch_assoc()) {
-            $labels[] = $row["period_label"];
-            $weights[] = $row["weight"];
-        }
-    } else {
-        $labels[] = "No data available";
-        $weights[] = null;
-    }
-}
+
+                $stmtFallback = $dbConn->prepare($sqlFallback);
+                $stmtFallback->bind_param("i", $member_id);
+                $stmtFallback->execute();
+                $resultFallback = $stmtFallback->get_result();
+
+                if ($resultFallback->num_rows > 0) {
+                    while ($row = $resultFallback->fetch_assoc()) {
+                        $labels[] = $row["period_label"];
+                        $weights[] = $row["weight"];
+                    }
+                } else {
+                    $labels[] = "No data available";
+                    $weights[] = null;
+                }
+            }
 
             //chart 2
             $query = "
@@ -610,9 +610,9 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
 
             // Fetch current week's weight
             $sql_current = "SELECT current_weight FROM member_performance 
-                                WHERE member_id = $member_id 
-                                AND weeks_date_mon BETWEEN '$start_of_current_week' AND '$end_of_current_week' 
-                                ORDER BY weeks_date_mon DESC LIMIT 1";
+WHERE member_id = $member_id 
+AND weeks_date_mon BETWEEN '$start_of_current_week' AND '$end_of_current_week' 
+ORDER BY weeks_date_mon DESC LIMIT 1";
             $result_current = $dbConn->query($sql_current);
             $current_weight = "-";
 
@@ -628,9 +628,9 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
             $start_of_last_week = date('Y-m-d', strtotime($start_of_current_week . ' -7 days'));
             $end_of_last_week = date('Y-m-d', strtotime($start_of_last_week . ' +6 days'));
             $sql_last_week = "SELECT current_weight FROM member_performance 
-                                WHERE member_id = $member_id 
-                                AND weeks_date_mon BETWEEN '$start_of_last_week' AND '$end_of_last_week' 
-                                ORDER BY weeks_date_mon DESC LIMIT 1";
+WHERE member_id = $member_id 
+AND weeks_date_mon BETWEEN '$start_of_last_week' AND '$end_of_last_week' 
+ORDER BY weeks_date_mon DESC LIMIT 1";
             $result_last_week = $dbConn->query($sql_last_week);
             $last_week_weight = "-";
 
@@ -641,12 +641,12 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
 
             //if no current weight
             $latest_weight_query = "
-                    SELECT current_weight, weeks_date_mon 
-                    FROM member_performance 
-                    WHERE member_id = ? 
-                    ORDER BY weeks_date_mon DESC 
-                    LIMIT 1
-                ";
+SELECT current_weight, weeks_date_mon 
+FROM member_performance 
+WHERE member_id = ? 
+ORDER BY weeks_date_mon DESC 
+LIMIT 1
+";
 
             $latest_stmt = $dbConn->prepare($latest_weight_query);
             if ($latest_stmt) {
@@ -670,12 +670,15 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
 
             // Get the registered weight and date from member table
             $member_query = "
-                    SELECT weight, weight_registered_date 
-                    FROM member 
-                    WHERE member_id = ?
-                ";
+            SELECT weight, weight_registered_date 
+            FROM member 
+            WHERE member_id = ?
+            ";
 
             $member_stmt = $dbConn->prepare($member_query);
+            $registered_weight = "-";
+            $registered_date = null;
+
             if ($member_stmt) {
                 $member_stmt->bind_param("i", $member_id);
                 $member_stmt->execute();
@@ -685,20 +688,14 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                     $member_record = $member_result->fetch_assoc();
                     $registered_weight = $member_record['weight'];
                     $registered_date = $member_record['weight_registered_date'];
-                } else {
-                    $registered_weight = "-";
-                    $registered_date = null;
                 }
                 $member_stmt->close();
-            } else {
-                $registered_weight = "-";
-                $registered_date = null;
             }
 
-
-            if ($last_performance_date === null && $registered_date === null) {
-                $last_weight = "-";
-            } else if ($last_performance_date === null) {
+            // Store the registered weight in a variable to be displayed
+            $member_registered_weight = $registered_weight;
+            $last_weight = "-";
+            if ($last_performance_date === null) {
                 $last_weight = $registered_weight;
             } else if ($registered_date === null) {
                 $last_weight = $last_performance_weight;
