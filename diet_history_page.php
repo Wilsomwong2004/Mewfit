@@ -220,12 +220,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 <div class='workout-date'>
                     <p>{$meal_date}</p>
                 </div>
-                <div class='workout-record' data-diet-id='{$diet_id}' data-meal-type='{$row['meal_type']}'>
+                <div class='diet-record' data-diet-id='{$diet_id}' data-meal-type='{$row['meal_type']}'>
                     <img class='picture' src='{$picture}' alt='{$diet_name}' />
                     <p class='name'>{$diet_name}</p>
                     <p class='type'>{$diet_type}</p>
-                    <p class='kcal'>{$preparation_min}</p>
                     <p class='time'>{$total_calories} kcal</p>
+                    <p class='kcal'>{$preparation_min}</p>
                 </div>";            
             }
         }

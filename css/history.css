@@ -120,6 +120,7 @@ html.dark-mode .page-header h1::after {
 }
 
 .search-date,
+.diet-record,
 .workout-record {
   width: 100%;
   margin: 0 auto;
@@ -130,6 +131,7 @@ html.dark-mode .page-header h1::after {
   margin-left: 5px;
 }
 
+.diet-record,
 .workout-record {
   font-family: "Inter";
   color: #424242;
@@ -141,19 +143,23 @@ html.dark-mode .page-header h1::after {
   cursor: pointer;
 }
 
+html.dark-mode .diet-record,
 html.dark-mode .workout-record {
   color: #dadada;
 }
 
+.diet-record:hover,
 .workout-record:hover {
   background-color: #ffe7da;
 }
 
+html.dark-mode .diet-record:hover,
 html.dark-mode .workout-record:hover {
   background-color: rgb(236, 167, 121);
   color: #ffffff;
 }
 
+.diet-record img,
 .workout-record img {
   width: 120px;
   height: 80px;
@@ -452,6 +458,7 @@ html.dark-mode .date-input-group label {
 }
 
 @media screen and (max-width: 1200px) {
+  .diet-record img,
   .workout-record img {
     margin-left: 50px;
   }
@@ -466,6 +473,7 @@ html.dark-mode .date-input-group label {
 }
 
 @media screen and (max-width: 992px) {
+  .diet-record img,
   .workout-record img {
     margin-left: 30px;
     width: 100px;
@@ -479,12 +487,14 @@ html.dark-mode .date-input-group label {
     margin: 5px 30px;
   }
 
+  .diet-record,
   .workout-record {
     grid-template-columns: 1.2fr 2.5fr 2fr 1fr 1fr;
   }
 }
 
 @media screen and (max-width: 768px) {
+  .diet-record img,
   .workout-record img {
     margin-left: 20px;
     width: 90px;
@@ -514,6 +524,7 @@ html.dark-mode .date-input-group label {
     width: 300px;
   }
 
+  .diet-record,
   .workout-record {
     grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr;
     padding: 10px 5px;
@@ -529,11 +540,13 @@ html.dark-mode .date-input-group label {
     font-size: 1.4rem;
   }
 
+  .diet-record,
   .workout-record {
     grid-template-columns: 0.8fr 1.5fr 1fr 0.8fr 0.8fr;
     font-size: 14px;
   }
 
+  .diet-record img,
   .workout-record img {
     width: 80px;
     height: 60px;
@@ -556,6 +569,7 @@ html.dark-mode .date-input-group label {
 
 /* Enhance existing mobile styles */
 @media screen and (max-width: 480px) {
+  .diet-record,
   .workout-record {
     width: 100%;
     display: grid;
@@ -569,6 +583,7 @@ html.dark-mode .date-input-group label {
     align-items: center;
   }
 
+  .diet-record img,
   .workout-record img {
     grid-area: picture;
     width: 75px;
