@@ -1260,56 +1260,7 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                     </a>
                 </h4>
             </div>
-            <div class="diet-history-grid">
-            <?php
-                $sql = "SELECT 
-                    dh.diet_history_id,
-                    dh.date,
-                    d.diet_id,
-                    d.diet_name,
-                    d.diet_type,
-                    d.difficulty,
-                    d.preparation_min,
-                    d.picture,
-                    SUM(n.calories) AS total_calories
-                    FROM diet_history dh
-                    JOIN diet d ON dh.diet_id = d.diet_id
-                    LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
-                    LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
-                    WHERE dh.member_id = ?
-                    GROUP BY dh.diet_history_id, dh.date, d.diet_id, d.diet_name, d.diet_type, d.difficulty, d.preparation_min, d.picture
-                    ORDER BY dh.date DESC
-                    LIMIT 5";
-
-                $stmt = $dbConn->prepare($sql);
-                $stmt->bind_param("i", $member_id);  
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows == 0) {
-                    echo "<div class=\"no-history\">No diet recorded.</div>";
-                } else {
-                    while ($row = $result->fetch_assoc()) {
-
-                        echo "
-                            <div class=\"diet-card-content\" data-diet-id=\"{$row['diet_id']}\">
-                                <div>
-                                    <img src=\"./uploads/diet/{$row['picture']}\" alt=\"{$row['diet_name']}\" class=\"diet-image\">
-                                </div>
-                                <div class=\"diet-info\">
-                                    <h3 class=\"diet-title\">{$row['diet_name']}</h3>
-                                    <span class=\"diet-level\">{$row['difficulty']}</span>
-                                    <div class=\"diet-stats\">
-                                        <span><i class=\"fas fa-clock\"></i> {$row['preparation_min']}</span>
-                                        <span><i class=\"fas fa-fire\"></i> {$row['total_calories']} kcal</span>
-                                    </div>
-                                 </div>
-                            </div>
-                            ";
-                        }
-                }
-                ?>
-            </div>
+            <div class="diet-history-grid"></div>
         </section>
 
         <!-- load workout and diet history -->
@@ -1399,27 +1350,27 @@ if ($result->num_rows == 0 || !$hasValidWeights) {
                     </div>
                 `;
                 } 
-                // else if (type === 'diet') {
-                //     return `
-                //     <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
-                //         <div>
-                //             <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
-                //         </div>
-                //         <div class="diet-info">
-                //             <h3 class="diet-title">${item.diet_name}</h3>
-                //             <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
-                //             <div class="diet-stats">
-                //                 <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
-                //                 <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
-                //             </div>
-                //         </div>
-                //     </div>
-                // `;
-                // }
+                else if (type === 'diet') {
+                    return `
+                    <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
+                        <div>
+                            <img src="${imageSrc}" alt="${item.diet_name}" class="diet-image">
+                        </div>
+                        <div class="diet-info">
+                            <h3 class="diet-title">${item.diet_name}</h3>
+                            <span class="diet-level">${item.diet_type === 'standard' ? item.difficulty || '' : 'Custom'}</span>
+                            <div class="diet-stats">
+                                <span><i class="fas fa-clock"></i> ${item.diet_type === 'standard' ? item.preparation_min || '' : '-'}</span>
+                                <span><i class="fas fa-fire"></i> ${item.total_calories || 0} kcal</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }
             };
 
             const workoutGrid = document.querySelector('.workout-history-grid');
-            // const dietGrid = document.querySelector('.diet-history-grid');
+            const dietGrid = document.querySelector('.diet-history-grid');
 
             if (response.workouts && !response.workouts.no_data) {
                 workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
