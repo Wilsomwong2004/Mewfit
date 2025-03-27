@@ -39,10 +39,9 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     <div class="no-select">
       <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
-          <span class="workout-home"
-            ><a href="homepage.php" class="active">HOME</a></span
+          <span class="workout-home"><a href="homepage.php" class="active">HOME</a></span
           >
-          <span class="workout-navbar"><a href="#">WORKOUT</a></span>
+          <span class="workout-navbar"><a href="workout_page.php">WORKOUT</a></span>
           <img
             src="./assets/icons/logo.svg"
             alt="logo"
@@ -128,6 +127,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             <div class="activity-type-option" data-type="Meat">Meat</div>
             <div class="activity-type-option" data-type="Vegetarian">Vegetarian</div>
             <div class="activity-type-option" data-type="Vegan">Vegan</div>
+            <div class="activity-type-option" data-type="Custom">Custom</div>
           </div>
         </div>
         
@@ -157,81 +157,80 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       </div>
 
       <?php
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "mewfit";
-      
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        include "conn.php";
 
-        $exist_record = false;
+        $sql = "
+        (
+            SELECT 
+                dh.diet_history_id AS id,
+                dh.date,
+                d.diet_name,
+                d.diet_type,
+                d.preparation_min,
+                d.picture,
+                IFNULL(SUM(n.calories), 0) AS total_calories,
+                'regular' AS meal_type
+            FROM diet_history dh
+            JOIN diet d ON dh.diet_id = d.diet_id
+            LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
+            LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
+            WHERE dh.member_id = ?
+            GROUP BY dh.diet_history_id, dh.date, d.diet_name, d.diet_type, d.preparation_min, d.picture
+        )
+        UNION ALL
+        (
+            SELECT 
+                cd.custom_diet_id AS id,
+                cd.date,
+                cd.custom_diet_name AS diet_name,
+                'Custom' AS diet_type,
+                NULL AS preparation_min,
+                NULL AS picture,
+                cd.calories AS total_calories,
+                'custom' AS meal_type
+            FROM custom_diet cd
+            WHERE cd.member_id = ?
+        )
+        ORDER BY date DESC
+        LIMIT 5";  // Show only the latest 5 meals
 
-        if ($conn->connect_error) {
-          die("Connection failed: " . $conn->connect_error);
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("ii", $_SESSION['member id'], $_SESSION['member id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Debugging: Check if query returns anything
+        if (!$result) {
+            die("Query Error: " . $stmt->error);
         }
-        
-        $sql = "SELECT 
-                diet_history.diet_history_id,
-                diet_history.date,
-                diet_history.member_id,
-                diet_history.diet_id,
-                diet.diet_name,
-                diet.diet_type,
-                diet.preparation_min,
-                diet.picture
-                FROM diet_history 
-                INNER JOIN diet 
-                ON diet_history.diet_id = diet.diet_id
-                ORDER BY diet_history.date DESC"; // connect the workout_history table and workout table
 
-        $result = $conn->query($sql); // create a variable and store the sql query result inside it
-        
-        function formatDate($date) {
-          if ($date == date("Y-m-d")) {
-              return "Today";
-          } else if ($date == date("Y-m-d", strtotime("-1 day"))) {
-              return "Yesterday";
-          } else {
-              return date('d F Y', strtotime($date)); 
-          }
-        }
+        if ($result->num_rows == 0) {
+            echo "<p>No meals found.</p>";
+        } else {
+            while ($row = $result->fetch_assoc()) {
+                $diet_id = $row['id'];  
+                $diet_name = $row['diet_name'];
+                $diet_type = $row['diet_type']; 
+                $preparation_min = isset($row['preparation_min']) ? "{$row['preparation_min']} min" : "N/A";
+                $total_calories = $row['total_calories'];
+                $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./uploads/default.jpg";
+                $meal_date = $row['date'];
 
-        while ($row = $result->fetch_assoc()) {
-
-          $workout_date = formatDate($row['date']);
-
-          $diet_id = $row['diet_id'];
-
-          if ($row['member_id'] == $_SESSION['member id']) {
-            $exist_record = true;
-            // prints out the record
-            echo "<div class=\"workout-date\">
-                    <p>{$workout_date}</p>
-                  </div>
-                  <div class=\"workout-record\" data-diet-id=\"{$diet_id}\">
-                    <img
-                    class=\"picture\"
-                    src=\"./uploads/diet/{$row['picture']}\"
-                    alt=\"{$row['diet_name']}\"
-                    />
-                    <p class=\"name\">{$row['diet_name']}</p>
-                    <p class=\"type\">{$row['diet_type']}</p>
-                    <p class=\"time\">{$row['preparation_min']} min</p>
-                  </div>";
+                echo "
+                <div class='workout-date'>
+                    <p>{$meal_date}</p>
+                </div>
+                <div class='workout-record' data-diet-id='{$diet_id}' data-meal-type='{$row['meal_type']}'>
+                    <img class='picture' src='{$picture}' alt='{$diet_name}' />
+                    <p class='name'>{$diet_name}</p>
+                    <p class='type'>{$diet_type}</p>
+                    <p class='time'>{$preparation_min}</p>
+                    <p class='calories'>{$total_calories} kcal</p>
+                </div>";            
             }
         }
-
-        if (!$exist_record) {
-          echo "
-                <div class='no-record'>
-                  <img src='./assets/icons/error.svg' alt='logo' class='no-record-img' />
-                  <p>There is no diet meals recorded in your history</p>  
-                </div>         
-                ";
-        }
-
-      $conn->close();
       ?>
+
     </div>
 
     <!-- Chatbot Interface -->
@@ -264,17 +263,20 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
   <script src="./js/darkmode.js"></script>
   <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Select all workout records
-    const records = document.querySelectorAll(".workout-record");
+      
+      const records = document.querySelectorAll(".workout-record");
 
-    records.forEach(record => {
-      record.addEventListener("click", function () {
-        const dietId = this.getAttribute("data-diet-id"); 
-        if (dietId) {
-          window.location.href = `subdiet_page.php?diet_id=${dietId}`;
-        }
+      records.forEach(record => {
+          record.addEventListener("click", function () {
+              const dietId = this.getAttribute("data-diet-id"); 
+              const mealType = this.getAttribute("data-meal-type"); 
+
+              if (dietId && mealType !== "custom") {
+                  window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+              }
+          });
       });
-    });
   });
+
   </script>
 </html>
