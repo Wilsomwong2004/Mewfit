@@ -27,13 +27,13 @@ html.dark-mode {
 }
 
 html.dark-mode .workout-card-content,
-html.dark-mode .diet-card-content{
+html.dark-mode .diet-card-content {
     background-color: #4e4e4e;
 }
 
 html.dark-mode .workout-stats,
-html.dark-mode .diet-stats{
-    color:#999;
+html.dark-mode .diet-stats {
+    color: #999;
 }
 
 * {
@@ -229,8 +229,8 @@ html.dark-mode .container-side-transparent-right {
 
     .greetings {
         font-size: 5vw;
-        display:flex;
-        width:100%;
+        display: flex;
+        width: 100%;
         justify-content: center;
     }
 
@@ -283,6 +283,7 @@ html.dark-mode .container-side-transparent-right {
     padding-top: 20px;
     padding-bottom: 20px;
     align-items: center;
+    margin-bottom: 10px;
 }
 
 .section2-title svg {
@@ -301,22 +302,23 @@ html.dark-mode .container-side-transparent-right {
     gap: 10px;
 }
 
-.fitness-summary-container{
+.fitness-summary-container {
     opacity: 0;
-    transform: translateY(-20px); 
+    transform: translateY(-20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     animation: flyIn 1s ease-out forwards;
 }
-  
+
 @keyframes flyIn {
-from {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-to {
-    opacity: 1;
-    transform: translateY(0);
-}
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .fitness-summary-container {
@@ -324,7 +326,7 @@ to {
     padding: 10px 0px;
     box-shadow: 5px 5px 5px #0000002c;
     width: 100%;
-    transition: background-color 4s ease; 
+    transition: background-color 4s ease;
 }
 
 .fitness-summary-container img {
@@ -428,9 +430,9 @@ to {
     gap: 20px;
 }
 
-.box{
+.box {
     opacity: 0;
-    transform: translateY(-20px); 
+    transform: translateY(-20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     animation: flyIn 1s ease-out forwards;
 }
@@ -459,8 +461,9 @@ to {
     font-weight: 500 !important;
 }
 
-.no-chart1,.no-chart2{
-    width:100%;
+.no-chart1,
+.no-chart2 {
+    width: 100%;
     display: block;
 }
 
@@ -581,6 +584,7 @@ to {
     align-items: center;
     margin-left: 4vw;
     margin-right: 4vw;
+    margin-top: 20px;
 }
 
 .section3 h4 {
@@ -687,7 +691,7 @@ to {
     margin-right: 0.2rem;
 }
 
-.pop-up{
+.pop-up {
     display: none;
     position: fixed;
     top: 0;
@@ -700,7 +704,7 @@ to {
     z-index: 5;
 }
 
-#weightForm{
+#weightForm {
     background-color: white;
     padding: 20px;
     border-radius: 20px;

@@ -379,7 +379,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <section class="section-1">
             <div style="display:flex;">
                 <a onclick="goBack()" class="back-button">&lt;</a>
-                <h1><?php echo $diet_name ?></h1>
+                <h1><?php echo $diet_name?></h1>
             </div>
             <div class="general-info">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
@@ -408,7 +408,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </section>
         <section class="big-section">
-            <img src="./database_uploads/<?php echo htmlspecialchars($picture); ?>" class="diet-image" alt="Diet Image">
+            <img src="./uploads/diet/<?php echo htmlspecialchars($picture); ?>" class="diet-image" alt="Diet Image">
 
             <div class="nutrient-box-box">
                 <div class="nutrient-box">
@@ -468,7 +468,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php foreach ($other_recipes as $recipe): ?>
                     <div class="other-recipes">
                         <a href="subdiet_page.php?diet_id=<?php echo $recipe['diet_id']; ?>">
-                            <img src="./database_uploads/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
+                            <img src="./uploads/diet/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
                             <h5><?php echo htmlspecialchars($recipe['diet_name']); ?></h5>
                         </a>
                     </div>
@@ -506,7 +506,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php foreach ($other_recipes as $recipe): ?>
                     <div class="other-recipes">
                         <a href="subdiet_page.php?diet_id=<?php echo $recipe['diet_id']; ?>">
-                            <img src="./database_uploads/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
+                            <img src="./uploads/diet/<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['diet_name']); ?>">
                             <h5><?php echo htmlspecialchars($recipe['diet_name']); ?></h5>
                         </a>
                     </div>

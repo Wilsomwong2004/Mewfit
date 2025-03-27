@@ -17,11 +17,11 @@ $member = $resultMember->fetch_assoc();
 $email_address = $member['email_address'];
 
 // Main diets query - this appears to be for the general diet page
-$sql = "SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, 
+$sql = "SELECT d.diet_id, d.diet_name, d.description, d.picture, d.difficulty, d.preparation_min, 
         d.diet_type, MAX(dh.date) as latest_date
         FROM diet d
         LEFT JOIN diet_history dh ON dh.diet_id = d.diet_id AND dh.member_id = ?
-        GROUP BY d.diet_id, d.diet_name, d.difficulty, d.preparation_min, d.diet_type
+        GROUP BY d.diet_id, d.diet_name, d.description, d.picture, d.difficulty, d.preparation_min, d.diet_type
         ORDER BY latest_date DESC, d.diet_id DESC";
 
 $stmt = $dbConn->prepare($sql);
@@ -45,11 +45,12 @@ while ($row = $result->fetch_assoc()) {
     $diets[] = [
         'diet_id' => $row['diet_id'],
         'title' => $row['diet_name'],
+        'description' => $row['description'] ?? 'No description available',
         'level' => $row['difficulty'],
         'duration' => $row['preparation_min'] . ' min',
         'calories' => ($calories['total_calories'] ?? 0) . ' kcal',
         'type' => [$row['diet_type']],
-        'image' => "./uploads/diet/{$row['diet_id']}.jpg"
+        'image' => "./uploads/diet/{$row['picture']}"
     ];
 }
 
@@ -71,14 +72,13 @@ $sqlRecentDiets = "SELECT
         ON diet_history.diet_id = diet.diet_id
         WHERE diet_history.member_id = ?
         ORDER BY diet_history.date DESC
-        LIMIT 3"; // Limiting to 3 most recent meals
+        LIMIT 3"; 
 
 $stmtRecentDiets = $dbConn->prepare($sqlRecentDiets);
 $stmtRecentDiets->bind_param("i", $member_id);
 $stmtRecentDiets->execute();
 $resultRecentDiets = $stmtRecentDiets->get_result();
 
-// Store results in array
 $recentUserDiets = [];
 if ($resultRecentDiets->num_rows > 0) {
     while($row = $resultRecentDiets->fetch_assoc()) {
@@ -87,7 +87,7 @@ if ($resultRecentDiets->num_rows > 0) {
             'title' => $row['diet_name'],
             'type' => $row['diet_type'],
             'duration' => $row['preparation_min'] . ' min',
-            'image' => './uploads/diet/' . $row['picture'],
+            'image' => !empty($row['picture']) ? './uploads/diet/' . $row['picture'] : './assets/icons/error.svg',
             'date' => $row['date']
         ];
     }
@@ -294,6 +294,9 @@ if ($resultRecentDiets->num_rows > 0) {
         // Pass diet data to JavaScript once
         const diets = <?php echo json_encode($diets); ?>;
         const response = <?php echo json_encode($response); ?>;
+        const recentUserDiets = <?php echo json_encode($recentUserDiets); ?>;
+        window.recentUserDiets = <?php echo json_encode($recentUserDiets); ?>;
+        // console.log('Recent User Diets:', recentUserDiets);
     </script>
     <script src="./js/diet_page.js"></script>
     <script src="./js/navigation_bar.js"></script>

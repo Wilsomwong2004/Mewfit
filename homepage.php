@@ -1224,7 +1224,7 @@ LIMIT 1
                                             <input type="number" id="calorie" name="calorie" required>
                                         </div>
                                     </div>
-                                    <button onclick="recordCalorieDone()">Record Weight</button>
+                                    <button onclick="recordCalorieDone()">Record Meal</button>
                         </div>
                     </div>
                 </div>
@@ -1346,7 +1346,8 @@ LIMIT 1
                         </div>
                     </div>
                 `;
-                } else if (type === 'diet') {
+                } 
+                else if (type === 'diet') {
                     return `
                     <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
                         <div>
@@ -1617,4 +1618,20 @@ LIMIT 1
     window.onload = function() {
         updateCats();
     };
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Select all workout records
+    const records = document.querySelectorAll(".diet-card-content");
+
+    records.forEach(record => {
+      record.addEventListener("click", function () {
+        const dietId = this.getAttribute("data-diet-id"); 
+        if (dietId) {
+          window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+        }
+      });
+    });
+  });
 </script>

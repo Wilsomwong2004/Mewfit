@@ -601,13 +601,17 @@
             </div>
         </div>
         <div class="left-fade-in" id="page5-content">
-            <div style="align-content: center;">
+            <div class="video-page5" style="align-content: center;">
                 <div style="position:relative;">
-                    <image src="assets/workout_pics/workout1.jpeg" class="page5-pic"></image>
+                    <video disablePictureInPicture autoplay loop muted class="page5-pic">
+                        <source src="assets/screenshot_interface/pose detection 2_ori.mp4" type="video/mp4">
+                    </video>
                     <div class="overlay-text">Without <span style="color:#FFAD84">MewTrack</span></div>
                 </div>
                 <div style="position:relative;">
-                    <image src="assets/workout_pics/workout1.jpeg" class="page5-pic"></image>
+                    <video disablePictureInPicture autoplay loop muted class="page5-pic">
+                        <source src="assets/screenshot_interface/pose detection 2.mp4"  type="video/mp4">
+                    </video>
                     <div class="overlay-text">With <span style="color:#FFAD84">MewTrack</span></div>
                 </div>
             </div>

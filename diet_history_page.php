@@ -40,7 +40,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       <nav class="navbar" id="navbar">
         <div class="nav-links" id="nav-links">
           <span class="workout-home"
-            ><a href="homepage.html" class="active">HOME</a></span
+            ><a href="homepage.php" class="active">HOME</a></span
           >
           <span class="workout-navbar"><a href="#">WORKOUT</a></span>
           <img
@@ -50,10 +50,10 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             id="nav-logo"
           />
           <span class="workout-dietplan"
-            ><a href="diet_page.html">DIET PLAN</a></span
+            ><a href="diet_page.php">DIET PLAN</a></span
           >
           <span class="workout-settings"
-            ><a href="settings_page.html">SETTINGS</a></span
+            ><a href="settings_page.php">SETTINGS</a></span
           >
         </div>
         <div class="header-right">
@@ -70,50 +70,40 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
           id="nav-logo-responsive"
         />
         <div class="profile">
-          <img
-            src="./assets/icons/Unknown_acc-removebg.png"
-            alt="Profile"
-            id="profile-pic"
-          />
+          <div>
+            <?php
+            echo "
+              <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                  ";
+            ?>
+          </div>
+
           <div class="profile-dropdown" id="profile-dropdown">
             <div class="profile-info">
-              <img
-                src="./assets/icons/Unknown_acc-removebg.png"
-                alt="unknown cat"
-              />
-              <div>
-                <h3>unknown</h3>
-                <p>unknown</p>
-              </div>
+              <?php
+              echo "
+                    <img src=\"./uploads/member/{$_SESSION["member pic"]}\" alt=\"Profile\" id=\"profile-pic\">
+                    <div>
+                      <h3>{$_SESSION["username"]}</h3>
+                      <p>{$_SESSION["email"]}</p>
+                    </div>
+                    ";
+              ?>
             </div>
-            <ul>
-              <li>
-                <a href="#" class="settings-profile"
-                  ><i class="fas fa-cog"></i>Settings</a
-                >
-              </li>
-              <li>
-                <i class="fas fa-moon"></i> Dark Mode
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    name="dark-mode-toggle"
-                    id="dark-mode-toggle"
-                  />
-                  <span class="slider round"></span>
-                </label>
-              </li>
-              <li>
-                <a href="#" class="help-center-profile"
-                  ><i class="fas fa-question-circle"></i>Help
-                </a>
-              </li>
-              <li class="logout-profile" id="logout-profile">
-                <i class="fas fa-sign-out-alt"></i> Logout
-              </li>
-            </ul>
+              <ul>
+                <li><a href="settings_page.php" class="settings-profile"><i class="fas fa-cog"></i>Settings</a></li>
+                <li>
+                  <i class="fas fa-moon"></i> Dark Mode
+                  <label class="switch">
+                    <input type="checkbox" name="dark-mode-toggle" id="dark-mode-toggle">
+                    <span class="slider round"></span>
+                  </label>
+                </li>
+                <li><a href="FAQ_page.html" class="help-center-profile"><i class="fas fa-question-circle"></i>Help </a></li>
+                <li class="logout-profile" id="logout-profile"><i class="fas fa-sign-out-alt"></i> Logout</li>
+              </ul>
+            </div>
           </div>
-        </div>
       </nav>
       <header class="page-header">
         <button class="previous"><i class="bx bxs-chevron-left"></i></button>

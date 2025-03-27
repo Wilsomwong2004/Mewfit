@@ -1,10 +1,7 @@
-// darkmode.js 完整修正版
 class DarkModeSync {
   constructor() {
-    // 确保元素已加载
     this.toggles = this.getToggles();
 
-    // 添加异步初始化
     if (document.readyState === "complete") {
       this.init();
     } else {
@@ -13,24 +10,13 @@ class DarkModeSync {
   }
 
   getToggles() {
-    // 增强元素选择方法
     const toggles = [
       document.getElementById("dark-mode-toggle"),
       document.getElementById("settings-darkmode-toggle"),
     ];
 
-    // 调试输出
-    console.log(
-      "找到的开关:",
-      toggles.map((t) => t?.id)
-    );
-
     return toggles.filter((toggle) => {
       if (!toggle) {
-        console.error("开关元素未找到! 请检查:");
-        console.error("1. HTML中是否存在对应ID");
-        console.error("2. 是否重复ID");
-        console.error("3. JS加载顺序是否早于DOM创建");
         return false;
       }
       return true;
@@ -38,43 +24,34 @@ class DarkModeSync {
   }
 
   init() {
-    // 增强状态初始化
     this.isDark = this.loadDarkModeState();
     document.documentElement.classList.toggle("dark-mode", this.isDark);
 
-    // 添加防抖处理
     this.updateToggles();
 
-    // 事件监听优化
     this.toggles.forEach((toggle) => {
-      // 移除已有监听避免重复
       toggle.removeEventListener("change", this.handleToggle);
-      // 使用箭头函数保持this指向
       toggle.addEventListener("change", (e) => this.handleToggle(e));
     });
 
-    // 调试输出
-    console.log("初始化完成，当前模式:", this.isDark ? "深色" : "浅色");
+    // console.log("Initialization completed, current mode:", this.isDark ? "Dark mode" : "Light mode");
   }
 
   loadDarkModeState() {
-    // 处理localStorage异常
     try {
       return localStorage.getItem("darkMode") === "true";
     } catch (e) {
-      console.error("读取本地存储失败:", e);
+      console.error("Failed to read local storage:", e);
       return false;
     }
   }
 
   handleToggle = (e) => {
-    // 添加事件锁防止循环触发
     if (this.isUpdating) return;
     this.isUpdating = true;
 
     this.isDark = e.target.checked;
 
-    // 异步更新避免渲染阻塞
     requestAnimationFrame(() => {
       this.updateToggles();
       this.saveDarkModeState();
@@ -86,9 +63,8 @@ class DarkModeSync {
   updateToggles() {
     this.toggles.forEach((toggle) => {
       if (toggle.checked !== this.isDark) {
-        // 使用属性直接赋值避免触发change事件
         toggle.checked = this.isDark;
-        console.log(`已同步 ${toggle.id}: ${this.isDark}`);
+        console.log(`Sync ${toggle.id}: ${this.isDark}`);
       }
     });
   }
@@ -97,42 +73,36 @@ class DarkModeSync {
     try {
       localStorage.setItem("darkMode", this.isDark);
     } catch (e) {
-      console.error("保存本地存储失败:", e);
+      console.error("Failed to save to local storage:", e);
     }
   }
 
   updateDarkModeClass() {
     document.documentElement.classList.toggle("dark-mode", this.isDark);
-    // 添加过渡效果
     document.body.style.transition = "background-color 0.3s ease";
   }
 }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // 显示模态框
-    document.querySelector('.setting-item[href="#"]').addEventListener('click', function(e) {
-      e.preventDefault();
-      document.getElementById('updateModal').style.display = 'block';
-    });
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelector('.setting-item[href="#"]').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('updateModal').style.display = 'block';
+  });
 
-    // 关闭模态框
-    document.querySelectorAll('.close-modal, .cancel-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('updateModal').style.display = 'none';
-      });
-    });
-
-    // 表单提交处理
-    document.getElementById('updateForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      // 这里添加AJAX提交逻辑
-      console.log('Form data:', new FormData(this));
-      alert('Changes saved!');
+  document.querySelectorAll('.close-modal, .cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
       document.getElementById('updateModal').style.display = 'none';
     });
   });
 
-// 确保单例运行
+  document.getElementById('updateForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    console.log('Form data:', new FormData(this));
+    alert('Changes saved!');
+    document.getElementById('updateModal').style.display = 'none';
+  });
+});
+
 if (!window.darkModeSyncInstance) {
   window.darkModeSyncInstance = new DarkModeSync();
 }
@@ -141,52 +111,50 @@ class LogoutToggle {
   constructor() {
     this.logoutProfile = document.getElementById("logout-profile");
     this.logoutSettings = document.getElementById("logout-settings");
-    this.isSyncing = false; // 状态标志，防止重复触发
+    this.logoutModal = document.getElementById("logout-modal");
+    this.cancelLogoutBtn = document.getElementById("cancel-logout");
+    this.confirmLogoutBtn = document.getElementById("confirm-logout");
+    this.isSyncing = false;
     this.init();
   }
 
   init() {
     if (this.logoutProfile) {
-      this.logoutProfile.addEventListener("click", (e) =>
-        this.handleLogout(e, "profile")
-      );
+      this.logoutProfile.addEventListener("click", () => this.showLogoutModal());
     }
     if (this.logoutSettings) {
-      this.logoutSettings.addEventListener("click", (e) =>
-        this.handleLogout(e, "settings")
-      );
+      this.logoutSettings.addEventListener("click", () => this.showLogoutModal());
+    }
+    if (this.cancelLogoutBtn) {
+      this.cancelLogoutBtn.addEventListener("click", () => this.hideLogoutModal());
+    }
+    if (this.confirmLogoutBtn) {
+      this.confirmLogoutBtn.addEventListener("click", () => this.processLogout());
+    }
+
+    window.addEventListener("click", (event) => {
+      if (event.target === this.logoutModal) {
+        this.hideLogoutModal();
+      }
+    });
+  }
+
+  showLogoutModal() {
+    if (this.logoutModal) {
+      this.logoutModal.style.display = "flex";
+    } else {
+      console.error("Logout modal not found!");
     }
   }
 
-  handleLogout(e, source) {
-    e.preventDefault();
-    if (this.isSyncing) return; // 已在同步中则直接返回
-    this.isSyncing = true;
-
-    // 如果需要，可以程序化触发另一按钮的点击事件（但注意这样可能会导致循环调用）
-    // 例如：
-    // if (source === 'profile' && this.logoutSettings) {
-    //   this.logoutSettings.dispatchEvent(new Event('click'));
-    // } else if (source === 'settings' && this.logoutProfile) {
-    //   this.logoutProfile.dispatchEvent(new Event('click'));
-    // }
-
-    // 统一执行退出逻辑
-    this.logoutAction();
-
-    this.isSyncing = false;
+  hideLogoutModal() {
+    if (this.logoutModal) {
+      this.logoutModal.style.display = "none";
+    }
   }
 
-  logoutAction() {
-    const modal = document.getElementById("logout-modal");
-    if (modal) {
-      modal.classList.toggle("active");
-      document.body.style.overflow = modal.classList.contains("active")
-        ? "hidden"
-        : "auto";
-    }
-    console.log("执行退出操作");
-    // 在这里加入实际退出逻辑
+  processLogout() {
+    window.location.href = "logout.php";
   }
 }
 
@@ -198,21 +166,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // 头像上传功能
   const avatarUpload = document.getElementById("avatar-upload");
   const profileImages = [
-    document.getElementById("profile-pic"), // 导航栏头像
-    document.querySelector(".profile-photo"), // 左侧大头像
+    document.getElementById("profile-pic"),
+    document.querySelector(".profile-photo"),
   ];
 
-  // 绑定点击事件
   document.querySelector(".change-photo").addEventListener("click", () => {
     avatarUpload.click();
   });
 
-  // 处理文件选择
   avatarUpload.addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 验证文件类型
     if (!["image/jpeg", "image/jpg"].includes(file.type)) {
       alert("Only JPG/JPEG files are allowed");
       return;
@@ -225,14 +190,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (img) img.src = event.target.result;
       });
 
-      // 这里可以添加实际上传逻辑
-      console.log("准备上传:", file);
+      console.log("Preparing to upload:", file);
       // uploadToServer(file);
     };
     reader.readAsDataURL(file);
   });
 
-  // 示例上传函数
   async function uploadToServer(file) {
     try {
       const formData = new FormData();
@@ -244,10 +207,285 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!response.ok) throw new Error("Upload failed");
-      console.log("上传成功");
+      console.log("Upload successfully!");
     } catch (error) {
       console.error("上传错误:", error);
-      alert("上传失败，请重试");
+      alert("Upload failed, please try again.");
     }
   }
+});
+
+// Profile Update Form Validation
+document.addEventListener('DOMContentLoaded', function () {
+  const updateInfoForm = document.getElementById('update-info-form');
+
+  // Validation utility functions
+  const validators = {
+    username: function (value) {
+      // Username must be 3-20 characters, alphanumeric and underscores
+      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+      return {
+        valid: usernameRegex.test(value),
+        message: 'Username must be 3-20 characters long and contain only letters, numbers, and underscores'
+      };
+    },
+
+    email: function (value) {
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return {
+        valid: emailRegex.test(value),
+        message: 'Please enter a valid email address'
+      };
+    },
+
+    password: function (value, confirmValue = '') {
+      // If password is empty, it means no change is requested
+      if (!value) return { valid: true, message: '' };
+
+      // Validate password complexity
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const isValid = passwordRegex.test(value);
+
+      // Check if confirmation matches
+      const confirmMatch = !confirmValue || value === confirmValue;
+
+      return {
+        valid: isValid && confirmMatch,
+        message: !isValid
+          ? 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+          : (!confirmMatch
+            ? 'New passwords do not match'
+            : '')
+      };
+    },
+
+    weight: function (value) {
+      // Weight between 20 and 300 kg
+      const numValue = parseFloat(value);
+      return {
+        valid: !isNaN(numValue) && numValue >= 20 && numValue <= 300,
+        message: 'Weight must be between 20 and 300 kg'
+      };
+    },
+
+    height: function (value) {
+      // Height between 50 and 250 cm
+      const numValue = parseFloat(value);
+      return {
+        valid: !isNaN(numValue) && numValue >= 50 && numValue <= 250,
+        message: 'Height must be between 50 and 250 cm'
+      };
+    },
+
+    targetWeight: function (value, currentWeight) {
+      const numValue = parseFloat(value);
+      const currentWeightValue = parseFloat(currentWeight);
+
+      return {
+        valid: !isNaN(numValue) &&
+          numValue >= 20 &&
+          numValue <= 300 &&
+          Math.abs(numValue - currentWeightValue) >= 1,
+        message: 'Target weight must be different from current weight and between 20 and 300 kg'
+      };
+    }
+  };
+
+  // Display error message
+  function showError(inputElement, message) {
+    // Remove any existing error displays
+    const existingError = inputElement.nextElementSibling;
+    if (existingError && existingError.classList.contains('error-message')) {
+      existingError.remove();
+    }
+
+    // Create and insert error message
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = 'red';
+    errorElement.style.fontSize = '0.8rem';
+    errorElement.style.marginTop = '5px';
+    errorElement.textContent = message;
+
+    inputElement.insertAdjacentElement('afterend', errorElement);
+    inputElement.classList.add('invalid');
+  }
+
+  // Clear error message
+  function clearError(inputElement) {
+    const existingError = inputElement.nextElementSibling;
+    if (existingError && existingError.classList.contains('error-message')) {
+      existingError.remove();
+    }
+    inputElement.classList.remove('invalid');
+  }
+
+  // Validate form before submission
+  function validateForm() {
+    let isValid = true;
+
+    // Validate username
+    const usernameInput = document.getElementById('username');
+    const usernameValidation = validators.username(usernameInput.value);
+    if (!usernameValidation.valid) {
+      showError(usernameInput, usernameValidation.message);
+      isValid = false;
+    } else {
+      clearError(usernameInput);
+    }
+
+    // Validate email
+    const emailInput = document.getElementById('email');
+    const emailValidation = validators.email(emailInput.value);
+    if (!emailValidation.valid) {
+      showError(emailInput, emailValidation.message);
+      isValid = false;
+    } else {
+      clearError(emailInput);
+    }
+
+    // Validate current password if new password is being set
+    const currentPasswordInput = document.getElementById('current-password');
+    const newPasswordInput = document.getElementById('new-password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+
+    // If new password is being set
+    if (newPasswordInput.value) {
+      // Ensure current password is provided
+      if (!currentPasswordInput.value) {
+        showError(currentPasswordInput, 'Current password is required when changing password');
+        isValid = false;
+      } else {
+        clearError(currentPasswordInput);
+      }
+
+      // Validate new password
+      const passwordValidation = validators.password(
+        newPasswordInput.value,
+        confirmPasswordInput.value
+      );
+
+      if (!passwordValidation.valid) {
+        showError(newPasswordInput, passwordValidation.message);
+        isValid = false;
+      } else {
+        clearError(newPasswordInput);
+        clearError(confirmPasswordInput);
+      }
+    }
+
+    // Validate weight
+    const weightInput = document.getElementById('weight');
+    const weightValidation = validators.weight(weightInput.value);
+    if (!weightValidation.valid) {
+      showError(weightInput, weightValidation.message);
+      isValid = false;
+    } else {
+      clearError(weightInput);
+    }
+
+    // Validate height
+    const heightInput = document.getElementById('height');
+    const heightValidation = validators.height(heightInput.value);
+    if (!heightValidation.valid) {
+      showError(heightInput, heightValidation.message);
+      isValid = false;
+    } else {
+      clearError(heightInput);
+    }
+
+    // Validate target weight
+    const targetWeightInput = document.getElementById('target_weight');
+    const targetWeightValidation = validators.targetWeight(
+      targetWeightInput.value,
+      weightInput.value
+    );
+    if (!targetWeightValidation.valid) {
+      showError(targetWeightInput, targetWeightValidation.message);
+      isValid = false;
+    } else {
+      clearError(targetWeightInput);
+    }
+
+    return isValid;
+  }
+
+  // Add real-time validation to inputs
+  function addRealTimeValidation(inputElement, validatorFn, additionalParam = null) {
+    inputElement.addEventListener('input', function () {
+      const validation = additionalParam
+        ? validatorFn(this.value, additionalParam)
+        : validatorFn(this.value);
+
+      if (!validation.valid) {
+        showError(this, validation.message);
+      } else {
+        clearError(this);
+      }
+    });
+  }
+
+  // Apply real-time validation
+  addRealTimeValidation(document.getElementById('username'), validators.username);
+  addRealTimeValidation(document.getElementById('email'), validators.email);
+
+  // Password validation with confirmation
+  const newPasswordInput = document.getElementById('new-password');
+  const confirmPasswordInput = document.getElementById('confirm-password');
+
+  newPasswordInput.addEventListener('input', function () {
+    const validation = validators.password(
+      newPasswordInput.value,
+      confirmPasswordInput.value
+    );
+
+    if (!validation.valid) {
+      showError(newPasswordInput, validation.message);
+    } else {
+      clearError(newPasswordInput);
+      clearError(confirmPasswordInput);
+    }
+  });
+
+  confirmPasswordInput.addEventListener('input', function () {
+    const validation = validators.password(
+      newPasswordInput.value,
+      confirmPasswordInput.value
+    );
+
+    if (!validation.valid) {
+      showError(confirmPasswordInput, validation.message);
+    } else {
+      clearError(newPasswordInput);
+      clearError(confirmPasswordInput);
+    }
+  });
+
+  addRealTimeValidation(document.getElementById('weight'), validators.weight);
+  addRealTimeValidation(document.getElementById('height'), validators.height);
+
+  // Target weight validation with current weight context
+  const targetWeightInput = document.getElementById('target_weight');
+  const weightInput = document.getElementById('weight');
+
+  targetWeightInput.addEventListener('input', function () {
+    const validation = validators.targetWeight(
+      targetWeightInput.value,
+      weightInput.value
+    );
+
+    if (!validation.valid) {
+      showError(targetWeightInput, validation.message);
+    } else {
+      clearError(targetWeightInput);
+    }
+  });
+
+  // Prevent form submission if validation fails
+  updateInfoForm.addEventListener('submit', function (e) {
+    if (!validateForm()) {
+      e.preventDefault();
+    }
+  });
 });
