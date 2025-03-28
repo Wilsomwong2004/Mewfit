@@ -204,7 +204,7 @@ html.dark-mode .container-side-transparent-right {
 
 .diet-image {
   border-radius: 20px;
-  max-height: 90vh;
+  height: 100%;
   width: 100%;
   grid-column-start: 1;
   grid-column-end: 3;
