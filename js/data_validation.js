@@ -8,11 +8,11 @@ async function checkUniqueName(
   id
 ) {
   const value = inputElement.value.trim();
-  
+
   try {
     let exists = false;
     let memberExists = false;
-    
+
     if (table === "administrator") {
       memberExists = await checkTableUniqueness("member", column, value, id);
 
@@ -24,10 +24,10 @@ async function checkUniqueName(
         return true;
       }
     }
-    
+
     // Check the specific table
     exists = await checkTableUniqueness(table, column, value, id);
-    
+
     if (exists) {
       feedbackElement.textContent = existingMessage;
       feedbackElement.style.color = "red";
@@ -35,7 +35,10 @@ async function checkUniqueName(
       if (button) button.disabled = true;
       return true;
     } else {
-      if (!inputElement.dataset.bracketError || inputElement.dataset.bracketError === "false") {
+      if (
+        !inputElement.dataset.bracketError ||
+        inputElement.dataset.bracketError === "false"
+      ) {
         feedbackElement.textContent = "";
       }
       inputElement.dataset.uniqueError = "false";
@@ -53,12 +56,14 @@ async function checkUniqueName(
 }
 
 async function checkTableUniqueness(table, column, value, id) {
-  let bodyParams = `table=${encodeURIComponent(table)}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
-  
+  let bodyParams = `table=${encodeURIComponent(
+    table
+  )}&column=${encodeURIComponent(column)}&value=${encodeURIComponent(value)}`;
+
   if (id) {
     bodyParams += `&id=${encodeURIComponent(id)}`;
   }
-  
+
   const response = await fetch("inputValidation.php", {
     method: "POST",
     headers: {
@@ -66,17 +71,17 @@ async function checkTableUniqueness(table, column, value, id) {
     },
     body: bodyParams,
   });
-  
+
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
-  
+
   const data = await response.json();
-  
+
   if (data.error) {
     throw new Error(data.error);
   }
-  
+
   return data.exists;
 }
 
@@ -313,7 +318,7 @@ async function SignUpValid() {
 
   // Check valid target BMI data
   document.getElementById("target-warning").textContent = "";
-  if (fitness_goal == "Gain weight" && target_weight < weight) {
+  if (fitness_goal == "Gain muscle" && target_weight < weight) {
     document.getElementById("target-warning").textContent =
       "Please enter a value greater than your current weight";
     isValid = false;
@@ -321,7 +326,7 @@ async function SignUpValid() {
     document.getElementById("target-warning").textContent =
       "Please enter a value lesser than your current weight";
     isValid = false;
-  } else if (fitness_goal == "Gain weight" && target_weight - weight > 4) {
+  } else if (fitness_goal == "Gain muscle" && target_weight - weight > 4) {
     document.getElementById("target-warning").textContent =
       "Gaining more than 4KG (9lbs) in a span of one month is considered unhealthy";
     isValid = false;
@@ -361,4 +366,3 @@ function validateName(input, feedbackElement) {
     feedbackElement.textContent = "";
   }
 }
-
