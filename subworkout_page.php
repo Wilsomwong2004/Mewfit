@@ -17,7 +17,7 @@ $workout_exercises = [];
 
 if ($workout_id > 0) {
     // Get workout name and details
-    $sql = "SELECT workout_name FROM workouts WHERE workout_id = ?";
+    $sql = "SELECT workout_name FROM workout WHERE workout_id = ?";
     $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();
