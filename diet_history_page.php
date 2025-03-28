@@ -275,10 +275,10 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
   <script>
   function type_filter() {
     let selectedType = document.getElementById("type-filter").value.toLowerCase();
-    let records = document.querySelectorAll(".record-wrapper"); // Select the wrapper to hide date too
+    let records = document.querySelectorAll(".record-wrapper"); 
 
     records.forEach(wrapper => {
-        let record = wrapper.querySelector(".diet-record"); // Find the diet record inside
+        let record = wrapper.querySelector(".diet-record");
         let mealType = record.getAttribute("data-meal-type").toLowerCase().trim();
 
         if (selectedType === "all" || mealType === selectedType) {
