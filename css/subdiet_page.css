@@ -192,6 +192,7 @@ html.dark-mode .container-side-transparent-right {
 
 .big-section {
   display: grid;
+  grid-template-rows: 100vh auto;
   grid-template-columns: 33% 33% 33%;
   column-gap: 20px;
   row-gap: 20px;
@@ -283,6 +284,10 @@ html.dark-mode .container-side-transparent-right {
     max-height: 60vh;
     border-radius: 20px;
     grid-column: 1 / -1;
+  }
+
+  .big-section {
+    grid-template-rows: auto;
   }
 
   .nutrient-box-box {
