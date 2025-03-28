@@ -417,6 +417,10 @@ h3 {
   object-fit: cover;
 }
 
+html.dark-mode .other-recipes {
+  color: white;
+}
+
 .section-3a {
   grid-column-start: 3;
   padding-top: 2vw;
