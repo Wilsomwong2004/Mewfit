@@ -180,6 +180,7 @@ if ($resultRecentDiets->num_rows > 0) {
                 </div>
             </div>
 
+            <!-- Need to fix -->
             <!-- Categories Section -->
             <section class="diet-body">
                 <h2 class="section-title"><img src="./assets/icons/icons8-lightning-64.png">Categories</h2>
