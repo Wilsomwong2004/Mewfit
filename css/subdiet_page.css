@@ -265,6 +265,10 @@ html.dark-mode .container-side-transparent-right {
   padding-top: 1.5vw;
 }
 
+.eat-button:hover {
+  cursor: pointer;
+}
+
 .description {
   grid-column-start: 1;
   grid-column-end: 4;
