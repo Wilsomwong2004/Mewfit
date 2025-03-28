@@ -40,6 +40,16 @@ body {
   overflow-x: hidden;
 }
 
+select {
+  width: 150px;
+  background-color: #ffcbb1;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  padding: 8px 45px;
+  border-radius: 20px;
+  border: none;
+}
+
 .no-select {
   user-select: none;
   -webkit-user-select: none;

@@ -33,7 +33,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
     />
-    <script defer src="./js/workout_history_page.js"></script>
+    <script defer src="./js/diet_history_page.js"></script>
   </head>
   <body>
     <div class="no-select">
@@ -110,26 +110,19 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       </header>
 
       <div class="filter-controls">
-        <button id="all-filter" class="filter-button">
-          <span class="filter-text">All</span>
-          <i class="fas fa-chevron-down"></i>
-        </button>
-        
+        <!-- Activity Types Dropdown -->
+        <select id="type-filter" name="type-filter" onchange="type_filter()">
+          <option value="All">All</option>
+          <option value="Meat">Meat</option>
+          <option value="Vegetarian">Vegetarian</option>
+          <option value="Vegan">Vegan</option>
+          <option value="Custom">Custom</option>
+        </select>
+
         <button id="date-range-filter" class="filter-button">
           <span class="filter-text">Date Range</span>
           <i class="fas fa-chevron-down"></i>
         </button>
-        
-        <!-- Activity Types Dropdown -->
-        <div id="activity-types-dropdown" class="filter-dropdown">
-          <div class="dropdown-content">
-            <div class="activity-type-option" data-type="All">All</div>
-            <div class="activity-type-option" data-type="Meat">Meat</div>
-            <div class="activity-type-option" data-type="Vegetarian">Vegetarian</div>
-            <div class="activity-type-option" data-type="Vegan">Vegan</div>
-            <div class="activity-type-option" data-type="Custom">Custom</div>
-          </div>
-        </div>
         
         <!-- Date Range Picker -->
         <div id="date-range-picker" class="filter-dropdown date-picker-dropdown">
@@ -162,7 +155,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         $sql = "
         (
             SELECT 
-                dh.diet_history_id AS id,
+                d.diet_id AS diet_id,  -- Changed from dh.diet_history_id to d.diet_id
                 dh.date,
                 d.diet_name,
                 d.diet_type,
@@ -175,15 +168,15 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
             LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
             WHERE dh.member_id = ?
-            GROUP BY dh.diet_history_id, dh.date, d.diet_name, d.diet_type, d.preparation_min, d.picture
+            GROUP BY d.diet_id, dh.date, d.diet_name, d.diet_type, d.preparation_min, d.picture
         )
         UNION ALL
         (
             SELECT 
-                cd.custom_diet_id AS id,
+                cd.custom_diet_id AS diet_id, -- Keep custom diet ID
                 cd.date,
                 cd.custom_diet_name AS diet_name,
-                'Custom' AS diet_type,
+                'custom' AS diet_type,
                 NULL AS preparation_min,
                 NULL AS picture,
                 cd.calories AS total_calories,
@@ -208,29 +201,30 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             echo "<p>No meals found.</p>";
         } else {
             while ($row = $result->fetch_assoc()) {
-                $diet_id = $row['id'];  
+                $diet_id = $row['diet_id'];  // Now correctly storing diet_id
                 $diet_name = $row['diet_name'];
                 $diet_type = $row['diet_type']; 
                 $preparation_min = isset($row['preparation_min']) ? "{$row['preparation_min']} min" : "N/A";
                 $total_calories = $row['total_calories'];
-                $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./uploads/default.jpg";
+                $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./assets/icons/error.svg";
                 $meal_date = $row['date'];
 
                 echo "
-                <div class='workout-date'>
-                    <p>{$meal_date}</p>
-                </div>
-                <div class='diet-record' data-diet-id='{$diet_id}' data-meal-type='{$row['meal_type']}'>
-                    <img class='picture' src='{$picture}' alt='{$diet_name}' />
-                    <p class='name'>{$diet_name}</p>
-                    <p class='type'>{$diet_type}</p>
-                    <p class='time'>{$total_calories} kcal</p>
-                    <p class='kcal'>{$preparation_min}</p>
-                </div>";            
+                <div class='record-wrapper'>
+                  <div class='workout-date'>
+                      <p>{$meal_date}</p>
+                  </div>
+                  <div class='diet-record' data-diet-id='{$diet_id}' data-meal-type='{$diet_type}'>
+                      <img class='picture' src='{$picture}' alt='{$diet_name}' />
+                      <p class='name'>{$diet_name}</p>
+                      <p class='type'>{$diet_type}</p>
+                      <p class='time'>{$total_calories} kcal</p>
+                      <p class='kcal'>{$preparation_min}</p>
+                  </div>
+                </div>";         
             }
         }
-      ?>
-
+        ?>
     </div>
 
     <!-- Chatbot Interface -->
@@ -264,7 +258,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
   <script>
   document.addEventListener("DOMContentLoaded", function () {
       
-      const records = document.querySelectorAll(".workout-record");
+      const records = document.querySelectorAll(".diet-record");
 
       records.forEach(record => {
           record.addEventListener("click", function () {
@@ -277,6 +271,24 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
           });
       });
   });
+  </script>
+  <script>
+  function type_filter() {
+    let selectedType = document.getElementById("type-filter").value.toLowerCase();
+    let records = document.querySelectorAll(".record-wrapper"); // Select the wrapper to hide date too
+
+    records.forEach(wrapper => {
+        let record = wrapper.querySelector(".diet-record"); // Find the diet record inside
+        let mealType = record.getAttribute("data-meal-type").toLowerCase().trim();
+
+        if (selectedType === "all" || mealType === selectedType) {
+            wrapper.style.display = "block"; 
+        } else {
+            wrapper.style.display = "none"; 
+        }
+    });
+  }
 
   </script>
+
 </html>
