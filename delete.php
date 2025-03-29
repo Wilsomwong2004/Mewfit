@@ -60,6 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $stmt->close();
 
+        $sql = "DELETE FROM custom_diet WHERE member_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
         $sql = "DELETE FROM workout_history WHERE member_id = ?";
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("i", $id);
