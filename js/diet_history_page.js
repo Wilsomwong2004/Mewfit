@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const records = document.querySelectorAll(".diet-record");
+  const records = document.querySelectorAll(".workout-record");
 
   records.forEach((record) => {
     record.addEventListener("click", function () {
@@ -18,7 +18,7 @@ function type_filter() {
   let records = document.querySelectorAll(".record-wrapper");
 
   records.forEach((wrapper) => {
-    let record = wrapper.querySelector(".diet-record");
+    let record = wrapper.querySelector(".workout-record");
     let mealType = record.getAttribute("data-meal-type").toLowerCase().trim();
 
     if (selectedType === "all" || mealType === selectedType) {
@@ -28,10 +28,6 @@ function type_filter() {
     }
   });
 }
-
-window.workouts = [];
-window.selectedWorkout = null;
-window.globalCurrentlyPlaying = null;
 
 const previousBtn = document.querySelector(".previous");
 
@@ -198,43 +194,6 @@ function formatShortDate(dateString) {
 }
 
 /**
- * Filter workout records by activity type
- */
-function filterByActivityType(type) {
-  const workoutRecords = document.querySelectorAll(".workout-record");
-  const workoutDateHeaders = document.querySelectorAll(".workout-date");
-  let visibleCount = 0;
-
-  // First, hide all date headers
-  workoutDateHeaders.forEach((header) => {
-    header.style.display = "none";
-  });
-
-  // Then show/hide records based on filter
-  workoutRecords.forEach((record) => {
-    const recordType = record.querySelector(".type").textContent;
-    const matchesFilter =
-      type === "All" || recordType.toLowerCase() === type.toLowerCase();
-
-    if (matchesFilter) {
-      record.style.display = "grid";
-      visibleCount++;
-
-      // Show the corresponding date header
-      const prevElement = record.previousElementSibling;
-      if (prevElement && prevElement.classList.contains("workout-date")) {
-        prevElement.style.display = "block";
-      }
-    } else {
-      record.style.display = "none";
-    }
-  });
-
-  // Show "no records" message if no results
-  checkAndDisplayNoRecordsMessage(visibleCount);
-}
-
-/**
  * Filter workout records by date range
  */
 function filterByDateRange(startDate, endDate) {
@@ -363,9 +322,6 @@ function setupWorkoutHistoryCards() {
 
       // Store the selected workout
       window.selectedWorkout = workout;
-
-      // Show workout details in popup
-      displayWorkoutPopup(window.selectedWorkout);
     });
   });
 }
