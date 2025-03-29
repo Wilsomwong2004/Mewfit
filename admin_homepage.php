@@ -239,7 +239,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     COUNT(CASE WHEN gender = 'male' THEN 1 END) AS male_new,
     COUNT(CASE WHEN gender = 'female' THEN 1 END) AS female_new,
     SUM(CASE WHEN fitness_goal = 'Lose weight' THEN 1 ELSE 0 END) AS lose_weight,
-    SUM(CASE WHEN fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS gain_muscle
+    SUM(CASE WHEN fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS gain_muscle
 FROM member 
 WHERE YEAR(date_registered) BETWEEN (YEAR(CURDATE()) - 2) AND YEAR(CURDATE())
 GROUP BY year, quarter
@@ -294,19 +294,19 @@ ORDER BY year,
                             SUM(CASE WHEN age BETWEEN 55 AND 64 THEN 1 ELSE 0 END) AS age_55_64,
                             SUM(CASE WHEN age >= 65 THEN 1 ELSE 0 END) AS age_65_plus,
                             SUM(CASE WHEN age < 18 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS under_18_lose_weight,
-                            SUM(CASE WHEN age < 18 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS under_18_gain_muscle,
+                            SUM(CASE WHEN age < 18 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS under_18_gain_muscle,
                             SUM(CASE WHEN age BETWEEN 18 AND 24 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_18_24_lose_weight,
-                            SUM(CASE WHEN age BETWEEN 18 AND 24 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS age_18_24_gain_muscle,
+                            SUM(CASE WHEN age BETWEEN 18 AND 24 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_18_24_gain_muscle,
                             SUM(CASE WHEN age BETWEEN 25 AND 34 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_25_34_lose_weight,
-                            SUM(CASE WHEN age BETWEEN 25 AND 34 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS age_25_34_gain_muscle,
+                            SUM(CASE WHEN age BETWEEN 25 AND 34 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_25_34_gain_muscle,
                             SUM(CASE WHEN age BETWEEN 35 AND 44 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_35_44_lose_weight,
-                            SUM(CASE WHEN age BETWEEN 35 AND 44 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS age_35_44_gain_muscle,
+                            SUM(CASE WHEN age BETWEEN 35 AND 44 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_35_44_gain_muscle,
                             SUM(CASE WHEN age BETWEEN 45 AND 54 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_45_54_lose_weight,
-                            SUM(CASE WHEN age BETWEEN 45 AND 54 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS age_45_54_gain_muscle,
+                            SUM(CASE WHEN age BETWEEN 45 AND 54 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_45_54_gain_muscle,
                             SUM(CASE WHEN age BETWEEN 55 AND 64 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_55_64_lose_weight,
-                            SUM(CASE WHEN age BETWEEN 55 AND 64 AND fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS age_55_64_gain_muscle,
+                            SUM(CASE WHEN age BETWEEN 55 AND 64 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_55_64_gain_muscle,
                             SUM(CASE WHEN age >= 65 AND fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS age_65_plus_lose_weight,
-                            SUM(CASE WHEN age >= 65 AND fitness_goal = 'Gain Weight' THEN 1 ELSE 0 END) AS age_65_plus_gain_muscle
+                            SUM(CASE WHEN age >= 65 AND fitness_goal = 'Gain muscle' THEN 1 ELSE 0 END) AS age_65_plus_gain_muscle
                         FROM member";
 
                     $result2 = $dbConn->query($sql2);
@@ -437,7 +437,7 @@ ORDER BY year,
                                             newData: loseWeightNewData
                                         },
                                         {
-                                            label: 'Total Gain Weight',
+                                            label: 'Total Gain Muscle',
                                             data: gainMuscleTotalData,
                                             type: 'bar',
                                             backgroundColor: 'rgb(255, 223, 135)',
@@ -551,7 +551,7 @@ ORDER BY year,
                                                     return [
                                                         `Total: ${totalValue}`,
                                                         `Lose Weight: ${loseWeight}`,
-                                                        `Gain Weight: ${gainMuscle}`
+                                                        `Gain Muscle: ${gainMuscle}`
                                                     ];
                                                 }
                                             }
@@ -660,7 +660,7 @@ ORDER BY year,
                                 WHEN level BETWEEN 41 AND 50 THEN '41-50'
                             END AS level_range,
                             SUM(CASE WHEN fitness_goal = 'Lose Weight' THEN 1 ELSE 0 END) AS lose_weight,
-                            SUM(CASE WHEN fitness_goal = 'Gain weight' THEN 1 ELSE 0 END) AS gain_muscle
+                            SUM(CASE WHEN fitness_goal = 'Gain Muscle' THEN 1 ELSE 0 END) AS gain_muscle
                         FROM 
                             member
                         WHERE 
@@ -882,7 +882,7 @@ ORDER BY period";
                                             backgroundColor: 'rgb(255, 155, 155)',
                                         },
                                         {
-                                            label: 'Gain Weight',
+                                            label: 'Gain Muscle',
                                             data: gainMuscleData,
                                             backgroundColor: 'rgb(255, 223, 135)',
                                         }
