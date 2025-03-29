@@ -1272,25 +1272,34 @@ LIMIT 1
         }
 
         // Fetch the latest 6 diets and sum the calories from the nutrition table
-        $sql = "SELECT diet_id, diet_name, difficulty, preparation_min, total_calories, diet_type, date
-                    FROM (
-                        SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, SUM(n.calories) AS total_calories, 'standard' AS diet_type, dh.date
-                        FROM diet_history dh
-                        JOIN diet d ON dh.diet_id = d.diet_id
-                        LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
-                        LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
-                        WHERE dh.member_id = ?
-                        GROUP BY d.diet_id, dh.date
-                        
-                        UNION ALL
-                        
-                        -- Fetch custom diets
-                        SELECT cd.custom_diet_id AS diet_id, cd.custom_diet_name AS diet_name, NULL AS difficulty, NULL AS preparation_min, cd.calories AS total_calories, 'custom' AS diet_type, cd.date
-                        FROM custom_diet cd
-                        WHERE cd.member_id = ?
-                    ) AS combined_diets
-                    ORDER BY date DESC, COALESCE(diet_id) DESC
-                    LIMIT 6";
+        $sql = "SELECT diet_id, diet_name, difficulty, preparation_min, total_calories, diet_type, date, picture
+FROM (
+    SELECT d.diet_id, d.diet_name, d.difficulty, d.preparation_min, 
+           SUM(n.calories) AS total_calories, 'standard' AS diet_type, 
+           dh.date, d.picture
+    FROM diet_history dh
+    JOIN diet d ON dh.diet_id = d.diet_id
+    LEFT JOIN diet_nutrition dn ON dn.diet_id = d.diet_id
+    LEFT JOIN nutrition n ON n.nutrition_id = dn.nutrition_id
+    WHERE dh.member_id = ?
+    GROUP BY d.diet_id, dh.date, d.picture
+    
+    UNION ALL
+    
+    -- Fetch custom diets
+    SELECT cd.custom_diet_id AS diet_id, 
+           cd.custom_diet_name AS diet_name, 
+           NULL AS difficulty, 
+           NULL AS preparation_min, 
+           cd.calories AS total_calories, 
+           'custom' AS diet_type, 
+           cd.date, 
+           NULL AS picture
+    FROM custom_diet cd
+    WHERE cd.member_id = ?
+) AS combined_diets
+ORDER BY date DESC, COALESCE(diet_id) DESC
+LIMIT 6";
 
 
         $stmt = $dbConn->prepare($sql);
@@ -1317,10 +1326,11 @@ LIMIT 1
             const response = <?php echo json_encode($response); ?>;
 
             const createCard = (item, type) => {
-                const imageSrc = item.image || './assets/icons/error.svg';
+                
                 const cardId = type === 'workout' ? item.workout_id : item.diet_id;
 
                 if (type === 'workout') {
+                    const imageSrc = item.image || './assets/icons/error.svg';
                     return `
                     <div class="workout-card-content" data-id="${cardId}">
                         <div>
@@ -1337,6 +1347,7 @@ LIMIT 1
                     </div>
                 `;
                 } else if (type === 'diet') {
+                    const imageSrc = item.picture ? `./uploads/diet/${item.picture}` : './assets/icons/error.svg';
                     return `
                     <div class="diet-card-content" data-id="${cardId}" data-type="${item.diet_type}">
                         <div>

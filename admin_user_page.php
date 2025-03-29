@@ -197,8 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="hidden" id="table" name="table" value="administrator">
 
                     <label for="eusername">Username</label>
-                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);
-                    checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'member', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);" required>
+                    <input type="text" id="eusername" name="eusername" oninput="checkUniqueName(this, document.getElementById('eusername-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value);" required>
                     <p id="eusername-feedback" class="feedback"></p>
 
                     <label for="epassword">Password</label>
@@ -299,9 +298,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             // Picture Preview
                             echo "<td>";
                             if (!empty($rows['profile_picture'])) {
-                                echo "<img src='uploads/" . htmlspecialchars($rows['profile_picture']) . "' alt='Profile' width='50' height='50'>";
+                                echo "<img src='uploads/member/" . htmlspecialchars($rows['profile_picture']) . "' alt='Profile' width='50' height='50'>";
                             } else {
-                                echo "<img src='uploads/default.jpg' alt='No Image' width='50' height='50'>";
+                                echo "<img src='uploads/member/Unknown_acc-removebg.png' alt='No Image' width='50' height='50'>";
                             }
                             echo "</td>";
 

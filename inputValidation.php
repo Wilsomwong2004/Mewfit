@@ -36,31 +36,58 @@ switch ($table) {
 }
 
 try {
+    $exists = false;
+    
+    // First check the requested table
     if ($id) {
         $query = "SELECT COUNT(*) as count FROM `$table` WHERE `$column` = ? AND `$id_column` != ?";
         $stmt = $dbConn->prepare($query);
-
         if (!$stmt) {
             throw new Exception("Failed to prepare the SQL statement");
         }
-
         $stmt->bind_param("si", $value, $id);
     } else {
         $query = "SELECT COUNT(*) as count FROM `$table` WHERE `$column` = ?";
         $stmt = $dbConn->prepare($query);
-
         if (!$stmt) {
             throw new Exception("Failed to prepare the SQL statement");
         }
-
         $stmt->bind_param("s", $value);
     }
-
+    
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
-
     $exists = $row['count'] > 0;
+    
+    // If table is administrator, also check member table
+    if ($table === 'administrator' && !$exists) {
+        $stmt->close(); // Close previous statement
+        
+        // Check if the value exists in member table
+        $query = "SELECT COUNT(*) as count FROM `member` WHERE `$column` = ?";
+        if ($id) {
+            // If checking for update, exclude current member (assuming admin_id might correspond to member_id)
+            $query .= " AND `member_id` != ?";
+            $stmt = $dbConn->prepare($query);
+            if (!$stmt) {
+                throw new Exception("Failed to prepare the SQL statement");
+            }
+            $stmt->bind_param("si", $value, $id);
+        } else {
+            $stmt = $dbConn->prepare($query);
+            if (!$stmt) {
+                throw new Exception("Failed to prepare the SQL statement");
+            }
+            $stmt->bind_param("s", $value);
+        }
+        
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $exists = $exists || ($row['count'] > 0);
+    }
+    
     echo json_encode(["exists" => $exists]);
 } catch (Exception $e) {
     echo json_encode(["error" => $e->getMessage()]);

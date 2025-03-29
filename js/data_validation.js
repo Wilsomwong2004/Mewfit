@@ -11,19 +11,6 @@ async function checkUniqueName(
   
   try {
     let exists = false;
-    let memberExists = false;
-    
-    if (table === "administrator") {
-      memberExists = await checkTableUniqueness("member", column, value, id);
-
-      if (memberExists) {
-        feedbackElement.textContent = existingMessage;
-        feedbackElement.style.color = "red";
-        inputElement.dataset.uniqueError = "true";
-        if (button) button.disabled = true;
-        return true;
-      }
-    }
     
     // Check the specific table
     exists = await checkTableUniqueness(table, column, value, id);

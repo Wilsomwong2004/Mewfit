@@ -126,10 +126,10 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                             <label for="workout-type">Workout Type</label>
                             <select id="workout-type" name="workout-type" required>
                                 <option value="">Select Type</option>
-                                <option value="cardio">Cardio</option>
-                                <option value="yoga">Yoga</option>
-                                <option value="weighted">Weighted</option>
-                                <option value="weight-free">Weight-free</option>
+                                <option value="Cardio">Cardio</option>
+                                <option value="Yoga">Yoga</option>
+                                <option value="Weighted">Weighted</option>
+                                <option value="Weight-free">Weight-free</option>
                             </select>
                         </div>
                     </div>
@@ -297,10 +297,10 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                             <label for="eworkout-type">Workout Type</label>
                             <select id="eworkout-type" name="eworkout-type" required>
                                 <option value="">Select Type</option>
-                                <option value="cardio">Cardio</option>
-                                <option value="yoga">Yoga</option>
-                                <option value="weighted">Weighted</option>
-                                <option value="weight-free">Weight-free</option>
+                                <option value="Cardio">Cardio</option>
+                                <option value="Yoga">Yoga</option>
+                                <option value="Weighted">Weighted</option>
+                                <option value="Weight-free">Weight-free</option>
                             </select>
                         </div>
                         <div class="column">
