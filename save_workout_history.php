@@ -14,20 +14,13 @@ if (!isset($_POST['workout_id']) || !isset($_POST['member_id'])) {
     exit;
 }
 
-// Check connection
-// if ($dbconn->connect_error) {
-//     header('Content-Type: application/json');
-//     echo json_encode(['success' => false, 'message' => 'Database connection failed']);
-//     exit;
-// }
-
 // Get parameters
 $workout_id = intval($_POST['workout_id']);
-$member_id = intval($_POST['member id']);
+$member_id = intval($_POST['member_id']);
 $current_date = date('Y-m-d');
 
 // Verify member_id matches session user
-if ($member_id != $_SESSION["member_id"]) {
+if ($member_id != $_SESSION["member id"]) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;
@@ -35,12 +28,12 @@ if ($member_id != $_SESSION["member_id"]) {
 
 // Insert workout history record
 $sql = "INSERT INTO workout_history (date, member_id, workout_id) VALUES (?, ?, ?)";
-$stmt = $conn->prepare($sql);
+$stmt = $dbConn->prepare($sql);
 $stmt->bind_param("sii", $current_date, $member_id, $workout_id);
 
 if ($stmt->execute()) {
     // Update performance metrics
-    updatePerformanceMetrics($conn, $member_id);
+    updatePerformanceMetrics($dbConn, $member_id);
     
     header('Content-Type: application/json');
     echo json_encode(['success' => true]);
@@ -50,18 +43,18 @@ if ($stmt->execute()) {
 }
 
 $stmt->close();
-$conn->close();
+$dbConn->close();
 
 /**
  * Update performance metrics for the user
  */
-function updatePerformanceMetrics($conn, $member_id) {
+function updatePerformanceMetrics($dbConn, $member_id) {
     // Get current date
     $current_date = date('Y-m-d');
     
     // Get current weight from member table
     $sql = "SELECT weight FROM member WHERE member_id = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $member_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -70,7 +63,7 @@ function updatePerformanceMetrics($conn, $member_id) {
     
     // Count workout history
     $sql = "SELECT COUNT(*) as workout_count FROM workout_history WHERE member_id = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $member_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -79,9 +72,9 @@ function updatePerformanceMetrics($conn, $member_id) {
     
     // Count diet history (if you have this table)
     $diet_count = 0;
-    if ($conn->query("SHOW TABLES LIKE 'diet_history'")->num_rows > 0) {
+    if ($dbConn->query("SHOW TABLES LIKE 'diet_history'")->num_rows > 0) {
         $sql = "SELECT COUNT(*) as diet_count FROM diet_history WHERE member_id = ?";
-        $stmt = $conn->prepare($sql);
+        $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("i", $member_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -90,9 +83,9 @@ function updatePerformanceMetrics($conn, $member_id) {
     }
     
     // Insert new performance record
-    $sql = "INSERT INTO performance_table (weeks_date_mon, current_weight, workout_history_count, diet_history_count, member_id) 
+    $sql = "INSERT INTO member_performance (weeks_date_mon, current_weight, workout_history_count, diet_history_count, member_id) 
             VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+    $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("sdiii", $current_date, $current_weight, $workout_count, $diet_count, $member_id);
     $stmt->execute();
 }

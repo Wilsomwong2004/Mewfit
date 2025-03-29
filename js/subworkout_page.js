@@ -32,7 +32,6 @@ const popupContainer = document.getElementById('popup-container');
 const popupTitle = document.getElementById('popup-title');
 const popupBody = document.getElementById('popup-body');
 
-// Initialize TensorFlow backend
 async function initializeTF() {
     if (isInitialized) return true;
 
@@ -48,7 +47,6 @@ async function initializeTF() {
     }
 }
 
-// Modified init function
 async function init() {
     console.log('Initializing pose detection...');
     const workoutUser = document.querySelector('.workout-user');
@@ -78,14 +76,12 @@ async function init() {
     }
 }
 
-// Update the window load event handler
 window.addEventListener('load', async () => {
     setTimeout(async () => {
         await init();
     }, 1000);
 });
 
-// Add function to handle device enumeration and selection
 async function getAvailableCameras() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -97,15 +93,12 @@ async function getAvailableCameras() {
     }
 }
 
-// Modified camera permission request with device selection
 async function requestCameraPermission() {
     const workoutUser = document.querySelector('.workout-user');
 
     try {
-        // First try to get the list of available cameras
         const cameras = await getAvailableCameras();
 
-        // Check if we have any cameras available
         if (cameras.length === 0) {
             workoutUser.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px;">
@@ -608,12 +601,11 @@ function showErrorModal(errorMessage) {
     workoutUser.appendChild(modalContainer);
 }
 
-// Global variable to track visibility state
 let isVisibilityFeedbackShown = false;
 let lastFeedbackTime = 0;
 let feedbackClearTimerId = null;
-const FEEDBACK_DURATION = 3000;    // Show feedback for 5 seconds
-const FEEDBACK_INTERVAL = 10000;   // Check every 10 seconds
+const FEEDBACK_DURATION = 3000;
+const FEEDBACK_INTERVAL = 10000;
 let lastVisibilityState = true;
 
 function handleVisibilityFeedback(poses) {
@@ -621,26 +613,18 @@ function handleVisibilityFeedback(poses) {
     const minimalVisibility = checkMinimalVisibility(poses);
     const isResting = window.workoutManager ? window.workoutManager.isResting : false;
 
-    // Only process when state changes or feedback interval has passed
     const visibilityChanged = (minimalVisibility !== lastVisibilityState);
     lastVisibilityState = minimalVisibility;
 
-    // If user becomes fully visible and feedback is shown, don't clear immediately
-    // Let the feedback message stay visible for the full duration
     if ((minimalVisibility || isResting) && isVisibilityFeedbackShown) {
-        // Don't clear the message immediately - it will be cleared by the timer
-        // Do nothing here to keep the message visible
     }
-    // If keypoints are not visible and NOT resting, show appropriate feedback
     else if (!minimalVisibility && !isResting &&
         (visibilityChanged || (currentTime - lastFeedbackTime >= FEEDBACK_INTERVAL))) {
 
-        // Clear any existing timer
         if (feedbackClearTimerId) {
             clearTimeout(feedbackClearTimerId);
         }
 
-        // Check if any upper body is visible (partial visibility)
         const partialVisibility = checkPartialVisibility(poses);
 
         if (partialVisibility) {
@@ -652,7 +636,6 @@ function handleVisibilityFeedback(poses) {
         isVisibilityFeedbackShown = true;
         lastFeedbackTime = currentTime;
 
-        // Set timer to clear the feedback after FEEDBACK_DURATION
         feedbackClearTimerId = setTimeout(() => {
             showFormFeedback([]);
             isVisibilityFeedbackShown = false;
@@ -661,20 +644,17 @@ function handleVisibilityFeedback(poses) {
     }
 }
 
-// Check if at least some upper body parts are visible
 function checkPartialVisibility(poses) {
     if (!poses || poses.length === 0) return false;
 
     const pose = poses[0];
     const keypoints = pose.keypoints;
 
-    // Upper body keypoints
     const upperBodyKeypoints = [
         'nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
         'left_shoulder', 'right_shoulder'
     ];
 
-    // Check visibility of upper body
     const visibleUpperBodyKeypoints = upperBodyKeypoints.filter(name => {
         const keypoint = getKeypointByName(keypoints, name);
         return keypoint &&
@@ -685,25 +665,21 @@ function checkPartialVisibility(poses) {
             keypoint.y < videoElement.videoHeight;
     });
 
-    // If we can see at least 3 upper body keypoints, consider it partial visibility
     return visibleUpperBodyKeypoints.length >= 3;
 }
 
-// Modified minimal visibility check to be more specific about required keypoints
 function checkMinimalVisibility(poses) {
     if (!poses || poses.length === 0) return false;
 
     const pose = poses[0];
     const keypoints = pose.keypoints;
 
-    // Critical keypoints required for exercise tracking
     const criticalKeypoints = [
         'left_shoulder', 'right_shoulder',
         'left_hip', 'right_hip',
         'left_knee', 'right_knee'
     ];
 
-    // Check visibility and confidence of critical keypoints
     const visibleKeypoints = criticalKeypoints.filter(name => {
         const keypoint = getKeypointByName(keypoints, name);
         return keypoint &&
@@ -714,11 +690,9 @@ function checkMinimalVisibility(poses) {
             keypoint.y < videoElement.videoHeight;
     });
 
-    // Still require at least 4 out of 6 critical keypoints for full visibility
     return visibleKeypoints.length >= 4;
 }
 
-// Modified detectPose function remains the same as previous solution
 async function detectPose() {
     if (!isRunning || !detector || !isMewTrackEnabled) {
         if (animationFrameId) {
@@ -733,15 +707,12 @@ async function detectPose() {
     }
 
     try {
-        // Get pose estimations first
         const poses = await detector.estimatePoses(videoElement);
 
-        // Handle visibility feedback with improved detection
         handleVisibilityFeedback(poses);
 
         const minimalVisibility = checkMinimalVisibility(poses);
 
-        // Always draw whatever keypoints we can see, even if not enough for tracking
         canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
         if (poses.length > 0) {
@@ -754,7 +725,6 @@ async function detectPose() {
             drawKeypoints(keypoints, scale, offsetX, offsetY);
         }
 
-        // Only run workout detection if we have minimal visibility
         if (minimalVisibility && window.workoutManager) {
             window.workoutManager.handlePoseDetection(poses);
         }
@@ -859,7 +829,7 @@ window.addEventListener('load', async () => {
     }, 1000);
 });
 
-// Draw detected keypoints
+
 function drawKeypoints(keypoints, scale, offsetX, offsetY) {
     for (const keypoint of keypoints) {
         if (keypoint.score > 0.3) {
@@ -874,7 +844,7 @@ function drawKeypoints(keypoints, scale, offsetX, offsetY) {
     }
 }
 
-// Draw skeleton connecting keypoints
+
 function drawSkeleton(keypoints, scale, offsetX, offsetY) {
     const connections = [
         ['nose', 'left_eye'], ['nose', 'right_eye'],
@@ -2118,12 +2088,9 @@ class WorkoutManager {
         }
     }
 
-    // Add this method to initialize voice instructions
     initializeVoiceInstructions() {
-        // Check if ResponsiveVoice is available
         if (typeof responsiveVoice === 'undefined') {
             console.error('ResponsiveVoice not found. Make sure to include the ResponsiveVoice library.');
-            // Add fallback for voice functions
             this.speakText = (text) => console.log('Voice would say:', text);
             this.voiceEnabled = false;
             return;
@@ -2134,14 +2101,12 @@ class WorkoutManager {
             pitch: 1,
             rate: 1,
             volume: 1,
-            voice: 'UK English Female' // You can change the voice as needed
+            voice: 'UK English Female'
         };
 
-        // Create a voice toggle button
         this.createVoiceToggleButton();
     }
 
-    // Create a toggle button for voice instructions
     createVoiceToggleButton() {
         const controlsContainer = document.querySelector('.controls-workout');
         if (!controlsContainer) return;
@@ -2179,17 +2144,14 @@ class WorkoutManager {
                     voiceIcon.classList.remove('fa-volume-up');
                     voiceIcon.classList.add('fa-volume-mute');
                     voiceText.textContent = 'Voice Off';
-                    // One last message before turning off
                     this.speakText('Voice instructions disabled');
                 }
             }
         });
 
-        // Add the button to the controls container
         controlsContainer.appendChild(voiceButton);
     }
 
-    // Method to speak text using ResponsiveVoice
     speakText(text, onEndCallback = null) {
         if (!this.voiceEnabled || typeof responsiveVoice === 'undefined') return;
 
@@ -2201,7 +2163,6 @@ class WorkoutManager {
         });
     }
 
-    // Cancel any ongoing speech
     cancelSpeech() {
         if (typeof responsiveVoice !== 'undefined') {
             responsiveVoice.cancel();
@@ -2760,18 +2721,17 @@ class WorkoutManager {
             }
 
             // Skip to next exercise and go to subworkout_done_page when last exercise is skipped
-            if (this.currentExerciseIndex >= this.exercises.length - 1) {
-                if (this.currentSet >= this.totalSets) {
-                    this.showConfirmationPopup(
-                        'End Workout',
-                        'Do you want to end the workout?',
-                        () => {
-                            this.endWorkout();
-                        }
-                    );
-                    return;
-                }
+            if (this.currentExerciseIndex >= this.exercises.length - 1 && this.currentSet >= this.totalSets) {
+                this.showConfirmationPopup(
+                    'End Workout',
+                    'Do you want to end the workout?',
+                    () => {
+                        this.endWorkout();
+                    }
+                );
+                return;
             }
+
             this.skipCurrentExercise();
         });
     }
@@ -3283,12 +3243,11 @@ class WorkoutPoseDetector {
         this.referenceKeypoints = null;
         this.lastFeedback = null;
         this.lastFeedbackTime = 0;
-        this.FEEDBACK_INTERVAL = 5000; // 5 seconds between feedback
+        this.FEEDBACK_INTERVAL = 5000;
         this.lastGeneratedFeedback = null;
-        this.exerciseType = null; // 'reps' or 'time'
-        this.poseTimer = null; // For tracking yoga poses
+        this.exerciseType = null;
+        this.poseTimer = null;
 
-        // Create empty detector methods first, then register them
         this.createEmptyDetectors();
         this.registerExerciseDetectors();
     }
@@ -3522,7 +3481,6 @@ class WorkoutPoseDetector {
         this.exerciseDetectors[exerciseName] = detectorFunction.bind(this);
     }
 
-    // Analyze the current pose based on the current exercise
     analyzePose(keypoints) {
         if (!this.currentExercise) {
             console.warn('No exercise selected. Current exercises:',
@@ -3535,41 +3493,29 @@ class WorkoutPoseDetector {
             };
         }
 
-        // Add null check for exercise detectors
         if (!this.exerciseDetectors[this.currentExercise]) {
             console.warn(`Exercise configuration pending: ${this.currentExercise}`);
             return { repCount: 0, feedback: "Exercise configuration in progress...", isCorrect: false };
         }
 
-        // Update keypoint history for smoothing
         this.updateKeypointHistory(keypoints);
 
-        // Check if pose is correct compared to reference (if available)
         const correctnessScore = this.checkPoseCorrectness(keypoints);
 
-        // Run the specific detector for this exercise
         const result = this.exerciseDetectors[this.currentExercise](keypoints);
 
-        // For time-based exercises, don't show rep count
         if (this.exerciseType === 'time') {
-            result.repCount = null; // Don't display rep count for time-based exercises
+            result.repCount = null;
         }
 
-        // Add correctness information to the result
-        result.isCorrect = correctnessScore > 0.7; // 70% similarity threshold
+        result.isCorrect = correctnessScore > 0.7;
 
-        // Manage feedback generation
         const currentTime = Date.now();
         const timeSinceLastFeedback = currentTime - this.lastFeedbackTime;
 
-        // Only check if we need pose correction feedback when:
-        // 1. The exercise detector didn't provide specific feedback already
-        // 2. The pose is not correct
         if (!result.isCorrect && (!result.feedback || result.feedback === "No data" || result.feedback === "")) {
-            // Only generate new feedback if enough time has passed
             if (timeSinceLastFeedback >= this.FEEDBACK_INTERVAL) {
                 const correctionFeedback = this.generatePoseCorrectionFeedback();
-                // Only update if we have actual correction feedback
                 if (correctionFeedback && correctionFeedback !== "Good form!") {
                     result.feedback = correctionFeedback;
                     this.lastFeedbackTime = currentTime;
@@ -3581,7 +3527,6 @@ class WorkoutPoseDetector {
         return result;
     }
 
-    // Update keypoint history for smoothing
     updateKeypointHistory(keypoints) {
         this.keypointHistory.push(keypoints);
         if (this.keypointHistory.length > this.historySize) {
@@ -3589,19 +3534,15 @@ class WorkoutPoseDetector {
         }
     }
 
-    // Get smoothed keypoints by averaging history
     getSmoothedKeypoints() {
         if (this.keypointHistory.length === 0) return null;
 
-        // Initialize result with structure from the most recent keypoints
         const smoothed = JSON.parse(JSON.stringify(this.keypointHistory[this.keypointHistory.length - 1]));
 
-        // For each keypoint, average x and y over history
         for (let i = 0; i < smoothed.length; i++) {
             let sumX = 0, sumY = 0, sumConfidence = 0;
             let count = 0;
 
-            // Sum up values from history
             for (const historicalKeypoints of this.keypointHistory) {
                 if (historicalKeypoints[i]) {
                     sumX += historicalKeypoints[i].x;
@@ -3611,7 +3552,6 @@ class WorkoutPoseDetector {
                 }
             }
 
-            // Calculate average if we have data
             if (count > 0) {
                 smoothed[i].x = sumX / count;
                 smoothed[i].y = sumY / count;
@@ -3622,9 +3562,8 @@ class WorkoutPoseDetector {
         return smoothed;
     }
 
-    // Check if current pose matches reference pose
     checkPoseCorrectness(keypoints) {
-        if (!this.referenceKeypoints) return 1.0; // No reference, assume correct
+        if (!this.referenceKeypoints) return 1.0;
 
         let totalSimilarity = 0;
         let keypointCount = 0;
@@ -3637,12 +3576,10 @@ class WorkoutPoseDetector {
             const refKeypoint = getKeypointByName(this.referenceKeypoints, keypointName);
 
             if (userKeypoint && refKeypoint) {
-                // Calculate normalized position difference
                 const similarity = this.calculateKeypointSimilarity(userKeypoint, refKeypoint);
                 totalSimilarity += similarity;
                 keypointCount++;
 
-                // Record specific feedback for this keypoint
                 if (similarity < 0.6) {
                     this.poseCorrection[keypointName] = {
                         current: userKeypoint,
@@ -3650,7 +3587,6 @@ class WorkoutPoseDetector {
                         similarity: similarity
                     };
                 } else {
-                    // Remove from corrections if it's now good
                     delete this.poseCorrection[keypointName];
                 }
             }
@@ -3659,22 +3595,16 @@ class WorkoutPoseDetector {
         return keypointCount > 0 ? totalSimilarity / keypointCount : 1.0;
     }
 
-    // Calculate similarity between two keypoints (0-1)
     calculateKeypointSimilarity(kp1, kp2) {
-        // Simple Euclidean distance, normalized by some expected range
-        // This could be improved with more sophisticated comparison
         const distance = calculateDistance(kp1, kp2);
-        return Math.max(0, 1 - distance / 100); // Normalize, closer = higher similarity
+        return Math.max(0, 1 - distance / 100);
     }
 
-    // Generate feedback based on pose corrections
     generatePoseCorrectionFeedback() {
-        // Existing implementation
         if (Object.keys(this.poseCorrection).length === 0) {
             return "Good form!";
         }
 
-        // Find the worst keypoint to focus feedback on one thing at a time
         let worstKeypoint = null;
         let worstSimilarity = 1.0;
 
@@ -3687,11 +3617,9 @@ class WorkoutPoseDetector {
 
         if (!worstKeypoint) return "Good form!";
 
-        // Generate specific feedback
         const correction = this.poseCorrection[worstKeypoint];
         const keypointDisplayName = worstKeypoint.replace('_', ' ');
 
-        // Determine direction
         const xDiff = correction.reference.x - correction.current.x;
         const yDiff = correction.reference.y - correction.current.y;
 
@@ -3705,7 +3633,6 @@ class WorkoutPoseDetector {
         return `Position your ${keypointDisplayName} ${direction}`;
     }
 
-    // Get relevant keypoints for the current exercise
     getRelevantKeypointsForExercise() {
         switch (this.currentExercise) {
             case 'Squats':
@@ -3738,7 +3665,6 @@ class WorkoutPoseDetector {
 
         const hipsY = (leftHip.y + rightHip.y) / 2;
 
-        // Normalize based on hip position range
         const min = 0.6, max = 0.9;
         const normalizedY = (hipsY - min) / (max - min);
 

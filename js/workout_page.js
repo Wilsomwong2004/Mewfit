@@ -2,7 +2,6 @@ class WorkoutCarousel {
     constructor() {
         this.carousel = document.querySelector('.workout-carousel');
         this.track = document.querySelector('.workout-slides');
-        // We'll use the carouselWorkouts from PHP
         this.slides = this.getWorkoutsForToday();
         this.currentIndex = 0;
         this.isTransitioning = false;
@@ -14,26 +13,21 @@ class WorkoutCarousel {
     }
 
     getWorkoutsForToday() {
-        // Use carouselWorkouts that was passed from PHP
-        // This already contains one random workout from each activity type
         const today = new Date();
         const seed = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
 
-        // Create a simple hash from the date string to use as a seed
         let hash = 0;
         for (let i = 0; i < seed.length; i++) {
             hash = ((hash << 5) - hash) + seed.charCodeAt(i);
-            hash = hash & hash; // Convert to 32bit integer
+            hash = hash & hash;
         }
 
-        // Shuffle the array based on the date seed
         const shuffledWorkouts = [...carouselWorkouts];
         for (let i = shuffledWorkouts.length - 1; i > 0; i--) {
             const j = Math.abs((hash + i) % (i + 1));
             [shuffledWorkouts[i], shuffledWorkouts[j]] = [shuffledWorkouts[j], shuffledWorkouts[i]];
         }
 
-        // Transform the workout data into the format needed for carousel
         return shuffledWorkouts.map(workout => ({
             id: workout.id,
             title: workout.title,
@@ -58,17 +52,15 @@ class WorkoutCarousel {
     }
 
     startAutoSlide() {
-        // Clear any existing interval
         if (this.autoSlideInterval) {
             clearInterval(this.autoSlideInterval);
         }
 
-        // Start new interval
         this.autoSlideInterval = setInterval(() => {
             if (this.currentIndex < this.slides.length - 1) {
                 this.nextSlide();
             } else {
-                this.goToSlide(0); // Return to first slide
+                this.goToSlide(0); 
             }
         }, this.autoSlideDelay);
     }
@@ -81,7 +73,6 @@ class WorkoutCarousel {
     }
 
     resumeAutoSlide() {
-        // Wait for transition and user interaction to complete before resuming
         setTimeout(() => {
             this.startAutoSlide();
         }, 500);
@@ -150,7 +141,6 @@ class WorkoutCarousel {
     }
 
     bindEvents() {
-        // Touch/Trackpad events
         this.carousel.addEventListener('touchstart', (e) => {
             this.touchStartX = e.touches[0].clientX;
             this.touchStartY = e.touches[0].clientY;
@@ -163,12 +153,9 @@ class WorkoutCarousel {
             const touchEndX = e.touches[0].clientX;
             const touchEndY = e.touches[0].clientY;
 
-            // Calculate horizontal and vertical distance moved
             const deltaX = this.touchStartX - touchEndX;
             const deltaY = this.touchStartY - touchEndY;
 
-            // If horizontal movement is greater than vertical movement,
-            // prevent default scrolling behavior
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 e.preventDefault();
             }
@@ -183,7 +170,6 @@ class WorkoutCarousel {
             const deltaX = this.touchStartX - touchEndX;
             const deltaY = this.touchStartY - touchEndY;
 
-            // Only handle horizontal swipes if they're more significant than vertical movement
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
                 if (deltaX > 0) {
                     this.nextSlide();
@@ -195,9 +181,7 @@ class WorkoutCarousel {
             this.resumeAutoSlide();
         });
 
-        // Mouse wheel event
         this.carousel.addEventListener('wheel', (e) => {
-            // If it's primarily horizontal scrolling (e.g., trackpad gesture)
             if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
                 e.preventDefault();
 
@@ -205,7 +189,6 @@ class WorkoutCarousel {
 
                 this.pauseAutoSlide();
 
-                // Accumulate deltaX until it reaches a threshold
                 if (Math.abs(e.deltaX) > 50) {
                     if (e.deltaX > 0) {
                         this.nextSlide();
@@ -216,10 +199,8 @@ class WorkoutCarousel {
 
                 this.resumeAutoSlide();
             }
-            // If it's primarily vertical scrolling, let the page scroll naturally
         }, { passive: false });
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (this.isTransitioning) return;
 
@@ -234,7 +215,6 @@ class WorkoutCarousel {
             }
         });
 
-        // Navigation dots
         document.querySelectorAll('.nav-dot').forEach((dot, index) => {
             dot.addEventListener('click', () => {
                 this.pauseAutoSlide();
@@ -243,12 +223,10 @@ class WorkoutCarousel {
             });
         });
 
-        // Pause auto slide when user interacts with carousel
         this.carousel.addEventListener('mouseenter', () => {
             this.pauseAutoSlide();
         });
 
-        // Resume auto slide when user stops interacting with carousel
         this.carousel.addEventListener('mouseleave', () => {
             this.resumeAutoSlide();
         });
@@ -310,58 +288,45 @@ class WorkoutCarousel {
     }
 }
 
-// Helper function to display the workout popup
 function displayWorkoutPopup(workout) {
     const popupContainer = document.getElementById('popup-container');
 
-    // Set popup content
     document.getElementById('popup-title').textContent = workout.title;
     document.getElementById('popup-desc').textContent = workout.description;
     document.getElementById('popup-duration').textContent = workout.duration.replace(' min', '');
     document.getElementById('popup-calories').textContent = workout.calories.replace(' kcal', '');
 
-    // Update the difficulty level using the separate function
     if (workout.level) {
         updatePopupLevel(workout.level);
     } else {
-        // Fallback if level is not defined
         document.getElementById('popup-level').textContent = 'Beginner';
     }
 
     document.getElementById('popup-workout-image').src = workout.image;
 
-    // Update exercise list with video capabilities
     updateExerciseList(workout);
 
-    // Show popup
     popupContainer.classList.add('active');
     setTimeout(forceArrowCheck, 100);
     setupExerciseListArrows();
 
-    // Add event listener to start workout button in popup
     const startButton = document.querySelector('.popup-start-button');
     if (startButton) {
-        // Remove any existing event listeners
         const newButton = startButton.cloneNode(true);
         startButton.parentNode.replaceChild(newButton, startButton);
 
-        // Add new event listener
         newButton.addEventListener('click', () => {
-            // Redirect to workout session page with the selected workout ID
             window.location.href = `workout_session.php?id=${workout.id}`;
         });
     }
 }
 
-// Filter workouts by type function
 function filterWorkouts(type) {
     if (type === 'All') return workouts;
     return workouts.filter(workout => workout.type.includes(type));
 }
 
-// Initialize workout grid event listeners
 function initWorkoutGrid() {
-    // Add click event listeners to workout cards
     document.querySelectorAll('.workout-card').forEach(card => {
         card.addEventListener('click', function () {
             const workoutId = this.getAttribute('data-workout-id');
@@ -374,11 +339,9 @@ function initWorkoutGrid() {
     });
 }
 
-// Initialize carousel when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new WorkoutCarousel();
 
-    // Setup popup close button
     const popupContainer = document.getElementById('popup-container');
     const closeButton = document.querySelector('.popup-close');
 
@@ -389,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
             stopAllVideos();
         });
 
-        // Close popup when clicking outside
         popupContainer.addEventListener('click', (e) => {
             if (e.target === popupContainer) {
                 popupContainer.classList.remove('active');
@@ -403,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // -------------------------------------------------------------------------------------------------------------------------------------- //
 // Activity Types
 document.addEventListener('DOMContentLoaded', () => {
-    // Dark mode initialization
     const darkModeToggle = document.querySelector('input[name="dark-mode-toggle"]');
     const cards = document.querySelectorAll('.activity-card');
     const defaultSelection = document.getElementById('default-selection');
@@ -442,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cardContainer.scrollLeft = scrollLeft - walk;
         });
 
-        // Touch events
         cardContainer.addEventListener('touchstart', (e) => {
             isDown = true;
             startX = e.touches[0].pageX - cardContainer.offsetLeft;
@@ -499,25 +459,21 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.transition = 'all 0.3s ease';
     }
 
-    // Toggle dark mode when the checkbox changes
     darkModeToggle.addEventListener('change', (event) => {
         const isDarkMode = event.target.checked;
         localStorage.setItem('darkMode', isDarkMode);
         applyDarkMode(isDarkMode);
     });
 
-    // Add event handlers to all cards
     cards.forEach(card => {
         updateCardStyles(card, card === defaultSelection && card.classList.contains('active'));
 
-        // Click to toggle active state
         card.addEventListener('click', () => {
             cards.forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             cards.forEach(c => updateCardStyles(c, c.classList.contains('active')));
         });
 
-        // Mouseover (hover) to temporarily highlight the card
         card.addEventListener('mouseover', () => {
             const isDark = checkDarkMode();
             if (!card.classList.contains('active')) {
@@ -525,20 +481,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Mouseout to revert the card's style
         card.addEventListener('mouseout', () => {
             if (!card.classList.contains('active')) {
                 updateCardStyles(card);
             }
         });
 
-        // Update card styles on dark mode change
         window.addEventListener('darkModeChange', () => {
             updateCardStyles(card, card.classList.contains('active'));
         });
     });
 
-    // Initialize dark mode and activity types scroll
     initializeDarkMode();
     setupActivityTypesScroll();
 });
@@ -794,7 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTopPicks();
     setupRecentWorkoutCards();
 
-    // Apply scroll arrows to recently workout section
     const recentlyWorkoutGrid = document.getElementById('recently-workout-grid');
     if (recentlyWorkoutGrid) {
         setupScrollArrows(recentlyWorkoutGrid);
@@ -834,11 +786,6 @@ function filterWorkouts(type) {
     return workouts.filter(workout => workout.type.includes(type));
 }
 
-// const styleSheet = document.createElement('style');
-// styleSheet.textContent = styles;
-// document.head.appendChild(styleSheet);
-
-// Function to update the popup level display
 function updatePopupLevel(level) {
     const popupLevel = document.getElementById('popup-level');
     if (!popupLevel) return;
@@ -852,7 +799,6 @@ function updatePopupLevel(level) {
     const meterContainer = document.createElement('div');
     meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
 
-    // Create three bars for the difficulty meter
     for (let i = 0; i < 3; i++) {
         const bar = document.createElement('div');
         bar.className = 'difficulty-bar';
