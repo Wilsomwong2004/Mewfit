@@ -548,103 +548,80 @@ document.addEventListener('DOMContentLoaded', () => {
 let displayedWorkouts = [];
 
 function getRecommendedWorkouts(userProfile, allWorkouts) {
-    // Destructure user profile data - mapped to match PHP response format
     const {
         height,
         weight,
-        goal, // 'lose', 'gain', or 'maintain'
-        fitnessLevel = 'beginner', // Default to beginner if not specified
-        preferences = [], // Array of preferred workout types
-        completedWorkouts = [], // Array of workout IDs the user has completed
-        healthConditions = [] // Any health conditions to consider
+        goal,
+        fitnessLevel = 'beginner',
+        preferences = [],
+        completedWorkouts = [],
+        healthConditions = []
     } = userProfile;
 
-    // Calculate BMI (optional - can be used for more personalized recommendations)
     const bmi = weight / ((height / 100) ** 2);
 
-    // Define scoring criteria based on user goal
     const scoreWorkout = (workout) => {
         let score = 0;
 
-        // Base score adjustments by goal
         if (goal === 'lose') {
-            // For weight loss, prioritize cardio and HIIT workouts with higher calorie burn
             if (workout.type.includes('Cardio')) score += 3;
             if (workout.type.includes('Weight-free')) score += 2;
 
-            // Higher calorie burn is better for weight loss
             const calories = parseInt(workout.calories);
             if (calories > 300) score += 3;
             else if (calories > 200) score += 2;
             else if (calories > 100) score += 1;
         }
         else if (goal === 'gain') {
-            // For weight gain (muscle), prioritize weighted workouts
             if (workout.type.includes('Weighted')) score += 3;
 
-            // Longer duration strength workouts are good for muscle gain
             const duration = parseInt(workout.duration);
             if (duration >= 40) score += 2;
             else if (duration >= 25) score += 1;
         }
-        else { // 'maintain' or general fitness
-            // Balanced approach
-            score += 1; // Base score for all workouts
+        else {
+            score += 1;
 
-            // Slight preference for balanced workouts
-            if (workout.type.length >= 2) score += 1; // Multi-type workouts
+            if (workout.type.length >= 2) score += 1;
         }
 
-        // Match workout difficulty to user's fitness level
         if (workout.level.toLowerCase() === fitnessLevel.toLowerCase()) score += 2;
 
-        // Don't recommend workouts that are too advanced for beginners
         if (fitnessLevel === 'beginner' && workout.level === 'Advanced') score -= 3;
 
-        // Respect user preferences
         preferences.forEach(pref => {
             if (workout.type.includes(pref)) score += 2;
         });
 
-        // Consider health conditions
         if (healthConditions.includes('joint_pain') &&
             (workout.type.includes('Yoga') || workout.description.toLowerCase().includes('low impact'))) {
             score += 2;
         }
 
-        // Consider age for certain workout types
         if (userProfile.age > 50) {
-            // For older users, prioritize low-impact workouts
             if (workout.description.toLowerCase().includes('low impact')) score += 2;
-            // Reduce score for high-intensity workouts unless they're already at advanced level
             if (workout.description.toLowerCase().includes('high intensity') &&
                 fitnessLevel !== 'advanced') score -= 1;
         }
 
-        // Variety - downrank workouts the user has recently completed
         if (completedWorkouts.includes(workout.id)) score -= 2;
 
         return score;
     };
 
-    // Score and sort all workouts
     const scoredWorkouts = allWorkouts.map(workout => ({
         ...workout,
         score: scoreWorkout(workout)
     }));
 
-    // Sort by score (highest first)
     scoredWorkouts.sort((a, b) => b.score - a.score);
 
-    // Return top workouts (can adjust number as needed)
     return scoredWorkouts.slice(0, 6);
 }
 
 function findTopPicksSection() {
-    // First find all sections with the workout-body class
     const sections = document.querySelectorAll('section.workout-body');
 
-    // Then loop through them to find the one with the title we want
     for (const section of sections) {
         const titleElement = section.querySelector('.section-title');
         if (titleElement && titleElement.textContent.includes('Top Picks For You')) {
@@ -654,39 +631,29 @@ function findTopPicksSection() {
     return null;
 }
 
-// Function to update Top Picks section on the workout page
 function updateTopPicksSection(userProfile) {
-    // Get recommended workouts
     const recommendedWorkouts = getRecommendedWorkouts(userProfile, workouts);
 
-    // Find the Top Picks section
     const topPicksSection = findTopPicksSection();
     const workoutGrid = topPicksSection?.querySelector('.workout-grid');
 
     if (workoutGrid) {
-        // Clear existing workouts
         workoutGrid.innerHTML = '';
 
-        // Add recommended workouts
         if (recommendedWorkouts.length > 0) {
             workoutGrid.classList.add('scroll-layout');
 
-            // Create workout cards with appropriate indexing
             workoutGrid.innerHTML = recommendedWorkouts.map((workout, index) => {
                 const originalIndex = workouts.findIndex(w => w.id === workout.id);
                 return createWorkoutCard(workout, originalIndex);
             }).join('');
 
-            // Setup scroll arrows for this grid
             setupScrollArrows(workoutGrid);
 
-            // Make sure to update click handlers
             setupWorkoutCardClick();
 
-            // Show the section
             topPicksSection.style.display = '';
         } else {
-            // Hide section if no recommendations
             topPicksSection.style.display = 'none';
         }
     }
@@ -694,7 +661,6 @@ function updateTopPicksSection(userProfile) {
 
 function loadUserProfile() {
     return new Promise((resolve, reject) => {
-        // Make AJAX call to get user profile data from your PHP endpoint
         const xhr = new XMLHttpRequest();
         xhr.open('GET', 'get_user_data.php', true);
         xhr.onload = function () {
@@ -702,12 +668,9 @@ function loadUserProfile() {
                 try {
                     const response = JSON.parse(this.responseText);
 
-                    // Check if user is logged in and data is available
                     if (response.isLoggedIn && response.memberData) {
-                        // Changed from userData to memberData to match PHP
                         resolve(response.memberData);
                     } else {
-                        // User not logged in or data not available
                         console.log('User not logged in or data not available:', response.error || 'Unknown error');
                         resolve(null);
                     }
@@ -726,29 +689,22 @@ function loadUserProfile() {
     });
 }
 
-// Function to initialize the Top Picks section
 async function initializeTopPicks() {
     try {
-        // Load user profile
         const userProfile = await loadUserProfile();
-
-        // Find the Top Picks section
         const topPicksSection = findTopPicksSection();
         const workoutGrid = topPicksSection?.querySelector('.workout-grid');
 
         if (!workoutGrid) return;
 
-        // Clear existing workouts
         workoutGrid.innerHTML = '';
 
         let recommendedWorkouts = [];
 
         if (userProfile) {
-            // User is logged in, use personalized recommendations
             recommendedWorkouts = getRecommendedWorkouts(userProfile, workouts);
         } else {
-            // User not logged in, show generic recommendations
-            recommendedWorkouts = [...workouts] // Create a copy to avoid mutating the original array
+            recommendedWorkouts = [...workouts]
                 .sort(() => 0.5 - Math.random())
                 .slice(0, 6);
         }
@@ -756,13 +712,9 @@ async function initializeTopPicks() {
         if (recommendedWorkouts.length > 0) {
             workoutGrid.classList.add('scroll-layout');
 
-            // IMPORTANT: Store these recommendations so we can reference them later
-            // This is crucial for making sure we show the correct workout
             displayedWorkouts = recommendedWorkouts;
 
-            // Create workout cards - each card includes the actual workout ID
             workoutGrid.innerHTML = recommendedWorkouts.map((workout, position) => {
-                // Using workout ID as a reliable identifier
                 return `
                     <div class="workout-card-content" data-workout-id="${workout.id}" data-position="${position}">
                         <div class="workout-image">
@@ -780,23 +732,18 @@ async function initializeTopPicks() {
                 `;
             }).join('');
 
-            // Setup scroll arrows for this grid
             setupScrollArrows(workoutGrid);
 
-            // Show the section
             topPicksSection.style.display = '';
         }
 
-        // Setup click event handlers specifically for the Top Picks section
         workoutGrid.querySelectorAll('.workout-card-content').forEach(card => {
             card.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent event bubbling
+                e.stopPropagation();
 
-                // Get the workout ID and position
                 const workoutId = card.getAttribute('data-workout-id');
                 const position = parseInt(card.getAttribute('data-position'));
 
-                // Get the actual workout object from our stored recommendations
                 const workout = displayedWorkouts[position];
 
                 if (!workout) {
@@ -804,16 +751,13 @@ async function initializeTopPicks() {
                     return;
                 }
 
-                // Store the selected workout
                 selectedWorkout = workout;
 
-                // Update popup content
                 const popup = document.getElementById('popup-container');
 
                 document.getElementById('popup-title').textContent = workout.title.toUpperCase();
                 document.getElementById('popup-desc').textContent = workout.description;
 
-                // Extract numbers only
                 const durationNum = workout.duration.match(/\d+/)[0];
                 document.getElementById('popup-duration').textContent = durationNum;
 
@@ -822,7 +766,6 @@ async function initializeTopPicks() {
 
                 updatePopupLevel(workout.level);
 
-                // Update image
                 const workoutImage = document.getElementById('popup-workout-image');
                 if (workout.image) {
                     workoutImage.src = workout.image;
@@ -836,10 +779,8 @@ async function initializeTopPicks() {
                     workoutImage.style.height = 'auto';
                 }
 
-                // Update exercise list
                 updateExerciseList(workout);
 
-                // Show popup
                 popup.classList.add('active');
             });
         });

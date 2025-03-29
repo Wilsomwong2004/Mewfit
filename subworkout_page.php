@@ -17,7 +17,7 @@ $workout_exercises = [];
 
 if ($workout_id > 0) {
     // Get workout name and details
-    $sql = "SELECT workout_name FROM workouts WHERE workout_id = ?";
+    $sql = "SELECT workout_name FROM workout WHERE workout_id = ?";
     $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();
@@ -28,7 +28,7 @@ if ($workout_id > 0) {
     }
     
     // Get workout exercises
-    $sql = "SELECT * FROM workout_exercises WHERE workout_id = ? ORDER BY exercise_order";
+    $sql = "SELECT * FROM workout_exercises WHERE workout_id = ? ORDER BY exercise_order"; // Need to fix
     $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();

@@ -192,6 +192,7 @@ html.dark-mode .container-side-transparent-right {
 
 .big-section {
   display: grid;
+  grid-template-rows: 100vh auto;
   grid-template-columns: 33% 33% 33%;
   column-gap: 20px;
   row-gap: 20px;
@@ -204,7 +205,7 @@ html.dark-mode .container-side-transparent-right {
 
 .diet-image {
   border-radius: 20px;
-  height: 86vh;
+  height: 100%;
   width: 100%;
   grid-column-start: 1;
   grid-column-end: 3;
@@ -265,6 +266,10 @@ html.dark-mode .container-side-transparent-right {
   padding-top: 1.5vw;
 }
 
+.eat-button:hover {
+  cursor: pointer;
+}
+
 .description {
   grid-column-start: 1;
   grid-column-end: 4;
@@ -279,6 +284,10 @@ html.dark-mode .container-side-transparent-right {
     max-height: 60vh;
     border-radius: 20px;
     grid-column: 1 / -1;
+  }
+
+  .big-section {
+    grid-template-rows: auto;
   }
 
   .nutrient-box-box {
@@ -415,6 +424,10 @@ h3 {
   height: 9vw;
   border-radius: 10px;
   object-fit: cover;
+}
+
+html.dark-mode .other-recipes {
+  color: white;
 }
 
 .section-3a {

@@ -156,7 +156,7 @@ session_start();
                 <select id="fitness-goal" name="fitness-goal" onchange="SignUpValid()">
                   <option value="" disabled selected>Pick a fitness goal</option>
                   <option value="Lose weight">Lose weight</option>
-                  <option value="Gain weight">Gain weight</option>
+                  <option value="Gain muscle">Gain muscle</option>
                 </select>
               </div>
 
