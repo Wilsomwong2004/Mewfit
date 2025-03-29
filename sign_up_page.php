@@ -97,8 +97,6 @@ session_start();
                 <ul>
                   <li>Use 8 or more characters</li>
                   <li>Use upper and lower case letters (e.g. Aa)</li>
-                  <li>Use a number (e.g. 1234)</li>
-                  <li>Use a symbol (e.g. !@#$)</li>
                 </ul>
               </div>
 
