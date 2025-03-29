@@ -469,6 +469,26 @@ $fitness_goal = $member['fitness_goal'];
       </div>
     </div>
 
+      <!-- Chatbot Interface -->
+      <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <img src="./assets/icons/cat-logo-tabs.png">
+                <h3>MEWAI</h3>
+            </div>
+            <button class="close-chat">&times;</button>
+        </div>
+        <div class="chatbot-transparent-top-down"></div>
+        <div class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Ask me about fitness...">
+            <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button class="chatbot-toggle">
+        <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+    </button>
+
     <!-- Delete Account Confirmation Modal -->
     <div class="modal" id="delete-account-modal">
       <div class="modal-content">
