@@ -211,7 +211,7 @@ if ($resultRecentDiets->num_rows > 0) {
             </section>
 
             <!-- Recent Meals Section -->
-            <section class="diet-body">
+            <!-- <section class="diet-body">
                 <div class="diet-recently-title">
                     <h2 class="section-title"><img src="./assets/icons/icons8-time-48.png">Recently Meals</h2>
                     <a href="diet_history_page.php" style="text-decoration: none; color: inherit; padding: 1.7rem 3rem 1rem 0">
@@ -250,7 +250,7 @@ if ($resultRecentDiets->num_rows > 0) {
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            </section>
+            </section> -->
 
             <section class="diet-body">
                 <h2 class="section-title"><img src="./assets/icons/vegetable.png">Vegetarian</h2>
