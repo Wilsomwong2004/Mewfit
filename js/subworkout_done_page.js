@@ -49,11 +49,13 @@ document.addEventListener('DOMContentLoaded', function () {
         caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> --`;
     }
 
+    // Handle done button click
     const doneBtn = document.getElementById('done-btn');
     doneBtn.addEventListener('click', function () {
         if (!workoutId) {
             console.error('Workout ID not found');
             showFeedback('Error: Workout ID not found', 'error');
+            // Still redirect after a delay to avoid trapping user
             setTimeout(() => {
                 window.location.href = 'workout_page.php';
             }, 3000);
@@ -64,10 +66,12 @@ document.addEventListener('DOMContentLoaded', function () {
         doneBtn.textContent = 'Saving...';
         doneBtn.disabled = true;
 
+        // Create form data to send to server
         const formData = new FormData();
         formData.append('workout_id', workoutId);
-        formData.append('member_id', memberId);
+        formData.append('member_id', memberId); // From PHP
 
+        // Send AJAX request to save workout history
         fetch('save_workout_history.php', {
             method: 'POST',
             body: formData
@@ -96,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 1500);
                 } else {
                     console.error('Failed to save workout:', data.message);
+                    // Display error message to user
                     showFeedback('Error: ' + data.message, 'error');
 
                     // Reset button state
@@ -107,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Error:', error);
                 showFeedback('Error connecting to server', 'error');
 
+                // Reset button state
                 doneBtn.textContent = 'Done';
                 doneBtn.disabled = false;
             });

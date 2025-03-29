@@ -163,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 头像上传功能
   const avatarUpload = document.getElementById("avatar-upload");
   const profileImages = [
     document.getElementById("profile-pic"),
@@ -177,20 +178,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.match('image.*')) {
-      alert("Only image files are allowed");
+    if (!["image/jpeg", "image/jpg"].includes(file.type)) {
+      alert("Only JPG/JPEG files are allowed");
       return;
     }
 
-    // Preview the image
+    // 预览图片
     const reader = new FileReader();
     reader.onload = (event) => {
       profileImages.forEach((img) => {
         if (img) img.src = event.target.result;
       });
 
-      // Upload the file to the server
-      uploadToServer(file);
+      console.log("Preparing to upload:", file);
+      // uploadToServer(file);
     };
     reader.readAsDataURL(file);
   });
@@ -198,22 +199,17 @@ document.addEventListener("DOMContentLoaded", () => {
   async function uploadToServer(file) {
     try {
       const formData = new FormData();
-      formData.append("profile_pic", file);
+      formData.append("avatar", file);
 
-      const response = await fetch("update_profile_pic.php", {
+      const response = await fetch("/your-upload-endpoint", {
         method: "POST",
         body: formData,
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Profile picture updated successfully!");
-      } else {
-        throw new Error(result.message || "Upload failed");
-      }
+      if (!response.ok) throw new Error("Upload failed");
+      console.log("Upload successfully!");
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("上传错误:", error);
       alert("Upload failed, please try again.");
     }
   }

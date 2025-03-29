@@ -198,6 +198,18 @@ async function validatePhoneNumber(inputElement, feedbackElement, button) {
   }
 }
 
+function hasUpperAndLowerCase(str) {
+  return /[A-Z]/.test(str) && /[a-z]/.test(str);
+}
+
+function hasNumber(str) {
+  return /\d/.test(str);
+}
+
+function hasSymbol(str) {
+  return /[!@#$%^&*()_+{}\[\]:;<>,.?/~\\-]/.test(str);
+}
+
 async function checkUsername() {
   let username = document.getElementById("username").value;
   let warning = document.getElementById("exist-username");
@@ -270,6 +282,7 @@ async function checkEmail(inputValue, feedback) {
 }
 
 async function SignUpValid() {
+  let password = document.getElementById("password").value;
   let age = parseInt(document.getElementById("age").value);
   let gender = document.getElementById("gender").value;
   let weight = parseFloat(document.getElementById("weight").value) || 0;
@@ -290,6 +303,36 @@ async function SignUpValid() {
   ]);
 
   let isValid = isUsernameValid && isEmailValid;
+
+  // Check password condition
+  if (password.length == 0) {
+    document.getElementById("pass-error").style.color = "red";
+    document.getElementById("pass-error").textContent = "";
+    isValid = false;
+  } else if (password.length < 8) {
+    document.getElementById("pass-error").style.color = "red";
+    document.getElementById("pass-error").textContent =
+      "(Must be more than 8 character)";
+    isValid = false;
+  } else if (!hasUpperAndLowerCase(password)) {
+    document.getElementById("pass-error").style.color = "red";
+    document.getElementById("pass-error").textContent =
+      "(Please include upper and lower case letter)";
+    isValid = false;
+  } else if (!hasNumber(password)) {
+    document.getElementById("pass-error").style.color = "red";
+    document.getElementById("pass-error").textContent =
+      "(Please include numbers)";
+    isValid = false;
+  } else if (!hasSymbol(password)) {
+    document.getElementById("pass-error").style.color = "red";
+    document.getElementById("pass-error").textContent =
+      "(Please include symbols)";
+    isValid = false;
+  } else {
+    document.getElementById("pass-error").style.color = "green";
+    document.getElementById("pass-error").textContent = "(Password is Valid)";
+  }
 
   // Check if any field is empty
   let inputs = document.querySelectorAll("form input, form select");
