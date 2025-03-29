@@ -1324,15 +1324,16 @@ LIMIT 6";
 
         <script>
             const response = <?php echo json_encode($response); ?>;
+            let workouts = response.workouts || [];
+            let selectedWorkout = null;
 
             const createCard = (item, type) => {
-                
                 const cardId = type === 'workout' ? item.workout_id : item.diet_id;
 
                 if (type === 'workout') {
                     const imageSrc = item.image || './assets/icons/error.svg';
                     return `
-                    <div class="workout-card-content" data-id="${cardId}">
+                    <div class="workout-card-content" data-id="${cardId}" data-workout-title="${item.workout_name}">
                         <div>
                             <img src="${imageSrc}" alt="${item.workout_name}" class="workout-image">
                         </div>
@@ -1369,44 +1370,266 @@ LIMIT 6";
             const workoutGrid = document.querySelector('.workout-history-grid');
             const dietGrid = document.querySelector('.diet-history-grid');
 
-            if (response.workouts && !response.workouts.no_data) {
-                workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
-
-                const workoutCards = workoutGrid.querySelectorAll('.workout-card-content');
-                workoutCards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        const workoutId = card.getAttribute('data-id');
-                        window.location.href = `subworkout_page.php?workout_id=${workoutId}`;
-                    });
-                    card.style.cursor = 'pointer';
-                });
-            } else {
-                workoutGrid.innerHTML = '<div class="no-history">No workout available.</div>';
+            if (workoutGrid) {
+                if (response.workouts && !response.workouts.no_data) {
+                    workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
+                    
+                    // Make sure to store workout data in the workouts array
+                    workouts = response.workouts.map(workout => ({
+                        id: workout.workout_id,
+                        title: workout.workout_name,
+                        description: workout.description || 'No description available',
+                        duration: workout.duration || '0',
+                        calories: workout.calories || '0',
+                        level: workout.difficulty || 'Beginner',
+                        image: workout.image
+                    }));
+                    
+                    setupWorkoutCardClick();
+                } else {
+                    workoutGrid.innerHTML = '<div class="no-history">No workout available.</div>';
+                }
             }
 
-            if (response.diets && !response.diets.no_data) {
-                dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
+            if (dietGrid) {
+                if (response.diets && !response.diets.no_data) {
+                    dietGrid.innerHTML = response.diets.map(diet => createCard(diet, 'diet')).join('');
 
-                const dietCards = dietGrid.querySelectorAll('.diet-card-content');
-                dietCards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        const dietId = card.getAttribute('data-id');
-                        const dietType = card.getAttribute('data-type');
+                    const dietCards = dietGrid.querySelectorAll('.diet-card-content');
+                    dietCards.forEach(card => {
+                        card.addEventListener('click', () => {
+                            const dietId = card.getAttribute('data-id');
+                            const dietType = card.getAttribute('data-type');
 
-                        if (dietType === 'custom') {
+                            if (dietType === 'custom') {
+                                // Handle custom diet click
+                            } else {
+                                window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+                            }
+                        });
+                        card.style.cursor = 'pointer';
+                    });
+                } else {
+                    dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
+                }
+            }
 
-                        } else {
-                            window.location.href = `subdiet_page.php?diet_id=${dietId}`;
+            function updatePopupLevel(level) {
+                const popupLevel = document.getElementById('popup-level');
+                if (!popupLevel) return;
+
+                const currentMeter = popupLevel.querySelector('.difficulty-meter');
+
+                if (currentMeter) {
+                    currentMeter.remove();
+                }
+
+                const meterContainer = document.createElement('div');
+                meterContainer.className = `difficulty-meter ${level.toLowerCase()}`;
+
+                for (let i = 0; i < 3; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'difficulty-bar';
+                    meterContainer.appendChild(bar);
+                }
+
+                // Set active bars based on level
+                const bars = meterContainer.querySelectorAll('.difficulty-bar');
+                const activeBars = level.toLowerCase() === 'beginner' ? 1
+                    : level.toLowerCase() === 'intermediate' ? 2
+                        : 3;
+
+                for (let i = 0; i < activeBars; i++) {
+                    bars[i].classList.add('active');
+                }
+
+                popupLevel.innerHTML = '';
+                popupLevel.appendChild(meterContainer);
+            }
+
+            function setupWorkoutCardClick() {
+                const cards = document.querySelectorAll('.workout-card-content');
+                if (!cards || cards.length === 0) {
+                    console.log("No workout cards found");
+                    return;
+                }
+                
+                cards.forEach(card => {
+                    const cardClone = card.cloneNode(true);
+                    card.parentNode.replaceChild(cardClone, card);
+
+                    cardClone.addEventListener('click', () => {
+                        // Get the workout ID from the data attribute
+                        const workoutId = cardClone.getAttribute('data-id');
+                        const workoutTitle = cardClone.getAttribute('data-workout-title');
+
+                        // Find the workout by id or title
+                        const workout = workouts.find(w => 
+                            (w.id && w.id.toString() === workoutId) || 
+                            (w.title === workoutTitle) || 
+                            (w.workout_name === workoutTitle)
+                        );
+
+                        if (!workout) {
+                            console.error('Workout not found:', { id: workoutId, title: workoutTitle });
+                            console.log('Available workouts:', workouts);
+                            return;
+                        }
+
+                        // Store the selected workout
+                        selectedWorkout = workout;
+
+                        // Check if popup exists before trying to update it
+                        const popup = document.getElementById('popup-container');
+                        if (!popup) {
+                            console.error('Popup container not found');
+                            return;
+                        }
+
+                        const popupTitle = document.getElementById('popup-title');
+                        if (popupTitle) {
+                            popupTitle.textContent = (workout.title || workout.workout_name || '').toUpperCase();
+                        }
+
+                        const popupDesc = document.getElementById('popup-desc');
+                        if (popupDesc) {
+                            popupDesc.textContent = workout.description || '';
+                        }
+
+                        const popupDuration = document.getElementById('popup-duration');
+                        if (popupDuration) {
+                            // Extract numbers only if it's a string
+                            const duration = typeof workout.duration === 'string'
+                                ? (workout.duration.match(/\d+/) || ['0'])[0]
+                                : workout.duration || '0';
+                            popupDuration.textContent = duration;
+                        }
+
+                        const popupCalories = document.getElementById('popup-calories');
+                        if (popupCalories) {
+                            // Extract numbers only if it's a string
+                            const calories = typeof workout.calories === 'string'
+                                ? (workout.calories.match(/\d+/) || ['0'])[0]
+                                : workout.calories || '0';
+                            popupCalories.textContent = calories;
+                        }
+
+                        // Update level display if the function and element exist
+                        if (typeof updatePopupLevel === 'function') {
+                            updatePopupLevel(workout.level || workout.difficulty || 'Beginner');
+                        }
+
+                        // Update image if element exists
+                        const workoutImage = document.getElementById('popup-workout-image');
+                        if (workoutImage) {
+                            if (workout.image) {
+                                workoutImage.src = workout.image;
+                                workoutImage.alt = `${workout.title || workout.workout_name} Image`;
+                                workoutImage.style.objectFit = 'cover';
+                            } else {
+                                workoutImage.src = './assets/icons/error.svg';
+                                workoutImage.alt = 'Workout Image Not Found';
+                                workoutImage.style.objectFit = 'contain';
+                                workoutImage.style.width = '60%';
+                                workoutImage.style.height = 'auto';
+                            }
+                        }
+
+                        // Update exercise list if the function exists
+                        if (typeof updateExerciseList === 'function') {
+                            updateExerciseList(workout);
+                        }
+
+                        // Show popup
+                        popup.classList.add('active');
+                        setupPopupHandlers()
+                    });
+                });
+
+                function setupPopupHandlers() {
+                    const popup = document.getElementById('popup-container');
+                    if (!popup) return;
+                    
+                    // Close button handler
+                    const closeButton = popup.querySelector('.popup-close');
+                    if (closeButton) {
+                        closeButton.addEventListener('click', () => {
+                            popup.classList.remove('active');
+                            selectedWorkout = null;
+                        });
+                    }
+                    
+                    // Background click to close
+                    popup.addEventListener('click', (e) => {
+                        if (e.target === popup) {
+                            popup.classList.remove('active');
+                            selectedWorkout = null;
                         }
                     });
-                    card.style.cursor = 'pointer';
+
+                    document.querySelector('.popup-start-button').addEventListener('click', () => {
+                    if (selectedWorkout) {
+                        localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
+                        window.location.href = 'subworkout_page.php';
+                    } else {
+                        console.error('No workout selected');
+                    }
                 });
-            } else {
-                dietGrid.innerHTML = '<div class="no-history">No diet available.</div>';
+                }
+
+                // Setup popup close handlers
+                const popup = document.getElementById('popup-container');
+
+                if (popup) {
+                    // Remove existing event listeners by cloning
+                    const newPopup = popup.cloneNode(true);
+                    popup.parentNode.replaceChild(newPopup, popup);
+                    
+                    // Add click event to the new popup
+                    newPopup.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('popup-close') || e.target === newPopup) {
+                            newPopup.classList.remove('active');
+                            selectedWorkout = null;
+                        }
+                    });
+                }
             }
         </script>
 
 
+        <!-- Popup container -->
+        <div id="popup-container" class="popup-container">
+            <div class="popup-content" style="max-width: 800px; max-height: 370px">
+                <div class="seperate-workout-pic-details">
+                    <div class="popup-workout-pic">
+                        <img id="popup-workout-image" src="" alt="Workout Image">
+                    </div>
+                    <div class="gradient-white"></div>
+                    <div id="popup-body">
+                        <span class="popup-close">&times;</span>
+                        <h2 id="popup-title"></h2>
+                        <p id="popup-desc"></p>
+                        <div class="popup-stats" style="top:40px">
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-duration"></div>
+                                <div class="popup-stat-label">Minutes</div>
+                            </div>
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-calories"></div>
+                                <div class="popup-stat-label">Kcal</div>
+                            </div>
+                            <div class="popup-stat-item">
+                                <div class="popup-stat-value" id="popup-level"></div>
+                                <div class="popup-stat-label">Level</div>
+                            </div>
+                        </div>
+                        <button class="popup-start-button" style="top:40px">Start Workout Again</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chatbot Interface -->
         <div class="chatbot-container">
             <div class="chatbot-header">
                 <div class="chatbot-header-left">
@@ -1425,7 +1648,6 @@ LIMIT 6";
         <button class="chatbot-toggle">
             <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
         </button>
-
 
         <div class="container-side-transparent-left"></div>
         <div class="container-side-transparent-right"></div>

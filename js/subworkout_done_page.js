@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('save_workout_history.php', {
             method: 'POST',
             body: formData
-        })
             .then(response => {
                 return response.text().then(text => {
                     console.log("Raw response:", text);
