@@ -9,7 +9,7 @@
     <link rel="icon" type="./assets/image/x-icon" href="./assets/icons/cat-logo-tabs.png">
     <link rel="stylesheet" href="./css/admin_user_page.css">
     <link rel="stylesheet" href="./css/navigation_bar.css">
-    <script src="js/navigation_bar.js"></script>
+    <script src="./js/navigation_bar.js"></script>
     <script src="./js/data_validation.js"></script>
     <style>
         #add-profile-btn:disabled,
@@ -129,15 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </center>
                 <form method="post" action="">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn'));">
+                    <input type="text" id="username" name="username" required oninput="checkUniqueName(this, document.getElementById('username-feedback'), 'Username already exists.', 'administrator', 'username', document.getElementById('add-profile-btn')); validateForm();">
                     <p id="username-feedback" class="feedback"></p>
 
                     <label for="password">Password</label>
-                    <input type="text" id="password" name="password" oninput="validatePassword(this, document.getElementById('password-feedback'))" required>
+                    <input type="text" id="password" name="password" oninput="validatePassword(this, document.getElementById('password-feedback')); validateForm();" required>
                     <p id="password-feedback" class="feedback"></p>
 
                     <label for="name">Name</label>
-                    <input type="text" id="name" name="name" oninput="validateName(this, document.getElementById('name-feedback'))" required>
+                    <input type="text" id="name" name="name" oninput="validateName(this, document.getElementById('name-feedback')); validateForm();" required>
                     <p id="name-feedback" class="feedback"></p>
 
                     <label for="gender">Gender</label>
@@ -148,11 +148,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </select>
 
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', document.getElementById('add-profile-btn'))">
+                    <input type="email" id="email" name="email" required oninput="checkUniqueName(this, document.getElementById('email-feedback'), 'Email already exists.', 'administrator', 'email_address', document.getElementById('add-profile-btn')); validateForm();">
                     <p id="email-feedback" class="feedback"></p>
 
                     <label for="phonenum">Phone Number</label>
-                    <input type="text" id="phonenum" name="phonenum" oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback')); checkUniqueName(this, document.getElementById('phonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', document.getElementById('add-profile-btn'))" required>
+                    <input type="text" id="phonenum" name="phonenum" required oninput="validatePhoneNumber(this, document.getElementById('phonenum-feedback'), document.getElementById('add-profile-btn')); validateForm();">
                     <p id="phonenum-feedback" class="feedback"></p>
 
                     <div style="display:flex;justify-content: flex-end;white-space: nowrap;">
@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p id="eemail-feedback" class="feedback"></p>
 
                     <label for="ephonenum">Phone Number</label>
-                    <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback')); checkUniqueName(this, document.getElementById('ephonenum-feedback'), 'Phone number already exists.', 'administrator', 'phone_number', document.getElementById('confirm-btn'), document.getElementById('selectedAdminId').value); evalidateForm()" required>
+                    <input type="text" id="ephonenum" name="ephonenum" oninput="validatePhoneNumber(this, document.getElementById('ephonenum-feedback'), document.getElementById('confirm-btn')); evalidateForm()" required>
                     <p id="ephonenum-feedback" class="feedback"></p>
 
                     <div style="display:flex;justify-content: flex-end;gap:20px;white-space: nowrap;">
@@ -272,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <table>
                     <tr>
                         <th>ID</th>
-                        <th>Picture</th>
                         <th>Username</th>
+                        <th>Picture</th>
                         <th>Email Address</th>
                         <th>Password</th>
                         <th>Level</th>
@@ -294,6 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         while ($rows = mysqli_fetch_array($result)) {
                             echo "<tr member-id='" . $rows['member_id'] . "'>";
                             echo "<td>" . htmlspecialchars($rows['member_id']) . "</td>";
+                            echo "<td>" . htmlspecialchars($rows['username']) . "</td>";
 
                             // Picture Preview
                             echo "<td>";
@@ -303,8 +304,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 echo "<img src='uploads/member/Unknown_acc-removebg.png' alt='No Image' width='50' height='50'>";
                             }
                             echo "</td>";
-
-                            echo "<td>" . htmlspecialchars($rows['username']) . "</td>";
                             echo "<td>" . htmlspecialchars($rows['email_address']) . "</td>";
                             echo "<td>" . htmlspecialchars($rows['password']) . "</td>";
                             echo "<td>" . htmlspecialchars($rows['level']) . "</td>";

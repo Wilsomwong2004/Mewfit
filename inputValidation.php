@@ -61,13 +61,10 @@ try {
     $exists = $row['count'] > 0;
     
     // If table is administrator, also check member table
-    if ($table === 'administrator' && !$exists) {
-        $stmt->close(); // Close previous statement
-        
-        // Check if the value exists in member table
+    if ($table === 'administrator' && !$exists && !$column === 'phone_number') {
+        $stmt->close(); 
         $query = "SELECT COUNT(*) as count FROM `member` WHERE `$column` = ?";
         if ($id) {
-            // If checking for update, exclude current member (assuming admin_id might correspond to member_id)
             $query .= " AND `member_id` != ?";
             $stmt = $dbConn->prepare($query);
             if (!$stmt) {

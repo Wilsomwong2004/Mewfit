@@ -846,7 +846,7 @@ ORDER BY period";
 
                         foreach ($allUniquePeriods as $currentPeriod) {
                             if (strcmp($currentPeriod, $currentRegPeriod) < 0) {
-                                $dataPointsForPeriod[] = null;  
+                                $dataPointsForPeriod[] = null;
                             } else {
                                 $dataPointsForPeriod[] = $performanceDataByPeriod[$currentRegPeriod][$currentPeriod] ?? 0;
                             }
@@ -1103,16 +1103,17 @@ ORDER BY period";
                         <div>
                             <h4>Member's Preference on Duration</h4>
                             <div>
-                                <canvas id="durationChart" width="500" height="300" class="chart" data-description="Description9"></canvas>
+                                <canvas id="durationChart" class="chart" data-description="Description9"></canvas>
+                                <section id="Description9" class="chart-description">
+                                    <p><b>This chart uses workout and workout history data to see which duration do members prefer for each workout category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
+                                </section>
                             </div>
-                            <section id="Description9" class="chart-description">
-                                <p><b>This chart uses workout and workout history data to see which duration do members prefer for each workout category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
-                            </section>
+
                         </div>
                         <div>
                             <h4>Member's Preference on Calories</h4>
                             <div>
-                                <canvas id="caloriesChart" width="500" height="300" class="chart" data-description="Description10"></canvas>
+                                <canvas id="caloriesChart" class="chart" data-description="Description10"></canvas>
                                 <section id="Description10" class="chart-description">
                                     <p><b>This chart uses workout and workout history data to see how many calories burnt do members prefer for each workout category</b> <br><span style="color:red;">Look for the highest/lowest number of clicks for each colored dot</span></p>
                                 </section>
@@ -1825,14 +1826,14 @@ GROUP BY w.workout_type, w.calories, w.duration";
                             <h4>Top 10 Member's Favourite</h4>
                             <canvas id="nutritionPopularityChart" class="chart" data-description="Description16"></canvas>
                             <section id="Description16" class="chart-description">
-                                <p><b>This chart uses nutrition and diet data to see which ingredients do members prefer</b><br>Hovered Data Points: Nutrition information </p>
+                                <p><b>This chart uses nutrition and diet data to see which ingredients do members prefer</b><br>Hovered Data Points: Nutrition information <br><span style="color:red;">The calorie amount has been divided by 10</span></p>
                             </section>
                         </div>
                         <div>
                             <h4>Nutrition & Member Performance Growth</h4>
                             <canvas id="nutritionPerformanceChart" class="chart" data-description="Description17"></canvas>
                             <section id="Description17" class="chart-description">
-                                <p><b>This chart uses nutrition, diet, and member performance data to see how the increasing number of each nutrition category affect member performance</b><br>Hovered Data Points: Nutrition information/ Performance score <br><span style="color:red;">Note: Performance score is already divided by 10</span></p>
+                                <p><b>This chart uses nutrition, diet, and member performance data to see how the increasing number of each nutrition category affect member performance</b><br>Hovered Data Points: Nutrition information/ Performance score <br><span style="color:red;">Note: Performance score and calorie amount is already divided by 10</span></p>
                             </section>
                         </div>
                     </div>
@@ -1841,10 +1842,10 @@ GROUP BY w.workout_type, w.calories, w.duration";
                 <?php
                 $sqlTopNutrition = "
                     SELECT dn.nutrition_id, n.nutrition_name, 
-                        SUM(n.calories) AS total_calories,
-                        SUM(n.fat) AS total_fat,
-                        SUM(n.protein) AS total_protein,
-                        SUM(n.carbohydrate) AS total_carbohydrate,
+                        n.calories AS total_calories,
+                        n.fat AS total_fat,
+                        n.protein AS total_protein,
+                        n.carbohydrate AS total_carbohydrate,
                         COUNT(dn.nutrition_id) AS usage_count
                     FROM diet_nutrition dn
                     JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
@@ -1862,7 +1863,7 @@ GROUP BY w.workout_type, w.calories, w.duration";
 
                 while ($row = $resultTopNutrition->fetch_assoc()) {
                     $nutritionLabels[] = $row['nutrition_name'];
-                    $caloriesData[] = $row['total_calories'];
+                    $caloriesData[] = $row['total_calories'] / 10;
                     $fatData[] = $row['total_fat'];
                     $proteinData[] = $row['total_protein'];
                     $carbohydrateData[] = $row['total_carbohydrate'];
@@ -1950,7 +1951,7 @@ GROUP BY w.workout_type, w.calories, w.duration";
                     $nutritionLabels[] = $row['period'];
 
                     // Cumulative Sum Calculation
-                    $cumulativeCalories += $row['total_calories'];
+                    $cumulativeCalories += $row['total_calories'] / 10;
                     $cumulativeFat += $row['total_fat'];
                     $cumulativeProtein += $row['total_protein'];
                     $cumulativeCarbohydrate += $row['total_carbohydrate'];
