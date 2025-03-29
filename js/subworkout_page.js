@@ -16,10 +16,8 @@ const DEFAULT_SETTINGS = {
 document.addEventListener("DOMContentLoaded", () => {
   const popupContainer = document.getElementById("popup-container");
 
-  popupContainer.addEventListener("click", (event) => {
-    if (event.target === popupContainer) {
-      popupContainer.style.display = "none";
-    }
+  popupContainer.addEventListener("click", () => {
+    popupContainer.style.display = "none";
   });
 });
 
