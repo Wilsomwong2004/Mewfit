@@ -183,14 +183,14 @@ async function validatePhoneNumber(inputElement, feedbackElement, button) {
   const isUnique = await checkUniqueName(
     inputElement,
     feedbackElement,
-    'Phone number already exists.',
-    'administrator', 
-    'phone_number', 
+    "Phone number already exists.",
+    "administrator",
+    "phone_number",
     button
   );
 
   if (isUnique) {
-    return; 
+    return;
   }
 
   if (button) {
