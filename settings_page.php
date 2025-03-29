@@ -35,7 +35,6 @@ $fitness_goal = $member['fitness_goal'];
   <link rel="stylesheet" href="./css/gemini_chatbot.css">
   <link rel="stylesheet" href="./css/navigation_bar.css" />
   <style>
-    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
