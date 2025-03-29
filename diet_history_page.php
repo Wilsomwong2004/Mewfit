@@ -184,45 +184,47 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             FROM custom_diet cd
             WHERE cd.member_id = ?
         )
-        ORDER BY date DESC
-        LIMIT 5";  // Show only the latest 5 meals
+        ORDER BY date DESC";
 
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("ii", $_SESSION['member id'], $_SESSION['member id']);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Debugging: Check if query returns anything
         if (!$result) {
             die("Query Error: " . $stmt->error);
         }
 
         if ($result->num_rows == 0) {
-            echo "<p>No meals found.</p>";
+            echo "<div class=\"no-filtered-records\">
+                    <p>Diet history still not available. Let's have a meal!</p>
+                  </div>";;
         } else {
             while ($row = $result->fetch_assoc()) {
-                $diet_id = $row['diet_id'];  // Now correctly storing diet_id
-                $diet_name = $row['diet_name'];
-                $diet_type = $row['diet_type']; 
-                $preparation_min = isset($row['preparation_min']) ? "{$row['preparation_min']} min" : "N/A";
-                $total_calories = $row['total_calories'];
-                $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./assets/icons/error.svg";
-                $meal_date = $row['date'];
+              
+              $diet_id = $row['diet_id'];  // Now correctly storing diet_id
+              $diet_name = $row['diet_name'];
+              $diet_type = $row['diet_type']; 
+              $preparation_min = isset($row['preparation_min']) ? "{$row['preparation_min']} min" : "N/A";
+              $total_calories = $row['total_calories'];
+              $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./assets/icons/error.svg";
+              $meal_date = $row['date'];
 
-                echo "
-                <div class='record-wrapper'>
-                  <div class='workout-date'>
-                      <p>{$meal_date}</p>
-                  </div>
-                  <div class='workout-record' data-diet-id='{$diet_id}' data-meal-type='{$diet_type}'>
-                      <img class='picture' src='{$picture}' alt='{$diet_name}' />
-                      <p class='name'>{$diet_name}</p>
-                      <p class='type'>{$diet_type}</p>
-                      <p class='time'>{$total_calories} kcal</p>
-                      <p class='kcal'>{$preparation_min}</p>
-                  </div>
-                </div>";         
+              echo "
+              <div class='record-wrapper'>
+                <div class='workout-date'>
+                    <p>{$meal_date}</p>
+                </div>
+                <div class='workout-record' data-diet-id='{$diet_id}' data-meal-type='{$diet_type}'>
+                    <img class='picture' src='{$picture}' alt='{$diet_name}' />
+                    <p class='name'>{$diet_name}</p>
+                    <p class='type'>{$diet_type}</p>
+                    <p class='time'>{$total_calories} kcal</p>
+                    <p class='kcal'>{$preparation_min}</p>
+                </div>
+              </div>";         
             }
+
         }
         ?>
     </div>
