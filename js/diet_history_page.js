@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function type_filter() {
   let selectedType = document.getElementById("type-filter").value.toLowerCase();
   let records = document.querySelectorAll(".record-wrapper");
+  let no_records = document.querySelectorAll(".no-filtered-records");
+
+  let exist_records = false;
 
   records.forEach((wrapper) => {
     let record = wrapper.querySelector(".workout-record");
@@ -23,10 +26,17 @@ function type_filter() {
 
     if (selectedType === "all" || mealType === selectedType) {
       wrapper.style.display = "block";
+      exist_records = true;
     } else {
       wrapper.style.display = "none";
     }
   });
+
+  if (!exist_records) {
+    no_records.style.display = "block";
+  } else {
+    no_records.style.display = "none";
+  }
 }
 
 const previousBtn = document.querySelector(".previous");
