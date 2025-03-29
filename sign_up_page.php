@@ -92,7 +92,13 @@ session_start();
               </div>
               <span id="valid-age"></span>
 
-
+              <!-- account rules -->
+              <div class="account-rules">
+                <ul>
+                  <li>Use 8 or more characters</li>
+                  <li>Use upper and lower case letters (e.g. Aa)</li>
+                </ul>
+              </div>
 
               <!-- Next Button -->
               <div class="button-inputs next_button">
