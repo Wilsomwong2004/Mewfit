@@ -2,23 +2,16 @@
 session_start();
 require_once 'conn.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     header("Location: index.php");
     exit;
 }
 
-$member_id = $_SESSION['member id'];
+// Get member ID from session - ensure consistency with naming
+$member_id = isset($_SESSION["member_id"]) ? $_SESSION["member_id"] : 
+            (isset($_SESSION["member id"]) ? $_SESSION["member id"] : 0);
 
-// if ($conn->connect_error) {
-//     header('Content-Type: application/json');
-//     echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $dbConn->connect_error]);
-//     exit;
-// }
-
+// If we didn't find a valid member ID, redirect to login
 if (!$member_id) {
     header("Location: index.php");
     exit;

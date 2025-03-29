@@ -46,6 +46,7 @@ const popupContainer = document.getElementById("popup-container");
 const popupTitle = document.getElementById("popup-title");
 const popupBody = document.getElementById("popup-body");
 
+// Initialize TensorFlow backend
 async function initializeTF() {
   if (isInitialized) return true;
 
@@ -61,6 +62,7 @@ async function initializeTF() {
   }
 }
 
+// Modified init function
 async function init() {
   console.log("Initializing pose detection...");
   const workoutUser = document.querySelector(".workout-user");
@@ -100,6 +102,7 @@ window.addEventListener("load", async () => {
   }, 1000);
 });
 
+// Add function to handle device enumeration and selection
 async function getAvailableCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -111,6 +114,7 @@ async function getAvailableCameras() {
   }
 }
 
+// Modified camera permission request with device selection
 async function requestCameraPermission() {
   const workoutUser = document.querySelector(".workout-user");
 
@@ -632,11 +636,12 @@ function showErrorModal(errorMessage) {
   workoutUser.appendChild(modalContainer);
 }
 
+// Global variable to track visibility state
 let isVisibilityFeedbackShown = false;
 let lastFeedbackTime = 0;
 let feedbackClearTimerId = null;
-const FEEDBACK_DURATION = 3000;
-const FEEDBACK_INTERVAL = 10000;
+const FEEDBACK_DURATION = 3000; // Show feedback for 5 seconds
+const FEEDBACK_INTERVAL = 10000; // Check every 10 seconds
 let lastVisibilityState = true;
 
 function handleVisibilityFeedback(poses) {
@@ -684,6 +689,7 @@ function handleVisibilityFeedback(poses) {
   }
 }
 
+// Check if at least some upper body parts are visible
 function checkPartialVisibility(poses) {
   if (!poses || poses.length === 0) return false;
 
@@ -715,6 +721,7 @@ function checkPartialVisibility(poses) {
   return visibleUpperBodyKeypoints.length >= 3;
 }
 
+// Modified minimal visibility check to be more specific about required keypoints
 function checkMinimalVisibility(poses) {
   if (!poses || poses.length === 0) return false;
 
@@ -745,6 +752,7 @@ function checkMinimalVisibility(poses) {
   return visibleKeypoints.length >= 4;
 }
 
+// Modified detectPose function remains the same as previous solution
 async function detectPose() {
   if (!isRunning || !detector || !isMewTrackEnabled) {
     if (animationFrameId) {
