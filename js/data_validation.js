@@ -11,20 +11,7 @@ async function checkUniqueName(
 
   try {
     let exists = false;
-    let memberExists = false;
-    
-    if (table === "administrator") {
-      memberExists = await checkTableUniqueness("member", column, value, id);
 
-      if (memberExists) {
-        feedbackElement.textContent = existingMessage;
-        feedbackElement.style.color = "red";
-        inputElement.dataset.uniqueError = "true";
-        if (button) button.disabled = true;
-        return true;
-      }
-    }
-    
     // Check the specific table
     exists = await checkTableUniqueness(table, column, value, id);
 
@@ -172,7 +159,7 @@ function validatePassword(inputElement, feedbackElement) {
   }
 }
 
-function validatePhoneNumber(inputElement, feedbackElement) {
+async function validatePhoneNumber(inputElement, feedbackElement, button) {
   const phoneNumber = inputElement.value;
   const feedback = feedbackElement;
 
@@ -187,9 +174,27 @@ function validatePhoneNumber(inputElement, feedbackElement) {
     feedback.textContent = "Phone number must be exactly 10 digits.";
     feedback.style.color = "red";
     inputElement.dataset.bracketError = "true";
-  } else {
-    feedback.textContent = "";
-    inputElement.dataset.bracketError = "false";
+    return;
+  }
+
+  feedback.textContent = "";
+  inputElement.dataset.bracketError = "false";
+
+  const isUnique = await checkUniqueName(
+    inputElement,
+    feedbackElement,
+    'Phone number already exists.',
+    'administrator', 
+    'phone_number', 
+    button
+  );
+
+  if (isUnique) {
+    return; 
+  }
+
+  if (button) {
+    button.disabled = false;
   }
 }
 

@@ -72,6 +72,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $stmt->close();
+        $sql = "SELECT image FROM workout WHERE workout_id = ?";
+        $stmt = $dbConn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result && $result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $imageFileName = $row['image'];
+
+            // Delete the image file if it exists
+            if (!empty($imageFileName)) {
+                $imagePath = "./assets/workout_pics/" . $imageFileName;
+                if (file_exists($imagePath)) {
+                    if (!unlink($imagePath)) {
+                        echo "Error: Failed to delete the image file.";
+                    }
+                }
+            }
+        }
+        $stmt->close();
     }
 
     $sql = "DELETE FROM $table WHERE {$validTables[$table]} = ?";
