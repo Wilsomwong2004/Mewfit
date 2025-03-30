@@ -152,10 +152,21 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       <?php
         include "conn.php";
 
+        function formatDate($date) {
+          if ($date == date("Y-m-d")) {
+              return "Today";
+          } else if ($date == date("Y-m-d", strtotime("-1 day"))) {
+              return "Yesterday";
+          } else {
+              return date('d F Y', strtotime($date)); 
+          }
+        }
+
         $sql = "
         (
             SELECT 
-                d.diet_id AS diet_id,  -- Changed from dh.diet_history_id to d.diet_id
+                dh.diet_history_id AS entry_id,  -- Use this for ordering
+                d.diet_id AS diet_id,  
                 dh.date,
                 d.diet_name,
                 d.diet_type,
@@ -168,12 +179,13 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             LEFT JOIN diet_nutrition dn ON d.diet_id = dn.diet_id
             LEFT JOIN nutrition n ON dn.nutrition_id = n.nutrition_id
             WHERE dh.member_id = ?
-            GROUP BY d.diet_id, dh.date, d.diet_name, d.diet_type, d.preparation_min, d.picture
+            GROUP BY dh.diet_history_id, d.diet_id, dh.date, d.diet_name, d.diet_type, d.preparation_min, d.picture
         )
         UNION ALL
         (
             SELECT 
-                cd.custom_diet_id AS diet_id, -- Keep custom diet ID
+                cd.custom_diet_id AS entry_id,  
+                cd.custom_diet_id AS diet_id,  
                 cd.date,
                 cd.custom_diet_name AS diet_name,
                 'custom' AS diet_type,
@@ -184,7 +196,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             FROM custom_diet cd
             WHERE cd.member_id = ?
         )
-        ORDER BY date DESC";
+        ORDER BY date DESC, entry_id DESC";
 
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("ii", $_SESSION['member id'], $_SESSION['member id']);
@@ -208,7 +220,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
               $preparation_min = isset($row['preparation_min']) ? "{$row['preparation_min']} min" : "N/A";
               $total_calories = $row['total_calories'];
               $picture = !empty($row['picture']) ? "./uploads/diet/{$row['picture']}" : "./assets/icons/error.svg";
-              $meal_date = $row['date'];
+              $meal_date = formatDate($row['date']);
 
               echo "
               <div class='record-wrapper'>
