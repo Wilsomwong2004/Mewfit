@@ -338,17 +338,15 @@ function displayWorkoutPopup(workout) {
     setTimeout(forceArrowCheck, 100);
     setupExerciseListArrows();
 
-    // Add event listener to start workout button in popup
     const startButton = document.querySelector('.popup-start-button');
     if (startButton) {
-        // Remove any existing event listeners
         const newButton = startButton.cloneNode(true);
         startButton.parentNode.replaceChild(newButton, startButton);
 
         // Add new event listener
         newButton.addEventListener('click', () => {
-            // Redirect to workout session page with the selected workout ID
-            window.location.href = `workout_session.php?id=${workout.id}`;
+            localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
+            window.location.href = 'subworkout_page.php';
         });
     }
 }
