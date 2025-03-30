@@ -70,8 +70,12 @@ h1 {
     background-color: #FFE5DC;
     padding: 8px 16px;
     border-radius: 20px;
-    color: var(--text-color);
+    color: black;
     font-size: 14px;
+}
+
+html.dark-mode .stat {
+    color: white;
 }
 
 .stat i {

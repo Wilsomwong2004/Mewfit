@@ -713,6 +713,96 @@ html.dark-mode .container-side-transparent-right {
   background-color: #F44336;
 }
 
+/*Arrow Style*/
+.grid-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.workout-history-grid,
+.diet-history-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  gap: 15px;
+  padding: 10px 5px;
+}
+
+.workout-history-grid::-webkit-scrollbar,
+.diet-history-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.workout-card-content,
+.diet-card-content {
+  flex: 0 0 auto;
+  width: 280px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s;
+  background: white;
+}
+
+.workout-card-content:hover,
+.diet-card-content:hover {
+  transform: translateY(-5px);
+}
+
+.scroll-gradient {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50px;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s;
+}
+
+.scroll-gradient-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.scroll-gradient-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 3;
+  transition: all 0.3s;
+}
+
+.scroll-arrow:hover {
+  background: #f0f0f0;
+}
+
+.scroll-arrow-left {
+  left: 10px;
+}
+
+.scroll-arrow-right {
+  right: 10px;
+}
 
 .pop-up {
   display: none;

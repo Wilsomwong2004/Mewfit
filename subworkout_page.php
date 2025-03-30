@@ -116,7 +116,7 @@ $member_data = $member_result->fetch_assoc();
 
         <!-- Popup container -->
         <div id="popup-container" class="popup-container">
-            <div class="popup-content">
+            <div id="popup-container" class="popup-content">
                 <h2 id="popup-title"></h2>
                 <div id="popup-body"></div>
             </div>
