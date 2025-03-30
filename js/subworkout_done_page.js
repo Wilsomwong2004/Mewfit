@@ -75,8 +75,17 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('save_workout_history.php', {
             method: 'POST',
             body: formData
-        })
-            .then(response => response.json())
+            .then(response => {
+                return response.text().then(text => {
+                    console.log("Raw response:", text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error("Failed to parse JSON:", e);
+                        throw new Error("Server returned invalid response");
+                    }
+                });
+            })
             .then(data => {
                 if (data.success) {
                     // Show success message

@@ -680,6 +680,40 @@ html.dark-mode .container-side-transparent-right {
   margin-right: 0.2rem;
 }
 
+/* Difficult level graphes */
+.difficulty-meter {
+  width: 50px;
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+  margin-bottom: 12px;
+}
+
+.difficulty-bar {
+  height: 20px;
+  flex: 1;
+  background-color: #e0e0e0;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+.difficulty-bar.active {
+  background-color: #4CAF50;
+}
+
+.beginner .difficulty-bar.active {
+  background-color: #4CAF50;
+}
+
+.intermediate .difficulty-bar.active {
+  background-color: #FFA726;
+}
+
+.advanced .difficulty-bar.active {
+  background-color: #F44336;
+}
+
+
 .pop-up {
   display: none;
   position: fixed;

@@ -581,6 +581,7 @@ html.dark-mode .search-bar-small {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  display: none;
 }
 
 .diet-recently-title a {
