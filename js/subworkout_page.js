@@ -13,13 +13,13 @@ const DEFAULT_SETTINGS = {
   cameraEnabled: true,
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const popupContainer = document.getElementById("popup-container");
-
-  popupContainer.addEventListener("click", () => {
-    popupContainer.style.display = "none";
+document
+  .getElementById("popup-container")
+  .addEventListener("click", function (event) {
+    if (event.target === this) {
+      this.style.display = "none";
+    }
   });
-});
 
 // Load settings from local storage
 let isMewTrackEnabled =
