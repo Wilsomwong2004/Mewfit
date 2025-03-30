@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
-  header("Location: prelogin.html");
+  header("Location: index.php");
   exit;
 }
 
@@ -35,7 +35,6 @@ $fitness_goal = $member['fitness_goal'];
   <link rel="stylesheet" href="./css/gemini_chatbot.css">
   <link rel="stylesheet" href="./css/navigation_bar.css" />
   <style>
-    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -78,7 +77,9 @@ $fitness_goal = $member['fitness_goal'];
       margin-top: 30px;
     }
 
-    .cancel-btn, .delete-confirm-btn, .save-btn {
+    .cancel-btn,
+    .delete-confirm-btn,
+    .save-btn {
       padding: 10px 20px;
       border-radius: 20px;
       border: none;
@@ -121,7 +122,8 @@ $fitness_goal = $member['fitness_goal'];
       margin-bottom: 15px;
     }
 
-    .form-left, .form-right {
+    .form-left,
+    .form-right {
       flex: 1;
     }
 
@@ -145,7 +147,7 @@ $fitness_goal = $member['fitness_goal'];
       background-color: var(--background-color);
       color: var(--text-color);
     }
-    
+
     /* Goal button styles */
     .goal-switch {
       display: flex;
@@ -189,14 +191,14 @@ $fitness_goal = $member['fitness_goal'];
     html.dark-mode .form-group label {
       color: white;
     }
-    
+
     /* Media queries for responsive layout */
     @media (max-width: 768px) {
       .form-row {
         flex-direction: column;
         gap: 0;
       }
-      
+
       .modal-content {
         max-width: 95%;
         padding: 15px;
@@ -373,7 +375,7 @@ $fitness_goal = $member['fitness_goal'];
         </div>
       </div>
     </div>
-    
+
     <!-- Update Personal Information Modal -->
     <div class="modal" id="update-info-modal">
       <div class="modal-content">
@@ -408,7 +410,7 @@ $fitness_goal = $member['fitness_goal'];
                 <div class="fitness-metrics-title">
                   <i class="fas fa-dumbbell"></i> Fitness Metrics
                 </div>
-                
+
                 <div class="input-grid">
                   <div class="metric-group">
                     <label for="target_weight">
@@ -416,8 +418,8 @@ $fitness_goal = $member['fitness_goal'];
                       Target Weight (kg)
                     </label>
                     <input type="number" id="target_weight" name="target_weight"
-                          value="<?php echo $target_weight; ?>"
-                          placeholder="Enter target weight" required>
+                      value="<?php echo $target_weight; ?>"
+                      placeholder="Enter target weight" required>
                   </div>
 
                   <div class="metric-group">
@@ -426,8 +428,8 @@ $fitness_goal = $member['fitness_goal'];
                       Current Weight (kg)
                     </label>
                     <input type="number" id="weight" name="weight"
-                          value="<?php echo $weight; ?>"
-                          placeholder="Enter current weight" required>
+                      value="<?php echo $weight; ?>"
+                      placeholder="Enter current weight" required>
                   </div>
 
                   <div class="metric-group">
@@ -435,30 +437,30 @@ $fitness_goal = $member['fitness_goal'];
                       <i class="fas fa-ruler-vertical"></i>
                       Height (cm)
                     </label>
-                    <input type="number" id="height" name="height" 
-                          value="<?php echo $height; ?>" 
-                          placeholder="Enter height" required>
+                    <input type="number" id="height" name="height"
+                      value="<?php echo $height; ?>"
+                      placeholder="Enter height" required>
                   </div>
                 </div>
 
                 <div class="goal-switch">
-                  <button type="button" class="goal-btn <?php echo $fitness_goal === 'Loss Weight' ? 'active' : '' ?>" 
-                          data-value="Loss Weight">
+                  <button type="button" class="goal-btn <?php echo $fitness_goal === 'Loss Weight' ? 'active' : '' ?>"
+                    data-value="Loss Weight">
                     <i class="fas fa-running goal-icon"></i>
                     Lose Weight
                   </button>
-                  <button type="button" class="goal-btn <?php echo $fitness_goal === 'Gain Weight' ? 'active' : '' ?>" 
-                          data-value="Gain Weight">
+                  <button type="button" class="goal-btn <?php echo $fitness_goal === 'Gain Weight' ? 'active' : '' ?>"
+                    data-value="Gain Weight">
                     <i class="fas fa-dumbbell goal-icon"></i>
                     Gain Weight
                   </button>
                 </div>
-                <input type="hidden" id="fitness_goal" name="fitness_goal" 
-                      value="<?php echo $fitness_goal; ?>">
+                <input type="hidden" id="fitness_goal" name="fitness_goal"
+                  value="<?php echo $fitness_goal; ?>">
               </div>
             </div>
           </div>
-          
+
           <div class="modal-buttons">
             <button type="submit" class="save-btn">Save Changes</button>
             <button type="button" class="cancel-btn" id="cancel-update">Cancel</button>
@@ -466,7 +468,27 @@ $fitness_goal = $member['fitness_goal'];
         </form>
       </div>
     </div>
-    
+
+      <!-- Chatbot Interface -->
+      <div class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <img src="./assets/icons/cat-logo-tabs.png">
+                <h3>MEWAI</h3>
+            </div>
+            <button class="close-chat">&times;</button>
+        </div>
+        <div class="chatbot-transparent-top-down"></div>
+        <div class="chatbot-messages"></div>
+        <div class="chatbot-input">
+            <input type="text" placeholder="Ask me about fitness...">
+            <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button class="chatbot-toggle">
+        <img class="chatbot-img" src="./assets/icons/cat-logo-tabs.png">
+    </button>
+
     <!-- Delete Account Confirmation Modal -->
     <div class="modal" id="delete-account-modal">
       <div class="modal-content">
@@ -476,18 +498,6 @@ $fitness_goal = $member['fitness_goal'];
         <div class="modal-buttons">
           <button class="delete-confirm-btn" id="confirm-delete">Delete Account</button>
           <button class="cancel-btn" id="cancel-delete">Cancel</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Logout Confirmation Modal -->
-    <div class="modal" id="logout-modal">
-      <div class="modal-content">
-        <h3>Logout</h3>
-        <p>Are you sure you want to logout?</p>
-        <div class="modal-buttons">
-          <button class="delete-confirm-btn" id="confirm-logout">Logout</button>
-          <button class="cancel-btn" id="cancel-logout">Cancel</button>
         </div>
       </div>
     </div>
@@ -516,29 +526,27 @@ $fitness_goal = $member['fitness_goal'];
     deleteModal.style.display = 'none';
   });
 
-  // Handle delete confirmation
   confirmDeleteBtn.addEventListener('click', () => {
-    fetch('process_delete_account.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'delete_account' })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert('Account been deleted succesfully');
-        window.location.href = 'prelogin.html';
-      } else {
-        alert('Failed to delete account: ' + data.message);
-      }
-    })
-    .catch(error => {
-      alert('An error occurred, please try again');
-      console.error('Error:', error);
-    });
+    const memberId = "<?php echo $member_id; ?>";
+
+    fetch("delete.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `table=member&id=${memberId}`
+      })
+      .then(res => res.text())
+      .then(data => {
+        alert('Account has been deleted successfully');
+        window.location.href = 'index.php';
+      })
+      .catch(error => {
+        alert('An error occurred, please try again');
+        console.error('Fetch Error:', error);
+      });
   });
+
 
   // Close modal if user clicks outside the modal content
   window.addEventListener('click', (event) => {
@@ -552,19 +560,19 @@ $fitness_goal = $member['fitness_goal'];
   const updateModal = document.getElementById('update-info-modal');
   const cancelUpdateBtn = document.getElementById('cancel-update');
   const updateInfoForm = document.getElementById('update-info-form');
-  
+
   // Fitness goal buttons functionality
   const goalButtons = document.querySelectorAll('.goal-btn');
   const fitnessGoalInput = document.getElementById('fitness_goal');
-  
+
   goalButtons.forEach(button => {
     button.addEventListener('click', () => {
       // Remove active class from all buttons
       goalButtons.forEach(btn => btn.classList.remove('active'));
-      
+
       // Add active class to clicked button
       button.classList.add('active');
-      
+
       // Update hidden input value
       fitnessGoalInput.value = button.getAttribute('data-value');
     });
@@ -591,53 +599,53 @@ $fitness_goal = $member['fitness_goal'];
   // Handle form submission
   updateInfoForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     // Form validation
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
-    
+
     if (newPassword !== confirmPassword && newPassword !== '') {
       alert('New passwords do not match');
       return;
     }
-    
+
     // Create form data for submission
     const formData = new FormData(updateInfoForm);
-    
+
     // Add fitness goal value
     formData.append('fitness_goal', fitnessGoalInput.value);
-    
+
     // Send the data to the server
     fetch('update_profile.php', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert('Profile updated successfully');
-        updateModal.style.display = 'none';
-        resetPasswordFields();
-        
-        // Update the displayed username if it changed
-        const usernameElements = document.querySelectorAll('.profile-info h3, .profile-info-settings h2');
-        usernameElements.forEach(el => {
-          el.textContent = document.getElementById('username').value;
-        });
-        
-        // Update email if displayed elsewhere
-        const emailElements = document.querySelectorAll('.profile-info p');
-        emailElements.forEach(el => {
-          el.textContent = document.getElementById('email').value;
-        });
-      } else {
-        alert('Error: ' + data.message);
-      }
-    })
-    .catch(error => {
-      alert('An error occurred. Please try again.');
-      console.error('Error:', error);
-    });
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Profile updated successfully');
+          updateModal.style.display = 'none';
+          resetPasswordFields();
+
+          // Update the displayed username if it changed
+          const usernameElements = document.querySelectorAll('.profile-info h3, .profile-info-settings h2');
+          usernameElements.forEach(el => {
+            el.textContent = document.getElementById('username').value;
+          });
+
+          // Update email if displayed elsewhere
+          const emailElements = document.querySelectorAll('.profile-info p');
+          emailElements.forEach(el => {
+            el.textContent = document.getElementById('email').value;
+          });
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        alert('An error occurred. Please try again.');
+        console.error('Error:', error);
+      });
   });
 
   // Close update modal if user clicks outside the modal content
@@ -648,71 +656,6 @@ $fitness_goal = $member['fitness_goal'];
     }
   });
 
-  // Profile photo upload functionality
-  const avatarUpload = document.getElementById("avatar-upload");
-  const profileImages = [
-    document.getElementById("profile-pic"),
-    document.querySelector(".profile-photo")
-  ];
-  
-  document.querySelector(".change-photo").addEventListener("click", () => {
-    avatarUpload.click();
-  });
-  
-  avatarUpload.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    if (!file.type.match('image.*')) {
-      alert("Please select an image file");
-      return;
-    }
-    
-    // Preview the image
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      // Update all profile images with the preview
-      profileImages.forEach(img => {
-        if (img) img.src = event.target.result;
-      });
-      
-      // Upload to server
-      uploadProfilePhoto(file);
-    };
-    reader.readAsDataURL(file);
-  });
-  
-  function uploadProfilePhoto(file) {
-    // Create a FormData object to send the file
-    const formData = new FormData();
-    formData.append('profile_photo', file);
-    formData.append('action', 'update_profile_photo');
-    
-    // Send to server
-    fetch('update_profile_photo.php', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Show success message
-        alert('Profile photo updated successfully');
-      } else {
-        // Show error message
-        alert('Error: ' + (data.message || 'Failed to update profile photo'));
-        
-        // Reset images to original
-        location.reload();
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
-      location.reload();
-    });
-  }
-  
   // Logout Confirmation Modal Functionality
   const logoutSettingsBtn = document.getElementById('logout-settings');
   const logoutProfileBtn = document.getElementById('logout-profile');
@@ -746,4 +689,5 @@ $fitness_goal = $member['fitness_goal'];
     }
   });
 </script>
+
 </html>

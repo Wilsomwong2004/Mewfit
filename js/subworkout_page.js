@@ -13,13 +13,13 @@ const DEFAULT_SETTINGS = {
   cameraEnabled: true,
 };
 
-document
-  .getElementById("popup-container")
-  .addEventListener("click", function (event) {
-    if (event.target === this) {
-      this.style.display = "none";
-    }
+document.addEventListener("DOMContentLoaded", () => {
+  const popupContainer = document.getElementById("popup-container");
+
+  popupContainer.addEventListener("click", () => {
+    popupContainer.style.display = "none";
   });
+});
 
 // Load settings from local storage
 let isMewTrackEnabled =
@@ -387,7 +387,7 @@ async function handleCameraSettings() {
   // Create settings UI
   const settingsHTML = `
         <div style="padding: 20px;">
-            <div class="setting-option" style="margin-bottom: 20px;">
+            <div class="setting-option" style="margin-bottom: 20px; display:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 500;">Enable Camera</span>
                     <label class="switch">
@@ -1867,7 +1867,7 @@ function handleMewTrack() {
             </div>
 
             <!-- Skeleton Style -->
-            <div class="setting-option">
+            <div class="setting-option" style="display:none">
                 <h3>Skeleton Style</h3>
                 <div class="skeleton-styles">
                     <div class="style-option" data-style="line">
