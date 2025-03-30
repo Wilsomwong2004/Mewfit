@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Retrieved from localStorage:", workoutStats);
 
             if (workoutStats) {
-                // Only use localStorage values if URL params are missing
                 if (!duration) duration = workoutStats.duration;
                 if (!calories) calories = workoutStats.calories;
             }
@@ -27,11 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Ensure duration and calories are numbers
     duration = parseInt(duration, 10);
-    calories = parseInt(calories, 10);
+    // calories = parseInt(calories, 10);
 
     // Display stats in the UI
     const durationStat = document.querySelector(".duration-stat");
-    const caloriesStat = document.querySelector(".calories-stat");
+    // const caloriesStat = document.querySelector(".calories-stat");
 
     if (duration) {
         const minutes = Math.floor(duration / 60);
@@ -43,13 +42,13 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("Duration not found.");
     }
 
-    if (calories) {
-        caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> ${calories} kcal`;
-        console.log("Displayed Calories:", `${calories} kcal`);
-    } else {
-        caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> --`;
-        console.warn("Calories not found.");
-    }
+    // if (calories) {
+    //     caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> ${calories} kcal`;
+    //     console.log("Displayed Calories:", `${calories} kcal`);
+    // } else {
+    //     caloriesStat.innerHTML = `</i> --`;
+    //     console.warn("Calories not found.");
+    // }
 
     // Function to show feedback messages - moved outside event listener
     function showFeedback(message, type) {

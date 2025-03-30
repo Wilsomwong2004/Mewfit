@@ -69,8 +69,6 @@ $member_data = $member_result->fetch_assoc();
         
         <!-- Real-time pose detection -->
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
-        <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script> -->
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
     </head>

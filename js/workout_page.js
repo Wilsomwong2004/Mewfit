@@ -346,7 +346,7 @@ function displayWorkoutPopup(workout) {
         // Add new event listener
         newButton.addEventListener('click', () => {
             localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
-            window.location.href = 'subworkout_page.php';
+            window.location.href = 'subworkout_page.php?workout_id=' + selectedWorkout.id;
         });
     }
 }

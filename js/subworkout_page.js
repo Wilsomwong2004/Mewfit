@@ -3385,9 +3385,8 @@ class WorkoutManager {
 
     try {
       // Calculate actual duration and calories based on completed exercises
-      const workoutDuration = this.totalDuration || 14; // Using total tracked duration or fallback
-      const workoutCalories = this.totalCalories || 203; // Using total tracked calories or fallback
-
+      const workoutDuration = this.totalDuration || 14;
+      const workoutCalories = this.totalCalories || 203;
       // Save stats before navigating
       const workoutStats = {
         duration: `${workoutDuration} Minutes`,

@@ -58,10 +58,10 @@ $calories = isset($_GET['calories']) ? intval($_GET['calories']) : 0;
             <h1><span class="yay">Yay!</span> You're finish your workout</h1>
             <div class="stats">
                 <div class="duration-stat stat"><i class="fa-solid fa-stopwatch"></i></div>
-                <div class="calories-stat stat"></div>
+                <div class="calories-stat stat"><i class="fa-solid fa-fire"></i>  <?php echo $calories; ?> kcal</div>
             </div>
         <div class="btns">
-            <button id="done-btn" class="done-btn">Done</button>
+            <button id="done-btn" class="done-btn"> Done</button>
             <!-- <div id="restart-btn" class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div> -->
         </div>
 
