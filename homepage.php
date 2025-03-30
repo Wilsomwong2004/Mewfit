@@ -1301,6 +1301,62 @@ FROM (
 ORDER BY date DESC, COALESCE(diet_id) DESC
 LIMIT 6";
 
+        function fetchWorkouts($dbConn) {
+        $query = "SELECT * FROM workout ORDER BY date_registered DESC";
+        $result = mysqli_query($dbConn, $query);
+
+        $workouts = [];
+
+        if ($result && mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Convert exercise_checklist from JSON string to array of IDs
+                $exerciseIds = json_decode($row['exercise_checklist']);
+                
+                // Fetch the exercises for this workout
+                $exercises = fetchExercisesForWorkout($exerciseIds);
+                
+                // Create workout object
+                $workout = [
+                    'id' => $row['workout_id'],
+                    'title' => $row['workout_name'],
+                    'type' => explode(',', $row['workout_type']),
+                    'level' => $row['difficulty'],
+                    'calories' => $row['calories'] . ' kcal',
+                    'duration' => $row['duration'] . ' min',
+                    'description' => $row['description'],
+                    'long_description' => $row['long_description'],
+                    'sets' => $row['sets'],
+                    'image' => $row['image'],
+                    'exercises' => $exercises
+                ];
+                
+                $workouts[] = $workout;
+            }
+        }
+
+        return $workouts;
+        }
+
+        function fetchExercisesForWorkout($exerciseIds) {
+        // Load the exercises from the JSON file
+        $exercisesJson = file_get_contents('exercises.json');
+        $allExercises = json_decode($exercisesJson, true);
+
+        $workoutExercises = [];
+
+        foreach ($exerciseIds as $id) {
+            // Find the exercise with matching ID
+            foreach ($allExercises as $exercise) {
+                if ($exercise['id'] == $id) {
+                    $workoutExercises[] = $exercise;
+                    break;
+                }
+            }
+        }
+
+        return $workoutExercises;
+        }
+
 
         $stmt = $dbConn->prepare($sql);
         $stmt->bind_param("ii", $member_id, $member_id);
@@ -1324,6 +1380,7 @@ LIMIT 6";
 
         <script>
             const response = <?php echo json_encode($response); ?>;
+            const workoutsData = '<?php echo addslashes(json_encode($workouts)); ?>';
             let workouts = response.workouts || [];
             let selectedWorkout = null;
 
@@ -1374,7 +1431,6 @@ LIMIT 6";
                 if (response.workouts && !response.workouts.no_data) {
                     workoutGrid.innerHTML = response.workouts.map(workout => createCard(workout, 'workout')).join('');
                     
-                    // Make sure to store workout data in the workouts array
                     workouts = response.workouts.map(workout => ({
                         id: workout.workout_id,
                         title: workout.workout_name,
@@ -1382,7 +1438,8 @@ LIMIT 6";
                         duration: workout.duration || '0',
                         calories: workout.calories || '0',
                         level: workout.difficulty || 'Beginner',
-                        image: workout.image
+                        image: workout.image,
+                        exercise: workout.exercise_checklist
                     }));
                     
                     setupWorkoutCardClick();
@@ -1459,13 +1516,13 @@ LIMIT 6";
                     card.parentNode.replaceChild(cardClone, card);
 
                     cardClone.addEventListener('click', () => {
-                        // Get the workout ID from the data attribute
                         const workoutId = cardClone.getAttribute('data-id');
                         const workoutTitle = cardClone.getAttribute('data-workout-title');
 
-                        // Find the workout by id or title
+                        // Find the workout in the workouts array
                         const workout = workouts.find(w => 
                             (w.id && w.id.toString() === workoutId) || 
+                            (w.workout_id && w.workout_id.toString() === workoutId) || 
                             (w.title === workoutTitle) || 
                             (w.workout_name === workoutTitle)
                         );
@@ -1476,10 +1533,8 @@ LIMIT 6";
                             return;
                         }
 
-                        // Store the selected workout
                         selectedWorkout = workout;
 
-                        // Check if popup exists before trying to update it
                         const popup = document.getElementById('popup-container');
                         if (!popup) {
                             console.error('Popup container not found');
@@ -1498,7 +1553,6 @@ LIMIT 6";
 
                         const popupDuration = document.getElementById('popup-duration');
                         if (popupDuration) {
-                            // Extract numbers only if it's a string
                             const duration = typeof workout.duration === 'string'
                                 ? (workout.duration.match(/\d+/) || ['0'])[0]
                                 : workout.duration || '0';
@@ -1507,19 +1561,16 @@ LIMIT 6";
 
                         const popupCalories = document.getElementById('popup-calories');
                         if (popupCalories) {
-                            // Extract numbers only if it's a string
                             const calories = typeof workout.calories === 'string'
                                 ? (workout.calories.match(/\d+/) || ['0'])[0]
                                 : workout.calories || '0';
                             popupCalories.textContent = calories;
                         }
 
-                        // Update level display if the function and element exist
                         if (typeof updatePopupLevel === 'function') {
                             updatePopupLevel(workout.level || workout.difficulty || 'Beginner');
                         }
 
-                        // Update image if element exists
                         const workoutImage = document.getElementById('popup-workout-image');
                         if (workoutImage) {
                             if (workout.image) {
@@ -1535,14 +1586,12 @@ LIMIT 6";
                             }
                         }
 
-                        // Update exercise list if the function exists
                         if (typeof updateExerciseList === 'function') {
                             updateExerciseList(workout);
                         }
 
-                        // Show popup
                         popup.classList.add('active');
-                        setupPopupHandlers()
+                        setupPopupHandlers();
                     });
                 });
 
@@ -1550,16 +1599,17 @@ LIMIT 6";
                     const popup = document.getElementById('popup-container');
                     if (!popup) return;
                     
-                    // Close button handler
                     const closeButton = popup.querySelector('.popup-close');
                     if (closeButton) {
-                        closeButton.addEventListener('click', () => {
+                        const newCloseButton = closeButton.cloneNode(true);
+                        closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+                        
+                        newCloseButton.addEventListener('click', () => {
                             popup.classList.remove('active');
                             selectedWorkout = null;
                         });
                     }
                     
-                    // Background click to close
                     popup.addEventListener('click', (e) => {
                         if (e.target === popup) {
                             popup.classList.remove('active');
@@ -1567,19 +1617,36 @@ LIMIT 6";
                         }
                     });
 
-                    document.querySelector('.popup-start-button').addEventListener('click', () => {
-                    if (selectedWorkout) {
-                        localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
-                        window.location.href = 'subworkout_page.php';
-                    } else {
-                        console.error('No workout selected');
-                    }
-                });
-                }
+                    const startButton = document.querySelector('.popup-start-button');
+                    if (startButton) {
+                        const newStartButton = startButton.cloneNode(true);
+                        startButton.parentNode.replaceChild(newStartButton, startButton);
+                        
+                        newStartButton.addEventListener('click', () => {
+                            if (selectedWorkout) {
+                                const workoutForStorage = {
+                                    workout_id: selectedWorkout.id || selectedWorkout.workout_id,
+                                    workout_name: selectedWorkout.title || selectedWorkout.workout_name,
+                                    difficulty: selectedWorkout.level || selectedWorkout.difficulty || 'Beginner',
+                                    calories: selectedWorkout.calories || '0',
+                                    duration: selectedWorkout.duration || '0',
+                                    description: selectedWorkout.description || '',
+                                    image: selectedWorkout.image || '',
+                                    exercise_checklist: selectedWorkout.exercise_checklist || 
+                                        (selectedWorkout.exercises ? JSON.stringify(selectedWorkout.exercises.map(e => e.id)) : '[]')
+                                };
 
+                                // Store as a single workout array
+                                localStorage.setItem('currentWorkout', JSON.stringify([workoutForStorage]));
+                                window.location.href = 'workout_history_page.php';
+                            } else {
+                                console.error('No workout selected');
+                            }
+                        });
+                    }
+                }
                 // Setup popup close handlers
                 const popup = document.getElementById('popup-container');
-
                 if (popup) {
                     // Remove existing event listeners by cloning
                     const newPopup = popup.cloneNode(true);
@@ -1593,6 +1660,145 @@ LIMIT 6";
                         }
                     });
                 }
+
+                function setupScrollArrows(grid) {
+                    // Remove any existing wrapper and arrows
+                    const parent = grid.parentElement;
+                    const existingWrapper = parent.querySelector('.grid-wrapper');
+                    if (existingWrapper) {
+                        // Check if this is already the grid we need
+                        const originalGrid = existingWrapper.querySelector(`.${grid.className}`);
+                        if (originalGrid) {
+                            existingWrapper.replaceWith(originalGrid);
+                        }
+                    }
+
+                    // Create new wrapper and elements
+                    const gridWrapper = document.createElement('div');
+                    gridWrapper.className = 'grid-wrapper';
+                    parent.insertBefore(gridWrapper, grid);
+                    gridWrapper.appendChild(grid);
+
+                    const gradientLeft = document.createElement('div');
+                    gradientLeft.className = 'scroll-gradient scroll-gradient-left';
+                    
+                    const gradientRight = document.createElement('div');
+                    gradientRight.className = 'scroll-gradient scroll-gradient-right';
+
+                    const leftArrow = document.createElement('div');
+                    leftArrow.className = 'scroll-arrow scroll-arrow-left';
+                    leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
+
+                    const rightArrow = document.createElement('div');
+                    rightArrow.className = 'scroll-arrow scroll-arrow-right';
+                    rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+                    gridWrapper.appendChild(gradientLeft);
+                    gridWrapper.appendChild(gradientRight);
+                    gridWrapper.appendChild(leftArrow);
+                    gridWrapper.appendChild(rightArrow);
+
+                    const updateArrowVisibility = () => {
+                        const isAtStart = grid.scrollLeft <= 0;
+                        const isAtEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 1;
+                        const hasOverflow = grid.scrollWidth > grid.clientWidth;
+
+                        // Only show arrows and gradients if there's overflow
+                        const showControls = hasOverflow && grid.children.length > 0;
+
+                        gradientLeft.style.opacity = showControls && !isAtStart ? '1' : '0';
+                        leftArrow.style.display = showControls && !isAtStart ? 'flex' : 'none';
+
+                        gradientRight.style.opacity = showControls && !isAtEnd ? '1' : '0';
+                        rightArrow.style.display = showControls && !isAtEnd ? 'flex' : 'none';
+                    };
+
+                    // Handle arrow clicks with stopPropagation
+                    leftArrow.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent event bubbling
+                        grid.scrollBy({
+                            left: -300,
+                            behavior: 'smooth'
+                        });
+                    });
+
+                    rightArrow.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent event bubbling
+                        grid.scrollBy({
+                            left: 300,
+                            behavior: 'smooth'
+                        });
+                    });
+
+                    // Update arrow visibility on various events
+                    grid.addEventListener('scroll', updateArrowVisibility);
+                    window.addEventListener('resize', updateArrowVisibility);
+
+                    // Initial check
+                    setTimeout(updateArrowVisibility, 100); // Small delay to ensure content is rendered
+
+                    // Add mutation observer to watch for content changes
+                    const observer = new MutationObserver(updateArrowVisibility);
+                    observer.observe(grid, { childList: true, subtree: true });
+
+                    return { updateArrowVisibility };
+                }
+
+                // Apply scroll arrows to both workout and diet history grids
+                function initializeScrollArrows() {
+                    console.log('Initializing scroll arrows');
+                    
+                    // Setup for workout history
+                    const workoutGrid = document.querySelector('.workout-history-grid');
+                    if (workoutGrid) {
+                        console.log('Setting up scroll arrows for workout history');
+                        const workoutScroll = setupScrollArrows(workoutGrid);
+                        
+                        // Force update after content loads
+                        if (response && response.workouts && !response.workouts.no_data) {
+                            setTimeout(() => {
+                                workoutScroll.updateArrowVisibility();
+                            }, 300);
+                        }
+                    } else {
+                        console.log('Workout history grid not found');
+                    }
+                    
+                    // Setup for diet history
+                    const dietGrid = document.querySelector('.diet-history-grid');
+                    if (dietGrid) {
+                        console.log('Setting up scroll arrows for diet history');
+                        const dietScroll = setupScrollArrows(dietGrid);
+                        
+                        // Force update after content loads
+                        if (response && response.diets && !response.diets.no_data) {
+                            setTimeout(() => {
+                                dietScroll.updateArrowVisibility();
+                            }, 300);
+                        }
+                    } else {
+                        console.log('Diet history grid not found');
+                    }
+                }
+
+                // Initialize scroll arrows after the rest of the page loads
+                if (document.readyState === 'complete') {
+                    initializeScrollArrows();
+                } else {
+                    window.addEventListener('load', initializeScrollArrows);
+                }
+                
+                // Also initialize after the workout and diet data is loaded
+                if (typeof response !== 'undefined') {
+                    initializeScrollArrows();
+                }
+
+                // Modify the existing createCard function to ensure cards have fixed width
+                const originalCreateCard = createCard;
+                window.createCard = function(item, type) {
+                    const cardHTML = originalCreateCard(item, type);
+                    return cardHTML;
+                };
             }
         </script>
 
@@ -1623,7 +1829,7 @@ LIMIT 6";
                                 <div class="popup-stat-label">Level</div>
                             </div>
                         </div>
-                        <button class="popup-start-button" style="top:40px">Start Workout Again</button>
+                        <button class="popup-start-button" style="top:40px">See more details</button>
                     </div>
                 </div>
             </div>
