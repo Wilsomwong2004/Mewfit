@@ -633,7 +633,6 @@ $fitness_goal = $member['fitness_goal'];
             el.textContent = document.getElementById('username').value;
           });
 
-          // Update email if displayed elsewhere
           const emailElements = document.querySelectorAll('.profile-info p');
           emailElements.forEach(el => {
             el.textContent = document.getElementById('email').value;
