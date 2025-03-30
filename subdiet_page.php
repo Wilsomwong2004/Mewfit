@@ -7,6 +7,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     exit;
 }
 
+$diet_name = "Recipe Not Found"; 
 $member_id = $_SESSION['member id'];
 $sqlMember = "SELECT email_address FROM member WHERE member_id = ?";
 $stmtMember = $dbConn->prepare($sqlMember);
@@ -113,8 +114,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($diet_id > 0 && $member_id > 0) {
         if ($modified) {
-            // Fetch the original diet name (assuming $diet_name is being passed or fetched)
-            $diet_name = isset($_POST['diet_name']) ? $_POST['diet_name'] : "Custom Diet";
 
             // Insert into custom_diet table
             $custom_diet_name = "Custom " . $diet_name;
