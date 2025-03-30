@@ -28,7 +28,7 @@ if ($workout_id > 0) {
     }
     
     // Get workout exercises
-    $sql = "SELECT * FROM workout_exercises WHERE workout_id = ? ORDER BY exercise_order"; // Need to fix
+    $sql = "SELECT * FROM workout WHERE workout_id = ? ORDER BY exercise_checklist";
     $stmt = $dbConn->prepare($sql);
     $stmt->bind_param("i", $workout_id);
     $stmt->execute();

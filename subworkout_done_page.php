@@ -7,15 +7,38 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
     exit;
 }
 
-// Get member ID from session - ensure consistency with naming
-$member_id = isset($_SESSION["member_id"]) ? $_SESSION["member_id"] : 
+$member_id = isset($_SESSION["member_id"]) ? $_SESSION["member_id"] :
             (isset($_SESSION["member id"]) ? $_SESSION["member id"] : 0);
+
+$workout_id = isset($_GET['workout_id']) ? intval($_GET['workout_id']) : 0;
+
+if ($workout_id <= 0) {
+    error_log("Invalid workout_id received: " . $_GET['workout_id']);
+    echo "<script>alert('Invalid workout ID. Please try again.');</script>";
+}
 
 // If we didn't find a valid member ID, redirect to login
 if (!$member_id) {
     header("Location: index.php");
     exit;
 }
+
+$duration = isset($_GET['duration']) ? intval($_GET['duration']) : 0;
+$calories = isset($_GET['calories']) ? intval($_GET['calories']) : 0;
+
+// Record workout completion in the database
+// if ($member_id > 0) {
+//     $current_date = date('Y-m-d');
+    
+//     $stmt = $conn->prepare("INSERT INTO workout_history (date, member_id, workout_id) VALUES (?, ?, ?)");
+//     $stmt->bind_param("sii", $current_date, $member_id, $workout_id);
+    
+//     if ($stmt->execute()) {
+//         $workout_history_id = $conn->insert_id;
+//     } else {
+//         error_log("Error recording workout: " . $stmt->error);
+//     }
+// }
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +69,7 @@ if (!$member_id) {
     </body>
     <script>
         const memberId = <?php echo $member_id; ?>;
+        const workoutId = <?php echo $workout_id; ?>;
     </script>
     <script src="./js/darkmode.js"></script>
     <script src="./js/subworkout_done_page.js"></script>

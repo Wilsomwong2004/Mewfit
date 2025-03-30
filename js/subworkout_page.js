@@ -391,9 +391,8 @@ async function handleCameraSettings() {
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 500;">Enable Camera</span>
                     <label class="switch">
-                        <input type="checkbox" id="camera-toggle" ${
-                          isCameraEnabled ? "checked" : ""
-                        }>
+                        <input type="checkbox" id="camera-toggle" ${isCameraEnabled ? "checked" : ""
+    }>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -413,14 +412,14 @@ async function handleCameraSettings() {
                     font-size: 14px;
                 " ${!isCameraEnabled ? "disabled" : ""}>
                     ${availableCameras
-                      .map(
-                        (device, index) => `
+      .map(
+        (device, index) => `
                         <option value="${device.deviceId}">
                             ${device.label || `Camera ${index + 1}`}
                         </option>
                     `
-                      )
-                      .join("")}
+      )
+      .join("")}
                 </select>
             </div>
 
@@ -544,9 +543,8 @@ function showCameraOffMessage(message) {
             "></i>
             <h3 style="margin-bottom: 10px; color: #333;">Camera Off</h3>
             <p style="color: #666;">${message}</p>
-            ${
-              !isCameraEnabled
-                ? `
+            ${!isCameraEnabled
+      ? `
                 <button onclick="handleCameraSettings()" style="
                     margin-top: 20px;
                     padding: 8px 16px;
@@ -557,8 +555,8 @@ function showCameraOffMessage(message) {
                     cursor: pointer;
                 ">Enable Camera</button>
             `
-                : ""
-            }
+      : ""
+    }
         </div>
     `;
 }
@@ -1066,16 +1064,13 @@ class WorkoutMusicPlayer {
             <div class="player-card">
                 <div class="player-header">
                     <div class="track-info">
-                        <div class="title">${
-                          this.playlist[this.currentTrackIndex].title
-                        }</div>
-                        <div class="artist">${
-                          this.playlist[this.currentTrackIndex].artist
-                        }</div>
+                        <div class="title">${this.playlist[this.currentTrackIndex].title
+      }</div>
+                        <div class="artist">${this.playlist[this.currentTrackIndex].artist
+      }</div>
                     </div>
-                    <div class="duration" id="time-display">0:00 / ${
-                      this.playlist[this.currentTrackIndex].duration
-                    }</div>
+                    <div class="duration" id="time-display">0:00 / ${this.playlist[this.currentTrackIndex].duration
+      }</div>
                 </div>
                 <div class="player-controls">
                     <button class="control-btn prev">
@@ -1089,9 +1084,8 @@ class WorkoutMusicPlayer {
                     </button>
                     <div class="volume-control">
                         <i class="fas fa-volume-up"></i>
-                        <input type="range" class="volume-slider" min="0" max="100" value="${
-                          this.volume * 100
-                        }">
+                        <input type="range" class="volume-slider" min="0" max="100" value="${this.volume * 100
+      }">
                     </div>
                 </div>
                 <div class="progress-bar">
@@ -1346,8 +1340,8 @@ function showMusicLibrary() {
     `
         <div class="music-list">
             ${musicTracks
-              .map(
-                (track, index) => `
+      .map(
+        (track, index) => `
                 <div class="music-item" data-index="${index}">
                     <div class="music-item-image">
                         <img src="${track.cover}" alt="${track.title}">
@@ -1357,16 +1351,15 @@ function showMusicLibrary() {
                         <span class="music-item-artist">${track.artist}</span>
                     </div>
                     <button class="play-btn">
-                        ${
-                          index === player.currentTrackIndex && player.isPlaying
-                            ? "Playing"
-                            : "Play"
-                        }
+                        ${index === player.currentTrackIndex && player.isPlaying
+            ? "Playing"
+            : "Play"
+          }
                     </button>
                 </div>
             `
-              )
-              .join("")}
+      )
+      .join("")}
         </div>
     `
   );
@@ -1563,9 +1556,8 @@ function handleCameraSettings() {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <h3 style="margin: 0;">Enable Camera</h3>
                     <label class="switch">
-                        <input type="checkbox" id="camera-toggle" ${
-                          isCameraEnabled ? "checked" : ""
-                        }>
+                        <input type="checkbox" id="camera-toggle" ${isCameraEnabled ? "checked" : ""
+    }>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1585,14 +1577,14 @@ function handleCameraSettings() {
                     font-size: 14px;
                 " ${!isCameraEnabled ? "disabled" : ""}>
                     ${cameras
-                      .map(
-                        (device, index) => `
+      .map(
+        (device, index) => `
                         <option value="${device.deviceId}">
                             ${device.label || `Camera ${index + 1}`}
                         </option>
                     `
-                      )
-                      .join("")}
+      )
+      .join("")}
                 </select>
             </div>
 
@@ -1759,9 +1751,8 @@ function showCameraOffMessage(message) {
             "></i>
             <h3 style="margin-bottom: 10px; color: #333;">Camera Off</h3>
             <p style="color: #666;">${message}</p>
-            ${
-              !isCameraEnabled
-                ? `
+            ${!isCameraEnabled
+      ? `
                 <button onclick="handleCameraSettings()" style="
                     margin-top: 20px;
                     padding: 8px 16px;
@@ -1772,8 +1763,8 @@ function showCameraOffMessage(message) {
                     cursor: pointer;
                 ">Enable Camera</button>
             `
-                : ""
-            }
+      : ""
+    }
         </div>
     `;
 }
@@ -1838,9 +1829,8 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Enable MewTrack</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-mewtrack" ${
-                          isMewTrackEnabled ? "checked" : ""
-                        }>
+                        <input type="checkbox" id="enable-mewtrack" ${isMewTrackEnabled ? "checked" : ""
+    }>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -1855,9 +1845,8 @@ function handleMewTrack() {
                 <div class="setting-header">
                     <h3>Posture Notifications</h3>
                     <label class="switch">
-                        <input type="checkbox" id="enable-notifications" ${
-                          notificationsEnabled ? "checked" : ""
-                        }>
+                        <input type="checkbox" id="enable-notifications" ${notificationsEnabled ? "checked" : ""
+    }>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -2162,7 +2151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize the workout manager
   const workoutManager = new WorkoutManager();
-  window.workoutManager = workoutManager; // Make it globally accessible if needed
+  window.workoutManager = workoutManager;
 
   // Check if we're restarting a workout
   const shouldRestart = localStorage.getItem("restartWorkout") === "true";
@@ -2181,6 +2170,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 class WorkoutManager {
   constructor() {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    this.workoutId = parseInt(urlParams.get('id') || 0);
+
+    if (this.workout && !this.workout.id) {
+      this.workout.id = this.workoutId;
+    }
+
     // Initialize state
     this.initializeState();
     // Get DOM elements
@@ -2270,12 +2267,10 @@ class WorkoutManager {
     const voiceButton = document.createElement("button");
     voiceButton.className = "voice-toggle";
     voiceButton.innerHTML = `
-            <i id="voice-btn-icon" class="fas ${
-              this.voiceEnabled ? "fa-volume-up" : "fa-volume-mute"
-            }"></i>
-            <span class="voice-text">${
-              this.voiceEnabled ? "Voice On" : "Voice Off"
-            }</span>
+            <i id="voice-btn-icon" class="fas ${this.voiceEnabled ? "fa-volume-up" : "fa-volume-mute"
+      }"></i>
+            <span class="voice-text">${this.voiceEnabled ? "Voice On" : "Voice Off"
+      }</span>
         `;
     voiceButton.style.cssText = `
             display: flex;
@@ -2363,6 +2358,9 @@ class WorkoutManager {
   }
 
   init() {
+    this.workoutId = this.getWorkoutIdFromPage();
+    console.log("Initialized workout ID:", this.workoutId);
+
     if (!this.workout || this.exercises.length === 0) {
       console.error("No workout data available");
       this.endWorkout();
@@ -2370,6 +2368,20 @@ class WorkoutManager {
     }
 
     this.startCountdown();
+  }
+
+  getWorkoutIdFromPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let id = urlParams.get('workout_id');
+
+    if (!id) {
+      const workoutElement = document.getElementById('workout-container');
+      if (workoutElement && workoutElement.dataset.workoutId) {
+        id = workoutElement.dataset.workoutId;
+      }
+    }
+
+    return id ? parseInt(id, 10) : 0;
   }
 
   showCurrentExercise() {
@@ -2404,9 +2416,8 @@ class WorkoutManager {
           announcement += ` and ${seconds} second${seconds !== 1 ? "s" : ""}`;
         }
       } else {
-        announcement += `, ${durationInSeconds} second${
-          durationInSeconds !== 1 ? "s" : ""
-        }`;
+        announcement += `, ${durationInSeconds} second${durationInSeconds !== 1 ? "s" : ""
+          }`;
       }
     }
 
@@ -2678,8 +2689,7 @@ class WorkoutManager {
     } else {
       this.currentExerciseIndex++;
       console.log(
-        `Moving to exercise ${this.currentExerciseIndex + 1} in set ${
-          this.currentSet
+        `Moving to exercise ${this.currentExerciseIndex + 1} in set ${this.currentSet
         }`
       );
     }
@@ -3127,9 +3137,8 @@ class WorkoutManager {
     this.speakText("Rest time. Take a break.");
 
     if (nextExercise) {
-      this.workoutNameElement.textContent = `Next: ${
-        nextExercise.exercise || nextExercise.pose
-      }`;
+      this.workoutNameElement.textContent = `Next: ${nextExercise.exercise || nextExercise.pose
+        }`;
       // Announce next exercise after a short delay
       setTimeout(() => {
         this.speakText(
@@ -3298,8 +3307,7 @@ class WorkoutManager {
 
     // Announce workout is about to begin
     this.speakText(
-      `Get ready for ${
-        this.workout?.title || "your workout"
+      `Get ready for ${this.workout?.title || "your workout"
       }. Starting in 3 seconds.`
     );
 
@@ -3372,7 +3380,6 @@ class WorkoutManager {
     }
   }
 
-  // Enhanced endWorkout method
   endWorkout() {
     console.log("Ending workout - preparing to navigate to completion page");
 
@@ -3389,6 +3396,8 @@ class WorkoutManager {
       localStorage.setItem("workoutStats", JSON.stringify(workoutStats));
       console.log("Workout stats saved:", workoutStats);
 
+      console.log("Using workout ID for redirect:", this.workoutId);
+
       // Stop music when workout ends
       if (this.workoutMusicPlayer) {
         this.workoutMusicPlayer.pause();
@@ -3397,7 +3406,6 @@ class WorkoutManager {
       // Announce workout completion
       this.speakText("Congratulations! Workout complete.");
 
-      // Use timeout to ensure announcement is heard before navigating
       setTimeout(() => {
         if (typeof pause === "function") {
           pause();
@@ -3405,18 +3413,16 @@ class WorkoutManager {
         localStorage.removeItem("currentWorkout");
         console.log("Navigating to completion page...");
 
-        // Convert duration from minutes to seconds for consistent handling
         const durationInSeconds = workoutDuration * 60;
 
-        // Pass workout ID and stats as URL parameters
-        window.location.href = `subworkout_done_page.php?workout_id=${workoutId}&duration=${durationInSeconds}&calories=${workoutCalories}`;
+        window.location.href = `subworkout_done_page.php?workout_id=${this.workoutId}&duration=${durationInSeconds}&calories=${workoutCalories}`;
       }, 2000);
     } catch (error) {
       console.error("Error ending workout:", error);
       // Fallback navigation in case of error
       alert("Workout complete! Redirecting to completion page.");
       localStorage.removeItem("currentWorkout");
-      window.location.href = `subworkout_done_page.php?workout_id=${workoutId}`;
+      window.location.href = `subworkout_done_page.php?workout_id=${this.workoutId}`;
     }
   }
 }
@@ -3794,8 +3800,7 @@ class WorkoutPoseDetector {
     this.registerDetector("Wrist Stretch", this.detectWristStretch); // Time
 
     console.log(
-      `Total registered exercises: ${
-        Object.keys(this.exerciseDetectors).length
+      `Total registered exercises: ${Object.keys(this.exerciseDetectors).length
       }`
     );
   }
@@ -5147,9 +5152,8 @@ class WorkoutPoseDetector {
 
         feedback = "Good sprint motion!";
       } else {
-        feedback = `${
-          highKnee.charAt(0).toUpperCase() + highKnee.slice(1)
-        } knee up, good!`;
+        feedback = `${highKnee.charAt(0).toUpperCase() + highKnee.slice(1)
+          } knee up, good!`;
       }
 
       this.sprintState.lastHighKnee = highKnee;
@@ -5353,9 +5357,8 @@ class WorkoutPoseDetector {
 
         feedback = "Good butt kick!";
       } else {
-        feedback = `${
-          activeLeg.charAt(0).toUpperCase() + activeLeg.slice(1)
-        } leg kick, good!`;
+        feedback = `${activeLeg.charAt(0).toUpperCase() + activeLeg.slice(1)
+          } leg kick, good!`;
       }
 
       this.buttKicksState.lastActiveLeg = activeLeg;
@@ -5408,12 +5411,12 @@ class WorkoutPoseDetector {
     // Calculate arm extension (distance from shoulder to wrist)
     const leftExtension = Math.sqrt(
       Math.pow(leftWrist.x - leftShoulder.x, 2) +
-        Math.pow(leftWrist.y - leftShoulder.y, 2)
+      Math.pow(leftWrist.y - leftShoulder.y, 2)
     );
 
     const rightExtension = Math.sqrt(
       Math.pow(rightWrist.x - rightShoulder.x, 2) +
-        Math.pow(rightWrist.y - rightShoulder.y, 2)
+      Math.pow(rightWrist.y - rightShoulder.y, 2)
     );
 
     // Check if wrists are high enough (Y position lower than nose means higher in image)
@@ -5450,9 +5453,8 @@ class WorkoutPoseDetector {
 
         feedback = "Good high punch!";
       } else {
-        feedback = `${
-          activePunch.charAt(0).toUpperCase() + activePunch.slice(1)
-        } arm punch, good!`;
+        feedback = `${activePunch.charAt(0).toUpperCase() + activePunch.slice(1)
+          } arm punch, good!`;
       }
 
       this.punchState.lastActivePunch = activePunch;
@@ -5999,7 +6001,7 @@ class WorkoutPoseDetector {
             // Mark the first half of the sequence
             this.wideNarrowJumpState.completeSequence =
               this.wideNarrowJumpState.completeSequence ===
-              "wide_to_narrow_done"
+                "wide_to_narrow_done"
                 ? true
                 : "narrow_to_wide_done";
           } else if (
@@ -6010,7 +6012,7 @@ class WorkoutPoseDetector {
             // Mark the first half of the sequence
             this.wideNarrowJumpState.completeSequence =
               this.wideNarrowJumpState.completeSequence ===
-              "narrow_to_wide_done"
+                "narrow_to_wide_done"
                 ? true
                 : "wide_to_narrow_done";
           }
@@ -6116,12 +6118,12 @@ class WorkoutPoseDetector {
     // Calculate arm extension for punches
     const leftArmExtension = Math.sqrt(
       Math.pow(leftWrist.x - leftShoulder.x, 2) +
-        Math.pow(leftWrist.y - leftShoulder.y, 2)
+      Math.pow(leftWrist.y - leftShoulder.y, 2)
     );
 
     const rightArmExtension = Math.sqrt(
       Math.pow(rightWrist.x - rightShoulder.x, 2) +
-        Math.pow(rightWrist.y - rightShoulder.y, 2)
+      Math.pow(rightWrist.y - rightShoulder.y, 2)
     );
 
     // Determine current punch state
@@ -6257,12 +6259,12 @@ class WorkoutPoseDetector {
     // Calculate arm extension
     const leftArmExtension = Math.sqrt(
       Math.pow(leftWrist.x - leftShoulder.x, 2) +
-        Math.pow(leftWrist.y - leftShoulder.y, 2)
+      Math.pow(leftWrist.y - leftShoulder.y, 2)
     );
 
     const rightArmExtension = Math.sqrt(
       Math.pow(rightWrist.x - rightShoulder.x, 2) +
-        Math.pow(rightWrist.y - rightShoulder.y, 2)
+      Math.pow(rightWrist.y - rightShoulder.y, 2)
     );
 
     // Check if arms are crossing the body midline
@@ -6314,13 +6316,11 @@ class WorkoutPoseDetector {
       ) {
         // Complete rep: alternating punches
         this.repCounter++;
-        feedback = `Good ${
-          currentPunchState === "left_cross" ? "left" : "right"
-        } cross punch!`;
+        feedback = `Good ${currentPunchState === "left_cross" ? "left" : "right"
+          } cross punch!`;
       } else {
-        feedback = `${
-          currentPunchState === "left_cross" ? "Left" : "Right"
-        } cross punch detected`;
+        feedback = `${currentPunchState === "left_cross" ? "Left" : "Right"
+          } cross punch detected`;
       }
 
       this.crossPunchesState.lastValidPunch = currentPunchState;
@@ -6389,12 +6389,12 @@ class WorkoutPoseDetector {
     // Calculate arm extension
     const leftArmExtension = Math.sqrt(
       Math.pow(leftWrist.x - leftShoulder.x, 2) +
-        Math.pow(leftWrist.y - leftShoulder.y, 2)
+      Math.pow(leftWrist.y - leftShoulder.y, 2)
     );
 
     const rightArmExtension = Math.sqrt(
       Math.pow(rightWrist.x - rightShoulder.x, 2) +
-        Math.pow(rightWrist.y - rightShoulder.y, 2)
+      Math.pow(rightWrist.y - rightShoulder.y, 2)
     );
 
     // Check alignment for straight punches (wrist should be aligned with shoulder)
@@ -6442,13 +6442,11 @@ class WorkoutPoseDetector {
       ) {
         // Complete rep: alternating punches
         this.repCounter++;
-        feedback = `Good ${
-          currentPunchState === "left_punch" ? "left" : "right"
-        } straight punch!`;
+        feedback = `Good ${currentPunchState === "left_punch" ? "left" : "right"
+          } straight punch!`;
       } else {
-        feedback = `${
-          currentPunchState === "left_punch" ? "Left" : "Right"
-        } punch detected`;
+        feedback = `${currentPunchState === "left_punch" ? "Left" : "Right"
+          } punch detected`;
       }
 
       this.straightPunchesState.lastValidPunch = currentPunchState;
@@ -6550,7 +6548,7 @@ class WorkoutPoseDetector {
     let isSquat = hipHeight < ankleHeight - 30 && hipHeight > ankleHeight - 100;
     let isPlank =
       Math.abs(wristHeight - ankleHeight) <
-        this.burpeeState.handFloorDistance &&
+      this.burpeeState.handFloorDistance &&
       Math.abs(shoulderHeight - hipHeight) < 50;
 
     // Detect step up motion using changes in nose height
@@ -10716,9 +10714,8 @@ class WorkoutPoseDetector {
       } else if (this.dipCount / (this.timer / 1000) < 0.2) {
         feedback = "Try to dip at a steady pace";
       } else {
-        feedback = `Good side plank dips on ${
-          isLeftSidePlank ? "left" : "right"
-        } side!`;
+        feedback = `Good side plank dips on ${isLeftSidePlank ? "left" : "right"
+          } side!`;
       }
     } else if (!shoulderHipAlignment) {
       this.timer = 0;
@@ -11287,9 +11284,8 @@ class WorkoutPoseDetector {
     let feedback = "";
 
     if (this.fireHydrantState === "starting") {
-      feedback = `Start raising your ${
-        isLeftLegWorking ? "left" : "right"
-      } leg outward`;
+      feedback = `Start raising your ${isLeftLegWorking ? "left" : "right"
+        } leg outward`;
     } else if (this.fireHydrantState === "raising") {
       if (this.maxKneeAngle < 45) {
         feedback = "Raise your leg higher";
@@ -11617,9 +11613,8 @@ class WorkoutPoseDetector {
     let feedback = "";
 
     if (this.curtsyState === "standing") {
-      feedback = `Lower into curtsy with ${
-        isLeftLegCrossing ? "left" : "right"
-      } leg behind`;
+      feedback = `Lower into curtsy with ${isLeftLegCrossing ? "left" : "right"
+        } leg behind`;
     } else if (this.curtsyState === "lowering") {
       if (frontKneeAngle > 120) {
         feedback = "Lower deeper, keep front knee aligned";
@@ -11725,7 +11720,7 @@ class WorkoutPoseDetector {
     // Calculate the distance between ankles to detect leg raise
     const ankleDistance = Math.sqrt(
       Math.pow(leftAnkle.x - rightAnkle.x, 2) +
-        Math.pow(leftAnkle.y - rightAnkle.y, 2)
+      Math.pow(leftAnkle.y - rightAnkle.y, 2)
     );
 
     // Calculate hip width for normalization
@@ -12198,13 +12193,13 @@ class WorkoutPoseDetector {
     // Calculate hand position (wide vs narrow)
     const handDistance = Math.sqrt(
       Math.pow(leftWrist.x - rightWrist.x, 2) +
-        Math.pow(leftWrist.y - rightWrist.y, 2)
+      Math.pow(leftWrist.y - rightWrist.y, 2)
     );
 
     // Calculate shoulder width for normalization
     const shoulderWidth = Math.sqrt(
       Math.pow(leftShoulder.x - rightShoulder.x, 2) +
-        Math.pow(leftShoulder.y - rightShoulder.y, 2)
+      Math.pow(leftShoulder.y - rightShoulder.y, 2)
     );
 
     // Normalize hand distance
@@ -12682,7 +12677,7 @@ class WorkoutPoseDetector {
     // Calculate leg spread (for split position)
     const legSpread = Math.sqrt(
       Math.pow(leftAnkle.x - rightAnkle.x, 2) +
-        Math.pow(leftAnkle.y - rightAnkle.y, 2)
+      Math.pow(leftAnkle.y - rightAnkle.y, 2)
     );
 
     // Normalize leg spread with hip width
@@ -12916,7 +12911,7 @@ class WorkoutPoseDetector {
     // Calculate ankle distance (for stance width)
     const ankleDistance = Math.sqrt(
       Math.pow(leftAnkle.x - rightAnkle.x, 2) +
-        Math.pow(leftAnkle.y - rightAnkle.y, 2)
+      Math.pow(leftAnkle.y - rightAnkle.y, 2)
     );
 
     // Calculate hip width for normalization
@@ -13009,11 +13004,11 @@ class WorkoutPoseDetector {
     // Calculate elbow to hip distance (use minimum to detect when either side crunches)
     const leftElbowToHipDistance = Math.sqrt(
       Math.pow(leftElbow.x - hipCenterX, 2) +
-        Math.pow(leftElbow.y - hipCenterY, 2)
+      Math.pow(leftElbow.y - hipCenterY, 2)
     );
     const rightElbowToHipDistance = Math.sqrt(
       Math.pow(rightElbow.x - hipCenterX, 2) +
-        Math.pow(rightElbow.y - hipCenterY, 2)
+      Math.pow(rightElbow.y - hipCenterY, 2)
     );
     const minElbowToHipDistance = Math.min(
       leftElbowToHipDistance,
@@ -14203,9 +14198,9 @@ class WorkoutPoseDetector {
 
         const handsHoldingLeg = leftLegUp
           ? Math.abs(kp.leftWrist.y - kp.leftAnkle.y) < 0.2 ||
-            Math.abs(kp.rightWrist.y - kp.leftAnkle.y) < 0.2
+          Math.abs(kp.rightWrist.y - kp.leftAnkle.y) < 0.2
           : Math.abs(kp.leftWrist.y - kp.rightAnkle.y) < 0.2 ||
-            Math.abs(kp.rightWrist.y - kp.rightAnkle.y) < 0.2;
+          Math.abs(kp.rightWrist.y - kp.rightAnkle.y) < 0.2;
 
         return [
           handsHoldingLeg,

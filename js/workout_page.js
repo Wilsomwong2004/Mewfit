@@ -1007,7 +1007,7 @@ function setupRecentWorkoutCards() {
 document.querySelector('.popup-start-button').addEventListener('click', () => {
     if (selectedWorkout) {
         localStorage.setItem('currentWorkout', JSON.stringify([selectedWorkout]));
-        window.location.href = 'subworkout_page.php';
+        window.location.href = 'subworkout_page.php?workout_id=' + selectedWorkout.id;
     } else {
         console.error('No workout selected');
     }
@@ -1459,11 +1459,9 @@ function initializeExerciseVideos() {
 function initializeStartWorkoutButtons() {
     document.querySelectorAll('.start-workout').forEach(button => {
         button.addEventListener('click', (e) => {
-            // Use currentTarget to ensure we get the button itself
             const clickedButton = e.currentTarget;
             const workoutId = clickedButton.getAttribute('data-workout-id');
 
-            // Make sure workouts is defined and accessible
             if (workouts && workouts.length > 0) {
                 const workout = workouts.find(w => w.id == workoutId);
                 if (workout) {

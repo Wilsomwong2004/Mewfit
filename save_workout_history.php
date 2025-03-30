@@ -26,6 +26,12 @@ if ($member_id != $_SESSION["member id"]) {
     exit;
 }
 
+if ($workout_id <= 0) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Invalid workout ID']);
+    exit;
+}
+
 // Insert workout history record
 $sql = "INSERT INTO workout_history (date, member_id, workout_id) VALUES (?, ?, ?)";
 $stmt = $dbConn->prepare($sql);
@@ -70,7 +76,6 @@ function updatePerformanceMetrics($dbConn, $member_id) {
     $row = $result->fetch_assoc();
     $workout_count = $row['workout_count'];
     
-    // Count diet history (if you have this table)
     $diet_count = 0;
     if ($dbConn->query("SHOW TABLES LIKE 'diet_history'")->num_rows > 0) {
         $sql = "SELECT COUNT(*) as diet_count FROM diet_history WHERE member_id = ?";
@@ -81,8 +86,7 @@ function updatePerformanceMetrics($dbConn, $member_id) {
         $row = $result->fetch_assoc();
         $diet_count = $row['diet_count'];
     }
-    
-    // Insert new performance record
+
     $sql = "INSERT INTO member_performance (weeks_date_mon, current_weight, workout_history_count, diet_history_count, member_id) 
             VALUES (?, ?, ?, ?, ?)";
     $stmt = $dbConn->prepare($sql);
