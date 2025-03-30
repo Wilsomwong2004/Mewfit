@@ -1,52 +1,99 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Get workout data from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const workoutId = urlParams.get("workout_id");
+    let workoutId = urlParams.get("workout_id");
     let duration = urlParams.get("duration");
     let calories = urlParams.get("calories");
 
-    console.log(workoutId);
+    console.log("Workout ID from URL:", workoutId);
+    console.log("Duration from URL (seconds):", duration);
+    console.log("Calories from URL:", calories);
 
+    // Fallback to localStorage if URL params are missing
     if (!duration || !calories) {
         try {
             const workoutStats = JSON.parse(localStorage.getItem("workoutStats"));
-            if (workoutStats) {
-                if (workoutStats.duration) {
-                    const durationMatch = workoutStats.duration.match(/(\d+)/);
-                    if (durationMatch) {
-                        duration = parseInt(durationMatch[1]) * 60;
-                    }
-                }
+            console.log("Retrieved from localStorage:", workoutStats);
 
-                if (workoutStats.calories) {
-                    const caloriesMatch = workoutStats.calories.match(/(\d+)/);
-                    if (caloriesMatch) {
-                        calories = parseInt(caloriesMatch[1]);
-                    }
-                }
+            if (workoutStats) {
+                // Only use localStorage values if URL params are missing
+                if (!duration) duration = workoutStats.duration;
+                if (!calories) calories = workoutStats.calories;
             }
         } catch (error) {
-            console.error("Error parsing stored workout stats:", error);
+            console.error("Error parsing workoutStats from localStorage:", error);
         }
     }
 
-    // Display stats
+    // Ensure duration and calories are numbers
+    duration = parseInt(duration, 10);
+    calories = parseInt(calories, 10);
+
+    // Display stats in the UI
     const durationStat = document.querySelector(".duration-stat");
     const caloriesStat = document.querySelector(".calories-stat");
 
     if (duration) {
-        // Format duration (assuming it's in seconds)
         const minutes = Math.floor(duration / 60);
         const seconds = duration % 60;
         durationStat.innerHTML = `<i class="fa-solid fa-stopwatch"></i> ${minutes}m ${seconds}s`;
+        console.log("Formatted Duration:", `${minutes}m ${seconds}s`);
     } else {
         durationStat.innerHTML = `<i class="fa-solid fa-stopwatch"></i> --`;
+        console.warn("Duration not found.");
     }
 
     if (calories) {
         caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> ${calories} kcal`;
+        console.log("Displayed Calories:", `${calories} kcal`);
     } else {
         caloriesStat.innerHTML = `<i class="fa-solid fa-fire"></i> --`;
+        console.warn("Calories not found.");
+    }
+
+    // Function to show feedback messages - moved outside event listener
+    function showFeedback(message, type) {
+        // Create feedback element if it doesn't exist
+        let feedbackContainer = document.getElementById("feedback-container");
+        if (!feedbackContainer) {
+            feedbackContainer = document.createElement("div");
+            feedbackContainer.id = "feedback-container";
+            feedbackContainer.style.position = "fixed";
+            feedbackContainer.style.top = "20px";
+            feedbackContainer.style.left = "50%";
+            feedbackContainer.style.transform = "translateX(-50%)";
+            feedbackContainer.style.zIndex = "1000";
+            document.body.appendChild(feedbackContainer);
+        }
+
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.className = `feedback ${type}`;
+        feedbackDiv.style.padding = "12px 20px";
+        feedbackDiv.style.marginBottom = "10px";
+        feedbackDiv.style.borderRadius = "5px";
+        feedbackDiv.style.color = "#fff";
+        feedbackDiv.style.textAlign = "center";
+        feedbackDiv.style.fontWeight = "bold";
+
+        if (type === "success") {
+            feedbackDiv.style.backgroundColor = "#4CAF50";
+        } else if (type === "error") {
+            feedbackDiv.style.backgroundColor = "#F44336";
+        }
+
+        feedbackDiv.textContent = message;
+
+        feedbackContainer.appendChild(feedbackDiv);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            feedbackDiv.remove();
+
+            // Remove container if empty
+            if (feedbackContainer.children.length === 0) {
+                feedbackContainer.remove();
+            }
+        }, 3000);
     }
 
     // Handle done button click
@@ -117,9 +164,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 doneBtn.textContent = "Done";
                 doneBtn.disabled = false;
             });
+    });
 
-        // Handle restart button click
-        const restartBtn = document.getElementById("restart-btn");
+    // Handle restart button click - moved outside done button event listener
+    const restartBtn = document.getElementById("restart-btn");
+    if (restartBtn) { // Check if the button exists in the DOM
         restartBtn.addEventListener("click", function () {
             if (!workoutId) {
                 console.error("Workout ID not found");
@@ -130,50 +179,5 @@ document.addEventListener("DOMContentLoaded", function () {
             // Redirect back to the workout page
             window.location.href = `subworkout_page.php?workout_id=${workoutId}`;
         });
-
-        // Function to show feedback messages
-        function showFeedback(message, type) {
-            // Create feedback element if it doesn't exist
-            let feedbackContainer = document.getElementById("feedback-container");
-            if (!feedbackContainer) {
-                feedbackContainer = document.createElement("div");
-                feedbackContainer.id = "feedback-container";
-                feedbackContainer.style.position = "fixed";
-                feedbackContainer.style.top = "20px";
-                feedbackContainer.style.left = "50%";
-                feedbackContainer.style.transform = "translateX(-50%)";
-                feedbackContainer.style.zIndex = "1000";
-                document.body.appendChild(feedbackContainer);
-            }
-
-            const feedbackDiv = document.createElement("div");
-            feedbackDiv.className = `feedback ${type}`;
-            feedbackDiv.style.padding = "12px 20px";
-            feedbackDiv.style.marginBottom = "10px";
-            feedbackDiv.style.borderRadius = "5px";
-            feedbackDiv.style.color = "#fff";
-            feedbackDiv.style.textAlign = "center";
-            feedbackDiv.style.fontWeight = "bold";
-
-            if (type === "success") {
-                feedbackDiv.style.backgroundColor = "#4CAF50";
-            } else if (type === "error") {
-                feedbackDiv.style.backgroundColor = "#F44336";
-            }
-
-            feedbackDiv.textContent = message;
-
-            feedbackContainer.appendChild(feedbackDiv);
-
-            // Remove after 3 seconds
-            setTimeout(() => {
-                feedbackDiv.remove();
-
-                // Remove container if empty
-                if (feedbackContainer.children.length === 0) {
-                    feedbackContainer.remove();
-                }
-            }, 3000);
-        }
-    });
+    }
 });

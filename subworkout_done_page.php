@@ -62,7 +62,7 @@ $calories = isset($_GET['calories']) ? intval($_GET['calories']) : 0;
             </div>
         <div class="btns">
             <button id="done-btn" class="done-btn">Done</button>
-            <div id="restart-btn" class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div>
+            <!-- <div id="restart-btn" class="restart-btn"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></div> -->
         </div>
 
         <div id="feedback-container"></div>
@@ -70,6 +70,8 @@ $calories = isset($_GET['calories']) ? intval($_GET['calories']) : 0;
     <script>
         const memberId = <?php echo $member_id; ?>;
         const workoutId = <?php echo $workout_id; ?>;
+        const duration = <?php echo $duration; ?>;
+        const calories = <?php echo $calories; ?>;
     </script>
     <script src="./js/darkmode.js"></script>
     <script src="./js/subworkout_done_page.js"></script>
