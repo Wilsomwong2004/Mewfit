@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2025 at 06:36 AM
+-- Generation Time: Mar 30, 2025 at 02:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,9 +43,7 @@ CREATE TABLE `administrator` (
 --
 
 INSERT INTO `administrator` (`admin_id`, `username`, `password`, `name`, `gender`, `email_address`, `phone_number`, `date_registered`) VALUES
-(1, 'Default admin', 'Strong Password', 'Admin', 'male', 'Admin@gmail.com', '0129226399', '2025-01-13'),
-(2, 'Wilson Wong', 'ILoveCode', 'Wei Sheng', 'male', 'WILSON@gmail.com', '0128559632', '2025-01-16'),
-(3, 'Joe Han', 'Leader', 'Joe Han', 'female', 'JOE@gmail.com', '0179513578', '2025-01-19');
+(1, 'Default admin', 'Strong Password', 'Admin', 'male', 'Admin@gmail.com', '0129226399', '2025-01-13');
 
 -- --------------------------------------------------------
 
@@ -453,7 +451,12 @@ INSERT INTO `member_performance` (`performance_id`, `weeks_date_mon`, `current_w
 (12, '2025-01-27', 66.00, 8, 12, 5),
 (13, '2025-03-24', 66.00, 0, 0, 1),
 (14, '2025-03-24', 99.00, 0, 3, 13),
-(15, '2025-03-24', NULL, 0, 0, 9);
+(15, '2025-03-24', NULL, 0, 0, 9),
+(17, '2025-03-30', 63.00, 8, 10, 5),
+(18, '2025-03-30', 63.00, 9, 10, 5),
+(19, '2025-03-30', 63.00, 10, 10, 5),
+(20, '2025-03-30', 63.00, 11, 10, 5),
+(21, '2025-03-30', 63.00, 12, 10, 5);
 
 -- --------------------------------------------------------
 
@@ -737,7 +740,12 @@ INSERT INTO `workout_history` (`workout_history_id`, `date`, `member_id`, `worko
 (225, '2024-11-18', 4, 32),
 (226, '2024-11-02', 16, 31),
 (228, '2025-03-05', 7, 30),
-(229, '2024-01-01', 13, 21);
+(229, '2024-01-01', 13, 21),
+(230, '2025-03-30', 5, 0),
+(231, '2025-03-30', 5, 0),
+(232, '2025-03-30', 5, 0),
+(233, '2025-03-30', 5, 0),
+(234, '2025-03-30', 5, 0);
 
 --
 -- Indexes for dumped tables
@@ -855,7 +863,7 @@ ALTER TABLE `member`
 -- AUTO_INCREMENT for table `member_performance`
 --
 ALTER TABLE `member_performance`
-  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `performance_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `nutrition`
@@ -873,7 +881,7 @@ ALTER TABLE `workout`
 -- AUTO_INCREMENT for table `workout_history`
 --
 ALTER TABLE `workout_history`
-  MODIFY `workout_history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=230;
+  MODIFY `workout_history_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
 
 --
 -- Constraints for dumped tables
