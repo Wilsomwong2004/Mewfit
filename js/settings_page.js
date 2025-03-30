@@ -182,6 +182,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Validate file size before upload (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File size must be less than 2MB");
+      return;
+    }
+
     // Preview the image
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -200,11 +206,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData();
       formData.append("profile_pic", file);
 
-      const response = await fetch("update_profile_pic.php", {
+      // Add a check for the endpoint before making the request
+      const uploadEndpoint = "update_profile_pic.php";
+      console.log(`Attempting to upload to: ${uploadEndpoint}`);
+
+      const response = await fetch(uploadEndpoint, {
         method: "POST",
         body: formData,
       });
 
+      // Check if the response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Try to parse the JSON response
       const result = await response.json();
 
       if (result.success) {
@@ -214,7 +230,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Upload failed, please try again.");
+      // More detailed error message
+      if (error.message.includes("404")) {
+        alert("Upload failed: The upload handler (update_profile_pic.php) was not found on the server. Please contact the administrator.");
+      } else {
+        alert("Upload failed: " + (error.message || "Please try again."));
+      }
     }
   }
 });
