@@ -1,6 +1,6 @@
-# Mewfit
+# <img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;"> Mewfit
 
-<img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
+<img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
 
 **Mewfit** is a cat-themed fitness app that gamifies your workouts. Stay active, achieve your fitness goals, and keep your virtual cat happy! Perfect for cat lovers and fitness enthusiasts alike.
 
@@ -41,19 +41,15 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
    cp -r . /path/to/xampp/htdocs/mewfit
    ```
 3. Start XAMPP and activate the **Apache** and **MySQL** services.
-   ![XAMPP Control Panel](https://user-images.githubusercontent.com/yourimagepath/xampp-control-panel.png)
 4. Open your browser and navigate to `http://localhost/phpmyadmin`.
 5. Import the provided database file:
    - Click on "Import" in phpMyAdmin.
    - Select the SQL file included in the project.
    - Click "Go" to complete the import.
-   ![phpMyAdmin Import](https://user-images.githubusercontent.com/yourimagepath/phpmyadmin-import.png)
 6. Open the app in your browser:
    ```
    http://localhost/mewfit
    ```
-   ![Mewfit App Screenshot](https://user-images.githubusercontent.com/yourimagepath/mewfit-app-screenshot.png)
-
 ---
 
 ## <img src="https://img.icons8.com/external-flat-juicy-fish/48/external-usage-user-interface-flat-flat-juicy-fish.png" alt="Usage Icon" width="24"> Usage
@@ -103,6 +99,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## <img src="https://img.icons8.com/fluency/48/contacts.png" alt="Contact Icon" width="24"> Contact
 For questions or support, feel free to reach out:
-- **Email**: [your-email@example.com](mailto:mewfit@gmail.com)
+- **Email**: [mewfit@gmail.com](mailto:mewfit@gmail.com)
 - **GitHub**: Everyone that contribute this project
 
