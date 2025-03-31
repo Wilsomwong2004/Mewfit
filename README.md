@@ -1,6 +1,10 @@
-# <img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;"> Mewfit
+# <img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="40" style="display: block; margin: auto;"> Mewfit
 
-<img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
+<div>
+   <img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="300" style="display: block; margin: auto;">
+   <img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="300" style="display: block; margin: auto;">
+</div>
+
 
 **Mewfit** is a cat-themed fitness app that gamifies your workouts. Stay active, achieve your fitness goals, and keep your virtual cat happy! Perfect for cat lovers and fitness enthusiasts alike.
 
