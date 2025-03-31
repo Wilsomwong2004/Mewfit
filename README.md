@@ -1,12 +1,12 @@
 # Mewfit
 
-<img src="https://user-images.githubusercontent.com/yourimagepath/mewfit-icon.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
+<img src=".assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
 
 **Mewfit** is a cat-themed fitness app that gamifies your workouts. Stay active, achieve your fitness goals, and keep your virtual cat happy! Perfect for cat lovers and fitness enthusiasts alike.
 
 ---
 
-## <img src="https://img.icons8.com/fluency/48/overview.png" alt="Overview Icon" width="24"> Project Overview
+## <img src=["https://img.icons8.com/fluency/48/overview.png](https://img.icons8.com/?size=100&id=11733&format=png&color=000000)" alt="Overview Icon" width="24"> Project Overview
 Mewfit combines the love for fitness and cats into a unique and engaging app. By completing real-world workouts, users can take care of their virtual feline companions, encouraging consistent activity and healthier lifestyles. 
 
 The app is designed to address common fitness challenges such as maintaining motivation and setting achievable goals. Mewfit incorporates a gamified system where progress is rewarded with the growth and happiness of a virtual cat, creating a positive feedback loop that keeps users coming back.
@@ -33,7 +33,7 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 ## <img src="https://img.icons8.com/fluency/48/installing-updates.png" alt="Installation Icon" width="24"> Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/mewfit.git
+   git clone https://github.com/Wilsomwong2004/mewfit.git
    ```
 2. Navigate to the project directory and copy it to the `htdocs` folder of your XAMPP installation:
    ```bash
@@ -103,6 +103,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## <img src="https://img.icons8.com/fluency/48/contacts.png" alt="Contact Icon" width="24"> Contact
 For questions or support, feel free to reach out:
-- **Email**: [your-email@example.com](mailto:your-email@example.com)
-- **GitHub**: [yourusername](https://github.com/yourusername)
+- **Email**: [your-email@example.com](mailto:mewfit@gmail.com)
+- **GitHub**: Everyone that contribute this project
 
