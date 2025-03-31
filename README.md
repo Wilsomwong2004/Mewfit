@@ -1,10 +1,12 @@
 # Mewfit
 
+<img src="https://user-images.githubusercontent.com/yourimagepath/mewfit-icon.png" alt="Mewfit Icon" width="150" style="display: block; margin: auto;">
+
 **Mewfit** is a cat-themed fitness app that gamifies your workouts. Stay active, achieve your fitness goals, and keep your virtual cat happy! Perfect for cat lovers and fitness enthusiasts alike.
 
 ---
 
-## Project Overview
+## <img src="https://img.icons8.com/fluency/48/overview.png" alt="Overview Icon" width="24"> Project Overview
 Mewfit combines the love for fitness and cats into a unique and engaging app. By completing real-world workouts, users can take care of their virtual feline companions, encouraging consistent activity and healthier lifestyles. 
 
 The app is designed to address common fitness challenges such as maintaining motivation and setting achievable goals. Mewfit incorporates a gamified system where progress is rewarded with the growth and happiness of a virtual cat, creating a positive feedback loop that keeps users coming back.
@@ -19,7 +21,7 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 
 ---
 
-## Features
+## <img src="https://img.icons8.com/color/48/features-list.png" alt="Features Icon" width="24"> Features
 - **Gamified Fitness**: Turn your workouts into fun challenges.
 - **Virtual Cat Companion**: Care for a virtual cat that grows with your progress.
 - **Activity Tracking**: Log exercises and monitor your achievements.
@@ -28,7 +30,7 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 
 ---
 
-## Installation
+## <img src="https://img.icons8.com/fluency/48/installing-updates.png" alt="Installation Icon" width="24"> Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/mewfit.git
@@ -54,7 +56,7 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 
 ---
 
-## Usage
+## <img src="https://img.icons8.com/external-flat-juicy-fish/48/external-usage-user-interface-flat-flat-juicy-fish.png" alt="Usage Icon" width="24"> Usage
 1. Create an account or log in.
 2. Set your fitness goals.
 3. Start tracking your workouts and activities.
@@ -62,7 +64,7 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 
 ---
 
-## Technologies Used
+## <img src="https://img.icons8.com/color/48/code-file.png" alt="Technologies Icon" width="24"> Technologies Used
 - **Frontend**: PHP, CSS, JavaScript
 - **Backend**: PHP
 - **Database**: MySQL
@@ -70,12 +72,12 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 
 ---
 
-## Warning
+## <img src="https://img.icons8.com/color/48/error--v1.png" alt="Warning Icon" width="24"> Warning
 Please note that the pose detection feature in Mewfit relies on advanced algorithms, which may not always provide highly accurate results. The detected poses should be used as a reference to guide your workouts rather than as a definitive assessment of your movements.
 
 ---
 
-## Contributing
+## <img src="https://img.icons8.com/color/48/git.png" alt="Contributing Icon" width="24"> Contributing
 We welcome contributions! To contribute:
 1. Fork the repository.
 2. Create a new branch:
@@ -94,12 +96,13 @@ We welcome contributions! To contribute:
 
 ---
 
-## License
+## <img src="https://img.icons8.com/ios-glyphs/48/license.png" alt="License Icon" width="24"> License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Contact
+## <img src="https://img.icons8.com/fluency/48/contacts.png" alt="Contact Icon" width="24"> Contact
 For questions or support, feel free to reach out:
 - **Email**: [your-email@example.com](mailto:your-email@example.com)
 - **GitHub**: [yourusername](https://github.com/yourusername)
+
