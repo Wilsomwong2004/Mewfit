@@ -1,16 +1,10 @@
-# <img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="40" style="display: block; margin: auto;"> Mewfit
-
-<div>
-   <img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="300" style="display: block; margin: auto;">
-   <img src="assets/screenshot_interface/homepage.jpeg" alt="Mewfit Icon" width="300" style="display: block; margin: auto;">
-</div>
-
+# <img src="assets/icons/cat-logo-tabs.png" alt="Mewfit Icon" width="30" style="display: block; margin: auto;"> Mewfit
 
 **Mewfit** is a cat-themed fitness app that gamifies your workouts. Stay active, achieve your fitness goals, and keep your virtual cat happy! Perfect for cat lovers and fitness enthusiasts alike.
 
 ---
 
-## <img src="https://img.icons8.com/fluency/48/overview.png" alt="Overview Icon" width="24"> Project Overview
+## <img src="https://img.icons8.com/?size=100&id=kNAXzKcSNxtX&format=png&color=000000" alt="Overview Icon" width="24"> Project Overview
 Mewfit combines the love for fitness and cats into a unique and engaging app. By completing real-world workouts, users can take care of their virtual feline companions, encouraging consistent activity and healthier lifestyles. 
 
 The app is designed to address common fitness challenges such as maintaining motivation and setting achievable goals. Mewfit incorporates a gamified system where progress is rewarded with the growth and happiness of a virtual cat, creating a positive feedback loop that keeps users coming back.
@@ -31,6 +25,26 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
 - **Activity Tracking**: Log exercises and monitor your achievements.
 - **Custom Goals**: Set personalized fitness objectives.
 - **Engaging Interface**: Cute, cat-themed designs to keep you motivated.
+- **MEWTRACK Pose Detection**: Used MoveNet for real-time pose tracking.
+- **MEWAI Chatbot and Algorithm**: Used Gemini 1.5 for AI Chatbot Assistance and the Algorithm for some recommand.
+
+---
+
+## MEWTRACK and MEWAI
+### <img src="https://img.icons8.com/?size=100&id=0GsgN38nhCVH&format=png&color=000000" alt="Pose detection Icon" width="24"> MEWTRACK (Pose Detection System)
+Mewfit integrates MEWTRACK, a high-performance pose detection model, to track users' movements in real-time. MEWTRACK is optimized for speed and accuracy, making it suitable for fitness applications. It can recognize key points of the body and provide feedback on exercise posture, helping users maintain proper form and reduce the risk of injury.
+
+While MEWTRACK is highly effective, it is not perfect and may occasionally misinterpret certain movements, particularly in low-light conditions or when the camera angle is suboptimal. Users should use the detected poses as guidance rather than definitive evaluations.
+
+## <img src="https://img.icons8.com/color/48/error--v1.png" alt="Warning Icon" width="24"> Warning
+Please note that the pose detection feature in Mewfit relies on advanced algorithms, which may not always provide highly accurate results. The detected poses should be used as a reference to guide your workouts rather than as a definitive assessment of your movements.
+##
+
+### <img src="https://img.icons8.com/?size=100&id=eoxMN35Z6JKg&format=png&color=000000" alt="AI Icon" width="24"> MEWAI (Aritifical Intelligence System)
+Mewfit leverages MEWAI, an advanced AI system, to enhance user interactions. This AI provides:
+- Personalized fitness recommendations based on user progress.
+- Virtual coach feedback to guide users in improving their workouts.
+- Conversational AI responses for fitness queries and general motivation.
 
 ---
 
@@ -56,26 +70,18 @@ Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a suppor
    ```
 ---
 
-## <img src="https://img.icons8.com/external-flat-juicy-fish/48/external-usage-user-interface-flat-flat-juicy-fish.png" alt="Usage Icon" width="24"> Usage
+## <img src="https://img.icons8.com/?size=100&id=21440&format=png&color=000000" alt="Usage Icon" width="24"> Usage
 1. Create an account or log in.
 2. Set your fitness goals.
 3. Start tracking your workouts and activities.
 4. Watch your virtual cat grow as you progress!
 
----
-
-## <img src="https://img.icons8.com/color/48/code-file.png" alt="Technologies Icon" width="24"> Technologies Used
+## <img src="https://img.icons8.com/?size=100&id=19294&format=png&color=000000" alt="Technologies Icon" width="24"> Technologies Used
 - **Frontend**: PHP, CSS, JavaScript
 - **Backend**: PHP
 - **Database**: MySQL
 - **Others**: Chart.js, MoveNet API, Gemini 1.5 API, Responsive Voice API
 
----
-
-## <img src="https://img.icons8.com/color/48/error--v1.png" alt="Warning Icon" width="24"> Warning
-Please note that the pose detection feature in Mewfit relies on advanced algorithms, which may not always provide highly accurate results. The detected poses should be used as a reference to guide your workouts rather than as a definitive assessment of your movements.
-
----
 
 ## <img src="https://img.icons8.com/color/48/git.png" alt="Contributing Icon" width="24"> Contributing
 We welcome contributions! To contribute:
@@ -96,13 +102,22 @@ We welcome contributions! To contribute:
 
 ---
 
-## <img src="https://img.icons8.com/ios-glyphs/48/license.png" alt="License Icon" width="24"> License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## <img src="https://img.icons8.com/?size=100&id=nYLN7d17EZ3i&format=png&color=000000" alt="Reference Icon" width="24"> Reference
+This project workout video all used from Youtube Channel called Exercise Library Jonna Soh.
+Youtube Channel link: https://www.youtube.com/@ExerciseLibraryJoannaSoh/videos
+
+--
+
+## <img src="https://img.icons8.com/?size=100&id=I6CGhKSOwqrX&format=png&color=000000" alt="License Icon" width="24"> License
+This project is licensed under the MIT License. See the LICENSE link below for details.
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
 ## <img src="https://img.icons8.com/fluency/48/contacts.png" alt="Contact Icon" width="24"> Contact
 For questions or support, feel free to reach out:
-- **Email**: [mewfit@gmail.com](mailto:mewfit@gmail.com)
-- **GitHub**: Everyone that contribute this project
+- **Email**: [mewfitoffical@gmail.com](mailto:mewfitoffical@gmail.com)
+- **GitHub**: Issue the project on github
 
