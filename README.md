@@ -4,6 +4,21 @@
 
 ---
 
+## Project Overview
+Mewfit combines the love for fitness and cats into a unique and engaging app. By completing real-world workouts, users can take care of their virtual feline companions, encouraging consistent activity and healthier lifestyles. 
+
+The app is designed to address common fitness challenges such as maintaining motivation and setting achievable goals. Mewfit incorporates a gamified system where progress is rewarded with the growth and happiness of a virtual cat, creating a positive feedback loop that keeps users coming back.
+
+With Mewfit, users can:
+- Monitor their fitness journey through visual progress tracking.
+- Customize workout goals to match their personal fitness levels.
+- Participate in fun challenges that make exercise enjoyable.
+- Stay connected to their fitness routines through engaging, cat-themed visuals.
+
+Whether you are a fitness beginner or a seasoned athlete, Mewfit offers a supportive and lighthearted environment to achieve your health goals while indulging your love for cats. By turning workouts into an interactive experience, Mewfit transforms exercise from a chore into a daily highlight.
+
+---
+
 ## Features
 - **Gamified Fitness**: Turn your workouts into fun challenges.
 - **Virtual Cat Companion**: Care for a virtual cat that grows with your progress.
@@ -18,18 +33,24 @@
    ```bash
    git clone https://github.com/yourusername/mewfit.git
    ```
-2. Navigate to the project directory:
+2. Navigate to the project directory and copy it to the `htdocs` folder of your XAMPP installation:
    ```bash
    cd mewfit
+   cp -r . /path/to/xampp/htdocs/mewfit
    ```
-3. Install dependencies:
-   ```bash
-   npm install
+3. Start XAMPP and activate the **Apache** and **MySQL** services.
+   ![XAMPP Control Panel](https://user-images.githubusercontent.com/yourimagepath/xampp-control-panel.png)
+4. Open your browser and navigate to `http://localhost/phpmyadmin`.
+5. Import the provided database file:
+   - Click on "Import" in phpMyAdmin.
+   - Select the SQL file included in the project.
+   - Click "Go" to complete the import.
+   ![phpMyAdmin Import](https://user-images.githubusercontent.com/yourimagepath/phpmyadmin-import.png)
+6. Open the app in your browser:
    ```
-4. Start the application:
-   ```bash
-   npm start
+   http://localhost/mewfit
    ```
+   ![Mewfit App Screenshot](https://user-images.githubusercontent.com/yourimagepath/mewfit-app-screenshot.png)
 
 ---
 
@@ -42,10 +63,15 @@
 ---
 
 ## Technologies Used
-- **Frontend**: React, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Others**: Chart.js for data visualization
+- **Frontend**: PHP, CSS, JavaScript
+- **Backend**: PHP
+- **Database**: MySQL
+- **Others**: Chart.js, MoveNet API, Gemini 1.5 API, Responsive Voice API
+
+---
+
+## Warning
+Please note that the pose detection feature in Mewfit relies on advanced algorithms, which may not always provide highly accurate results. The detected poses should be used as a reference to guide your workouts rather than as a definitive assessment of your movements.
 
 ---
 
