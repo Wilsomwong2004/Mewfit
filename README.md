@@ -106,7 +106,7 @@ We welcome contributions! To contribute:
 This project workout video all used from Youtube Channel called Exercise Library Jonna Soh.
 Youtube Channel link: https://www.youtube.com/@ExerciseLibraryJoannaSoh/videos
 
---
+---
 
 ## <img src="https://img.icons8.com/?size=100&id=I6CGhKSOwqrX&format=png&color=000000" alt="License Icon" width="24"> License
 This project is licensed under the MIT License. See the LICENSE link below for details.
