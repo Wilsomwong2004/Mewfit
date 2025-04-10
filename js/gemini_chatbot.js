@@ -1,6 +1,6 @@
 class FitnessChatbot {
     constructor() {
-        this.apiKey = 'AIzaSyASC--w_GL2ve7fSqpKBYG4YUSffkek3AM';
+        this.apiKey = ' ' //Add your API key here;
         this.apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
         this.chatHistory = [];
         this.userContext = {};
