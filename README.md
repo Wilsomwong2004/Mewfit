@@ -46,6 +46,10 @@ Mewfit leverages MEWAI, an advanced AI system, to enhance user interactions. Thi
 - Virtual coach feedback to guide users in improving their workouts.
 - Conversational AI responses for fitness queries and general motivation.
 
+## <img src="https://img.icons8.com/color/48/error--v1.png" alt="Warning Icon" width="24"> Warning
+Please note that the Google gemini API need to add before using the AI Chatbot function.
+##
+
 ---
 
 ## <img src="https://img.icons8.com/fluency/48/installing-updates.png" alt="Installation Icon" width="24"> Installation
