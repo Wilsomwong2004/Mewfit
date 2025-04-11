@@ -41,13 +41,13 @@ Please note that the pose detection feature in Mewfit relies on advanced algorit
 ##
 
 ### <img src="https://img.icons8.com/?size=100&id=eoxMN35Z6JKg&format=png&color=000000" alt="AI Icon" width="24"> MEWAI (Aritifical Intelligence System)
-Mewfit leverages MEWAI, an advanced AI system, to enhance user interactions. This AI provides:
-- Personalized fitness recommendations based on user progress.
-- Virtual coach feedback to guide users in improving their workouts.
-- Conversational AI responses for fitness queries and general motivation.
+Mewfit features MEWAI, an interactive AI chatbot powered by Gemini 1.5, designed to enhance your fitness experience. This friendly feline assistant provides:
+- Personalized workout suggestions tailored to your fitness level and progress
+- Answers to your fitness and nutrition questions in a fun, cat-themed conversation
+- Motivational messages to keep you engaged with your fitness routine
 
 ## <img src="https://img.icons8.com/color/48/error--v1.png" alt="Warning Icon" width="24"> Warning
-Please note that the Google gemini API need to add before using the AI Chatbot function.
+To access the MEWAI chatbot functionality, you'll need to add your Google Gemini API key in the app settings. Without this key, the chatbot features will not be available.
 ##
 
 ---
